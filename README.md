@@ -1,7 +1,7 @@
 # bürgerchain
 
-bürgerchain is a project that combines the technology of the *Bürgerkarte*
-(official method for electronic signatures in Austria) with the *block chain*.
+bürgerchain is a project that combines the technology of the **Bürgerkarte**
+(official method for electronic signatures in Austria) with the **block chain**.
 The main purpose of this project is to provide a web site that enables users
 to conduct, organize and participate in e-votings, online polls and online 
 petitions. The project website can be found at http://www.buergerchain.at .
