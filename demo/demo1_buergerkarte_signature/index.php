@@ -31,7 +31,15 @@
       $slash_idx = strrpos($actual_link, '/');
       $actual_link = substr($actual_link, 0, $slash_idx) . '/signaturereceiver.php';
       $actual_link = urlencode($actual_link);
-      echo '<iframe id="signatureFrame" width="250px" height="250px" src="https://www.a-trust.at/mobile/https-security-layer-request/default.aspx?XMLRequest=%3C%3Fxml%20version%3D\'1.0\'%20encoding%3D\'UTF-8\'%3F%3E%0A%3Csl%3ACreateCMSSignatureRequest%20%20%20xmlns%3Asl%3D\'http%3A%2F%2Fwww.buergerkarte.at%2Fnamespaces%2Fsecuritylayer%2F1.2%23\'%20Structure%3D\'enveloping\'%3E%0A%3Csl%3AKeyboxIdentifier%3ESecureSignatureKeypair%3C%2Fsl%3AKeyboxIdentifier%3E%0A%3Csl%3ADataObject%3E%0A%3Csl%3AMetaInfo%3E%0A%3Csl%3AMimeType%3Etext%2Fplain%3C%2Fsl%3AMimeType%3E%0A%3C%2Fsl%3AMetaInfo%3E%0A%3Csl%3AContent%3E%0A%3Csl%3ABase64Content%3ESWNoIGJpbiBlaW4gZWluZmFjaGVyIFRleHQu%3C%2Fsl%3ABase64Content%3E%0A%3C%2Fsl%3AContent%3E%0A%3C%2Fsl%3ADataObject%3E%0A%3C%2Fsl%3ACreateCMSSignatureRequest%3E&amp;appletwidth=250&amp;appletheight=250&amp;backgroundcolor=white&amp;DataURL=' . $actual_link .'" scrolling="no"></iframe>';
+      $urlParams = array(
+        'XMLRequest' => "<?xml version='1.0' encoding='UTF-8'?>\n<sl:CreateCMSSignatureRequest xmlns:sl='http://www.buergerkarte.at/namespaces/securitylayer/1.2#' Structure='enveloping'>\n<sl:KeyboxIdentifier>SecureSignatureKeypair</sl:KeyboxIdentifier>\n<sl:DataObject>\n<sl:MetaInfo>\n<sl:MimeType>text/plain</sl:MimeType>\n</sl:MetaInfo>\n<sl:Content>\n<sl:Base64Content>SWNoIGJpbiBlaW4gZWluZmFjaGVyIFRleHQu</sl:Base64Content>\n</sl:Content>\n</sl:DataObject>\n</sl:CreateCMSSignatureRequest>",
+        'appletwidth' => '250',
+        'appletheight' => '250',
+        'backgroundcolor' => 'white',
+        'DataURL' => 'http://www.google.at'
+      );
+      
+      echo '<iframe id="signatureFrame" width="250px" height="250px" src="https://www.a-trust.at/mobile/https-security-layer-request/default.aspx?' . http_build_query($urlParams,'', '&amp;') . '" scrolling="no"></iframe>';
    ?>
   </div>
 </body>
