@@ -1,1 +1,7 @@
 /.metadata
+
+/dotnet/FreieWahl/.vs
+/dotnet/FreieWahl/FreieWahl/.bowerrc
+/dotnet/FreieWahl/FreieWahl/bin
+/dotnet/FreieWahl/FreieWahl/obj
+/dotnet/FreieWahl/FreieWahl/wwwroot/lib

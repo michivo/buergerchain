@@ -1,0 +1,18 @@
+﻿@model FreieWahl.Models.FooBarModel
+
+@{
+    ViewData["Title"] = "FooBar";
+}
+
+<h2>FooBar</h2>
+
+@{
+    var myModel = this.Model;
+}
+
+<body>
+    Count is @myModel.Count, Name is @myModel.Name
+    <button onclick="getStuff()">Get Stuff!</button>
+    <div id="my-stuff">---</div>
+</body>
+
