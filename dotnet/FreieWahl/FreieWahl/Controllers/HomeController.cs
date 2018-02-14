@@ -1,4 +1,7 @@
-﻿using FreieWahl.Models;
+﻿using System;
+using System.Linq;
+using FreieWahl.Logic.Authentication;
+using FreieWahl.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 
@@ -8,10 +11,13 @@ namespace FreieWahl.Controllers
     public class HomeController : Controller
     {
         private readonly ILogger _logger;
+        private readonly IJwtAuthentication _authentication;
 
-        public HomeController(ILogger<HomeController> logger)
+        public HomeController(ILogger<HomeController> logger,
+            IJwtAuthentication authentication)
         {
             _logger = logger;
+            _authentication = authentication;
         }
 
         public IActionResult FooBar()
@@ -29,10 +35,11 @@ namespace FreieWahl.Controllers
 
         public IActionResult GetStuff()
         {
-            var username = "?";
-            if (HttpContext.User.Identity.IsAuthenticated)
+            var result = _authentication.CheckToken(Request.Headers["Authorization"]);
+            string username = "---";
+            if(result.Success)
             {
-                username = HttpContext.User.Identity.Name;
+                username = result.User.Claims.First(x => x.Type.Equals("name", StringComparison.OrdinalIgnoreCase)).Value;
             }
 
             return Ok(username);

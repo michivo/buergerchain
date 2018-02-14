@@ -1,12 +1,11 @@
 ﻿using Google.Cloud.Diagnostics.AspNetCore;
 using System;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
+using FreieWahl.Logic.Authentication;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using Microsoft.IdentityModel.Tokens;
 
 namespace FreieWahl
 {
@@ -28,7 +27,7 @@ namespace FreieWahl
         public void ConfigureServices(IServiceCollection services)
         {
             string projectId = GetProjectId();
-            // Add framework services.Microsoft.VisualStudio.ExtensionManager.ExtensionManagerService
+
             services.AddMvc();
 
             // Enables Stackdriver Trace.
@@ -42,20 +41,7 @@ namespace FreieWahl
                     options.Version = GetVersion();
                 });
 
-            services
-                .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-                .AddJwtBearer(o =>
-                {
-                    o.Authority = "https://securetoken.google.com/stunning-lambda-162919/";
-                    o.TokenValidationParameters = new TokenValidationParameters
-                    {
-                        ValidateIssuer = true,
-                        ValidIssuer = "https://securetoken.google.com/stunning-lambda-162919/",
-                        ValidateAudience = true,
-                        ValidAudience = "stunning-lambda-162919",
-                        ValidateLifetime = true
-                    };
-                });
+            services.AddSingleton<IJwtAuthentication, FirebaseJwtAuthentication>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -69,6 +55,7 @@ namespace FreieWahl
             {
                 app.UseDeveloperExceptionPage();
                 app.UseBrowserLink();
+                loggerFactory.AddConsole((x, y) => true);
             }
             else
             {
@@ -81,6 +68,9 @@ namespace FreieWahl
             app.UseAuthentication();
             app.UseStaticFiles();
             app.UseGoogleTrace();
+
+            app.ApplicationServices.GetService<IJwtAuthentication>()
+                .Initialize("https://securetoken.google.com/stunning-lambda-162919", "stunning-lambda-162919");
 
             app.UseMvc(routes =>
             {
