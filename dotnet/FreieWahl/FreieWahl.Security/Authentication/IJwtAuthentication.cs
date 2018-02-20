@@ -1,6 +1,6 @@
 ﻿using System.Threading.Tasks;
 
-namespace FreieWahl.Logic.Authentication
+namespace FreieWahl.Security.Authentication
 {
     public interface IJwtAuthentication
     {

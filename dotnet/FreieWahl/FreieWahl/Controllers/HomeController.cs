@@ -1,7 +1,8 @@
 ﻿using System;
 using System.Linq;
-using FreieWahl.Logic.Authentication;
 using FreieWahl.Models;
+using FreieWahl.Security.Authentication;
+using FreieWahl.Security.TimeStamps;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 
@@ -28,8 +29,10 @@ namespace FreieWahl.Controllers
             {
                 username = HttpContext.User.Identity.Name;
             }
-            var model = new FooBarModel(username + headers.Count);
+            var timestampr = new TimestampClient();
+            var token = timestampr.GetToken(new byte[] {0xDE, 0xAD, 0xBE, 0xEF});
 
+            var model = new FooBarModel(username + headers.Count + token.ToCmsSignedData());
             return View(model);
         }
 

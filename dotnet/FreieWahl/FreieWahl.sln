@@ -5,6 +5,8 @@ VisualStudioVersion = 15.0.27130.2027
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FreieWahl", "FreieWahl\FreieWahl.csproj", "{EEF95956-2ABC-47ED-BD84-1CF22A2860B3}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FreieWahl.Security", "FreieWahl.Security\FreieWahl.Security.csproj", "{C9096075-E23C-48B9-8488-8ED8562260F6}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -15,6 +17,10 @@ Global
 		{EEF95956-2ABC-47ED-BD84-1CF22A2860B3}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{EEF95956-2ABC-47ED-BD84-1CF22A2860B3}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{EEF95956-2ABC-47ED-BD84-1CF22A2860B3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C9096075-E23C-48B9-8488-8ED8562260F6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C9096075-E23C-48B9-8488-8ED8562260F6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C9096075-E23C-48B9-8488-8ED8562260F6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C9096075-E23C-48B9-8488-8ED8562260F6}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

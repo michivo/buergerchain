@@ -1,6 +1,6 @@
 ﻿using Google.Cloud.Diagnostics.AspNetCore;
 using System;
-using FreieWahl.Logic.Authentication;
+using FreieWahl.Security.Authentication;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;

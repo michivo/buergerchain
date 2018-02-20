@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Security.Claims;
 
-namespace FreieWahl.Logic.Authentication
+namespace FreieWahl.Security.Authentication
 {
     public sealed class JwtAuthenticationResult
     {

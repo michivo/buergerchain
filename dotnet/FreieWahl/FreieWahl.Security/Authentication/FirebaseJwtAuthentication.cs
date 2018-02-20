@@ -5,7 +5,7 @@ using Microsoft.IdentityModel.Protocols;
 using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 using Microsoft.IdentityModel.Tokens;
 
-namespace FreieWahl.Logic.Authentication
+namespace FreieWahl.Security.Authentication
 {
     public class FirebaseJwtAuthentication : IJwtAuthentication
     {
