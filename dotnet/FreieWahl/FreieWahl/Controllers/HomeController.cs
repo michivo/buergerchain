@@ -13,12 +13,15 @@ namespace FreieWahl.Controllers
     {
         private readonly ILogger _logger;
         private readonly IJwtAuthentication _authentication;
+        private readonly ITimestampService _timestampService;
 
         public HomeController(ILogger<HomeController> logger,
-            IJwtAuthentication authentication)
+            IJwtAuthentication authentication,
+            ITimestampService timestampService)
         {
             _logger = logger;
             _authentication = authentication;
+            _timestampService = timestampService;
         }
 
         public IActionResult FooBar()
@@ -29,8 +32,8 @@ namespace FreieWahl.Controllers
             {
                 username = HttpContext.User.Identity.Name;
             }
-            var timestampr = new TimestampClient();
-            var token = timestampr.GetToken(new byte[] {0xDE, 0xAD, 0xBE, 0xEF});
+
+            var token = _timestampService.GetToken(new byte[] {0xDE, 0xAD, 0xBE, 0xEF});
 
             var model = new FooBarModel(username + headers.Count + token.ToCmsSignedData());
             return View(model);

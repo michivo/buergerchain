@@ -3,44 +3,58 @@ using System.Globalization;
 using System.IO;
 using System.Net;
 using System.Security.Cryptography;
-using System.Text;
+using FreieWahl.Common;
+using Microsoft.Extensions.Logging;
 using Org.BouncyCastle.Math;
 using Org.BouncyCastle.Security;
 using Org.BouncyCastle.Tsp;
 
 namespace FreieWahl.Security.TimeStamps
 {
-    public class TimestampClient
+    public class TimestampService : ITimestampService
     {
-        private SecureRandom _random;
-        private const string Uri = "https://freetsa.org/tsr";
-        private const string Sha512Id = "2.16.840.1.101.3.4.2.3";
+        private readonly string _serverUrl;
+        private readonly SecureRandom _random;
+        private readonly ILogger _logger;
+        private const string Sha512Id = "2.16.840.1.101.3.4.2.3"; // sha512NoSign according to https://msdn.microsoft.com/en-us/library/ff635603.aspx
+        private const string RequestContentType = "application/timestamp-query";
+        private const string RequestMethod = "POST";
 
-        public TimestampClient()
+        public TimestampService(string serverUrl)
         {
-            this._random = new SecureRandom();
+            _serverUrl = serverUrl;
+            _logger = LogFactory.CreateLogger("FreieWahl.Security.TimeStamps.TimestampService");
+            _random = new SecureRandom();
         }
 
         public TimeStampToken GetToken(byte[] data)
         {
-            var digestAlg = new SHA512Managed();
-            var digest = digestAlg.ComputeHash(data);
+            try
+            {
+                _logger.LogTrace("Got new request for token with {0} bytes of data", data.Length);
+                var digestAlg = new SHA512Managed();
+                var digest = digestAlg.ComputeHash(data);
 
-            var request = _CreateRequest(digest);
-
-            var httpResponse = _GetHttpResponse(request.GetEncoded());
-            Console.WriteLine(Encoding.ASCII.GetString(httpResponse));
-
-            var timestampResponse = new TimeStampResponse(httpResponse);
-
-            _ValidateResponse(request, timestampResponse);
-
-            return timestampResponse.TimeStampToken;
+                var request = _CreateRequest(digest);
+                _logger.LogTrace("Sending http request to server {0}", _serverUrl);
+                var httpResponse = _GetHttpResponse(request.GetEncoded());
+                _logger.LogTrace("Received response from server");
+                var timestampResponse = new TimeStampResponse(httpResponse);
+                _logger.LogTrace("Successfully converted response for time stamp request");
+                _ValidateResponse(request, timestampResponse);
+                _logger.LogDebug("Successfully converted and validated response for time stamp request");
+                return timestampResponse.TimeStampToken;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error processing time stamp token request");
+                throw;
+            }
         }
 
         private static void _ValidateResponse(TimeStampRequest request, TimeStampResponse response)
         {
-            if (response.Status == 0 || response.Status == 1)
+            if (response.Status == (int)PkiStatus.Granted || response.Status == (int)PkiStatus.GrantedWithMods)
             {
                 if (response.TimeStampToken == null)
                 {
@@ -54,7 +68,8 @@ namespace FreieWahl.Security.TimeStamps
                         "Invalid TS response: nonce mismatch {0}", response.Status));
                 }
 
-                if (!string.IsNullOrEmpty(request.ReqPolicy) && 0 != string.CompareOrdinal(response.TimeStampToken.TimeStampInfo.Policy, request.ReqPolicy))
+                if (!string.IsNullOrEmpty(request.ReqPolicy) && 
+                    !response.TimeStampToken.TimeStampInfo.Policy.Equals(request.ReqPolicy, StringComparison.OrdinalIgnoreCase))
                 {
                     throw new SecurityUtilityException(string.Format(CultureInfo.InvariantCulture, 
                         "Invalid TS response: policy mismatch {0}", response.Status));
@@ -98,11 +113,11 @@ namespace FreieWahl.Security.TimeStamps
         }
 
 
-        private static byte[] _GetHttpResponse(byte[] request)
+        private byte[] _GetHttpResponse(byte[] request)
         {
-            HttpWebRequest httpReq = (HttpWebRequest)WebRequest.Create(Uri);
-            httpReq.Method = "POST";
-            httpReq.ContentType = "application/timestamp-query";
+            HttpWebRequest httpReq = (HttpWebRequest)WebRequest.Create(_serverUrl);
+            httpReq.Method = RequestMethod;
+            httpReq.ContentType = RequestContentType;
 
             var reqStream = httpReq.GetRequestStream();
             reqStream.Write(request, 0, request.Length);

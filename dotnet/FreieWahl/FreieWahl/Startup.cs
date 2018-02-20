@@ -1,6 +1,8 @@
 ﻿using Google.Cloud.Diagnostics.AspNetCore;
 using System;
+using FreieWahl.Common;
 using FreieWahl.Security.Authentication;
+using FreieWahl.Security.TimeStamps;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
@@ -42,12 +44,14 @@ namespace FreieWahl
                 });
 
             services.AddSingleton<IJwtAuthentication, FirebaseJwtAuthentication>();
+            services.AddSingleton<ITimestampService>(p => new TimestampService(Configuration["TimestampServer:Url"]));
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory)
         {
             // Only use Console and Debug logging during development.
+            LogFactory.Setup(loggerFactory);
             loggerFactory.AddConsole(Configuration.GetSection("Logging"));
             loggerFactory.AddDebug();
 
@@ -70,7 +74,9 @@ namespace FreieWahl
             app.UseGoogleTrace();
 
             app.ApplicationServices.GetService<IJwtAuthentication>()
-                .Initialize("https://securetoken.google.com/stunning-lambda-162919", "stunning-lambda-162919");
+                .Initialize(
+                    Configuration["JwtAuthentication:Domain"], 
+                    Configuration["JwtAuthentication:Audience"]);
 
             app.UseMvc(routes =>
             {

@@ -7,6 +7,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FreieWahl", "FreieWahl\Frei
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FreieWahl.Security", "FreieWahl.Security\FreieWahl.Security.csproj", "{C9096075-E23C-48B9-8488-8ED8562260F6}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FreieWahl.Common", "FreieWahl.Common\FreieWahl.Common.csproj", "{8C701408-CA1B-41C5-B20F-309BA1569606}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +23,10 @@ Global
 		{C9096075-E23C-48B9-8488-8ED8562260F6}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C9096075-E23C-48B9-8488-8ED8562260F6}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C9096075-E23C-48B9-8488-8ED8562260F6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8C701408-CA1B-41C5-B20F-309BA1569606}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8C701408-CA1B-41C5-B20F-309BA1569606}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8C701408-CA1B-41C5-B20F-309BA1569606}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8C701408-CA1B-41C5-B20F-309BA1569606}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
