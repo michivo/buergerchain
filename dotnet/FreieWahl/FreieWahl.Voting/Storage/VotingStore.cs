@@ -33,13 +33,17 @@ namespace FreieWahl.Voting.Storage
 
         private static StandardVoting FromEntity(Entity entity)
         {
+            var visibility = (int?)entity["Visibility"];
+            var visibilityValue = visibility == null ? VotingVisibility.OwnerOnly : (VotingVisibility) visibility;
+
             return new StandardVoting()
             {
                 Id = entity.Key.Path.First().Id,
                 Title = (string) entity["Title"],
                 Creator = (string) entity["Creator"],
                 Description = (string) entity["Description"],
-                DateCreated = (DateTime) entity["DateCreated"]
+                DateCreated = (DateTime) entity["DateCreated"],
+                Visibility = visibilityValue
             };
         }
 
@@ -51,7 +55,8 @@ namespace FreieWahl.Voting.Storage
                 ["Title"] = standardVoting.Title,
                 ["Creator"] = standardVoting.Creator,
                 ["DateCreated"] = standardVoting.DateCreated.ToUniversalTime(),
-                ["Description"] = standardVoting.Description
+                ["Description"] = standardVoting.Description,
+                ["Visibility"] = (int)standardVoting.Visibility
             };
         }
     }

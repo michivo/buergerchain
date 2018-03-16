@@ -3,6 +3,7 @@ using System;
 using FreieWahl.Common;
 using FreieWahl.Security.Authentication;
 using FreieWahl.Security.TimeStamps;
+using FreieWahl.Security.UserHandling;
 using FreieWahl.Voting.Storage;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -45,6 +46,7 @@ namespace FreieWahl
                 });
 
             services.AddSingleton<IJwtAuthentication, FirebaseJwtAuthentication>();
+            services.AddSingleton<IUserHandler, UserHandler>();
             services.AddSingleton<ITimestampService>(p => new TimestampService(Configuration["TimestampServer:Url"]));
             services.AddSingleton<IVotingStore>(p => new VotingStore(Configuration["Google:ProjectId"]));
         }

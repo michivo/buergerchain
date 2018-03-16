@@ -16,7 +16,11 @@ namespace FreieWahl.Voting.Models
 
         public string Creator { get; set; }
 
+        public VotingVisibility Visibility { get; set; }
+
         [DataType(DataType.Date)]
         public DateTime DateCreated { get; set; }
+
+
     }
 }

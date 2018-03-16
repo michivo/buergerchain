@@ -1,15 +1,13 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using FreieWahl.Models;
 using FreieWahl.Security.Authentication;
 using FreieWahl.Security.TimeStamps;
+using FreieWahl.Security.UserHandling;
 using FreieWahl.Voting.Models;
 using FreieWahl.Voting.Storage;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.WebUtilities;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 
 
@@ -21,20 +19,19 @@ namespace FreieWahl.Controllers
         private readonly IJwtAuthentication _authentication;
         private readonly ITimestampService _timestampService;
         private readonly IVotingStore _votingStore;
-        private readonly IConfiguration _configuration;
-        private static string _lastSigResult;
+        private readonly IUserHandler _userHandler;
 
         public HomeController(ILogger<HomeController> logger,
             IJwtAuthentication authentication,
             ITimestampService timestampService,
             IVotingStore votingStore,
-            IConfiguration configuration)
+            IUserHandler userHandler)
         {
             _logger = logger;
             _authentication = authentication;
             _timestampService = timestampService;
             _votingStore = votingStore;
-            _configuration = configuration;
+            _userHandler = userHandler;
         }
 
         public async Task<IActionResult> FooBar()
@@ -46,10 +43,9 @@ namespace FreieWahl.Controllers
                 username = HttpContext.User.Identity.Name;
             }
 
-            var token = _timestampService.GetToken(new byte[] {0xDE, 0xAD, 0xBE, 0xEF});
             var allVotes = await _votingStore.GetAll();
 
-            var model = new FooBarModel(username + headers.Count + token.ToCmsSignedData() + allVotes.Count());
+            var model = new FooBarModel(username + headers.Count + allVotes.Count());
 
             return View(model);
         }
@@ -57,21 +53,22 @@ namespace FreieWahl.Controllers
         public IActionResult GetStuff()
         {
             var result = _authentication.CheckToken(Request.Headers["Authorization"]);
-            string username = "---";
-            if(result.Success)
+            if (result.Success)
             {
-                username = result.User.Claims.First(x => x.Type.Equals("name", StringComparison.OrdinalIgnoreCase)).Value;
+                var user = _userHandler.MapUser(result.User);
+
+                _votingStore.Insert(new StandardVoting
+                {
+                    Creator = user.UserId,
+                    DateCreated = DateTime.UtcNow,
+                    Description = "Some funky voting",
+                    Title = "Vote vote vote"
+                });
+
+                return Ok(user.Name);
             }
 
-            _votingStore.Insert(new StandardVoting
-            {
-                Creator = username,
-                DateCreated = DateTime.UtcNow,
-                Description = "Some funky voting",
-                Title = "Vote vote vote"
-            });
-
-            return Ok(username);
+            return Error();
         }
 
         public IActionResult Index()
@@ -85,7 +82,7 @@ namespace FreieWahl.Controllers
 
         public IActionResult About()
         {
-            ViewData["Message"] = _lastSigResult ?? "nuttin";
+            ViewData["Message"] = "nuttin";
             return View();
         }
 
