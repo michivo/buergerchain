@@ -1,5 +1,0 @@
-runtime: java
-
-env_variables:
-  # Replace with your Firebase project ID.
-  FIREBASE_PROJECT_ID: 'stunning-lambda-162919'
