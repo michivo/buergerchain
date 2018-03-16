@@ -3,6 +3,7 @@ using System;
 using FreieWahl.Common;
 using FreieWahl.Security.Authentication;
 using FreieWahl.Security.TimeStamps;
+using FreieWahl.Voting.Storage;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
@@ -45,6 +46,7 @@ namespace FreieWahl
 
             services.AddSingleton<IJwtAuthentication, FirebaseJwtAuthentication>();
             services.AddSingleton<ITimestampService>(p => new TimestampService(Configuration["TimestampServer:Url"]));
+            services.AddSingleton<IVotingStore>(p => new VotingStore(Configuration["Google:ProjectId"]));
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

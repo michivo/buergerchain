@@ -9,6 +9,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FreieWahl.Security", "Freie
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FreieWahl.Common", "FreieWahl.Common\FreieWahl.Common.csproj", "{8C701408-CA1B-41C5-B20F-309BA1569606}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FreieWahl.Voting", "FreieWahl.Voting\FreieWahl.Voting.csproj", "{CC3A496A-20EB-4650-935E-173FEE95F077}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -27,6 +29,10 @@ Global
 		{8C701408-CA1B-41C5-B20F-309BA1569606}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{8C701408-CA1B-41C5-B20F-309BA1569606}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{8C701408-CA1B-41C5-B20F-309BA1569606}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CC3A496A-20EB-4650-935E-173FEE95F077}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CC3A496A-20EB-4650-935E-173FEE95F077}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CC3A496A-20EB-4650-935E-173FEE95F077}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CC3A496A-20EB-4650-935E-173FEE95F077}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

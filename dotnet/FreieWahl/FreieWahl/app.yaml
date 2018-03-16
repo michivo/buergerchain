@@ -1,2 +1,5 @@
 runtime: aspnetcore
 env: flex
+
+manual_scaling:
+  instances: 1
