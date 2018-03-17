@@ -21,6 +21,6 @@ namespace FreieWahl.Voting.Models
         [DataType(DataType.Date)]
         public DateTime DateCreated { get; set; }
 
-
+        public Question[] Questions { get; set; }
     }
 }

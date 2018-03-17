@@ -7,10 +7,12 @@ using Google.Cloud.Datastore.V1;
 
 namespace FreieWahl.Voting.Storage
 {
-    public class VotingStore : IVotingStore
+    public partial class VotingStore : IVotingStore
     {
         private readonly DatastoreDb _db;
         private const string StoreKind = "StandardVoting";
+        public static readonly string TestNamespace = "test";
+        public static readonly string DevNamespace = "dev";
 
         public VotingStore(string projectId)
         {
@@ -24,6 +26,17 @@ namespace FreieWahl.Voting.Storage
             _db.Insert(entity);
         }
 
+        public void ClearAll()
+        {
+            if (_db.NamespaceId != TestNamespace)
+            {
+                throw new InvalidOperationException("ClearAll is only allowed in the test environment!");
+            }
+
+            var query = _db.RunQuery(new Query(StoreKind));
+            _db.Delete(query.Entities);
+        }
+
         public async Task<IEnumerable<StandardVoting>> GetAll()
         {
             var query = await _db.RunQueryAsync(new Query(StoreKind));
@@ -34,16 +47,17 @@ namespace FreieWahl.Voting.Storage
         private static StandardVoting FromEntity(Entity entity)
         {
             var visibility = (int?)entity["Visibility"];
-            var visibilityValue = visibility == null ? VotingVisibility.OwnerOnly : (VotingVisibility) visibility;
+            var visibilityValue = visibility == null ? VotingVisibility.OwnerOnly : (VotingVisibility)visibility;
 
             return new StandardVoting()
             {
                 Id = entity.Key.Path.First().Id,
-                Title = (string) entity["Title"],
-                Creator = (string) entity["Creator"],
-                Description = (string) entity["Description"],
-                DateCreated = (DateTime) entity["DateCreated"],
-                Visibility = visibilityValue
+                Title = (string)entity["Title"],
+                Creator = (string)entity["Creator"],
+                Description = (string)entity["Description"],
+                DateCreated = (DateTime)entity["DateCreated"],
+                Visibility = visibilityValue,
+                Questions = FromQuestionsEntity(entity["Questions"])
             };
         }
 
@@ -56,7 +70,8 @@ namespace FreieWahl.Voting.Storage
                 ["Creator"] = standardVoting.Creator,
                 ["DateCreated"] = standardVoting.DateCreated.ToUniversalTime(),
                 ["Description"] = standardVoting.Description,
-                ["Visibility"] = (int)standardVoting.Visibility
+                ["Visibility"] = (int)standardVoting.Visibility,
+                ["Questions"] = ToEntities(standardVoting.Questions)
             };
         }
     }

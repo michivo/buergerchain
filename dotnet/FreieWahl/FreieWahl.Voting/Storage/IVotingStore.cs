@@ -9,5 +9,7 @@ namespace FreieWahl.Voting.Storage
         void Insert(StandardVoting voting);
 
         Task<IEnumerable<StandardVoting>> GetAll();
+
+        void ClearAll();
     }
 }

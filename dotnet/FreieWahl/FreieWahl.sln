@@ -9,7 +9,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FreieWahl.Security", "Freie
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FreieWahl.Common", "FreieWahl.Common\FreieWahl.Common.csproj", "{8C701408-CA1B-41C5-B20F-309BA1569606}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FreieWahl.Voting", "FreieWahl.Voting\FreieWahl.Voting.csproj", "{CC3A496A-20EB-4650-935E-173FEE95F077}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FreieWahl.Voting", "FreieWahl.Voting\FreieWahl.Voting.csproj", "{CC3A496A-20EB-4650-935E-173FEE95F077}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Test.FreieWahl.Voting", "Test.FreieWahl.Voting\Test.FreieWahl.Voting.csproj", "{2B3AA897-284C-408B-BF6F-353B8814B6D6}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -33,6 +35,10 @@ Global
 		{CC3A496A-20EB-4650-935E-173FEE95F077}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{CC3A496A-20EB-4650-935E-173FEE95F077}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{CC3A496A-20EB-4650-935E-173FEE95F077}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2B3AA897-284C-408B-BF6F-353B8814B6D6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2B3AA897-284C-408B-BF6F-353B8814B6D6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2B3AA897-284C-408B-BF6F-353B8814B6D6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2B3AA897-284C-408B-BF6F-353B8814B6D6}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
