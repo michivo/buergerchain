@@ -3,8 +3,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using FreieWahl.Voting.Models;
 using FreieWahl.Voting.Storage;
-using Google.Api.Gax.Grpc;
-using Google.Cloud.Datastore.V1;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace Test.FreieWahl.Voting.Storage
@@ -15,14 +13,21 @@ namespace Test.FreieWahl.Voting.Storage
         [TestInitialize]
         public void Init()
         {
-            var store = new VotingStore("stunning-lambda-162919");
-            //store.ClearAll();
+            var store = new VotingStore("stunning-lambda-162919", VotingStore.TestNamespace);
+            store.ClearAll();
+        }
+
+        [TestCleanup]
+        public void Cleanup()
+        {
+            var store = new VotingStore("stunning-lambda-162919", VotingStore.TestNamespace);
+            store.ClearAll();
         }
 
         [TestMethod]
         public void TestInsert()
         {
-            var store = new VotingStore("stunning-lambda-162919");
+            var store = new VotingStore("stunning-lambda-162919", string.Empty);
 
             store.Insert(new StandardVoting
             {
@@ -37,7 +42,7 @@ namespace Test.FreieWahl.Voting.Storage
         [TestMethod]
         public async Task TestInsertAndRead()
         {
-            var store = new VotingStore("stunning-lambda-162919");
+            var store = new VotingStore("stunning-lambda-162919", VotingStore.TestNamespace);
 
 
             var votingWritten = new StandardVoting
@@ -64,7 +69,8 @@ namespace Test.FreieWahl.Voting.Storage
                                         DetailType = AnswerDetailType.AdditionalInfo,
                                         DetailValue = "You agree"
                                     }
-                                }
+                                },
+                                Id = Guid.NewGuid().ToString()
                             },
                             new AnswerOption()
                             {
@@ -76,11 +82,13 @@ namespace Test.FreieWahl.Voting.Storage
                                         DetailType = AnswerDetailType.AdditionalInfo,
                                         DetailValue = "You disagree"
                                     }
-                                }
+                                },
+                                Id = Guid.NewGuid().ToString()
                             },
                             new AnswerOption()
                             {
-                                AnswerText = "Dontcare"
+                                AnswerText = "Dontcare",
+                                Id = Guid.NewGuid().ToString()
                             }
                         },
                         Details = new []

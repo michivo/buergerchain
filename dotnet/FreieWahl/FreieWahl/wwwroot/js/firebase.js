@@ -4,9 +4,10 @@ var config = {
 	authDomain: "stunning-lambda-162919.firebaseapp.com",
 	databaseURL: "https://stunning-lambda-162919.firebaseio.com",
 	storageBucket: "stunning-lambda-162919.appspot.com",
-	messagingSenderId: "576087239560",
+    messagingSenderId: "576087239560",
+    projectId: "stunning-lambda-162919"
 };
-firebase.initializeApp(config);
+var app = firebase.initializeApp(config);
 
 // Firebase log-in widget
 function configureFirebaseLoginWidget() {
@@ -41,22 +42,14 @@ function configureFirebaseLoginWidget() {
 
 function initApp() {
 	firebase.auth().onAuthStateChanged(function (user) {
-		if (user) {
+        if (user) {
+
 			// User is signed in.
 			var displayName = user.displayName;
 			user.getIdToken().then(function (accessToken) {
 				document.getElementById('sign-in-status').textContent = 'Signed in as ' + displayName;
 				document.getElementById('sign-in').textContent = 'Sign out';
-				//document.getElementById('account-details').textContent = JSON.stringify({
-				//	displayName: displayName,
-				//	email: email,
-				//	emailVerified: emailVerified,
-				//	phoneNumber: phoneNumber,
-				//	photoURL: photoURL,
-				//	uid: uid,
-				//	accessToken: accessToken,
-				//	providerData: providerData
-				//}, null, '  ');
+
 			});
 		} else {
 			// User is signed out.

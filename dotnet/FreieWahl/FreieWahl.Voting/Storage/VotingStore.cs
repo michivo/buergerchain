@@ -14,9 +14,9 @@ namespace FreieWahl.Voting.Storage
         public static readonly string TestNamespace = "test";
         public static readonly string DevNamespace = "dev";
 
-        public VotingStore(string projectId)
+        public VotingStore(string projectId, string namespaceId = "")
         {
-            _db = DatastoreDb.Create(projectId);
+            _db = DatastoreDb.Create(projectId, namespaceId);
         }
 
         public void Insert(StandardVoting voting)

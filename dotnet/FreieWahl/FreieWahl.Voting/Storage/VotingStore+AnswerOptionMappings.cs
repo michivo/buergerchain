@@ -59,7 +59,7 @@ namespace FreieWahl.Voting.Storage
 
             return array.Values.Select(x => new AnswerOption
             {
-                Id = x.EntityValue["AnswerId"].KeyValue.Path.First().Id,
+                Id = x.EntityValue["AnswerId"].StringValue,
                 AnswerText = x.EntityValue["AnswerText"].StringValue,
                 Details = FromAnswerDetails(x.EntityValue["Details"])
             }).ToArray();

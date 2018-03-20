@@ -6,6 +6,10 @@
     "jquery": "2.2.0",
     "jquery-validation": "1.14.0",
     "jquery-validation-unobtrusive": "3.2.6",
-    "firebaseui": "v2.6.0"
+    "firebaseui": "v2.6.3",
+    "firebase": "v4.10.1"
+  },
+  "resolutions": {
+    "firebaseui": "v2.6.3"
   }
 }

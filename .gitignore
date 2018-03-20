@@ -5,3 +5,5 @@
 /dotnet/FreieWahl/*/bin
 /dotnet/FreieWahl/*/obj
 /dotnet/FreieWahl/FreieWahl/wwwroot/lib
+/dotnet/FreieWahl/packages
+/dotnet/FreieWahl/*.user
