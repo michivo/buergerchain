@@ -23,7 +23,8 @@ namespace FreieWahl.Voting.Storage
         {
             var entity = ToEntity(voting);
             entity.Key = _db.CreateKeyFactory(StoreKind).CreateIncompleteKey();
-            _db.Insert(entity);
+            var key = _db.Insert(entity);
+            voting.Id = key.Path.First().Id;
         }
 
         public void ClearAll()

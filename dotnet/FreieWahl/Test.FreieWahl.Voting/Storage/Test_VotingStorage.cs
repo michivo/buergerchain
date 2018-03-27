@@ -27,7 +27,7 @@ namespace Test.FreieWahl.Voting.Storage
         [TestMethod]
         public void TestInsert()
         {
-            var store = new VotingStore("stunning-lambda-162919", string.Empty);
+            var store = new VotingStore("stunning-lambda-162919", VotingStore.TestNamespace);
 
             store.Insert(new StandardVoting
             {
@@ -107,7 +107,7 @@ namespace Test.FreieWahl.Voting.Storage
             var result = (await store.GetAll()).ToList();
             Assert.AreEqual(1, result.Count());
             var votingRead = result.Single();
-            Assert.AreEqual(votingWritten.Description, votingRead.Description);
+            Assert.AreEqual(votingWritten, votingRead);
         }
     }
 }

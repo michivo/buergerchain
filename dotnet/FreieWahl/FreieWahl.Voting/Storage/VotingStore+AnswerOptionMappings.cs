@@ -61,7 +61,7 @@ namespace FreieWahl.Voting.Storage
             {
                 Id = x.EntityValue["AnswerId"].StringValue,
                 AnswerText = x.EntityValue["AnswerText"].StringValue,
-                Details = FromAnswerDetails(x.EntityValue["Details"])
+                Details = FromAnswerDetails(x.EntityValue["AnswerDetails"])
             }).ToArray();
         }
 
