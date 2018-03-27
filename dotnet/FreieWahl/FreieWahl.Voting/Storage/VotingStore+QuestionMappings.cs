@@ -1,5 +1,4 @@
-﻿using System;
-using System.Linq;
+﻿using System.Linq;
 using FreieWahl.Voting.Models;
 using Google.Cloud.Datastore.V1;
 

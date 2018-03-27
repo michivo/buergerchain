@@ -30,7 +30,7 @@ namespace FreieWahl.Voting.Models
 
         public bool Equals(AnswerOption other)
         {
-            if (ReferenceEquals(null, other))
+            if (other is null)
                 return false;
             if (ReferenceEquals(this, other))
                 return true;
@@ -45,7 +45,7 @@ namespace FreieWahl.Voting.Models
 
         public override bool Equals(object obj)
         {
-            if (ReferenceEquals(null, obj)) return false;
+            if (obj is null) return false;
             if (ReferenceEquals(this, obj)) return true;
             if (obj.GetType() != this.GetType()) return false;
             return Equals((AnswerOption) obj);

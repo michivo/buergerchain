@@ -1,5 +1,4 @@
-﻿using FreieWahl.Security.Authentication;
-using System.Security.Claims;
+﻿using System.Security.Claims;
 
 namespace FreieWahl.Security.UserHandling
 {
