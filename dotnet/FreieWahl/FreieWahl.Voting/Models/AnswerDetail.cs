@@ -36,7 +36,7 @@ namespace FreieWahl.Voting.Models
         {
             unchecked
             {
-                return ((int) DetailType * 397) ^ (DetailValue != null ? DetailValue.GetHashCode() : 0);
+                return ((int) DetailType * 397) ^ (DetailValue != null ? DetailValue.ToLowerInvariant().GetHashCode() : 0);
             }
         }
     }

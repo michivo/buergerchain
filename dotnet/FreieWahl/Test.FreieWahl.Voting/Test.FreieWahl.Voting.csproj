@@ -111,6 +111,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Common\Test_ExtensionMethods.cs" />
+    <Compile Include="Models\TestAnswerDetail.cs" />
     <Compile Include="Storage\Test_VotingStorage.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

@@ -41,8 +41,8 @@ namespace Test.FreieWahl.Voting.Common
             Assert.IsTrue(t2.EqualsDefault(t1));
             Assert.IsTrue(t3.EqualsDefault(t2));
             Assert.IsTrue(t2.EqualsDefault(t3));
-            Assert.IsFalse(t3.EqualsDefault(t1));
-            Assert.IsFalse(t1.EqualsDefault(t3));
+            Assert.IsFalse(t3.EqualsDefault(t1)); // delta t > 100 ticks
+            Assert.IsFalse(t1.EqualsDefault(t3)); // delta t > 100 ticks
         }
     }
 }
