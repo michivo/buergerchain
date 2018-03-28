@@ -20,24 +20,13 @@ namespace FreieWahl.Voting.Models
         public QuestionDetail[] Details
         {
             get => _details;
-            set
-            {
-                if (value == null)
-                    return;
-                _details = value;
-            }
+            set => _details = value ?? new QuestionDetail[0];
         }
 
         public AnswerOption[] AnswerOptions
         {
             get => _answerOptions;
-            set
-            {
-                if (value == null)
-                    return;
-
-                _answerOptions = value;
-            }
+            set => _answerOptions = value ?? new AnswerOption[0];
         }
 
         public bool Equals(Question other)

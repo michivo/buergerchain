@@ -20,12 +20,7 @@ namespace FreieWahl.Voting.Models
         public AnswerDetail[] Details
         {
             get => _details;
-            set
-            {
-                if (value == null)
-                    return;
-                _details = value;
-            }
+            set => _details = value ?? new AnswerDetail[0];
         }
 
         public bool Equals(AnswerOption other)
@@ -48,7 +43,7 @@ namespace FreieWahl.Voting.Models
             if (obj is null) return false;
             if (ReferenceEquals(this, obj)) return true;
             if (obj.GetType() != this.GetType()) return false;
-            return Equals((AnswerOption) obj);
+            return Equals((AnswerOption)obj);
         }
 
         public override int GetHashCode()
