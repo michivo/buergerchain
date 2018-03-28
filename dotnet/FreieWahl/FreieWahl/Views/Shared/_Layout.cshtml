@@ -4,54 +4,95 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>@ViewData["Title"] - FreieWahl</title>
-    <script src="~/lib/firebase/firebase.js"></script>
-    <script src="~/lib/firebase/firebase-auth.js"></script>
-    <script src="~/lib/firebase/firebase-firestore.js"></script>
-    <script src="~/lib/firebaseui/dist/firebaseui.js"></script>
-    <link type="text/css" rel="stylesheet" href="~/lib/firebaseui/dist/firebaseui.css" />
-    <script src="~/js/firebase.js"></script>
-
     <script>
         window.addEventListener('load', initApp);
     </script>
 
     <environment names="Development">
         <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.css" />
+
+        <script src="~/lib/firebase/firebase.js"></script>
+        <script src="~/lib/firebase/firebase-auth.js"></script>
+        <script src="~/lib/firebase/firebase-firestore.js"></script>
+        <script src="~/lib/firebaseui/dist/firebaseui.js"></script>
+
+        <link rel="stylesheet" href="~/lib/material-design-lite/material.min.css">
+        <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+        <link type="text/css" rel="stylesheet" href="~/lib/firebaseui/dist/firebaseui.css" />
+
         <link rel="stylesheet" href="~/css/site.css" />
     </environment>
     <environment names="Staging,Production">
         <link rel="stylesheet" href="https://ajax.aspnetcdn.com/ajax/bootstrap/3.3.6/css/bootstrap.min.css"
               asp-fallback-href="~/lib/bootstrap/dist/css/bootstrap.min.css"
               asp-fallback-test-class="sr-only" asp-fallback-test-property="position" asp-fallback-test-value="absolute" />
+
+        <script src="~/lib/firebase/firebase.js"></script>
+        <script src="~/lib/firebase/firebase-auth.js"></script>
+        <script src="~/lib/firebase/firebase-firestore.js"></script>
+        <script src="~/lib/firebaseui/dist/firebaseui.js"></script>
+
+        <link rel="stylesheet" href="~/lib/material-design-lite/material.min.css">
+        <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+        <link type="text/css" rel="stylesheet" href="~/lib/firebaseui/dist/firebaseui.css" />
         <link rel="stylesheet" href="~/css/site.min.css" asp-append-version="true" />
     </environment>
 </head>
 <body>
-    <div>
-        @RenderBody()
-        <hr />
+    <div class="freiewahl-layout-transparent mdl-layout mdl-js-layout">
+        <header class="mdl-layout__header mdl-layout__header--transparent">
+            <div class="mdl-layout__header-row">
+                <!-- Title -->
+                <span class="mdl-layout-title">TitleA</span>
+                <!-- Add spacer, to align navigation to the right -->
+                <div class="mdl-layout-spacer"></div>
+                <!-- Navigation -->
+                <nav class="mdl-navigation">
+                    <a class="mdl-navigation__link" href="">Link 1</a>
+                    <a class="mdl-navigation__link" href="">Link 2</a>
+                    <a class="mdl-navigation__link" href="">Link 3</a>
+                    <a class="mdl-navigation__link" href="">Link 4</a>
+                </nav>
+            </div>
+        </header>
+        <div class="mdl-layout__drawer">
+            <span class="mdl-layout-title">TitleX</span>
+            <nav class="mdl-navigation">
+                <a class="mdl-navigation__link" href="">Link A</a>
+                <a class="mdl-navigation__link" href="">Link B</a>
+                <a class="mdl-navigation__link" href="">Link C</a>
+                <a class="mdl-navigation__link" href="">Link D</a>
+            </nav>
+        </div>
+        <main class="mdl-layout__content">
+            @RenderBody()
+        </main>
         <footer>
-            <p>&copy; 2017 - FreieWahl</p>
+            <p>&copy; 2018 - FreieWahl</p>
         </footer>
     </div>
 
-    <environment names="Development">
-        <script src="~/lib/jquery/dist/jquery.js"></script>
-        <script src="~/lib/bootstrap/dist/js/bootstrap.js"></script>
-        <script src="~/js/site.js" asp-append-version="true"></script>
-    </environment>
-    <environment names="Staging,Production">
-        <script src="https://ajax.aspnetcdn.com/ajax/jquery/jquery-2.2.0.min.js"
-                asp-fallback-src="~/lib/jquery/dist/jquery.min.js"
-                asp-fallback-test="window.jQuery">
-        </script>
-        <script src="https://ajax.aspnetcdn.com/ajax/bootstrap/3.3.6/bootstrap.min.js"
-                asp-fallback-src="~/lib/bootstrap/dist/js/bootstrap.min.js"
-                asp-fallback-test="window.jQuery && window.jQuery.fn && window.jQuery.fn.modal">
-        </script>
-        <script src="~/js/site.min.js" asp-append-version="true"></script>
-    </environment>
+<environment names="Development">
+    <script src="~/lib/jquery/dist/jquery.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    <script src="~/lib/material-design-lite/material.min.js"></script>
+</environment>
+<environment names="Staging,Production">
 
-    @RenderSection("scripts", required: false)
+    <script src="https://ajax.aspnetcdn.com/ajax/jquery/jquery-2.2.0.min.js"
+            asp-fallback-src="~/lib/jquery/dist/jquery.min.js"
+            asp-fallback-test="window.jQuery">
+    </script>
+    <script src="https://ajax.aspnetcdn.com/ajax/bootstrap/3.3.6/bootstrap.min.js"
+            asp-fallback-src="~/lib/bootstrap/dist/js/bootstrap.min.js"
+            asp-fallback-test="window.jQuery && window.jQuery.fn && window.jQuery.fn.modal">
+    </script>
+    <script src="~/js/site.min.js" asp-append-version="true"></script>
+
+    <script src="~/lib/material-design-lite/material.min.js"></script>
+</environment>
+
+@RenderSection("scripts", required: false)
 </body>
 </html>
