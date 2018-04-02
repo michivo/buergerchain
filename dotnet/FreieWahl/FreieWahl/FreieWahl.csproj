@@ -18,6 +18,7 @@
     <PackageReference Include="Google.Apis.Auth" Version="1.32.2" />
     <PackageReference Include="Google.Cloud.Diagnostics.AspNetCore" Version="2.0.0" />
     <PackageReference Include="Microsoft.AspNetCore.All" Version="2.0.0" />
+    <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="2.0.3" />
     <PackageReference Include="Portable.BouncyCastle" Version="1.8.1.4" />
   </ItemGroup>
 
@@ -28,10 +29,6 @@
 
   <ItemGroup>
     <DotNetCliToolReference Include="BundlerMinifier.Core" Version="2.2.301" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Models\" />
   </ItemGroup>
 
   <ItemGroup>

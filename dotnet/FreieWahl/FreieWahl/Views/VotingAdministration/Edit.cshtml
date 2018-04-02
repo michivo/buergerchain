@@ -1,0 +1,36 @@
+﻿@using FreieWahl.Controllers
+@using Microsoft.Extensions.Localization
+@model FreieWahl.Models.VotingAdministration.EditVotingModel
+
+@inject IStringLocalizer<VotingAdministrationController> Localizer
+
+@{
+    ViewData["Title"] = "Edit";
+}
+
+<h2>Edit</h2>
+
+<h4>StandardVoting</h4>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="Edit">
+            <div class="mdl-textfield mdl-js-textfield">
+                <input class="mdl-textfield__input" type="text" id="vtitle" asp-for="Voting.Title" value="@Model.Voting.Title">
+                <label class="mdl-textfield__label" for="vtitle">@Localizer["LabelVotingTitle"]</label>
+            </div>
+            <div class="mdl-textfield mdl-js-textfield">
+                <textarea class="mdl-textfield__input" type="text" rows="3" asp-for="Voting.Description" id="vdescription">@Model.Voting.Description</textarea>
+                <label class="mdl-textfield__label" for="vdescription">@Localizer["LabelVotingDescription"]</label>
+            </div>
+            <div class="form-group">
+                <input type="submit" value="@Localizer["ButtonVotingSave"]" class="btn btn-default" />
+            </div>
+        </form>
+    </div>
+</div>
+
+<div>
+    <a asp-action="Index">Back to List</a>
+</div>
+

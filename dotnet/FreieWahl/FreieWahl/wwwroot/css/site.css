@@ -1,5 +1,5 @@
 ﻿.freiewahl-layout-transparent {
-    background: url('../images/pen.jpg') center / cover;
+    background: whitesmoke center / cover;
 }
 
 .freiewahl-layout-transparent .mdl-layout__header,
@@ -7,4 +7,8 @@
         /* This background is dark, so we set text to white. Use 87% black instead if
      your background is light. */
         color: #212121;
+}
+
+.freiewahl-voting-overview {
+    width: 500px;
 }

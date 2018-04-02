@@ -33,6 +33,7 @@ namespace FreieWahl
             string projectId = GetProjectId();
 
             services.AddMvc();
+            services.AddLocalization(opts => { opts.ResourcesPath = "Resources"; });
 
             // Enables Stackdriver Trace.
             services.AddGoogleTrace(options => options.ProjectId = projectId);
