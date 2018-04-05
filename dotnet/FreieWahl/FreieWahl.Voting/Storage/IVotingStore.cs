@@ -8,6 +8,12 @@ namespace FreieWahl.Voting.Storage
     {
         void Insert(StandardVoting voting);
 
+        Task Update(StandardVoting voting);
+
+        Task<IEnumerable<StandardVoting>> GetAllPublic();
+
+        Task<IEnumerable<StandardVoting>> GetForUserId(string userId);
+
         Task<IEnumerable<StandardVoting>> GetAll();
 
         void ClearAll();

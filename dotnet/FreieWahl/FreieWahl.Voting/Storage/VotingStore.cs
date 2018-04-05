@@ -13,18 +13,68 @@ namespace FreieWahl.Voting.Storage
         private const string StoreKind = "StandardVoting";
         public static readonly string TestNamespace = "test";
         public static readonly string DevNamespace = "dev";
+        private KeyFactory _keyFactory;
 
         public VotingStore(string projectId, string namespaceId = "")
         {
             _db = DatastoreDb.Create(projectId, namespaceId);
+            _keyFactory = new KeyFactory(projectId, namespaceId, StoreKind);
         }
 
         public void Insert(StandardVoting voting)
         {
             var entity = ToEntity(voting);
-            entity.Key = _db.CreateKeyFactory(StoreKind).CreateIncompleteKey();
+            entity.Key = _keyFactory.CreateIncompleteKey();
             var key = _db.Insert(entity);
             voting.Id = key.Path.First().Id;
+        }
+
+        public async Task Update(StandardVoting voting)
+        {
+            var query = new Query(StoreKind)
+            {
+                Filter = Filter.Equal("__key__", _keyFactory.CreateKey(voting.Id)),
+                Limit = 1
+            };
+
+            var result = await _db.RunQueryAsync(query).ConfigureAwait(false);
+            if (result.Entities.Count == 0)
+            {
+                throw new InvalidOperationException("No voting to update!");
+            }
+
+            var readVoting = FromEntity(result.Entities.Single());
+            readVoting.Description = voting.Description;
+            readVoting.Questions = voting.Questions;
+            readVoting.Title = voting.Title;
+            readVoting.Visibility = voting.Visibility;
+            await _db.UpdateAsync(ToEntity(readVoting));
+        }
+
+        public async Task<IEnumerable<StandardVoting>> GetAllPublic()
+        {
+            var query = new Query(StoreKind)
+            {
+                Filter = Filter.Equal("Visibility", (int)VotingVisibility.Public),
+                Order = { { "DateCreated", PropertyOrder.Types.Direction.Descending } }
+            };
+
+            var results = await _db.RunQueryAsync(query).ConfigureAwait(false);
+
+            return results.Entities.Select(FromEntity);
+        }
+
+        public async Task<IEnumerable<StandardVoting>> GetForUserId(string userId)
+        {
+            var query = new Query(StoreKind)
+            {
+                Filter = Filter.Equal("Creator", userId),
+                //Order = { { "DateCreated", PropertyOrder.Types.Direction.Descending } }
+            };
+
+            var results = await _db.RunQueryAsync(query).ConfigureAwait(false);
+
+            return results.Entities.Select(FromEntity);
         }
 
         public void ClearAll()
@@ -40,9 +90,13 @@ namespace FreieWahl.Voting.Storage
 
         public async Task<IEnumerable<StandardVoting>> GetAll()
         {
-            var query = await _db.RunQueryAsync(new Query(StoreKind));
+            var query = new Query(StoreKind)
+            {
+                Order = { { "DateCreated", PropertyOrder.Types.Direction.Descending } }
+            };
+            var results = await _db.RunQueryAsync(query).ConfigureAwait(false);
 
-            return query.Entities.Select(FromEntity);
+            return results.Entities.Select(FromEntity);
         }
 
         private static StandardVoting FromEntity(Entity entity)
@@ -62,11 +116,11 @@ namespace FreieWahl.Voting.Storage
             };
         }
 
-        private static Entity ToEntity(StandardVoting standardVoting)
+        private Entity ToEntity(StandardVoting standardVoting)
         {
             return new Entity
             {
-                Key = new Key().WithElement(StoreKind, standardVoting.Id),
+                Key = _keyFactory.CreateKey(standardVoting.Id),
                 ["Title"] = standardVoting.Title,
                 ["Creator"] = standardVoting.Creator,
                 ["DateCreated"] = standardVoting.DateCreated.ToUniversalTime(),
