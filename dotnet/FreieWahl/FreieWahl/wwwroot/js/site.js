@@ -8,6 +8,7 @@ var config = {
     projectId: "stunning-lambda-162919"
 };
 var app = firebase.initializeApp(config);
+var currentUser = null;
 
 // Firebase log-in widget
 function configureFirebaseLoginWidget() {
@@ -39,6 +40,9 @@ function configureFirebaseLoginWidget() {
     ui.start('#firebaseui-auth-container', uiConfig);
 }
 
+function getCurrentUser() {
+    return currentUser;
+}
 
 function initApp() {
     firebase.auth().onAuthStateChanged(function (user) {
@@ -49,14 +53,16 @@ function initApp() {
             user.getIdToken().then(function (accessToken) {
                 document.getElementById('sign-in-status').textContent = 'Signed in as ' + displayName;
                 document.getElementById('sign-in').textContent = 'Sign out';
-
             });
+            currentUser = user;
         } else {
             // User is signed out.
             document.getElementById('sign-in-status').textContent = 'Signed out';
             document.getElementById('sign-in').textContent = 'Sign in';
+            currentUser = null;
         }
     }, function (error) {
+        currentUser = null;
         console.log(error);
     });
 };

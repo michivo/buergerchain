@@ -13,19 +13,19 @@ namespace FreieWahl.Voting.Storage
         private const string StoreKind = "StandardVoting";
         public static readonly string TestNamespace = "test";
         public static readonly string DevNamespace = "dev";
-        private KeyFactory _keyFactory;
+        private readonly KeyFactory _keyFactory;
 
-        public VotingStore(string projectId, string namespaceId = "")
+        public VotingStore(string projectId, string namespaceId = "", DatastoreClient client = null)
         {
-            _db = DatastoreDb.Create(projectId, namespaceId);
+            _db = DatastoreDb.Create(projectId, namespaceId, client);
             _keyFactory = new KeyFactory(projectId, namespaceId, StoreKind);
         }
 
-        public void Insert(StandardVoting voting)
+        public async Task Insert(StandardVoting voting)
         {
             var entity = ToEntity(voting);
             entity.Key = _keyFactory.CreateIncompleteKey();
-            var key = _db.Insert(entity);
+            var key = await _db.InsertAsync(entity);
             voting.Id = key.Path.First().Id;
         }
 
@@ -44,11 +44,28 @@ namespace FreieWahl.Voting.Storage
             }
 
             var readVoting = FromEntity(result.Entities.Single());
+            if (!readVoting.Creator.Equals(voting.Creator, StringComparison.OrdinalIgnoreCase))
+            {
+                throw new InvalidOperationException("Cannot modify creator of voting!");
+            }
+
             readVoting.Description = voting.Description;
             readVoting.Questions = voting.Questions;
             readVoting.Title = voting.Title;
             readVoting.Visibility = voting.Visibility;
             await _db.UpdateAsync(ToEntity(readVoting));
+        }
+
+        public async Task<StandardVoting> GetById(long id)
+        {
+            var query = new Query(StoreKind)
+            {
+                Filter = Filter.Equal("__key__", _keyFactory.CreateKey(id)),
+                Limit = 1
+            };
+
+            var result = await _db.RunQueryAsync(query).ConfigureAwait(false);
+            return FromEntity(result.Entities.Single());
         }
 
         public async Task<IEnumerable<StandardVoting>> GetAllPublic()

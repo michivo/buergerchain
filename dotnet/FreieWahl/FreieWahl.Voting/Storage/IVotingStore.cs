@@ -6,9 +6,11 @@ namespace FreieWahl.Voting.Storage
 {
     public interface IVotingStore
     {
-        void Insert(StandardVoting voting);
+        Task Insert(StandardVoting voting);
 
         Task Update(StandardVoting voting);
+
+        Task<StandardVoting> GetById(long id);
 
         Task<IEnumerable<StandardVoting>> GetAllPublic();
 

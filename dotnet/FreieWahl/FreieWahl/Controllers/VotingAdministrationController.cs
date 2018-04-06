@@ -1,50 +1,97 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Threading.Tasks;
-using FreieWahl.Models;
 using FreieWahl.Models.VotingAdministration;
+using FreieWahl.Security.Authentication;
+using FreieWahl.Security.UserHandling;
 using FreieWahl.Voting.Storage;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Localization;
+using Microsoft.Extensions.Logging;
 
 namespace FreieWahl.Controllers
 {
     public class VotingAdministrationController : Controller
     {
+        private readonly ILogger<HomeController> _logger;
         private readonly IVotingStore _votingStore;
         private readonly IStringLocalizer<VotingAdministrationController> _localizer;
+        private readonly IJwtAuthentication _authentication;
+        private readonly IUserHandler _userHandler;
 
-        public VotingAdministrationController(IVotingStore votingStore,
-            IStringLocalizer<VotingAdministrationController> localizer)
+        public VotingAdministrationController(ILogger<HomeController> logger,
+            IVotingStore votingStore,
+            IStringLocalizer<VotingAdministrationController> localizer,
+            IJwtAuthentication authentication,
+            IUserHandler userHandler)
         {
+            _logger = logger;
             _votingStore = votingStore;
             _localizer = localizer;
+            _authentication = authentication;
+            _userHandler = userHandler;
         }
 
-        public async Task<IActionResult> Overview()
+        public IActionResult Overview()
         {
-            var model = new VotingOverviewModel();
-            var votings = await _votingStore.GetAll();
-            model.Votings = votings.ToList();
-            model.Title = _localizer["Title"];
-            model.Header = _localizer["Header"];
+            var model = new VotingOverviewModel
+            {
+                Title = _localizer["Title"],
+                Header = _localizer["Header"]
+            };
             return View(model);
+        }
+
+        public async Task<IActionResult> GetVotingsForUser()
+        {
+            var result = _authentication.CheckToken(Request.Headers["Authorization"]);
+            if (!result.Success)
+                return Unauthorized();
+
+            UserInformation user;
+            try
+            {
+                user = _userHandler.MapUser(result.User);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogWarning(ex, "Error getting votings for user!");
+                return Unauthorized();
+            }
+
+            var votingsForUser = await _votingStore.GetForUserId(user.UserId);
+            var resultForSerialization = votingsForUser.Select(x => new
+            {
+                Title = x.Title,
+                Description = x.Description ?? string.Empty,
+                Id = x.Id
+            });
+            return new JsonResult(resultForSerialization.ToArray());
         }
 
         [HttpGet]
         public async Task<IActionResult> Edit(long id)
         {
-            var votings = await _votingStore.GetAll();
-            var voting = votings.FirstOrDefault(x => x.Id.Equals(id));
+            var result = _authentication.CheckToken(Request.Headers["Authorization"]);
+            if (!result.Success)
+                return Unauthorized();
+            var voting = await _votingStore.GetById(id);
             var model = new EditVotingModel {Header = "fara", Title = "foro", Voting = voting};
             return View(model);
         }
 
         [HttpPost]
-        public IActionResult Edit(long id, EditVotingModel inputs)
+        public async Task<IActionResult> Edit(long id, EditVotingModel inputs)
         {
+            var result = _authentication.CheckToken(Request.Headers["Authorization"]);
+            if (!result.Success)
+                return Unauthorized();
+            var user = _userHandler.MapUser(result.User);
+            if(!user.UserId.Equals(inputs.Voting.Creator, StringComparison.InvariantCulture))
+                return Unauthorized();
+
+            await _votingStore.Update(inputs.Voting);
             return Ok();
         }
     }

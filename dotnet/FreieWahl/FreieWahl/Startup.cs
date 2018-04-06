@@ -33,6 +33,7 @@ namespace FreieWahl
             string projectId = GetProjectId();
 
             services.AddMvc();
+
             services.AddLocalization(opts => { opts.ResourcesPath = "Resources"; });
 
             // Enables Stackdriver Trace.
@@ -49,7 +50,7 @@ namespace FreieWahl
             services.AddSingleton<IJwtAuthentication, FirebaseJwtAuthentication>();
             services.AddSingleton<IUserHandler, UserHandler>();
             services.AddSingleton<ITimestampService>(p => new TimestampService(Configuration["TimestampServer:Url"]));
-            services.AddSingleton<IVotingStore>(p => new VotingStore(Configuration["Google:ProjectId"]));
+            services.AddSingleton<IVotingStore>(p => new VotingStore(Configuration["Datastore:ProjectId"]));
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

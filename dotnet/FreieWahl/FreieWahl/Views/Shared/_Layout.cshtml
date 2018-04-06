@@ -4,17 +4,17 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>@ViewData["Title"] - FreieWahl</title>
-    <script>
-        window.addEventListener('load', initApp);
-    </script>
 
     <environment names="Development">
         <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.css" />
+        
+        <script src="~/lib/jquery/dist/jquery.js"></script>
 
         <script src="~/lib/firebase/firebase.js"></script>
         <script src="~/lib/firebase/firebase-auth.js"></script>
         <script src="~/lib/firebase/firebase-firestore.js"></script>
         <script src="~/lib/firebaseui/dist/firebaseui.js"></script>
+        <script src="~/js/site.js" asp-append-version="true"></script>
 
         <link rel="stylesheet" href="~/lib/material-design-lite/material.min.css">
         <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
@@ -26,17 +26,24 @@
         <link rel="stylesheet" href="https://ajax.aspnetcdn.com/ajax/bootstrap/3.3.6/css/bootstrap.min.css"
               asp-fallback-href="~/lib/bootstrap/dist/css/bootstrap.min.css"
               asp-fallback-test-class="sr-only" asp-fallback-test-property="position" asp-fallback-test-value="absolute" />
+        
+        <script src="~/lib/jquery/dist/jquery.js"></script>
 
         <script src="~/lib/firebase/firebase.js"></script>
         <script src="~/lib/firebase/firebase-auth.js"></script>
         <script src="~/lib/firebase/firebase-firestore.js"></script>
         <script src="~/lib/firebaseui/dist/firebaseui.js"></script>
+        <script src="~/js/site.js" asp-append-version="true"></script>
 
         <link rel="stylesheet" href="~/lib/material-design-lite/material.min.css">
         <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
         <link type="text/css" rel="stylesheet" href="~/lib/firebaseui/dist/firebaseui.css" />
         <link rel="stylesheet" href="~/css/site.min.css" asp-append-version="true" />
     </environment>
+
+    <script>
+        window.addEventListener('load', initApp);
+    </script>
 </head>
 <body>
     <div class="freiewahl-layout-transparent mdl-layout mdl-js-layout">
@@ -46,6 +53,8 @@
                 <span class="mdl-layout-title">TitleA</span>
                 <!-- Add spacer, to align navigation to the right -->
                 <div class="mdl-layout-spacer"></div>
+                <div class="mdl-layout--fixed-header" id="sign-in-status"></div>
+                <div class="mdl-layout--fixed-header" id="sign-in"></div>
                 <!-- Navigation -->
                 <nav class="mdl-navigation">
                     @Html.ActionLink("Overview", "Overview", "VotingAdministration", new { }, new { @class = "mdl-navigation__link" })
@@ -75,7 +84,6 @@
     <environment names="Development">
         <script src="~/lib/jquery/dist/jquery.js"></script>
         <script src="~/lib/bootstrap/dist/js/bootstrap.js"></script>
-        <script src="~/js/site.js" asp-append-version="true"></script>
         <script src="~/lib/material-design-lite/material.min.js"></script>
     </environment>
     <environment names="Staging,Production">

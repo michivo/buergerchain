@@ -41,6 +41,9 @@ namespace FreieWahl.Security.Authentication
             if(!_isInitialized)
                 return new JwtAuthenticationResult("Not initalized yet"); // TODO: exception?
 
+            if(string.IsNullOrEmpty(token))
+                return new JwtAuthenticationResult("Missing authentication header");
+
             JwtSecurityTokenHandler handler = new JwtSecurityTokenHandler();
             var user = handler.ValidateToken(token, _validationParameters, out _);
 

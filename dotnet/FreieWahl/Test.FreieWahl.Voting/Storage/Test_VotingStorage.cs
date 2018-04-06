@@ -3,6 +3,8 @@ using System.Linq;
 using System.Threading.Tasks;
 using FreieWahl.Voting.Models;
 using FreieWahl.Voting.Storage;
+using Google.Api.Gax.Grpc;
+using Google.Cloud.Datastore.V1;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace Test.FreieWahl.Voting.Storage
@@ -11,27 +13,25 @@ namespace Test.FreieWahl.Voting.Storage
     public class TestVotingStorage
     {
         private static readonly string ProjectId = "groovy-cider-826";
+        private VotingStore _votingStore;
 
         [TestInitialize]
         public void Init()
         {
-            var store = new VotingStore(ProjectId, VotingStore.TestNamespace);
-            store.ClearAll();
+            _votingStore = new VotingStore(ProjectId, VotingStore.TestNamespace);
+            _votingStore.ClearAll();
         }
 
         [TestCleanup]
         public void Cleanup()
         {
-            var store = new VotingStore(ProjectId, VotingStore.TestNamespace);
-            store.ClearAll();
+            _votingStore.ClearAll();
         }
 
         [TestMethod]
-        public void TestInsert()
+        public async Task TestInsert()
         {
-            var store = new VotingStore(ProjectId, VotingStore.TestNamespace);
-
-            store.Insert(new StandardVoting
+            await _votingStore.Insert(new StandardVoting
             {
                 Creator = "Michael",
                 DateCreated = DateTime.UtcNow,
@@ -45,7 +45,6 @@ namespace Test.FreieWahl.Voting.Storage
         public async Task TestUpdate()
         {
             // arrange
-            var store = new VotingStore(ProjectId, VotingStore.TestNamespace);
             var creationDate = new DateTime(2012, 12, 20, 20, 12, 00, DateTimeKind.Utc);
 
             var standardVoting = new StandardVoting
@@ -57,21 +56,20 @@ namespace Test.FreieWahl.Voting.Storage
                 Visibility = VotingVisibility.WithLink
             };
 
-            store.Insert(standardVoting);
+            await _votingStore.Insert(standardVoting);
 
             // act - read and update the voting
-            var readVotings = await store.GetForUserId("Michael");
+            var readVotings = await _votingStore.GetForUserId("Michael");
             var readVoting = readVotings.Single();
 
             readVoting.Description = "Foobar";
             readVoting.Title = "Title2";
-            readVoting.Creator = "Donald";
             readVoting.DateCreated = DateTime.UtcNow;
             readVoting.Visibility = VotingVisibility.OwnerOnly;
             readVoting.Questions = _CreateDummyQuestions();
 
-            await store.Update(readVoting);
-            var updatedVoting = (await store.GetAll()).Single();
+            await _votingStore.Update(readVoting);
+            var updatedVoting = (await _votingStore.GetAll()).Single();
             
             // assert that voting was updated correctly
             Assert.AreEqual("Michael", updatedVoting.Creator); // should not have been updated!
@@ -91,9 +89,6 @@ namespace Test.FreieWahl.Voting.Storage
         [TestMethod]
         public async Task TestInsertAndRead()
         {
-            var store = new VotingStore(ProjectId, VotingStore.TestNamespace);
-
-
             var votingWritten = new StandardVoting
             {
                 Creator = "Michael",
@@ -103,9 +98,9 @@ namespace Test.FreieWahl.Voting.Storage
                 Visibility = VotingVisibility.WithLink,
                 Questions = _CreateDummyQuestions()
             };
-            store.Insert(votingWritten);
+            await _votingStore.Insert(votingWritten);
 
-            var result = (await store.GetAll()).ToList();
+            var result = (await _votingStore.GetAll()).ToList();
             Assert.AreEqual(1, result.Count());
             var votingRead = result.Single();
             Assert.AreEqual(votingWritten, votingRead);

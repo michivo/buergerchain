@@ -7,22 +7,51 @@
 
 <h2>My Votings</h2>
 
-<ul class="freiewahl-voting-overview mdl-list">
-    @{
-        foreach (var voting in Model.Votings)
-        {
-            <li class="mdl-list__item mdl-list__item--three-line">
-                <span class="mdl-list__item-primary-content">
-                    <i class="material-icons mdl-list__item-avatar">check_circle</i>
-                    <span>@voting.Title</span>
-                    <span class="mdl-list__item-text-body">
-                        @voting.Description
-                    </span>
-                </span>
-                <span class="mdl-list__item-secondary-content">
-                    <a class="mdl-list__item-secondary-action" href="@Url.Action("Edit", "VotingAdministration", new { id = voting.Id })"><i class="material-icons">mode_edit</i></a>
-                </span>
-            </li>
-        }
-    }
-</ul>
+<div id="votingOverviewList">
+    <div id="votingLoadProgress" class="mdl-progress mdl-js-progress mdl-progress__indeterminate"></div>
+</div>
+
+<script>
+    $(document).ready(
+        firebase.auth().onAuthStateChanged(function (currentUser) {
+
+            if (currentUser) {
+                currentUser.getIdToken(true).then(function (idToken) {
+                    $.ajax({
+                        url: 'GetVotingsForUser',
+                        type: 'GET',
+                        datatype: 'json',
+                        success: function (data) {
+                            var items = [];
+                            for (var i = 0; i < data.length; i++) {
+                                var voting = data[i];
+                                var item = '<li class="mdl-list__item mdl-list__item--three-line">' +
+                                    ' <span class="mdl-list__item-primary-content">' +
+                                    '  <i class="material-icons mdl-list__item-avatar">check_circle</i>';
+                                item += '  <span>' + voting.title + '</span>';
+                                item += '  <span class="mdl-list__item-text-body">' +
+                                    voting.description +
+                                    '</span>' +
+                                    ' </span> <span class="mdl-list__item-secondary-content">';
+                                item +=
+                                    ' <a class="mdl-list__item-secondary-action" href="Edit?id=' +
+                                    voting.id +
+                                    '"><i class="material-icons">mode_edit</i></a>' +
+                                    ' </span></li>';
+                                items.push(item);
+                            }
+                            $("#votingLoadProgress").remove();
+                            $("<ul/>",
+                                {
+                                    "class": "freiewahl-voting-overview mdl-list",
+                                    html: items.join("\n")
+                                }).appendTo("#votingOverviewList");
+                        },
+                        beforeSend: function (xhr) {
+                            xhr.setRequestHeader("Authorization", idToken);
+                        }
+                    });
+                });
+            }
+        }));
+</script>

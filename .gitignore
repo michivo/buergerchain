@@ -9,3 +9,4 @@
 /dotnet/FreieWahl/*.user
 /dotnet/FreieWahl/FreieWahl/bower_components
 /dotnet/FreieWahl/.axoCover/runs
+*.pyc
