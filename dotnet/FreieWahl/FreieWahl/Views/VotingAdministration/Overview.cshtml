@@ -1,5 +1,9 @@
-﻿@using FreieWahl.Models.VotingAdministration
+﻿@using FreieWahl.Controllers
+@using FreieWahl.Models.VotingAdministration
+@using Microsoft.Extensions.Localization
 @model FreieWahl.Models.VotingAdministration.VotingOverviewModel
+
+@inject IStringLocalizer<VotingAdministrationController> Localizer
 
 @{
     ViewData["Title"] = Model.Title;
@@ -7,51 +11,117 @@
 
 <h2>My Votings</h2>
 
-<div id="votingOverviewList">
-    <div id="votingLoadProgress" class="mdl-progress mdl-js-progress mdl-progress__indeterminate"></div>
+<div id="votingLoadProgress" class="mdl-progress mdl-js-progress mdl-progress__indeterminate"></div>
+<div id="votingOverviewList" style="display: none"></div>
+<div id="votingEditView" style="display: none">
+    <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+        <input class="mdl-textfield__input" type="text" id="votingTitle">
+        <label class="mdl-textfield__label" for="votingTitle">@Localizer["LabelVotingTitle"]</label>
+    </div>
+    <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+        <input class="mdl-textfield__input" type="text" id="votingDescription">
+        <label class="mdl-textfield__label" for="votingDescription">@Localizer["LabelVotingDescription"]</label>
+    </div>
+    <input type="hidden" value="" id="votingId">
+    <button class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent" onclick="saveVoting()">
+        Save
+    </button>
 </div>
 
 <script>
-    $(document).ready(
-        firebase.auth().onAuthStateChanged(function (currentUser) {
+    firebase.auth().onAuthStateChanged(function (currentUser) { showOverview(currentUser); });
 
-            if (currentUser) {
-                currentUser.getIdToken(true).then(function (idToken) {
-                    $.ajax({
-                        url: 'GetVotingsForUser',
-                        type: 'GET',
-                        datatype: 'json',
-                        success: function (data) {
-                            var items = [];
-                            for (var i = 0; i < data.length; i++) {
-                                var voting = data[i];
-                                var item = '<li class="mdl-list__item mdl-list__item--three-line">' +
-                                    ' <span class="mdl-list__item-primary-content">' +
-                                    '  <i class="material-icons mdl-list__item-avatar">check_circle</i>';
-                                item += '  <span>' + voting.title + '</span>';
-                                item += '  <span class="mdl-list__item-text-body">' +
-                                    voting.description +
-                                    '</span>' +
-                                    ' </span> <span class="mdl-list__item-secondary-content">';
-                                item +=
-                                    ' <a class="mdl-list__item-secondary-action" href="Edit?id=' +
-                                    voting.id +
-                                    '"><i class="material-icons">mode_edit</i></a>' +
-                                    ' </span></li>';
-                                items.push(item);
-                            }
-                            $("#votingLoadProgress").remove();
-                            $("<ul/>",
-                                {
-                                    "class": "freiewahl-voting-overview mdl-list",
-                                    html: items.join("\n")
-                                }).appendTo("#votingOverviewList");
-                        },
-                        beforeSend: function (xhr) {
-                            xhr.setRequestHeader("Authorization", idToken);
+
+    function showOverview(currentUser) {
+        $("#votingOverviewList").empty();
+        $("#votingOverviewList").hide('fast');
+        $("#votingEditView").hide('fast');
+        $("#votingLoadProgress").show();
+        if (currentUser) {
+            currentUser.getIdToken(true).then(function (idToken) {
+                $.ajax({
+                    url: 'GetVotingsForUser',
+                    type: 'GET',
+                    datatype: 'json',
+                    success: function (data) {
+                        var items = [];
+                        for (var i = 0; i < data.length; i++) {
+                            var voting = data[i];
+                            var item = '<li class="mdl-list__item mdl-list__item--three-line">' +
+                                ' <span class="mdl-list__item-primary-content">' +
+                                '  <i class="material-icons mdl-list__item-avatar">check_circle</i>';
+                            item += '  <span>' + voting.title + '</span>';
+                            item += '  <span class="mdl-list__item-text-body">' +
+                                voting.description +
+                                '</span>' +
+                                ' </span> <span class="mdl-list__item-secondary-content">';
+                            item +=
+                                ' <a class="mdl-list__item-secondary-action" onclick="editVoting(' +
+                                voting.id +
+                                ')"><i class="material-icons">mode_edit</i></a>' +
+                                ' </span></li>';
+                            items.push(item);
                         }
-                    });
+                        $("#votingLoadProgress").hide("fast");
+                        $("#votingOverviewList").show('fast');
+                        $("<ul/>",
+                            {
+                                "class": "freiewahl-voting-overview mdl-list",
+                                html: items.join("\n")
+                            }).appendTo("#votingOverviewList");
+                    },
+                    beforeSend: function (xhr) {
+                        xhr.setRequestHeader("Authorization", idToken);
+                    }
                 });
-            }
-        }));
+            });
+        }
+    };
+
+    function editVoting(id) {
+        $("#votingOverviewList").hide('fast');
+        $('#votingLoadProgress').show();
+
+        var currentUser = firebase.auth().currentUser;
+        if (currentUser) {
+            currentUser.getIdToken(true).then(function (idToken) {
+                $.ajax({
+                    url: 'GetVotingDetails',
+                    data: { "id": id },
+                    type: 'GET',
+                    datatype: 'json',
+                    beforeSend: function (xhr) {
+                        xhr.setRequestHeader("Authorization", idToken);
+                    },
+                    success: function (voting) {
+
+                        $("#votingTitle").attr('value', voting.title);
+                        $("#votingDescription").attr('value', voting.description);
+                        $("#votingId").val(id);
+                        $("#votingLoadProgress").hide("fast");
+                        $("#votingEditView").show("fast");
+                    }
+                });
+            });
+        }
+    }
+
+    function saveVoting() {
+        var title = $("#votingTitle").val();
+        var desc = $("#votingDescription").val();
+        var id = $("#votingId").val();
+        var currentUser = firebase.auth().currentUser;
+        if (currentUser) {
+            currentUser.getIdToken(true).then(function(idToken) {
+                $.post({
+                    url: 'UpdateVoting',
+                    data: { "title": title, "desc": desc, "id": id },
+                    beforeSend: function(xhr) {
+                        xhr.setRequestHeader("Authorization", idToken);
+                    },
+                    success: function(data) { showOverview(currentUser) }
+                });
+            });
+        }
+    }
 </script>

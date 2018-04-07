@@ -70,6 +70,41 @@ namespace FreieWahl.Controllers
             return new JsonResult(resultForSerialization.ToArray());
         }
 
+        public async Task<IActionResult> GetVotingDetails(long id)
+        {
+            var auth = _authentication.CheckToken(Request.Headers["Authorization"]);
+            if (!auth.Success)
+                return Unauthorized();
+
+            UserInformation user;
+            try
+            {
+                user = _userHandler.MapUser(auth.User);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogWarning(ex, "Error getting votings for user!");
+                return Unauthorized();
+            }
+
+            var voting = await _votingStore.GetById(id);
+            if (voting.Creator != user.UserId)
+            {
+                _logger.LogWarning("User tried to edit voting not created by them");
+                return Unauthorized();
+            }
+
+            var result = new
+            {
+                Id = voting.Id,
+                Title = voting.Title,
+                Description = voting.Description,
+                Questions = voting.Questions // TODO MFA
+            };
+
+            return new JsonResult(result);
+        }
+
         [HttpGet]
         public async Task<IActionResult> Edit(long id)
         {
@@ -82,16 +117,19 @@ namespace FreieWahl.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Edit(long id, EditVotingModel inputs)
+        public async Task<IActionResult> UpdateVoting(long id, string title, string desc)
         {
             var result = _authentication.CheckToken(Request.Headers["Authorization"]);
             if (!result.Success)
                 return Unauthorized();
             var user = _userHandler.MapUser(result.User);
-            if(!user.UserId.Equals(inputs.Voting.Creator, StringComparison.InvariantCulture))
+            var voting = await _votingStore.GetById(id);
+            if(!user.UserId.Equals(voting.Creator, StringComparison.InvariantCulture))
                 return Unauthorized();
 
-            await _votingStore.Update(inputs.Voting);
+            voting.Title = title;
+            voting.Description = desc;
+            await _votingStore.Update(voting);
             return Ok();
         }
     }

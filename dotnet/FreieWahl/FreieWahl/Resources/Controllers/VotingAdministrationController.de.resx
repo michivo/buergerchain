@@ -120,10 +120,16 @@
   <data name="Header" xml:space="preserve">
     <value>Meine Abstimmungen</value>
   </data>
+  <data name="LabelVotingDescription" xml:space="preserve">
+    <value>Beschreibung</value>
+  </data>
   <data name="LabelVotingTitle" xml:space="preserve">
     <value>Titel</value>
   </data>
   <data name="Title" xml:space="preserve">
     <value>Übersicht</value>
+  </data>
+  <data name="WarningTitleNotEmpty" xml:space="preserve">
+    <value>Titel darf nicht leer sein</value>
   </data>
 </root>
