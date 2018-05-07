@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using FreieWahl.Models.VotingAdministration;
 using FreieWahl.Security.Authentication;
 using FreieWahl.Security.UserHandling;
+using FreieWahl.Voting.Models;
 using FreieWahl.Voting.Storage;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Localization;
@@ -99,7 +100,12 @@ namespace FreieWahl.Controllers
                 Id = voting.Id,
                 Title = voting.Title,
                 Description = voting.Description,
-                Questions = voting.Questions // TODO MFA
+                Questions = voting.Questions.Select(x =>
+                    new
+                    {
+                        Text = x.QuestionText,
+                        AnswerOptions = x.AnswerOptions.Select(a => a.AnswerText).ToArray()
+                    }).ToArray()
             };
 
             return new JsonResult(result);
@@ -112,7 +118,7 @@ namespace FreieWahl.Controllers
             if (!result.Success)
                 return Unauthorized();
             var voting = await _votingStore.GetById(id);
-            var model = new EditVotingModel {Header = "fara", Title = "foro", Voting = voting};
+            var model = new EditVotingModel { Header = "fara", Title = "foro", Voting = voting };
             return View(model);
         }
 
@@ -123,13 +129,41 @@ namespace FreieWahl.Controllers
             if (!result.Success)
                 return Unauthorized();
             var user = _userHandler.MapUser(result.User);
+            if (id != 0)
+            {
+                return await _UpdateVoting(id, title, desc, user);
+            }
+
+            return await _InsertVoting(title, desc, user);
+        }
+
+        private async Task<IActionResult> _InsertVoting(string title, string desc, UserInformation user)
+        {
+            StandardVoting voting = new StandardVoting()
+            {
+                Creator = user.UserId,
+                DateCreated = DateTime.UtcNow,
+                Description = desc,
+                Questions = new Question[0],
+                Title = title,
+                Visibility = VotingVisibility.OwnerOnly
+            };
+
+            await _votingStore.Insert(voting).ConfigureAwait(false);
+
+            return Ok();
+        }
+
+        private async Task<IActionResult> _UpdateVoting(long id, string title, string desc, UserInformation user)
+        {
             var voting = await _votingStore.GetById(id);
-            if(!user.UserId.Equals(voting.Creator, StringComparison.InvariantCulture))
+            if (!user.UserId.Equals(voting.Creator, StringComparison.InvariantCulture))
                 return Unauthorized();
 
             voting.Title = title;
             voting.Description = desc;
-            await _votingStore.Update(voting);
+            await _votingStore.Update(voting).ConfigureAwait(false);
+
             return Ok();
         }
     }

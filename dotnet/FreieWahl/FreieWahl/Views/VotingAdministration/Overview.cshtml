@@ -12,20 +12,31 @@
 <h2>My Votings</h2>
 
 <div id="votingLoadProgress" class="mdl-progress mdl-js-progress mdl-progress__indeterminate"></div>
-<div id="votingOverviewList" style="display: none"></div>
+<div id="votingOverviewList" style="display: none">    
+    <div id="votingOverviewListContent"></div>
+    <div id="addVoting">
+        <button class="mdl-button mdl-js-button mdl-button--fab mdl-button--colored" onclick="addVoting()"><i class="material-icons">add</i></button>
+    </div>
+</div>
 <div id="votingEditView" style="display: none">
     <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
-        <input class="mdl-textfield__input" type="text" id="votingTitle">
+        <input class="mdl-textfield__input" type="text" id="votingTitle" value="@Localizer["LabelVotingTitle"]">
         <label class="mdl-textfield__label" for="votingTitle">@Localizer["LabelVotingTitle"]</label>
     </div>
     <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
-        <input class="mdl-textfield__input" type="text" id="votingDescription">
+        <input class="mdl-textfield__input" type="text" id="votingDescription" value="@Localizer["LabelVotingDescription"]">
         <label class="mdl-textfield__label" for="votingDescription">@Localizer["LabelVotingDescription"]</label>
     </div>
     <input type="hidden" value="" id="votingId">
-    <button class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent" onclick="saveVoting()">
-        Save
+    <button class="mdl-button mdl-js-button mdl-button--fab mdl-button--colored" onclick="saveVoting()">
+        <i class="material-icons">save</i>
     </button>
+    <button class="mdl-button mdl-js-button mdl-button--fab mdl-button--colored" onclick="cancelEditing()">
+        <i class="material-icons">cancel</i>
+    </button>
+    <div style="float: none">
+        <div id="votingQuestionsListContent"></div>
+    </div>
 </div>
 
 <script>
@@ -33,7 +44,7 @@
 
 
     function showOverview(currentUser) {
-        $("#votingOverviewList").empty();
+        $("#votingOverviewListContent").empty();
         $("#votingOverviewList").hide('fast');
         $("#votingEditView").hide('fast');
         $("#votingLoadProgress").show();
@@ -43,32 +54,16 @@
                     url: 'GetVotingsForUser',
                     type: 'GET',
                     datatype: 'json',
-                    success: function (data) {
-                        var items = [];
-                        for (var i = 0; i < data.length; i++) {
-                            var voting = data[i];
-                            var item = '<li class="mdl-list__item mdl-list__item--three-line">' +
-                                ' <span class="mdl-list__item-primary-content">' +
-                                '  <i class="material-icons mdl-list__item-avatar">check_circle</i>';
-                            item += '  <span>' + voting.title + '</span>';
-                            item += '  <span class="mdl-list__item-text-body">' +
-                                voting.description +
-                                '</span>' +
-                                ' </span> <span class="mdl-list__item-secondary-content">';
-                            item +=
-                                ' <a class="mdl-list__item-secondary-action" onclick="editVoting(' +
-                                voting.id +
-                                ')"><i class="material-icons">mode_edit</i></a>' +
-                                ' </span></li>';
-                            items.push(item);
-                        }
+                    success: showOverviewData,
+                    error: function(data) {
                         $("#votingLoadProgress").hide("fast");
                         $("#votingOverviewList").show('fast');
-                        $("<ul/>",
+                        $("<div/>",
                             {
-                                "class": "freiewahl-voting-overview mdl-list",
-                                html: items.join("\n")
-                            }).appendTo("#votingOverviewList");
+                                "class": "bc-error-mesage",
+                                html: "An error occurred getting your votings: " + data
+                            }).appendTo("#votingOverviewListContent");
+                        componentHandler.upgradeDom();
                     },
                     beforeSend: function (xhr) {
                         xhr.setRequestHeader("Authorization", idToken);
@@ -77,6 +72,48 @@
             });
         }
     };
+
+    function showOverviewData(data) {
+        var items = [];
+        for (var i = 0; i < data.length; i++) {
+            var voting = data[i];
+            var item = '<li class="mdl-list__item mdl-list__item--three-line">' +
+                ' <span class="mdl-list__item-primary-content">' +
+                '  <i class="material-icons mdl-list__item-avatar">check_circle</i>';
+            item += '  <span>' + voting.title + '</span>';
+            item += '  <span class="mdl-list__item-text-body">' +
+                voting.description +
+                '</span>' +
+                ' </span> <span class="mdl-list__item-secondary-content">';
+            item +=
+                ' <a class="mdl-list__item-secondary-action" onclick="editVoting(' +
+                voting.id +
+                ')"><i class="material-icons">mode_edit</i></a>' +
+                ' </span></li>';
+            items.push(item);
+        }
+        $("#votingLoadProgress").hide("fast");
+        $("#votingOverviewList").show('fast');
+        $("<ul/>",
+            {
+                "class": "freiewahl-voting-overview mdl-list",
+                html: items.join("\n")
+            }).appendTo("#votingOverviewListContent");
+        componentHandler.upgradeDom();
+    }
+
+    function addVoting() {
+        $("#votingOverviewList").hide('fast');
+        $("#votingTitle").attr('value', '');
+        $("#votingDescription").attr('value', '');
+        $("#votingId").val('0');
+        $("#votingEditView").show("fast");
+    }
+
+    function cancelEditing() {
+        var currentUser = firebase.auth().currentUser;
+        showOverview(currentUser);
+    }
 
     function editVoting(id) {
         $("#votingOverviewList").hide('fast');
@@ -93,17 +130,36 @@
                     beforeSend: function (xhr) {
                         xhr.setRequestHeader("Authorization", idToken);
                     },
-                    success: function (voting) {
-
-                        $("#votingTitle").attr('value', voting.title);
-                        $("#votingDescription").attr('value', voting.description);
-                        $("#votingId").val(id);
-                        $("#votingLoadProgress").hide("fast");
-                        $("#votingEditView").show("fast");
-                    }
-                });
+                    success: function (data) { showVotingDetails(data, id); }
+                        // error: todo
+                    });
             });
         }
+    }
+
+    function showVotingDetails(voting, id) {
+
+        $("#votingTitle").attr('value', voting.title);
+        $("#votingDescription").attr('value', voting.description);
+        $("#votingId").val(id);
+        var items = [];
+        for (var i = 0; i < voting.questions.length; i++)
+        {
+            var question = voting.questions[i];
+            var item = '<li class="mdl-list__item">' +
+                ' <span class="mdl-list__item-primary-content">' +
+                '  <i class="material-icons mdl-list__item-avatar">check_circle</i>' + question.text + '</span></li>';
+            items.push(item);
+        }
+
+        $("<ul/>",
+            {
+                "class": "freiewahl-voting-overview mdl-list",
+                html: items.join("\n")
+            }).appendTo("#votingQuestionsListContent");
+
+        $("#votingLoadProgress").hide("fast");
+        $("#votingEditView").show("fast");
     }
 
     function saveVoting() {
@@ -119,7 +175,8 @@
                     beforeSend: function(xhr) {
                         xhr.setRequestHeader("Authorization", idToken);
                     },
-                    success: function(data) { showOverview(currentUser) }
+                    success: function (data) { showOverview(currentUser) }
+                    // error: todo
                 });
             });
         }
