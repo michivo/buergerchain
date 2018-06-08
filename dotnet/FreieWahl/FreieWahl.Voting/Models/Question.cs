@@ -8,6 +8,8 @@ namespace FreieWahl.Voting.Models
     {
         private QuestionDetail[] _details;
         private AnswerOption[] _answerOptions;
+        private QuestionStatus _status;
+        private long _id;
 
         public Question()
         {
@@ -29,11 +31,16 @@ namespace FreieWahl.Voting.Models
             set => _answerOptions = value ?? new AnswerOption[0];
         }
 
+        public long Id { get; set; }
+
+        public QuestionStatus Status { get; set; }
+
         public bool Equals(Question other)
         {
             if (other is null) return false;
             if (ReferenceEquals(this, other)) return true;
-            return QuestionText.EqualsDefault(other.QuestionText) && 
+            return Id.Equals(other.Id) && Status.Equals(other.Status) &&
+                   QuestionText.EqualsDefault(other.QuestionText) && 
                    Details.SequenceEqual(other.Details) && 
                    AnswerOptions.SequenceEqual(other.AnswerOptions);
         }
@@ -50,7 +57,9 @@ namespace FreieWahl.Voting.Models
         {
             unchecked
             {
-                var hashCode = (QuestionText != null ? QuestionText.GetHashCode() : 0);
+                var hashCode = _id.GetHashCode();
+                hashCode = (hashCode * 397) ^ _status.GetHashCode();
+                hashCode = (hashCode * 397) ^ (QuestionText != null ? QuestionText.GetHashCode() : 0);
                 hashCode = (hashCode * 397) ^ (Details != null ? Details.GetHashCode() : 0);
                 hashCode = (hashCode * 397) ^ (AnswerOptions != null ? AnswerOptions.GetHashCode() : 0);
                 return hashCode;

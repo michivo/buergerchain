@@ -46,7 +46,7 @@ namespace FreieWahl.Security.Authentication
 
             JwtSecurityTokenHandler handler = new JwtSecurityTokenHandler();
             var user = handler.ValidateToken(token, _validationParameters, out _);
-
+            
             if(user != null)
                 return new JwtAuthenticationResult(user);
 

@@ -1,4 +1,5 @@
 ﻿using System.Linq;
+using FreieWahl.Voting.Common;
 using FreieWahl.Voting.Models;
 using Google.Cloud.Datastore.V1;
 
@@ -21,6 +22,8 @@ namespace FreieWahl.Voting.Storage
         {
             return new Entity
             {
+                ["Id"] = question.Id,
+                ["Status"] = (int)question.Status,
                 ["QuestionText"] = question.QuestionText,
                 ["Details"] = ToEntities(question.Details),
                 ["AnswerOptions"] = ToEntities(question.AnswerOptions)
@@ -59,6 +62,8 @@ namespace FreieWahl.Voting.Storage
                 Entity e = value.EntityValue;
                 var result = new Question
                 {
+                    Id = e.Properties.ContainsKey("Id") ? e["Id"].IntegerValue : IdHelper.GetId(),
+                    Status = e.Properties.ContainsKey("Status") ? (QuestionStatus)e["Status"].IntegerValue : QuestionStatus.InPreparation,
                     QuestionText = e["QuestionText"].StringValue,
                     AnswerOptions = FromAnswerOptionEntity(e["AnswerOptions"]),
                     Details = FromQuestionDetailEntity(e["Details"])

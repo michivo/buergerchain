@@ -29,21 +29,53 @@ namespace FreieWahl.Voting.Storage
             voting.Id = key.Path.First().Id;
         }
 
-        public async Task Update(StandardVoting voting)
+        public async Task AddQuestion(long votingId, Question question)
         {
-            var query = new Query(StoreKind)
-            {
-                Filter = Filter.Equal("__key__", _keyFactory.CreateKey(voting.Id)),
-                Limit = 1
-            };
+            var voting = await _GetVoting(votingId);
 
-            var result = await _db.RunQueryAsync(query).ConfigureAwait(false);
-            if (result.Entities.Count == 0)
+            var questions = new List<Question>(voting.Questions);
+            questions.Add(question);
+            voting.Questions = questions.ToArray();
+            await _db.UpdateAsync(ToEntity(voting));
+        }
+
+        public async Task DeleteQuestion(long votingId, long questionId)
+        {
+            var voting = await _GetVoting(votingId);
+            if (voting.Questions.All(x => x.Id != questionId))
             {
-                throw new InvalidOperationException("No voting to update!");
+                throw new InvalidOperationException("Trying to delete inexistent question");
             }
 
-            var readVoting = FromEntity(result.Entities.Single());
+            voting.Questions = voting.Questions.Where(x => x.Id != questionId).ToArray();
+            await _db.UpdateAsync(ToEntity(voting));
+        }
+
+        public async Task ClearQuestions(long votingId)
+        {
+            var voting = await _GetVoting(votingId);
+            voting.Questions = new Question[0];
+            await _db.UpdateAsync(ToEntity(voting));
+        }
+
+        public async Task UpdateQuestion(long votingId, Question question)
+        {
+            var voting = await _GetVoting(votingId);
+            for (int i = 0; i < voting.Questions.Length; i++)
+            {
+                if (voting.Questions[i].Id == question.Id)
+                {
+                    voting.Questions[i] = question;
+                    await _db.UpdateAsync(ToEntity(voting));
+                }
+            }
+
+            throw new InvalidOperationException("Tried to update inexistent question");
+        }
+
+        public async Task Update(StandardVoting voting)
+        {
+            var readVoting = await _GetVoting(voting.Id);
             if (!readVoting.Creator.Equals(voting.Creator, StringComparison.OrdinalIgnoreCase))
             {
                 throw new InvalidOperationException("Cannot modify creator of voting!");
@@ -54,6 +86,24 @@ namespace FreieWahl.Voting.Storage
             readVoting.Title = voting.Title;
             readVoting.Visibility = voting.Visibility;
             await _db.UpdateAsync(ToEntity(readVoting));
+        }
+
+        private async Task<StandardVoting> _GetVoting(long votingId)
+        {
+            var query = new Query(StoreKind)
+            {
+                Filter = Filter.Equal("__key__", _keyFactory.CreateKey(votingId)),
+                Limit = 1
+            };
+
+            var result = await _db.RunQueryAsync(query).ConfigureAwait(false);
+            if (result.Entities.Count != 1)
+            {
+                throw new InvalidOperationException("No voting to update!");
+            }
+
+            var readVoting = FromEntity(result.Entities.Single());
+            return readVoting;
         }
 
         public async Task<StandardVoting> GetById(long id)
@@ -120,7 +170,7 @@ namespace FreieWahl.Voting.Storage
         {
             var visibility = (int?)entity["Visibility"];
             var visibilityValue = visibility == null ? VotingVisibility.OwnerOnly : (VotingVisibility)visibility;
-
+            
             return new StandardVoting()
             {
                 Id = entity.Key.Path.First().Id,
