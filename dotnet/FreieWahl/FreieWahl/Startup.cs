@@ -1,5 +1,6 @@
 ﻿using Google.Cloud.Diagnostics.AspNetCore;
 using System;
+using FreieWahl.Application.Authentication;
 using FreieWahl.Common;
 using FreieWahl.Security.Authentication;
 using FreieWahl.Security.TimeStamps;
@@ -51,6 +52,7 @@ namespace FreieWahl
             services.AddSingleton<IUserHandler, UserHandler>();
             services.AddSingleton<ITimestampService>(p => new TimestampService(Configuration["TimestampServer:Url"]));
             services.AddSingleton<IVotingStore>(p => new VotingStore(Configuration["Datastore:ProjectId"]));
+            services.AddSingleton<IAuthenticationManager, AuthenticationManager>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

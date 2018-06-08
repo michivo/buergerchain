@@ -32,6 +32,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\FreieWahl.Application\FreieWahl.Application.csproj" />
     <ProjectReference Include="..\FreieWahl.Common\FreieWahl.Common.csproj" />
     <ProjectReference Include="..\FreieWahl.Security\FreieWahl.Security.csproj" />
     <ProjectReference Include="..\FreieWahl.Voting\FreieWahl.Voting.csproj" />

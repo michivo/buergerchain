@@ -13,6 +13,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FreieWahl.Voting", "FreieWa
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Test.FreieWahl.Voting", "Test.FreieWahl.Voting\Test.FreieWahl.Voting.csproj", "{2B3AA897-284C-408B-BF6F-353B8814B6D6}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FreieWahl.Application", "FreieWahl.Application\FreieWahl.Application.csproj", "{37C6CD2E-D5C1-4AAD-9FA4-B9F65456580A}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -39,6 +41,10 @@ Global
 		{2B3AA897-284C-408B-BF6F-353B8814B6D6}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{2B3AA897-284C-408B-BF6F-353B8814B6D6}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{2B3AA897-284C-408B-BF6F-353B8814B6D6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{37C6CD2E-D5C1-4AAD-9FA4-B9F65456580A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{37C6CD2E-D5C1-4AAD-9FA4-B9F65456580A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{37C6CD2E-D5C1-4AAD-9FA4-B9F65456580A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{37C6CD2E-D5C1-4AAD-9FA4-B9F65456580A}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

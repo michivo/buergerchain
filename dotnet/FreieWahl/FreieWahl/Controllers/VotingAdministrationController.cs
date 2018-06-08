@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
+using FreieWahl.Application.Authentication;
 using FreieWahl.Models.VotingAdministration;
 using FreieWahl.Security.Authentication;
 using FreieWahl.Security.UserHandling;
@@ -20,18 +21,21 @@ namespace FreieWahl.Controllers
         private readonly IStringLocalizer<VotingAdministrationController> _localizer;
         private readonly IJwtAuthentication _authentication;
         private readonly IUserHandler _userHandler;
+        private readonly IAuthenticationManager _authManager;
 
         public VotingAdministrationController(ILogger<HomeController> logger,
             IVotingStore votingStore,
             IStringLocalizer<VotingAdministrationController> localizer,
             IJwtAuthentication authentication,
-            IUserHandler userHandler)
+            IUserHandler userHandler,
+            IAuthenticationManager authManager)
         {
             _logger = logger;
             _votingStore = votingStore;
             _localizer = localizer;
             _authentication = authentication;
             _userHandler = userHandler;
+            _authManager = authManager;
         }
 
         public IActionResult Overview()
@@ -73,28 +77,10 @@ namespace FreieWahl.Controllers
 
         public async Task<IActionResult> GetVotingDetails(long id)
         {
-            var auth = _authentication.CheckToken(Request.Headers["Authorization"]);
-            if (!auth.Success)
+            if (await _CheckAuthorization(id, Operation.Read))
                 return Unauthorized();
-
-            UserInformation user;
-            try
-            {
-                user = _userHandler.MapUser(auth.User);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogWarning(ex, "Error getting votings for user!");
-                return Unauthorized();
-            }
 
             var voting = await _votingStore.GetById(id);
-            if (voting.Creator != user.UserId)
-            {
-                _logger.LogWarning("User tried to edit voting not created by them");
-                return Unauthorized();
-            }
-
             var result = new
             {
                 Id = voting.Id,
@@ -111,12 +97,41 @@ namespace FreieWahl.Controllers
             return new JsonResult(result);
         }
 
+        private async Task<bool> _CheckAuthorization(long? id, Operation operation)
+        {
+            var auth = _authentication.CheckToken(Request.Headers["Authorization"]);
+            if (!auth.Success)
+            {
+                return false;
+            }
+
+            UserInformation user;
+            try
+            {
+                user = _userHandler.MapUser(auth.User);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogWarning(ex, "Error getting votings for user!");
+                return false;
+            }
+
+            var authorized = await _authManager.IsAuthorized(user.UserId, id, operation);
+            if (!authorized)
+            {
+                _logger.LogWarning("User tried to open voting without being authorized");
+                return false;
+            }
+
+            return true;
+        }
+
         [HttpGet]
         public async Task<IActionResult> Edit(long id)
         {
-            var result = _authentication.CheckToken(Request.Headers["Authorization"]);
-            if (!result.Success)
+            if (await _CheckAuthorization(id, Operation.UpdateVoting))
                 return Unauthorized();
+
             var voting = await _votingStore.GetById(id);
             var model = new EditVotingModel { Header = "fara", Title = "foro", Voting = voting };
             return View(model);
@@ -125,9 +140,10 @@ namespace FreieWahl.Controllers
         [HttpPost]
         public async Task<IActionResult> UpdateVoting(long id, string title, string desc)
         {
-            var result = _authentication.CheckToken(Request.Headers["Authorization"]);
-            if (!result.Success)
+            if (await _CheckAuthorization(id, Operation.UpdateVoting))
                 return Unauthorized();
+
+            var result = _authentication.CheckToken(Request.Headers["Authorization"]);
             var user = _userHandler.MapUser(result.User);
             if (id != 0)
             {
@@ -139,6 +155,9 @@ namespace FreieWahl.Controllers
 
         private async Task<IActionResult> _InsertVoting(string title, string desc, UserInformation user)
         {
+            if (await _CheckAuthorization(null, Operation.Create))
+                return Unauthorized();
+            
             StandardVoting voting = new StandardVoting()
             {
                 Creator = user.UserId,
@@ -157,9 +176,6 @@ namespace FreieWahl.Controllers
         private async Task<IActionResult> _UpdateVoting(long id, string title, string desc, UserInformation user)
         {
             var voting = await _votingStore.GetById(id);
-            if (!user.UserId.Equals(voting.Creator, StringComparison.InvariantCulture))
-                return Unauthorized();
-
             voting.Title = title;
             voting.Description = desc;
             await _votingStore.Update(voting).ConfigureAwait(false);
