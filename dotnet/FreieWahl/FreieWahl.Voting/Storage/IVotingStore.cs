@@ -19,5 +19,13 @@ namespace FreieWahl.Voting.Storage
         Task<IEnumerable<StandardVoting>> GetAll();
 
         void ClearAll();
+
+        Task AddQuestion(long votingId, Question question);
+
+        Task DeleteQuestion(long votingId, long questionId);
+
+        Task ClearQuestions(long votingId);
+
+        Task UpdateQuestion(long votingId, Question question);
     }
 }
