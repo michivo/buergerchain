@@ -8,7 +8,8 @@
     "jquery-validation-unobtrusive": "3.2.6",
     "firebaseui": "v2.6.3",
     "firebase": "v4.10.1",
-    "popper.js": "v1.14.3"
+    "popper.js": "v1.14.3",
+    "material-design-icons": "3.0.1"
   },
   "resolutions": {
     "firebaseui": "v2.6.3",
