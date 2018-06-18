@@ -11,34 +11,36 @@
 
 <h2>@Localizer["Header"]</h2>
 
-<div id="votingLoadProgress" class="mdl-progress mdl-js-progress mdl-progress__indeterminate"></div>
+<div id="votingLoadProgress">
+    <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" aria-valuenow="75" aria-valuemin="0" aria-valuemax="100" style="width: 75%"></div>
+</div>
 <div id="votingOverviewList" style="display: none">    
     <div id="votingOverviewListContent"></div>
     <div id="addVoting">
-        <button class="mdl-button mdl-js-button mdl-button--fab mdl-button--colored" onclick="addVoting()"><i class="material-icons">add</i></button>
+        <button type="button" class="btn btn-primary" onclick="addVoting()"><i class="material-icons">add</i></button>
     </div>
 </div>
 <div id="votingEditView" style="display: none">
-    <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
-        <input class="mdl-textfield__input" type="text" id="votingTitle" value="@Localizer["LabelVotingTitle"]">
-        <label class="mdl-textfield__label" for="votingTitle">@Localizer["LabelVotingTitle"]</label>
+    <div class="form-group">
+        <input class="form-control" type="text" id="votingTitle" value="@Localizer["LabelVotingTitle"]">
+        <label for="votingTitle">@Localizer["LabelVotingTitle"]</label>
     </div>
-    <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
-        <input class="mdl-textfield__input" type="text" id="votingDescription" value="@Localizer["LabelVotingDescription"]">
-        <label class="mdl-textfield__label" for="votingDescription">@Localizer["LabelVotingDescription"]</label>
+    <div class="form-group">
+        <input class="form-control" type="text" id="votingDescription" value="@Localizer["LabelVotingDescription"]">
+        <label for="votingDescription">@Localizer["LabelVotingDescription"]</label>
     </div>
     <input type="hidden" value="" id="votingId">
-    <button class="mdl-button mdl-js-button mdl-button--fab mdl-button--colored" onclick="saveVoting()">
-        <i class="material-icons">save</i>
+    <button class="btn btn-primary" onclick="saveVoting()">
+        <i class="material-icons align-top mr-3">save</i> Save
     </button>
-    <button class="mdl-button mdl-js-button mdl-button--fab mdl-button--colored" onclick="cancelEditing()">
-        <i class="material-icons">cancel</i>
+    <button class="btn btn-warning" onclick="cancelEditing()"> 
+        <i class="material-icons align-top mr-3">cancel</i> Cancel
     </button>
     <div style="float: none">
         <h3>@Localizer["QuestionsHeader"]</h3>
         <div id="votingQuestionsListContent"></div>
         <div id="addQuestion">
-            <button class="mdl-button mdl-js-button mdl-button--fab mdl-button--mini-fab mdl-button--colored" onclick="addQuestion()"><i class="material-icons">add</i></button>
+            <button class="btn btn-primary" onclick="addQuestion()"><i class="material-icons align-top mr-3">add</i> Add</button>
         </div>
     </div>
 </div>
@@ -64,7 +66,7 @@
                         $("#votingOverviewList").show('fast');
                         $("<div/>",
                             {
-                                "class": "bc-error-mesage",
+                                "class": "bc-error-message",
                                 html: "An error occurred getting your votings: " + data
                             }).appendTo("#votingOverviewListContent");
                         componentHandler.upgradeDom();
@@ -81,26 +83,25 @@
         var items = [];
         for (var i = 0; i < data.length; i++) {
             var voting = data[i];
-            var item = '<li class="mdl-list__item mdl-list__item--three-line">' +
-                ' <span class="mdl-list__item-primary-content">' +
-                '  <i class="material-icons mdl-list__item-avatar">check_circle</i>';
-            item += '  <span>' + voting.title + '</span>';
-            item += '  <span class="mdl-list__item-text-body">' +
+            var item = '<div class="card"><div class="card-body">';
+            item += '  <h4 class="card-title">' + voting.title + '</h4>';
+            item += '  <p class="card-text">' +
                 voting.description +
-                '</span>' +
-                ' </span> <span class="mdl-list__item-secondary-content">';
+                '</p>';
             item +=
-                ' <a class="mdl-list__item-secondary-action" onclick="editVoting(' +
+                ' <a class="btn btn-primary text-light mr-5" onclick="editVoting(' +
                 voting.id +
-                ')"><i class="material-icons">mode_edit</i></a>' +
-                ' </span></li>';
+                ')"><i class="material-icons align-top mr-3">delete</i>Edit</a>';
+            item += '<a class="btn btn-primary text-light" onclick="deleteVoting(' +
+            voting.id +
+                ')"><i class="material-icons align-top mr-3">delete</i>Delete</a></div ></div > ';
             items.push(item);
         }
         $("#votingLoadProgress").hide("fast");
         $("#votingOverviewList").show('fast');
-        $("<ul/>",
+        $("<div/>",
             {
-                "class": "freiewahl-voting-overview mdl-list",
+                "class": "d-flex flex-column my-3",
                 html: items.join("\n")
             }).appendTo("#votingOverviewListContent");
         componentHandler.upgradeDom();
