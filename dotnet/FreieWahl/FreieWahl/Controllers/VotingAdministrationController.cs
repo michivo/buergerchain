@@ -141,7 +141,9 @@ namespace FreieWahl.Controllers
         [HttpPost]
         public async Task<IActionResult> UpdateVoting(long id, string title, string desc)
         {
-            if (await _CheckAuthorization(id, Operation.UpdateVoting) == false)
+            var operation = id == 0 ? Operation.Create : Operation.UpdateVoting;
+            long? queryId = id == 0 ? (long?)null : id;
+            if (await _CheckAuthorization(queryId, operation) == false)
                 return Unauthorized();
 
             if (id != 0)

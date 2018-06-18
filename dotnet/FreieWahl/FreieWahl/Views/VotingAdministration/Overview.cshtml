@@ -9,7 +9,7 @@
     ViewData["Title"] = Model.Title;
 }
 
-<h2>My Votings</h2>
+<h2>@Localizer["Header"]</h2>
 
 <div id="votingLoadProgress" class="mdl-progress mdl-js-progress mdl-progress__indeterminate"></div>
 <div id="votingOverviewList" style="display: none">    
@@ -35,7 +35,11 @@
         <i class="material-icons">cancel</i>
     </button>
     <div style="float: none">
+        <h3>@Localizer["QuestionsHeader"]</h3>
         <div id="votingQuestionsListContent"></div>
+        <div id="addQuestion">
+            <button class="mdl-button mdl-js-button mdl-button--fab mdl-button--mini-fab mdl-button--colored" onclick="addQuestion()"><i class="material-icons">add</i></button>
+        </div>
     </div>
 </div>
 
@@ -108,6 +112,10 @@
         $("#votingDescription").attr('value', '');
         $("#votingId").val('0');
         $("#votingEditView").show("fast");
+    }
+
+    function addQuestion() {
+        alert("Not supported yet");
     }
 
     function cancelEditing() {
