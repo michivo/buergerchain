@@ -12,47 +12,26 @@
 <h2>@Localizer["Header"]</h2>
 
 <div id="votingLoadProgress">
-    <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" aria-valuenow="75" aria-valuemin="0" aria-valuemax="100" style="width: 75%"></div>
+    <div class="progress">
+        <div id="fw-load-progress" class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100" style="width: 75%"></div>
+    </div>
 </div>
 <div id="votingOverviewList" style="display: none">    
     <div id="votingOverviewListContent"></div>
     <div id="addVoting">
-        <button type="button" class="btn btn-primary" onclick="addVoting()"><i class="material-icons">add</i></button>
+        <a class="btn btn-primary text-light mr-5" href="Edit?id=0"><i class="material-icons align-top mr-3">add</i>Create Voting</a>
     </div>
 </div>
-<div id="votingEditView" style="display: none">
-    <div class="form-group">
-        <input class="form-control" type="text" id="votingTitle" value="@Localizer["LabelVotingTitle"]">
-        <label for="votingTitle">@Localizer["LabelVotingTitle"]</label>
-    </div>
-    <div class="form-group">
-        <input class="form-control" type="text" id="votingDescription" value="@Localizer["LabelVotingDescription"]">
-        <label for="votingDescription">@Localizer["LabelVotingDescription"]</label>
-    </div>
-    <input type="hidden" value="" id="votingId">
-    <button class="btn btn-primary" onclick="saveVoting()">
-        <i class="material-icons align-top mr-3">save</i> Save
-    </button>
-    <button class="btn btn-warning" onclick="cancelEditing()"> 
-        <i class="material-icons align-top mr-3">cancel</i> Cancel
-    </button>
-    <div style="float: none">
-        <h3>@Localizer["QuestionsHeader"]</h3>
-        <div id="votingQuestionsListContent"></div>
-        <div id="addQuestion">
-            <button class="btn btn-primary" onclick="addQuestion()"><i class="material-icons align-top mr-3">add</i> Add</button>
-        </div>
-    </div>
-</div>
+
 
 <script>
     firebase.auth().onAuthStateChanged(function (currentUser) { showOverview(currentUser); });
 
 
     function showOverview(currentUser) {
+        $("#fw-load-progress").attr("aria-valuenow", "60");
         $("#votingOverviewListContent").empty();
         $("#votingOverviewList").hide('fast');
-        $("#votingEditView").hide('fast');
         $("#votingLoadProgress").show();
         if (currentUser) {
             currentUser.getIdToken(true).then(function (idToken) {
@@ -80,6 +59,7 @@
     };
 
     function showOverviewData(data) {
+        $("#fw-load-progress").attr("aria-valuenow", "90");
         var items = [];
         for (var i = 0; i < data.length; i++) {
             var voting = data[i];
@@ -89,9 +69,7 @@
                 voting.description +
                 '</p>';
             item +=
-                ' <a class="btn btn-primary text-light mr-5" onclick="editVoting(' +
-                voting.id +
-                ')"><i class="material-icons align-top mr-3">delete</i>Edit</a>';
+                ' <a class="btn btn-primary text-light mr-5" href="Edit?id=' + voting.id + '"><i class="material-icons align-top mr-3">edit</i>Edit</a>';
             item += '<a class="btn btn-primary text-light" onclick="deleteVoting(' +
             voting.id +
                 ')"><i class="material-icons align-top mr-3">delete</i>Delete</a></div ></div > ';
@@ -105,90 +83,5 @@
                 html: items.join("\n")
             }).appendTo("#votingOverviewListContent");
         componentHandler.upgradeDom();
-    }
-
-    function addVoting() {
-        $("#votingOverviewList").hide('fast');
-        $("#votingTitle").attr('value', '');
-        $("#votingDescription").attr('value', '');
-        $("#votingId").val('0');
-        $("#votingEditView").show("fast");
-    }
-
-    function addQuestion() {
-        alert("Not supported yet");
-    }
-
-    function cancelEditing() {
-        var currentUser = firebase.auth().currentUser;
-        showOverview(currentUser);
-    }
-
-    function editVoting(id) {
-        $("#votingOverviewList").hide('fast');
-        $('#votingLoadProgress').show();
-
-        var currentUser = firebase.auth().currentUser;
-        if (currentUser) {
-            currentUser.getIdToken(true).then(function (idToken) {
-                $.ajax({
-                    url: 'GetVotingDetails',
-                    data: { "id": id },
-                    type: 'GET',
-                    datatype: 'json',
-                    beforeSend: function (xhr) {
-                        xhr.setRequestHeader("Authorization", idToken);
-                    },
-                    success: function (data) { showVotingDetails(data, id); }
-                        // error: todo
-                    });
-            });
-        }
-    }
-
-    function showVotingDetails(voting, id) {
-
-        $("#votingTitle").attr('value', voting.title);
-        $("#votingDescription").attr('value', voting.description);
-        $("#votingId").val(id);
-        var items = [];
-        for (var i = 0; i < voting.questions.length; i++)
-        {
-            var question = voting.questions[i];
-            var item = '<li class="mdl-list__item">' +
-                ' <span class="mdl-list__item-primary-content">' +
-                '  <i class="material-icons mdl-list__item-avatar">check_circle</i>' + question.text + '</span></li>';
-            items.push(item);
-        }
-
-        $("#votingQuestionsListContent").empty();
-        $("<ul/>",
-            {
-                "class": "freiewahl-voting-overview mdl-list",
-                html: items.join("\n")
-            }).appendTo("#votingQuestionsListContent");
-
-        $("#votingLoadProgress").hide("fast");
-        $("#votingEditView").show("fast");
-    }
-
-    function saveVoting() {
-        var title = $("#votingTitle").val();
-        var desc = $("#votingDescription").val();
-        var id = $("#votingId").val();
-        var currentUser = firebase.auth().currentUser;
-        if (currentUser) {
-            currentUser.getIdToken(true).then(function(idToken) {
-                $.post({
-                    url: 'UpdateVoting',
-                    data: { "title": title, "desc": desc, "id": id },
-                    beforeSend: function(xhr) {
-                        xhr.setRequestHeader("Authorization", idToken);
-                    },
-                    success: function (data) { showOverview(currentUser) }
-                    // error: todo
-                });
-            });
-        }
     }
 </script>
