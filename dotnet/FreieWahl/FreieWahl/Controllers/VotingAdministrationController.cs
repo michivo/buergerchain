@@ -1,8 +1,4 @@
-﻿using System;
-using System.Linq;
-using System.Net;
-using System.Threading.Tasks;
-using FreieWahl.Application.Authentication;
+﻿using FreieWahl.Application.Authentication;
 using FreieWahl.Models.VotingAdministration;
 using FreieWahl.Security.Authentication;
 using FreieWahl.Security.UserHandling;
@@ -11,6 +7,10 @@ using FreieWahl.Voting.Storage;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Localization;
 using Microsoft.Extensions.Logging;
+using System;
+using System.Globalization;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace FreieWahl.Controllers
 {
@@ -76,15 +76,15 @@ namespace FreieWahl.Controllers
             return new JsonResult(resultForSerialization.ToArray());
         }
 
-        public async Task<IActionResult> GetVotingDetails(long id)
+        public async Task<IActionResult> GetVotingDetails(string id)
         {
             if (await _CheckAuthorization(id, Operation.Read) == false)
                 return Unauthorized();
 
-            var voting = await _votingStore.GetById(id);
+            var voting = await _votingStore.GetById(_GetId(id));
             var result = new
             {
-                Id = voting.Id,
+                Id = voting.Id.ToString(CultureInfo.InvariantCulture),
                 Title = voting.Title,
                 Description = voting.Description,
                 Questions = voting.Questions.Select(x =>
@@ -92,26 +92,28 @@ namespace FreieWahl.Controllers
                     {
                         Text = x.QuestionText,
                         AnswerOptions = x.AnswerOptions.Select(a => a.AnswerText).ToArray(),
-                        Id = x.Id
+                        Id = x.Id.ToString(CultureInfo.InvariantCulture)
                     }).ToArray()
             };
 
             return new JsonResult(result);
         }
 
-        public async Task<IActionResult> GetQuestion(long votingId, long questionId)
+        public async Task<IActionResult> GetQuestion(string votingId, string questionId)
         {
             if (await _CheckAuthorization(votingId, Operation.UpdateQuestion) == false)
                 return Unauthorized();
 
-            var voting = await _votingStore.GetById(votingId);
-            var question = voting.Questions.SingleOrDefault(x => x.Id == questionId);
+            var voting = await _votingStore.GetById(_GetId(votingId));
+            var qid = _GetId(questionId);
+            var question = voting.Questions.SingleOrDefault(x => x.Id == qid);
             if (question == null)
                 return BadRequest("Invalid question id"); // TODO
             var result = new
             {
                 Id = question.Id,
                 Text = question.QuestionText,
+                Description = _GetDescription(question),
                 AnswerOptions = question.AnswerOptions.Select(x =>
                     new
                     {
@@ -122,7 +124,18 @@ namespace FreieWahl.Controllers
             return new JsonResult(result);
         }
 
-        private async Task<bool> _CheckAuthorization(long? id, Operation operation)
+        private string _GetDescription(Question question)
+        {
+            foreach (var questionDetail in question.Details)
+            {
+                if (questionDetail.DetailType == QuestionDetailType.AdditionalInfo)
+                    return questionDetail.DetailValue;
+            }
+
+            return string.Empty;
+        }
+
+        private async Task<bool> _CheckAuthorization(string id, Operation operation)
         {
             _user = null;
             var auth = _authentication.CheckToken(Request.Headers["Authorization"]);
@@ -141,7 +154,8 @@ namespace FreieWahl.Controllers
                 return false;
             }
 
-            var authorized = await _authManager.IsAuthorized(_user.UserId, id, operation);
+            long? idVal = string.IsNullOrEmpty(id) ? (long?)null : long.Parse(id);
+            var authorized = await _authManager.IsAuthorized(_user.UserId, idVal, operation);
             if (!authorized)
             {
                 _logger.LogWarning("User tried to open voting without being authorized");
@@ -151,27 +165,39 @@ namespace FreieWahl.Controllers
             return true;
         }
 
+        private long _GetId(string s)
+        {
+            long result = 0;
+            if (string.IsNullOrEmpty(s))
+                return result;
+
+            if (!long.TryParse(s, out result))
+                return 0;
+
+            return result;
+        }
+
         [HttpGet]
-        public async Task<IActionResult> Edit(long id)
+        public async Task<IActionResult> Edit(string id)
         {
             return View(new EditVotingModel {VotingId = id });
         }
 
         [HttpGet]
-        public async Task<IActionResult> EditQuestion(long id, long qid)
+        public async Task<IActionResult> EditQuestion(string id, string qid)
         {
             return View(new EditVotingQuestionModel { VotingId = id, QuestionId = qid});
         }
 
         [HttpPost]
-        public async Task<IActionResult> UpdateVoting(long id, string title, string desc)
+        public async Task<IActionResult> UpdateVoting(string id, string title, string desc)
         {
-            var operation = id == 0 ? Operation.Create : Operation.UpdateVoting;
-            long? queryId = id == 0 ? (long?)null : id;
-            if (await _CheckAuthorization(queryId, operation) == false)
+            var idVal = _GetId(id);
+            var operation = idVal == 0 ? Operation.Create : Operation.UpdateVoting;
+            if (await _CheckAuthorization(id, operation) == false)
                 return Unauthorized();
 
-            if (id != 0)
+            if (idVal != 0)
             {
                 return await _UpdateVoting(id, title, desc);
             }
@@ -180,42 +206,55 @@ namespace FreieWahl.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> UpdateVotingQuestion(long id, long qid, string title, string desc)
+        public async Task<IActionResult> UpdateVotingQuestion(string id, string qid, string title, string desc)
         {
             if (await _CheckAuthorization(id, Operation.UpdateQuestion) == false)
                 return Unauthorized();
 
-            var voting = await _votingStore.GetById(id);
-            var question = new Question
+            var voting = await _votingStore.GetById(_GetId(id)); // TODO - handle missing voting
+            var question = _GetQuestion(title, desc);
+            question.Id = _GetId(qid);
+            if (question.Id == 0)
             {
-                AnswerOptions = new AnswerOption[0],
-                QuestionText = title,
-                Status = QuestionStatus.InPreparation,
-                Details = new QuestionDetail[]
+                await _votingStore.AddQuestion(voting.Id, question);
+                return Ok();
+            }
+
+            await _votingStore.UpdateQuestion(voting.Id, question);
+            return Ok(); // TODO err handling
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> DeleteVotingQuestion(string id, string qid)
+        {
+            if (await _CheckAuthorization(id, Operation.UpdateQuestion) == false)
+                return Unauthorized();
+
+            await _votingStore.DeleteQuestion(_GetId(id), _GetId(qid));
+            return Ok(); // TODO err handling
+        }
+
+        private static Question _GetQuestion(string title, string desc)
+        {
+            var details = string.IsNullOrEmpty(desc)
+                ? new QuestionDetail[0]
+                : new[]
                 {
                     new QuestionDetail()
                     {
                         DetailType = QuestionDetailType.AdditionalInfo,
                         DetailValue = desc
                     }
-                }
+                };
+
+            var question = new Question
+            {
+                AnswerOptions = new AnswerOption[0],
+                QuestionText = title ?? "***---",
+                Status = QuestionStatus.InPreparation,
+                Details = details
             };
-            if (qid == 0)
-            {
-                await _votingStore.AddQuestion(id, question);
-                return Ok();
-            }
-
-            for (int i = 0; i < voting.Questions.Length; i++)
-            {
-                if (voting.Questions[i].Id == qid)
-                {
-                    voting.Questions[i] = question;
-                    return Ok();
-                }
-            }
-
-            return BadRequest(); // TODO
+            return question;
         }
 
         private async Task<IActionResult> _InsertVoting(string title, string desc, UserInformation user)
@@ -238,9 +277,9 @@ namespace FreieWahl.Controllers
             return Ok();
         }
 
-        private async Task<IActionResult> _UpdateVoting(long id, string title, string desc)
+        private async Task<IActionResult> _UpdateVoting(string id, string title, string desc)
         {
-            var voting = await _votingStore.GetById(id);
+            var voting = await _votingStore.GetById(_GetId(id));
             voting.Title = title;
             voting.Description = desc;
             await _votingStore.Update(voting).ConfigureAwait(false);

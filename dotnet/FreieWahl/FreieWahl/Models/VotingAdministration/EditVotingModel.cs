@@ -2,6 +2,6 @@
 {
     public class EditVotingModel
     {
-        public long VotingId { get; set; }
+        public string VotingId { get; set; }
     }
 }

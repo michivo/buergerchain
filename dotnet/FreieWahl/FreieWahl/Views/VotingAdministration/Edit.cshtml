@@ -13,7 +13,7 @@
 <hr />
 <div id="votingLoadProgress">
     <div class="progress">
-        <div id="fw-load-progress" class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100" style="width: 75%"></div>
+        <div id="fw-load-progress" class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100" style="width: 75%"></div>
     </div>
 </div>
 <div id="votingEditView" style="display: none">
@@ -59,10 +59,8 @@
              return;
          }
 
-         $("#fw-load-progress").attr("aria-valuenow", "50");
          if (currentUser) {
              currentUser.getIdToken(true).then(function(idToken) {
-             $("#fw-load-progress").attr("aria-valuenow", "70");
              $.ajax({
                      url: 'GetVotingDetails',
                      data: { "id": @Model.VotingId },
@@ -80,7 +78,6 @@
 
     function showVotingDetails(voting) {
 
-        $("#fw-load-progress").attr("aria-valuenow", "90");
         $("#votingTitle").attr('value', voting.title);
         $("#votingDescription").attr('value', voting.description);
         var items = [];
@@ -92,11 +89,10 @@
                 question.text +
                 '</div>';
             item +=
-                ' <a class="btn btn-primary text-light mr-5" href="EditQuestion?qid="' +
-                question.id +
-                '"&id=(@Model.VotingId)"><i class="material-icons align-top mr-3">edit</i>Edit</a>';
-            item += '<a class="btn btn-primary text-light" onclick="deleteQuestion(@Model.VotingId, '
-                + question.id + ')"><i class="material-icons align-top mr-3">delete</i>Delete</a></div>"';
+                ' <a class="btn btn-primary text-light mr-5" href="EditQuestion?qid=' +
+                question.id + '&id=@(Model.VotingId)"><i class="material-icons align-top mr-3">edit</i>Edit</a>';
+            item += '<a class="btn btn-primary text-light" onclick="deleteQuestion(\''
+                + question.id + '\')"><i class="material-icons align-top mr-3">delete</i>Delete</a></div>"';
             items.push(item);
 
         }
@@ -110,6 +106,23 @@
 
         $("#votingLoadProgress").hide("fast");
         $("#votingEditView").show("fast");
+    }
+
+    function deleteQuestion(qid) {
+        var currentUser = firebase.auth().currentUser;
+        if (currentUser) {
+            currentUser.getIdToken(true).then(function (idToken) {
+                $.post({
+                    url: 'DeleteVotingQuestion',
+                    data: { "qid": qid, "id": @Model.VotingId },
+                    beforeSend: function (xhr) {
+                        xhr.setRequestHeader("Authorization", idToken);
+                    },
+                    success: function (data) { /* todo - refresh list */ }
+                    // error: todo
+                });
+            });
+        }
     }
 
     function saveVoting() {

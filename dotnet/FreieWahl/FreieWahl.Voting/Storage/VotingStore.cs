@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using FreieWahl.Voting.Common;
 using FreieWahl.Voting.Models;
 using Google.Cloud.Datastore.V1;
 
@@ -32,6 +33,7 @@ namespace FreieWahl.Voting.Storage
         public async Task AddQuestion(long votingId, Question question)
         {
             var voting = await _GetVoting(votingId);
+            question.Id = IdHelper.GetId();
 
             var questions = new List<Question>(voting.Questions);
             questions.Add(question);
@@ -67,6 +69,7 @@ namespace FreieWahl.Voting.Storage
                 {
                     voting.Questions[i] = question;
                     await _db.UpdateAsync(ToEntity(voting));
+                    return;
                 }
             }
 

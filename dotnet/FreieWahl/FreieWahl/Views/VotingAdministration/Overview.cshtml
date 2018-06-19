@@ -13,7 +13,7 @@
 
 <div id="votingLoadProgress">
     <div class="progress">
-        <div id="fw-load-progress" class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100" style="width: 75%"></div>
+        <div id="fw-load-progress" class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100" style="width: 75%"></div>
     </div>
 </div>
 <div id="votingOverviewList" style="display: none">    
@@ -29,7 +29,6 @@
 
 
     function showOverview(currentUser) {
-        $("#fw-load-progress").attr("aria-valuenow", "60");
         $("#votingOverviewListContent").empty();
         $("#votingOverviewList").hide('fast');
         $("#votingLoadProgress").show();
@@ -59,7 +58,6 @@
     };
 
     function showOverviewData(data) {
-        $("#fw-load-progress").attr("aria-valuenow", "90");
         var items = [];
         for (var i = 0; i < data.length; i++) {
             var voting = data[i];

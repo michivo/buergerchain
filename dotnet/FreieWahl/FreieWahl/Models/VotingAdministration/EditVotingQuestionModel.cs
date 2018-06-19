@@ -2,8 +2,8 @@
 {
     public class EditVotingQuestionModel
     {
-        public long VotingId { get; set; }
+        public string VotingId { get; set; }
 
-        public long QuestionId { get; set; }
+        public string QuestionId { get; set; }
     }
 }
