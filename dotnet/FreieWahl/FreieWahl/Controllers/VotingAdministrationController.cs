@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Localization;
 using Microsoft.Extensions.Logging;
 using System;
+using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
@@ -237,8 +238,8 @@ namespace FreieWahl.Controllers
         private static Question _GetQuestion(string title, string desc)
         {
             var details = string.IsNullOrEmpty(desc)
-                ? new QuestionDetail[0]
-                : new[]
+                ? new List<QuestionDetail>() 
+                : new List<QuestionDetail>
                 {
                     new QuestionDetail()
                     {
@@ -249,10 +250,10 @@ namespace FreieWahl.Controllers
 
             var question = new Question
             {
-                AnswerOptions = new AnswerOption[0],
+                AnswerOptions = new List<AnswerOption>(),
                 QuestionText = title ?? "***---",
                 Status = QuestionStatus.InPreparation,
-                Details = details
+                Details = details.ToList()
             };
             return question;
         }
@@ -267,7 +268,7 @@ namespace FreieWahl.Controllers
                 Creator = user.UserId,
                 DateCreated = DateTime.UtcNow,
                 Description = desc,
-                Questions = new Question[0],
+                Questions = new List<Question>(),
                 Title = title,
                 Visibility = VotingVisibility.OwnerOnly
             };

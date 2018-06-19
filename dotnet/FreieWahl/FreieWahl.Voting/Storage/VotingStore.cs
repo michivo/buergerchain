@@ -35,9 +35,7 @@ namespace FreieWahl.Voting.Storage
             var voting = await _GetVoting(votingId);
             question.Id = IdHelper.GetId();
 
-            var questions = new List<Question>(voting.Questions);
-            questions.Add(question);
-            voting.Questions = questions.ToArray();
+            voting.Questions.Add(question);
             await _db.UpdateAsync(ToEntity(voting));
         }
 
@@ -49,21 +47,21 @@ namespace FreieWahl.Voting.Storage
                 throw new InvalidOperationException("Trying to delete inexistent question");
             }
 
-            voting.Questions = voting.Questions.Where(x => x.Id != questionId).ToArray();
+            voting.Questions = voting.Questions.Where(x => x.Id != questionId).ToList();
             await _db.UpdateAsync(ToEntity(voting));
         }
 
         public async Task ClearQuestions(long votingId)
         {
             var voting = await _GetVoting(votingId);
-            voting.Questions = new Question[0];
+            voting.Questions = new List<Question>();
             await _db.UpdateAsync(ToEntity(voting));
         }
 
         public async Task UpdateQuestion(long votingId, Question question)
         {
             var voting = await _GetVoting(votingId);
-            for (int i = 0; i < voting.Questions.Length; i++)
+            for (int i = 0; i < voting.Questions.Count; i++)
             {
                 if (voting.Questions[i].Id == question.Id)
                 {

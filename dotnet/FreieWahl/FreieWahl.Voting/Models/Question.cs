@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using FreieWahl.Voting.Common;
 
@@ -6,29 +7,27 @@ namespace FreieWahl.Voting.Models
 {
     public class Question : IEquatable<Question>
     {
-        private QuestionDetail[] _details;
-        private AnswerOption[] _answerOptions;
-        private QuestionStatus _status;
-        private long _id;
+        private List<QuestionDetail> _details;
+        private List<AnswerOption> _answerOptions;
 
         public Question()
         {
-            Details = new QuestionDetail[0];
-            AnswerOptions = new AnswerOption[0];
+            Details = new List<QuestionDetail>();
+            AnswerOptions = new List<AnswerOption>();
         }
 
         public string QuestionText { get; set; }
 
-        public QuestionDetail[] Details
+        public List<QuestionDetail> Details
         {
             get => _details;
-            set => _details = value ?? new QuestionDetail[0];
+            set => _details = value ?? new List<QuestionDetail>();
         }
 
-        public AnswerOption[] AnswerOptions
+        public List<AnswerOption> AnswerOptions
         {
             get => _answerOptions;
-            set => _answerOptions = value ?? new AnswerOption[0];
+            set => _answerOptions = value ?? new List<AnswerOption>();
         }
 
         public long Id { get; set; }
@@ -57,8 +56,8 @@ namespace FreieWahl.Voting.Models
         {
             unchecked
             {
-                var hashCode = _id.GetHashCode();
-                hashCode = (hashCode * 397) ^ _status.GetHashCode();
+                var hashCode = Id.GetHashCode();
+                hashCode = (hashCode * 397) ^ Status.GetHashCode();
                 hashCode = (hashCode * 397) ^ (QuestionText != null ? QuestionText.GetHashCode() : 0);
                 hashCode = (hashCode * 397) ^ (Details != null ? Details.GetHashCode() : 0);
                 hashCode = (hashCode * 397) ^ (AnswerOptions != null ? AnswerOptions.GetHashCode() : 0);
