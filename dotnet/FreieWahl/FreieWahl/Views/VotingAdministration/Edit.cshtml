@@ -13,7 +13,7 @@
 <hr />
 <div id="votingLoadProgress">
     <div class="progress">
-        <div id="fw-load-progress" class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100" style="width: 75%"></div>
+        <div id="fw-load-progress" class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100" style="width: 100%"></div>
     </div>
 </div>
 <div id="votingEditView" style="display: none">
@@ -31,11 +31,11 @@
     <button class="btn btn-warning" onclick="cancelEditing()">
         <i class="material-icons align-top mr-3">cancel</i> Cancel
     </button>
-    <div style="float: none">
+    <div style="float: none" class="mt-4">
         <h3>@Localizer["QuestionsHeader"]</h3>
         <div id="votingQuestionsListContent"></div>
         <div id="addQuestion">
-            <a class="btn btn-primary" href="EditQuestion?qid=0&id=@(Model.VotingId)"><i class="material-icons align-top mr-3">add</i> Add</a>
+            <a class="btn btn-primary" href="EditQuestion?qid=0&id=@(Model.VotingId)"><i class="material-icons align-top mr-3">add</i>*** Add Question</a>
         </div>
     </div>
 </div>
@@ -47,12 +47,16 @@
 <script>
     firebase.auth().onAuthStateChanged(function (currentUser) { editVoting(currentUser); });
 
+    function isEmpty(str) {
+        return (!str || 0 === str.length);
+    }
+
     function cancelEditing() {
         window.location.assign("Overview");
     }
 
     function editVoting(currentUser) {
-         if (@Model.VotingId == 0)
+         if (isEmpty('@(Model.VotingId)'))
          {
              $("#votingLoadProgress").hide("fast");
              $("#votingEditView").show("fast");
@@ -87,12 +91,12 @@
                 ' <p class="card-text">' +
                 '  <i class="material-icons">check_circle</i>' +
                 question.text +
-                '</div>';
+                '</p>';
             item +=
                 ' <a class="btn btn-primary text-light mr-5" href="EditQuestion?qid=' +
                 question.id + '&id=@(Model.VotingId)"><i class="material-icons align-top mr-3">edit</i>Edit</a>';
             item += '<a class="btn btn-primary text-light" onclick="deleteQuestion(\''
-                + question.id + '\')"><i class="material-icons align-top mr-3">delete</i>Delete</a></div>"';
+                + question.id + '\')"><i class="material-icons align-top mr-3">delete</i>Delete</a></div>';
             items.push(item);
 
         }
@@ -118,7 +122,7 @@
                     beforeSend: function (xhr) {
                         xhr.setRequestHeader("Authorization", idToken);
                     },
-                    success: function (data) { /* todo - refresh list */ }
+                    success: function (data) { ref }
                     // error: todo
                 });
             });

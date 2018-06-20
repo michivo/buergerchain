@@ -181,13 +181,13 @@ namespace FreieWahl.Controllers
         [HttpGet]
         public IActionResult Edit(string id)
         {
-            return View(new EditVotingModel {VotingId = id });
+            return View(new EditVotingModel { VotingId = id });
         }
 
         [HttpGet]
         public IActionResult EditQuestion(string id, string qid)
         {
-            return View(new EditVotingQuestionModel { VotingId = id, QuestionId = qid});
+            return View(new EditVotingQuestionModel { VotingId = id, QuestionId = qid });
         }
 
         [HttpPost]
@@ -207,13 +207,13 @@ namespace FreieWahl.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> UpdateVotingQuestion(string id, string qid, string title, string desc)
+        public async Task<IActionResult> UpdateVotingQuestion(string id, string qid, string title, string desc, string[] answers)
         {
             if (await _CheckAuthorization(id, Operation.UpdateQuestion) == false)
                 return Unauthorized();
 
             var voting = await _votingStore.GetById(_GetId(id)); // TODO - handle missing voting
-            var question = _GetQuestion(title, desc);
+            var question = _GetQuestion(title, desc, answers);
             question.Id = _GetId(qid);
             if (question.Id == 0)
             {
@@ -235,25 +235,34 @@ namespace FreieWahl.Controllers
             return Ok(); // TODO err handling
         }
 
-        private static Question _GetQuestion(string title, string desc)
+        private static Question _GetQuestion(string title, string desc, string[] answers)
         {
-            var details = string.IsNullOrEmpty(desc)
-                ? new List<QuestionDetail>() 
-                : new List<QuestionDetail>
+            var details = new List<QuestionDetail>();
+            if (!string.IsNullOrEmpty(desc))
+            {
+                details.Add(new QuestionDetail
                 {
-                    new QuestionDetail()
-                    {
-                        DetailType = QuestionDetailType.AdditionalInfo,
-                        DetailValue = desc
-                    }
-                };
+                    DetailType = QuestionDetailType.AdditionalInfo,
+                    DetailValue = desc
+                });
+            }
+
+            List<AnswerOption> answerOptions = new List<AnswerOption>();
+            foreach (var answer in answers)
+            {
+                answerOptions.Add(new AnswerOption
+                {
+                    AnswerText = answer,
+                    Details = new List<AnswerDetail>()
+                });
+            }
 
             var question = new Question
             {
-                AnswerOptions = new List<AnswerOption>(),
+                AnswerOptions = answerOptions,
                 QuestionText = title ?? "***---",
                 Status = QuestionStatus.InPreparation,
-                Details = details.ToList()
+                Details = details
             };
             return question;
         }
@@ -262,7 +271,7 @@ namespace FreieWahl.Controllers
         {
             if (await _CheckAuthorization(null, Operation.Create) == false)
                 return Unauthorized();
-            
+
             StandardVoting voting = new StandardVoting()
             {
                 Creator = user.UserId,

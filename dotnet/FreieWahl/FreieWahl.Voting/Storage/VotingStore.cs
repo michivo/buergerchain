@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using FreieWahl.Voting.Common;
 using FreieWahl.Voting.Models;
 using Google.Cloud.Datastore.V1;
+using Microsoft.AspNetCore.Mvc;
 
 namespace FreieWahl.Voting.Storage
 {
@@ -36,6 +37,10 @@ namespace FreieWahl.Voting.Storage
             question.Id = IdHelper.GetId();
 
             voting.Questions.Add(question);
+            foreach (var answerOption in question.AnswerOptions)
+            {
+                answerOption.Id = Guid.NewGuid().ToString();
+            }
             await _db.UpdateAsync(ToEntity(voting));
         }
 
@@ -61,6 +66,10 @@ namespace FreieWahl.Voting.Storage
         public async Task UpdateQuestion(long votingId, Question question)
         {
             var voting = await _GetVoting(votingId);
+            foreach (var answerOption in question.AnswerOptions)
+            { // TODO - id handling?!
+                answerOption.Id = Guid.NewGuid().ToString();
+            }
             for (int i = 0; i < voting.Questions.Count; i++)
             {
                 if (voting.Questions[i].Id == question.Id)

@@ -59,7 +59,7 @@ namespace FreieWahl.Voting.Storage
             {
                 Id = x.EntityValue["AnswerId"].StringValue,
                 AnswerText = x.EntityValue["AnswerText"].StringValue,
-                Details = FromAnswerDetails(x.EntityValue["AnswerDetails"])
+                Details = x.EntityValue.Properties.ContainsKey("AnswerDetails") ? FromAnswerDetails(x.EntityValue["AnswerDetails"]) : new List<AnswerDetail>()
             }).ToList();
         }
 
