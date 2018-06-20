@@ -112,12 +112,12 @@ namespace Test.FreieWahl.Voting.Storage
                 new Question()
                 {
                     QuestionText = "You sure?",
-                    AnswerOptions = new []
+                    AnswerOptions = new List<AnswerOption>
                     {
                         new AnswerOption()
                         {
                             AnswerText = "Yes",
-                            Details = new []
+                            Details = new List<AnswerDetail>
                             {
                                 new AnswerDetail
                                 {
@@ -130,7 +130,7 @@ namespace Test.FreieWahl.Voting.Storage
                         new AnswerOption()
                         {
                             AnswerText = "No",
-                            Details = new []
+                            Details = new List<AnswerDetail>
                             {
                                 new AnswerDetail
                                 {
@@ -146,7 +146,7 @@ namespace Test.FreieWahl.Voting.Storage
                             Id = Guid.NewGuid().ToString()
                         }
                     },
-                    Details = new []
+                    Details = new List<QuestionDetail>
                     {
                         new QuestionDetail
                         {

@@ -179,13 +179,13 @@ namespace FreieWahl.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> Edit(string id)
+        public IActionResult Edit(string id)
         {
             return View(new EditVotingModel {VotingId = id });
         }
 
         [HttpGet]
-        public async Task<IActionResult> EditQuestion(string id, string qid)
+        public IActionResult EditQuestion(string id, string qid)
         {
             return View(new EditVotingQuestionModel { VotingId = id, QuestionId = qid});
         }

@@ -1,4 +1,5 @@
-﻿using FreieWahl.Voting.Models;
+﻿using System.Collections.Generic;
+using FreieWahl.Voting.Models;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace Test.FreieWahl.Voting.Models
@@ -23,7 +24,7 @@ namespace Test.FreieWahl.Voting.Models
             {
                 AnswerText = "Hello",
                 Id = "iid",
-                Details = new[]
+                Details = new List<AnswerDetail>
                 {
                     new AnswerDetail {DetailType = AnswerDetailType.InfoLink, DetailValue = "asdf"}
                 }
