@@ -15,7 +15,7 @@ namespace FreieWahl.Voting.Common
         {
             byte[] buf = new byte[8];
             _rand.NextBytes(buf);
-            return BitConverter.ToInt64(buf, 0);
+            return Math.Abs(BitConverter.ToInt64(buf, 0));
         }
     }
 }

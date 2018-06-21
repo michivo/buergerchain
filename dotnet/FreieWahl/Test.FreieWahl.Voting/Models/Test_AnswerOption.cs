@@ -1,4 +1,5 @@
-﻿using FreieWahl.Voting.Models;
+﻿using System.Collections.Generic;
+using FreieWahl.Voting.Models;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace Test.FreieWahl.Voting.Models
@@ -11,7 +12,7 @@ namespace Test.FreieWahl.Voting.Models
         {
             var answerOption = new AnswerOption();
             Assert.IsNotNull(answerOption.Details);
-            Assert.AreEqual(0, answerOption.Details.Length);
+            Assert.AreEqual(0, answerOption.Details.Count);
             Assert.IsNull(answerOption.AnswerText);
             Assert.IsNull(answerOption.Id);
         }
@@ -23,7 +24,7 @@ namespace Test.FreieWahl.Voting.Models
             {
                 AnswerText = "Hello",
                 Id = "iid",
-                Details = new[]
+                Details = new List<AnswerDetail>
                 {
                     new AnswerDetail {DetailType = AnswerDetailType.InfoLink, DetailValue = "asdf"}
                 }
@@ -31,11 +32,11 @@ namespace Test.FreieWahl.Voting.Models
 
             Assert.AreEqual("Hello", answerOption.AnswerText);
             Assert.AreEqual("iid", answerOption.Id);
-            Assert.AreEqual(1, answerOption.Details.Length);
+            Assert.AreEqual(1, answerOption.Details.Count);
 
             answerOption.Details = null;
             Assert.IsNotNull(answerOption.Details);
-            Assert.AreEqual(0, answerOption.Details.Length);
+            Assert.AreEqual(0, answerOption.Details.Count);
         }
     }
 }

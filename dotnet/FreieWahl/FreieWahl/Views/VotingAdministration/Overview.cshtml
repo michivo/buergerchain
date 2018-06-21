@@ -9,44 +9,28 @@
     ViewData["Title"] = Model.Title;
 }
 
-<h2>My Votings</h2>
+<h2>@Localizer["Header"]</h2>
 
-<div id="votingLoadProgress" class="mdl-progress mdl-js-progress mdl-progress__indeterminate"></div>
+<div id="votingLoadProgress">
+    <div class="progress">
+        <div id="fw-load-progress" class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100" style="width: 100%"></div>
+    </div>
+</div>
 <div id="votingOverviewList" style="display: none">    
     <div id="votingOverviewListContent"></div>
     <div id="addVoting">
-        <button class="mdl-button mdl-js-button mdl-button--fab mdl-button--colored" onclick="addVoting()"><i class="material-icons">add</i></button>
+        <a class="btn btn-primary text-light mr-5" href="Edit?id=0"><i class="material-icons align-top mr-3">add</i>***Create Voting</a>
     </div>
 </div>
-<div id="votingEditView" style="display: none">
-    <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
-        <input class="mdl-textfield__input" type="text" id="votingTitle" value="@Localizer["LabelVotingTitle"]">
-        <label class="mdl-textfield__label" for="votingTitle">@Localizer["LabelVotingTitle"]</label>
-    </div>
-    <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
-        <input class="mdl-textfield__input" type="text" id="votingDescription" value="@Localizer["LabelVotingDescription"]">
-        <label class="mdl-textfield__label" for="votingDescription">@Localizer["LabelVotingDescription"]</label>
-    </div>
-    <input type="hidden" value="" id="votingId">
-    <button class="mdl-button mdl-js-button mdl-button--fab mdl-button--colored" onclick="saveVoting()">
-        <i class="material-icons">save</i>
-    </button>
-    <button class="mdl-button mdl-js-button mdl-button--fab mdl-button--colored" onclick="cancelEditing()">
-        <i class="material-icons">cancel</i>
-    </button>
-    <div style="float: none">
-        <div id="votingQuestionsListContent"></div>
-    </div>
-</div>
+
 
 <script>
     firebase.auth().onAuthStateChanged(function (currentUser) { showOverview(currentUser); });
-
+    $("#fw-link-overview").addClass("active");
 
     function showOverview(currentUser) {
         $("#votingOverviewListContent").empty();
         $("#votingOverviewList").hide('fast');
-        $("#votingEditView").hide('fast');
         $("#votingLoadProgress").show();
         if (currentUser) {
             currentUser.getIdToken(true).then(function (idToken) {
@@ -60,7 +44,7 @@
                         $("#votingOverviewList").show('fast');
                         $("<div/>",
                             {
-                                "class": "bc-error-mesage",
+                                "class": "bc-error-message",
                                 html: "An error occurred getting your votings: " + data
                             }).appendTo("#votingOverviewListContent");
                         componentHandler.upgradeDom();
@@ -77,109 +61,25 @@
         var items = [];
         for (var i = 0; i < data.length; i++) {
             var voting = data[i];
-            var item = '<li class="mdl-list__item mdl-list__item--three-line">' +
-                ' <span class="mdl-list__item-primary-content">' +
-                '  <i class="material-icons mdl-list__item-avatar">check_circle</i>';
-            item += '  <span>' + voting.title + '</span>';
-            item += '  <span class="mdl-list__item-text-body">' +
+            var item = '<div class="card"><div class="card-body">';
+            item += '  <h4 class="card-title">' + voting.title + '</h4>';
+            item += '  <p class="card-text">' +
                 voting.description +
-                '</span>' +
-                ' </span> <span class="mdl-list__item-secondary-content">';
+                '</p>';
             item +=
-                ' <a class="mdl-list__item-secondary-action" onclick="editVoting(' +
-                voting.id +
-                ')"><i class="material-icons">mode_edit</i></a>' +
-                ' </span></li>';
+                ' <a class="btn btn-primary text-light mr-5" href="Edit?id=' + voting.id + '"><i class="material-icons align-top mr-3">edit</i>***Edit</a>';
+            item += '<a class="btn btn-primary text-light" onclick="deleteVoting(' +
+            voting.id +
+                ')"><i class="material-icons align-top mr-3">delete</i>***Delete</a></div ></div > ';
             items.push(item);
         }
         $("#votingLoadProgress").hide("fast");
         $("#votingOverviewList").show('fast');
-        $("<ul/>",
+        $("<div/>",
             {
-                "class": "freiewahl-voting-overview mdl-list",
+                "class": "d-flex flex-column my-3",
                 html: items.join("\n")
             }).appendTo("#votingOverviewListContent");
         componentHandler.upgradeDom();
-    }
-
-    function addVoting() {
-        $("#votingOverviewList").hide('fast');
-        $("#votingTitle").attr('value', '');
-        $("#votingDescription").attr('value', '');
-        $("#votingId").val('0');
-        $("#votingEditView").show("fast");
-    }
-
-    function cancelEditing() {
-        var currentUser = firebase.auth().currentUser;
-        showOverview(currentUser);
-    }
-
-    function editVoting(id) {
-        $("#votingOverviewList").hide('fast');
-        $('#votingLoadProgress').show();
-
-        var currentUser = firebase.auth().currentUser;
-        if (currentUser) {
-            currentUser.getIdToken(true).then(function (idToken) {
-                $.ajax({
-                    url: 'GetVotingDetails',
-                    data: { "id": id },
-                    type: 'GET',
-                    datatype: 'json',
-                    beforeSend: function (xhr) {
-                        xhr.setRequestHeader("Authorization", idToken);
-                    },
-                    success: function (data) { showVotingDetails(data, id); }
-                        // error: todo
-                    });
-            });
-        }
-    }
-
-    function showVotingDetails(voting, id) {
-
-        $("#votingTitle").attr('value', voting.title);
-        $("#votingDescription").attr('value', voting.description);
-        $("#votingId").val(id);
-        var items = [];
-        for (var i = 0; i < voting.questions.length; i++)
-        {
-            var question = voting.questions[i];
-            var item = '<li class="mdl-list__item">' +
-                ' <span class="mdl-list__item-primary-content">' +
-                '  <i class="material-icons mdl-list__item-avatar">check_circle</i>' + question.text + '</span></li>';
-            items.push(item);
-        }
-
-        $("#votingQuestionsListContent").empty();
-        $("<ul/>",
-            {
-                "class": "freiewahl-voting-overview mdl-list",
-                html: items.join("\n")
-            }).appendTo("#votingQuestionsListContent");
-
-        $("#votingLoadProgress").hide("fast");
-        $("#votingEditView").show("fast");
-    }
-
-    function saveVoting() {
-        var title = $("#votingTitle").val();
-        var desc = $("#votingDescription").val();
-        var id = $("#votingId").val();
-        var currentUser = firebase.auth().currentUser;
-        if (currentUser) {
-            currentUser.getIdToken(true).then(function(idToken) {
-                $.post({
-                    url: 'UpdateVoting',
-                    data: { "title": title, "desc": desc, "id": id },
-                    beforeSend: function(xhr) {
-                        xhr.setRequestHeader("Authorization", idToken);
-                    },
-                    success: function (data) { showOverview(currentUser) }
-                    // error: todo
-                });
-            });
-        }
     }
 </script>

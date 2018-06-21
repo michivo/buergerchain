@@ -10,27 +10,163 @@
 
 <h2>Edit</h2>
 
-<h4>StandardVoting</h4>
 <hr />
-<div class="row">
-    <div class="col-md-4">
-        <form asp-action="Edit">
-            <div class="mdl-textfield mdl-js-textfield">
-                <input class="mdl-textfield__input" type="text" id="vtitle" asp-for="Voting.Title" value="@Model.Voting.Title">
-                <label class="mdl-textfield__label" for="vtitle">@Localizer["LabelVotingTitle"]</label>
-            </div>
-            <div class="mdl-textfield mdl-js-textfield">
-                <textarea class="mdl-textfield__input" type="text" rows="3" asp-for="Voting.Description" id="vdescription">@Model.Voting.Description</textarea>
-                <label class="mdl-textfield__label" for="vdescription">@Localizer["LabelVotingDescription"]</label>
-            </div>
-            <div class="form-group">
-                <input type="submit" value="@Localizer["ButtonVotingSave"]" class="btn btn-default" />
-            </div>
-        </form>
+<div id="votingLoadProgress">
+    <div class="progress">
+        <div id="fw-load-progress" class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100" style="width: 100%"></div>
+    </div>
+</div>
+<div id="votingEditView" style="display: none">
+    <div class="form-group">
+        <input class="form-control" type="text" id="votingTitle" value="@Localizer["LabelVotingTitle"]">
+        <label for="votingTitle">@Localizer["LabelVotingTitle"]</label>
+    </div>
+    <div class="form-group">
+        <input class="form-control" type="text" id="votingDescription" value="@Localizer["LabelVotingDescription"]">
+        <label for="votingDescription">@Localizer["LabelVotingDescription"]</label>
+    </div>
+    <button class="btn btn-primary" onclick="saveVoting()">
+        <i class="material-icons align-top mr-3">save</i>*** Save
+    </button>
+    <button class="btn btn-warning" onclick="cancelEditing()">
+        <i class="material-icons align-top mr-3">cancel</i>*** Cancel
+    </button>
+    <button class="btn btn-secondary" onclick="invite()">
+        <i class="material-icons align-top mr-3">email</i>*** Invite Voters
+    </button>
+    <div style="float: none" class="mt-4">
+        <h3>@Localizer["QuestionsHeader"]</h3>
+        <div id="votingQuestionsListContent"></div>
+        <div id="addQuestion">
+            <a class="btn btn-primary" href="EditQuestion?qid=0&id=@(Model.VotingId)"><i class="material-icons align-top mr-3">add</i>*** Add Question</a>
+        </div>
     </div>
 </div>
 
 <div>
-    <a asp-action="Index">Back to List</a>
+    <a asp-action="Overview">Back to Overview</a>
 </div>
+
+<script>
+    firebase.auth().onAuthStateChanged(function (currentUser) { editVoting(currentUser); });
+
+    function isEmpty(str) {
+        return (!str || 0 === str.length);
+    }
+
+    function cancelEditing() {
+        window.location.assign("Overview");
+    }
+
+    function editVoting(currentUser) {
+         if (isEmpty('@(Model.VotingId)'))
+         {
+             $("#votingLoadProgress").hide("fast");
+             $("#votingEditView").show("fast");
+             return;
+         }
+
+         if (currentUser) {
+             currentUser.getIdToken(true).then(function(idToken) {
+             $.ajax({
+                     url: 'GetVotingDetails',
+                     data: { "id": @Model.VotingId },
+                     type: 'GET',
+                    datatype: 'json',
+                     beforeSend: function(xhr) {
+                         xhr.setRequestHeader("Authorization", idToken);
+                     },
+                     success: function(data) { showVotingDetails(data); }
+                     // error: todo
+                 });
+             });
+         }
+    }
+
+    function showVotingDetails(voting) {
+
+        $("#votingTitle").attr('value', voting.title);
+        $("#votingDescription").attr('value', voting.description);
+        var items = [];
+        for (var i = 0; i < voting.questions.length; i++) {
+            var question = voting.questions[i];
+            var item = '<div class="card"><div class="card-body">' +
+                ' <p class="card-text">' +
+                '  <i class="material-icons">check_circle</i>' +
+                question.text +
+                '</p>';
+            item +=
+                ' <a class="btn btn-primary text-light mr-5" href="EditQuestion?qid=' +
+                question.id + '&id=@(Model.VotingId)"><i class="material-icons align-top mr-3">edit</i>*** Edit</a>';
+            item += '<a class="btn btn-primary text-light" onclick="deleteQuestion(\''
+                + question.id + '\')"><i class="material-icons align-top mr-3">delete</i>*** Delete</a></div>';
+            items.push(item);
+
+        }
+
+        $("#votingQuestionsListContent").empty();
+        $("<div/>",
+            {
+                "class": "d-flex flex-column my-2",
+                html: items.join("\n")
+            }).appendTo("#votingQuestionsListContent");
+
+        $("#votingLoadProgress").hide("fast");
+        $("#votingEditView").show("fast");
+    }
+
+    function deleteQuestion(qid) {
+        var currentUser = firebase.auth().currentUser;
+        if (currentUser) {
+            currentUser.getIdToken(true).then(function (idToken) {
+                $.post({
+                    url: 'DeleteVotingQuestion',
+                    data: { "qid": qid, "id": @Model.VotingId },
+                    beforeSend: function (xhr) {
+                        xhr.setRequestHeader("Authorization", idToken);
+                    },
+                    success: function (data) { ref }
+                    // error: todo
+                });
+            });
+        }
+    }
+
+    function invite() {
+        var currentUser = firebase.auth().currentUser;
+        if (currentUser) {
+            var mails = ["michfasch@gmx.at"]
+            currentUser.getIdToken(true).then(function (idToken) {
+                $.post({
+                    url: 'SendInvitationMail',
+                    data: { "votingId": @Model.VotingId, "addresses": mails },
+                    beforeSend: function (xhr) {
+                        xhr.setRequestHeader("Authorization", idToken);
+                    },
+                    success: function (data) { ref }
+                    // error: todo
+                });
+            });
+        }
+    }
+
+    function saveVoting() {
+        var title = $("#votingTitle").val();
+        var desc = $("#votingDescription").val();
+        var currentUser = firebase.auth().currentUser;
+        if (currentUser) {
+            currentUser.getIdToken(true).then(function (idToken) {
+                $.post({
+                    url: 'UpdateVoting',
+                    data: { "title": title, "desc": desc, "id": @Model.VotingId },
+                    beforeSend: function (xhr) {
+                        xhr.setRequestHeader("Authorization", idToken);
+                    },
+                    success: function (data) { window.location.assign("Overview"); }
+                    // error: todo
+                });
+            });
+        }
+    }
+</script>
 

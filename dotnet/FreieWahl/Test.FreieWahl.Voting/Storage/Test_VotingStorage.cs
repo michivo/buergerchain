@@ -1,10 +1,9 @@
 ﻿using System;
 using System.Linq;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using FreieWahl.Voting.Models;
 using FreieWahl.Voting.Storage;
-using Google.Api.Gax.Grpc;
-using Google.Cloud.Datastore.V1;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace Test.FreieWahl.Voting.Storage
@@ -75,8 +74,8 @@ namespace Test.FreieWahl.Voting.Storage
             Assert.AreEqual("Michael", updatedVoting.Creator); // should not have been updated!
             Assert.IsTrue(Math.Abs(updatedVoting.DateCreated.Subtract(creationDate).TotalMilliseconds) < 10);
             Assert.AreEqual("Title2", updatedVoting.Title);
-            Assert.AreEqual(readVoting.Questions.Length, updatedVoting.Questions.Length);
-            for (int i = 0; i < readVoting.Questions.Length; i++)
+            Assert.AreEqual(readVoting.Questions.Count, updatedVoting.Questions.Count);
+            for (int i = 0; i < readVoting.Questions.Count; i++)
             {
                 Assert.AreEqual(readVoting.Questions[i], updatedVoting.Questions[i]);
             }
@@ -106,19 +105,19 @@ namespace Test.FreieWahl.Voting.Storage
             Assert.AreEqual(votingWritten, votingRead);
         }
 
-        private static Question[] _CreateDummyQuestions()
+        private static List<Question> _CreateDummyQuestions()
         {
-            return new[]
+            return new List<Question>
             {
                 new Question()
                 {
                     QuestionText = "You sure?",
-                    AnswerOptions = new []
+                    AnswerOptions = new List<AnswerOption>
                     {
                         new AnswerOption()
                         {
                             AnswerText = "Yes",
-                            Details = new []
+                            Details = new List<AnswerDetail>
                             {
                                 new AnswerDetail
                                 {
@@ -131,7 +130,7 @@ namespace Test.FreieWahl.Voting.Storage
                         new AnswerOption()
                         {
                             AnswerText = "No",
-                            Details = new []
+                            Details = new List<AnswerDetail>
                             {
                                 new AnswerDetail
                                 {
@@ -147,7 +146,7 @@ namespace Test.FreieWahl.Voting.Storage
                             Id = Guid.NewGuid().ToString()
                         }
                     },
-                    Details = new []
+                    Details = new List<QuestionDetail>
                     {
                         new QuestionDetail
                         {

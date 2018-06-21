@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using FreieWahl.Voting.Common;
@@ -9,11 +10,11 @@ namespace FreieWahl.Voting.Models
     [Bind("Title", "Creator", "Description", "DateCreated")]
     public class StandardVoting : IEquatable<StandardVoting>
     {
-        private Question[] _questions;
+        private List<Question> _questions;
 
         public StandardVoting()
         {
-            Questions = new Question[0];
+            Questions = new List<Question>();
         }
 
         [Key]
@@ -30,10 +31,10 @@ namespace FreieWahl.Voting.Models
         [DataType(DataType.Date)]
         public DateTime DateCreated { get; set; }
 
-        public Question[] Questions
+        public List<Question> Questions
         {
             get => _questions;
-            set => _questions = value ?? new Question[0];
+            set => _questions = value ?? new List<Question>();
         }
 
         public bool Equals(StandardVoting other)

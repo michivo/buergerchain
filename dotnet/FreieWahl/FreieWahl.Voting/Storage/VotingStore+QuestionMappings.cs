@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System.Collections.Generic;
+using System.Linq;
 using FreieWahl.Voting.Common;
 using FreieWahl.Voting.Models;
 using Google.Cloud.Datastore.V1;
@@ -7,7 +8,7 @@ namespace FreieWahl.Voting.Storage
 {
     partial class VotingStore
     {
-        private static ArrayValue ToEntities(Question[] questions)
+        private static ArrayValue ToEntities(IEnumerable<Question> questions)
         {
             var result = new ArrayValue();
             if (questions != null)
@@ -30,7 +31,7 @@ namespace FreieWahl.Voting.Storage
             };
         }
 
-        private static ArrayValue ToEntities(QuestionDetail[] questionDetails)
+        private static ArrayValue ToEntities(IEnumerable<QuestionDetail> questionDetails)
         {
             var result = new ArrayValue();
             if (questionDetails != null)
@@ -50,10 +51,10 @@ namespace FreieWahl.Voting.Storage
             };
         }
 
-        private static Question[] FromQuestionsEntity(Value entity)
+        private static List<Question> FromQuestionsEntity(Value entity)
         {
             if (entity?.ArrayValue?.Values == null || entity.ArrayValue.Values.Count == 0)
-                return new Question[0];
+                return new List<Question>();
 
             var array = entity.ArrayValue;
 
@@ -69,13 +70,13 @@ namespace FreieWahl.Voting.Storage
                     Details = FromQuestionDetailEntity(e["Details"])
                 };
                 return result;
-            }).ToArray();
+            }).ToList();
         }
 
-        private static QuestionDetail[] FromQuestionDetailEntity(Value value)
+        private static List<QuestionDetail> FromQuestionDetailEntity(Value value)
         {
             if (value?.ArrayValue?.Values == null || value.ArrayValue.Values.Count == 0)
-                return new QuestionDetail[0];
+                return new List<QuestionDetail>();
 
             var array = value.ArrayValue;
 
@@ -84,7 +85,7 @@ namespace FreieWahl.Voting.Storage
                 {
                     DetailValue = x.EntityValue["DetailValue"].StringValue,
                     DetailType = (QuestionDetailType)x.EntityValue["DetailType"].IntegerValue
-                }).ToArray();
+                }).ToList();
         }
     }
 }

@@ -33,7 +33,7 @@ function configureFirebaseLoginWidget() {
             }
         },
         'credentialHelper': firebaseui.auth.CredentialHelper.NONE,
-        'tosUrl': 'http://www.orf.at',
+        'tosUrl': 'http://www.orf.at', // TODO!
     };
 
     var ui = new firebaseui.auth.AuthUI(firebase.auth());
@@ -52,13 +52,11 @@ function initApp() {
             var displayName = user.displayName;
             user.getIdToken().then(function (accessToken) {
                 document.getElementById('sign-in-status').textContent = 'Signed in as ' + displayName;
-                document.getElementById('sign-in').textContent = 'Sign out';
             });
             currentUser = user;
         } else {
             // User is signed out.
             document.getElementById('sign-in-status').textContent = 'Signed out';
-            document.getElementById('sign-in').textContent = 'Sign in';
             currentUser = null;
         }
     }, function (error) {

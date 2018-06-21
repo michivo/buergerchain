@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using FreieWahl.Voting.Common;
 
@@ -6,21 +7,21 @@ namespace FreieWahl.Voting.Models
 {
     public class AnswerOption : IEquatable<AnswerOption>
     {
-        private AnswerDetail[] _details;
+        private List<AnswerDetail> _details;
 
         public AnswerOption()
         {
-            Details = new AnswerDetail[0];
+            Details = new List<AnswerDetail>();
         }
 
         public string Id { get; set; }
 
         public string AnswerText { get; set; }
 
-        public AnswerDetail[] Details
+        public List<AnswerDetail> Details
         {
             get => _details;
-            set => _details = value ?? new AnswerDetail[0];
+            set => _details = value ?? new List<AnswerDetail>();
         }
 
         public bool Equals(AnswerOption other)
