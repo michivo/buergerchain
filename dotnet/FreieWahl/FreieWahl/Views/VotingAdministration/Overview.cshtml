@@ -19,7 +19,7 @@
 <div id="votingOverviewList" style="display: none">    
     <div id="votingOverviewListContent"></div>
     <div id="addVoting">
-        <a class="btn btn-primary text-light mr-5" href="Edit?id=0"><i class="material-icons align-top mr-3">add</i>Create Voting</a>
+        <a class="btn btn-primary text-light mr-5" href="Edit?id=0"><i class="material-icons align-top mr-3">add</i>***Create Voting</a>
     </div>
 </div>
 
@@ -67,10 +67,10 @@
                 voting.description +
                 '</p>';
             item +=
-                ' <a class="btn btn-primary text-light mr-5" href="Edit?id=' + voting.id + '"><i class="material-icons align-top mr-3">edit</i>Edit</a>';
+                ' <a class="btn btn-primary text-light mr-5" href="Edit?id=' + voting.id + '"><i class="material-icons align-top mr-3">edit</i>***Edit</a>';
             item += '<a class="btn btn-primary text-light" onclick="deleteVoting(' +
             voting.id +
-                ')"><i class="material-icons align-top mr-3">delete</i>Delete</a></div ></div > ';
+                ')"><i class="material-icons align-top mr-3">delete</i>***Delete</a></div ></div > ';
             items.push(item);
         }
         $("#votingLoadProgress").hide("fast");

@@ -26,13 +26,13 @@
         <label for="votingDescription">@Localizer["LabelVotingDescription"]</label>
     </div>
     <button class="btn btn-primary" onclick="saveVoting()">
-        <i class="material-icons align-top mr-3">save</i> Save
+        <i class="material-icons align-top mr-3">save</i>*** Save
     </button>
     <button class="btn btn-warning" onclick="cancelEditing()">
-        <i class="material-icons align-top mr-3">cancel</i> Cancel
+        <i class="material-icons align-top mr-3">cancel</i>*** Cancel
     </button>
-    <button class="btn btn-warning" onclick="invite()">
-        <i class="material-icons align-top mr-3">cancel</i> Cancel
+    <button class="btn btn-secondary" onclick="invite()">
+        <i class="material-icons align-top mr-3">email</i>*** Invite Voters
     </button>
     <div style="float: none" class="mt-4">
         <h3>@Localizer["QuestionsHeader"]</h3>
@@ -97,9 +97,9 @@
                 '</p>';
             item +=
                 ' <a class="btn btn-primary text-light mr-5" href="EditQuestion?qid=' +
-                question.id + '&id=@(Model.VotingId)"><i class="material-icons align-top mr-3">edit</i>Edit</a>';
+                question.id + '&id=@(Model.VotingId)"><i class="material-icons align-top mr-3">edit</i>*** Edit</a>';
             item += '<a class="btn btn-primary text-light" onclick="deleteQuestion(\''
-                + question.id + '\')"><i class="material-icons align-top mr-3">delete</i>Delete</a></div>';
+                + question.id + '\')"><i class="material-icons align-top mr-3">delete</i>*** Delete</a></div>';
             items.push(item);
 
         }
