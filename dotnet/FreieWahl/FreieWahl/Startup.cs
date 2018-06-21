@@ -2,6 +2,8 @@
 using System;
 using FreieWahl.Application.Authentication;
 using FreieWahl.Common;
+using FreieWahl.Mail;
+using FreieWahl.Mail.SendGrid;
 using FreieWahl.Security.Authentication;
 using FreieWahl.Security.TimeStamps;
 using FreieWahl.Security.UserHandling;
@@ -53,6 +55,8 @@ namespace FreieWahl
             services.AddSingleton<ITimestampService>(p => new TimestampService(Configuration["TimestampServer:Url"]));
             services.AddSingleton<IVotingStore>(p => new VotingStore(Configuration["Datastore:ProjectId"]));
             services.AddSingleton<IAuthenticationManager, AuthenticationManager>();
+            services.AddSingleton<IMailProvider>(p => new SendGridMailProvider(Configuration["SendGrid:ApiKey"],
+                Configuration["SendGrid:FromMail"], Configuration["SendGrid:FromName"]));
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

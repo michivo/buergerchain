@@ -8,6 +8,7 @@
         UpdateVoting = 0x04,
         UpdateQuestion = 0x08,
         DeleteQuestion = 0x10,
-        DeleteVoting = 0x20
+        DeleteVoting = 0x20,
+        Invite = 0x40
     }
 }

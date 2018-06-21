@@ -12,6 +12,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
+using FreieWahl.Mail;
 
 namespace FreieWahl.Controllers
 {
@@ -23,6 +24,7 @@ namespace FreieWahl.Controllers
         private readonly IJwtAuthentication _authentication;
         private readonly IUserHandler _userHandler;
         private readonly IAuthenticationManager _authManager;
+        private readonly IMailProvider _mailProvider;
         private UserInformation _user;
 
         public VotingAdministrationController(ILogger<HomeController> logger,
@@ -30,7 +32,8 @@ namespace FreieWahl.Controllers
             IStringLocalizer<VotingAdministrationController> localizer,
             IJwtAuthentication authentication,
             IUserHandler userHandler,
-            IAuthenticationManager authManager)
+            IAuthenticationManager authManager,
+            IMailProvider mailProvider)
         {
             _logger = logger;
             _votingStore = votingStore;
@@ -38,6 +41,7 @@ namespace FreieWahl.Controllers
             _authentication = authentication;
             _userHandler = userHandler;
             _authManager = authManager;
+            _mailProvider = mailProvider;
         }
 
         public IActionResult Overview()
@@ -233,6 +237,16 @@ namespace FreieWahl.Controllers
 
             await _votingStore.DeleteQuestion(_GetId(id), _GetId(qid));
             return Ok(); // TODO err handling
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> SendInvitationMail(string votingId, string[] addresses)
+        {
+            if (await _CheckAuthorization(votingId, Operation.Invite) == false) // TODO authorization operation
+                return Unauthorized();
+
+            await _mailProvider.SendMail("Michael Faschinger", addresses[0], "Hello World", "This is just a test");
+            return Ok();
         }
 
         private static Question _GetQuestion(string title, string desc, string[] answers)

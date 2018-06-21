@@ -31,6 +31,9 @@
     <button class="btn btn-warning" onclick="cancelEditing()">
         <i class="material-icons align-top mr-3">cancel</i> Cancel
     </button>
+    <button class="btn btn-warning" onclick="invite()">
+        <i class="material-icons align-top mr-3">cancel</i> Cancel
+    </button>
     <div style="float: none" class="mt-4">
         <h3>@Localizer["QuestionsHeader"]</h3>
         <div id="votingQuestionsListContent"></div>
@@ -119,6 +122,24 @@
                 $.post({
                     url: 'DeleteVotingQuestion',
                     data: { "qid": qid, "id": @Model.VotingId },
+                    beforeSend: function (xhr) {
+                        xhr.setRequestHeader("Authorization", idToken);
+                    },
+                    success: function (data) { ref }
+                    // error: todo
+                });
+            });
+        }
+    }
+
+    function invite() {
+        var currentUser = firebase.auth().currentUser;
+        if (currentUser) {
+            var mails = ["michfasch@gmx.at"]
+            currentUser.getIdToken(true).then(function (idToken) {
+                $.post({
+                    url: 'SendInvitationMail',
+                    data: { "votingId": @Model.VotingId, "addresses": mails },
                     beforeSend: function (xhr) {
                         xhr.setRequestHeader("Authorization", idToken);
                     },
