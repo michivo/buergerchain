@@ -245,7 +245,8 @@ namespace FreieWahl.Controllers
             if (await _CheckAuthorization(votingId, Operation.Invite) == false) // TODO authorization operation
                 return Unauthorized();
 
-            await _mailProvider.SendMail("Michael Faschinger", addresses[0], "Hello World", "This is just a test");
+            await _mailProvider.SendMail("Michael Faschinger", addresses[0], "Hello World", "This is just a -test-", 
+                new Dictionary<string, string> {{"-test-", "surprise"}});
             return Ok();
         }
 
