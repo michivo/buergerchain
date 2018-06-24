@@ -105,6 +105,169 @@ namespace Test.FreieWahl.Voting.Storage
             Assert.AreEqual(votingWritten, votingRead);
         }
 
+        [TestMethod]
+        public async Task GetForUserId()
+        {
+            // arrange 
+            var voting1 = new StandardVoting
+            {
+                Creator = "Michael",
+                DateCreated = DateTime.UtcNow,
+                Description = "Desc",
+                Title = "Title",
+                Visibility = VotingVisibility.WithLink,
+                Questions = _CreateDummyQuestions()
+            };
+            var voting2 = new StandardVoting
+            {
+                Creator = "Douglas",
+                DateCreated = DateTime.UtcNow,
+                Description = "Desc",
+                Title = "Title",
+                Visibility = VotingVisibility.WithLink,
+                Questions = _CreateDummyQuestions()
+            };
+            var voting3 = new StandardVoting
+            {
+                Creator = "Michael",
+                DateCreated = DateTime.UtcNow,
+                Description = "Desc",
+                Title = "Title",
+                Visibility = VotingVisibility.WithLink,
+                Questions = _CreateDummyQuestions()
+            };
+            await _votingStore.Insert(voting1);
+            await _votingStore.Insert(voting2);
+            await _votingStore.Insert(voting3);
+
+            // act
+            var votingsForMichael = (await _votingStore.GetForUserId("Michael")).ToList();
+            var votingsForDouglas = (await _votingStore.GetForUserId("Douglas")).ToList();
+            var votingsForSomeoneElse = (await _votingStore.GetForUserId("douglas")).ToList();
+
+            // assert
+            Assert.AreEqual(2, votingsForMichael.Count);
+            Assert.IsTrue(votingsForMichael.Exists(x => x.Id == voting1.Id));
+            Assert.IsTrue(votingsForMichael.Exists(x => x.Id == voting3.Id));
+            Assert.AreEqual(1, votingsForDouglas.Count);
+            Assert.IsTrue(votingsForDouglas.Exists(x => x.Id == voting2.Id));
+            Assert.AreEqual(0, votingsForSomeoneElse.Count);
+        }
+
+        [TestMethod]
+        public async Task GetAllPublic()
+        {
+            // arrange 
+            var voting1 = new StandardVoting
+            {
+                Creator = "Michael",
+                DateCreated = DateTime.UtcNow,
+                Description = "Desc",
+                Title = "Title",
+                Visibility = VotingVisibility.WithLink,
+                Questions = _CreateDummyQuestions()
+            };
+            var voting2 = new StandardVoting
+            {
+                Creator = "Douglas",
+                DateCreated = DateTime.UtcNow,
+                Description = "Desc",
+                Title = "Title",
+                Visibility = VotingVisibility.Public,
+                Questions = _CreateDummyQuestions()
+            };
+            var voting3 = new StandardVoting
+            {
+                Creator = "Michael",
+                DateCreated = DateTime.UtcNow,
+                Description = "Desc",
+                Title = "Title",
+                Visibility = VotingVisibility.Public,
+                Questions = _CreateDummyQuestions()
+            };
+            await _votingStore.Insert(voting1);
+            await _votingStore.Insert(voting2);
+            await _votingStore.Insert(voting3);
+
+            // act
+            var publicVotings = (await _votingStore.GetAllPublic()).ToList();
+
+            // assert
+            Assert.AreEqual(2, publicVotings.Count);
+            Assert.IsTrue(publicVotings.Exists(x => x.Id == voting2.Id));
+            Assert.IsTrue(publicVotings.Exists(x => x.Id == voting3.Id));
+        }
+
+        [TestMethod]
+        public async Task ClearAll()
+        {
+            // arrange 
+            var voting1 = new StandardVoting
+            {
+                Creator = "Michael",
+                DateCreated = DateTime.UtcNow,
+                Description = "Desc",
+                Title = "Title",
+                Visibility = VotingVisibility.WithLink,
+                Questions = _CreateDummyQuestions()
+            };
+            var voting2 = new StandardVoting
+            {
+                Creator = "Douglas",
+                DateCreated = DateTime.UtcNow,
+                Description = "Desc",
+                Title = "Title",
+                Visibility = VotingVisibility.Public,
+                Questions = _CreateDummyQuestions()
+            };
+            var voting3 = new StandardVoting
+            {
+                Creator = "Michael",
+                DateCreated = DateTime.UtcNow,
+                Description = "Desc",
+                Title = "Title",
+                Visibility = VotingVisibility.Public,
+                Questions = _CreateDummyQuestions()
+            };
+            await _votingStore.Insert(voting1);
+            await _votingStore.Insert(voting2);
+            await _votingStore.Insert(voting3);
+            var allVotings = (await _votingStore.GetAll()).ToList();
+            Assert.AreEqual(3, allVotings.Count);
+
+            // act
+            _votingStore.ClearAll();
+
+
+            // assert
+            allVotings = (await _votingStore.GetAll()).ToList();
+            Assert.AreEqual(0, allVotings.Count);
+        }
+
+        [TestMethod]
+        public async Task GetNonExistingById()
+        {
+            await Assert.ThrowsExceptionAsync<InvalidOperationException>(() => _votingStore.GetById(1234L));
+        }
+
+        [TestMethod]
+        public async Task GetById()
+        {
+            // arrange 
+            var votingWritten = new StandardVoting
+            {
+                Creator = "Michael",
+                DateCreated = DateTime.UtcNow,
+                Description = "Desc",
+                Title = "Title",
+                Visibility = VotingVisibility.WithLink,
+                Questions = _CreateDummyQuestions()
+            };
+            Assert.AreEqual(0, votingWritten.Id);
+            await _votingStore.Insert(votingWritten);
+            Assert.AreNotEqual(0, votingWritten.Id);
+        }
+
         private static List<Question> _CreateDummyQuestions()
         {
             return new List<Question>

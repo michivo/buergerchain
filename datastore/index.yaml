@@ -1,0 +1,7 @@
+indexes:
+
+- kind: StandardVoting
+  properties:
+  - name: Visibility
+  - name: DateCreated
+    direction: desc
