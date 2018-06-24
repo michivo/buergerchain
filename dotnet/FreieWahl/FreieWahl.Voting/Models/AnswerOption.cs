@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using FreieWahl.Voting.Common;
 
@@ -12,6 +13,7 @@ namespace FreieWahl.Voting.Models
         public AnswerOption()
         {
             Details = new List<AnswerDetail>();
+            Id = Guid.NewGuid().ToString("D", CultureInfo.InvariantCulture);
         }
 
         public string Id { get; set; }

@@ -14,6 +14,7 @@ namespace FreieWahl.Voting.Models
         {
             Details = new List<QuestionDetail>();
             AnswerOptions = new List<AnswerOption>();
+            Id = IdHelper.GetId();
         }
 
         public string QuestionText { get; set; }

@@ -266,6 +266,130 @@ namespace Test.FreieWahl.Voting.Storage
             Assert.AreEqual(0, votingWritten.Id);
             await _votingStore.Insert(votingWritten);
             Assert.AreNotEqual(0, votingWritten.Id);
+
+            // act
+            var voting = await _votingStore.GetById(votingWritten.Id);
+
+            // assert
+            Assert.AreEqual(votingWritten, voting);
+        }
+
+        [TestMethod]
+        public async Task AddQuestion()
+        {
+            // arrange 
+            var votingWritten = new StandardVoting
+            {
+                Creator = "Michael",
+                DateCreated = DateTime.UtcNow,
+                Description = "Desc",
+                Title = "Title",
+                Visibility = VotingVisibility.WithLink,
+                Questions = new List<Question>()
+            };
+            await _votingStore.Insert(votingWritten);
+            Question q = _CreateDummyQuestions().First();
+
+            // act
+            await _votingStore.AddQuestion(votingWritten.Id, q);
+
+            // assert
+            var voting = await _votingStore.GetById(votingWritten.Id);
+            Assert.AreEqual(1, voting.Questions.Count);
+            Assert.AreNotEqual(0, voting.Questions[0].Id);
+            q.Id = voting.Questions[0].Id;
+            Assert.AreEqual(q, voting.Questions[0]);
+        }
+
+        [TestMethod]
+        public async Task UpdateQuestion()
+        {
+            // arrange 
+            var votingWritten = new StandardVoting
+            {
+                Creator = "Michael",
+                DateCreated = DateTime.UtcNow,
+                Description = "Desc",
+                Title = "Title",
+                Visibility = VotingVisibility.WithLink,
+                Questions = _CreateDummyQuestions()
+            };
+            await _votingStore.Insert(votingWritten);
+            Question q = votingWritten.Questions[0];
+            q.QuestionText = "Dawg, you sure?";
+            q.AnswerOptions.RemoveAt(2);
+
+            // act
+            await _votingStore.UpdateQuestion(votingWritten.Id, q);
+
+            // assert
+            var voting = await _votingStore.GetById(votingWritten.Id);
+            Assert.AreEqual(voting.Questions[0], q);
+        }
+
+        [TestMethod]
+        public async Task DeleteQuestion()
+        {
+            // arrange
+            var questions = _CreateDummyQuestions();
+            var q = new Question
+            {
+                AnswerOptions = new List<AnswerOption>(),
+                Details = new List<QuestionDetail>(),
+                QuestionText = "Mooh mooh",
+                Status = QuestionStatus.Locked
+            };
+            questions.Add(q);
+            var votingWritten = new StandardVoting
+            {
+                Creator = "Michael",
+                DateCreated = DateTime.UtcNow,
+                Description = "Desc",
+                Title = "Title",
+                Visibility = VotingVisibility.WithLink,
+                Questions = questions
+            };
+            await _votingStore.Insert(votingWritten);
+
+            // act
+            await _votingStore.DeleteQuestion(votingWritten.Id, votingWritten.Questions[0].Id);
+
+            // assert
+            var voting = await _votingStore.GetById(votingWritten.Id);
+            Assert.AreEqual(1, voting.Questions.Count);
+            Assert.AreEqual(q, voting.Questions.Single());
+        }
+
+        [TestMethod]
+        public async Task ClearQuestions()
+        {
+            // arrange
+            var questions = _CreateDummyQuestions();
+            var q = new Question
+            {
+                AnswerOptions = new List<AnswerOption>(),
+                Details = new List<QuestionDetail>(),
+                QuestionText = "Mooh mooh",
+                Status = QuestionStatus.Locked
+            };
+            questions.Add(q);
+            var votingWritten = new StandardVoting
+            {
+                Creator = "Michael",
+                DateCreated = DateTime.UtcNow,
+                Description = "Desc",
+                Title = "Title",
+                Visibility = VotingVisibility.WithLink,
+                Questions = questions
+            };
+            await _votingStore.Insert(votingWritten);
+
+            // act
+            await _votingStore.ClearQuestions(votingWritten.Id);
+
+            // assert
+            var voting = await _votingStore.GetById(votingWritten.Id);
+            Assert.AreEqual(0, voting.Questions.Count);
         }
 
         private static List<Question> _CreateDummyQuestions()
