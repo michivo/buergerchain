@@ -5,8 +5,6 @@
 }
 
 function blind(message, N, E) {
-    var messageHash = messageToHashInt(message);
-
     var bigOne = new BigInteger('1');
     var gcd;
     var r;
@@ -28,7 +26,7 @@ function blind(message, N, E) {
             r.compareTo(N) >= 0 ||
             r.compareTo(bigOne) <= 0
     );
-    var blinded = messageHash.multiply(r.modPow(E, N)).mod(N);
+    var blinded = message.multiply(r.modPow(E, N)).mod(N);
     return {
         blinded,
         r

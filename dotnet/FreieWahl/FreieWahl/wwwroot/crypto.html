@@ -16,17 +16,21 @@
             var n = new BigInteger(
                 "108182674951968852666449405909438166109771964094185953581483749473135671444735956446128426451389437838293182571403114948625203599342302391397220297359451226860449558602359497253344604069561763332009206777668589464067817524572438777182040635407307000695208057481048088804554425507797641731051027032035412027473");
             var e = new BigInteger('65537');
-            var blinded = blind(message, n, e);
-            $('#blinded').html(blinded.blinded.toString());
+            var blinded = blind(messageToHashInt(message), n, e);
+            var blinded2 = blind(blinded.blinded, n, e);
+            $('#blinded').html(blinded2.blinded.toString());
             $('#randVal').html(blinded.r.toString());
+            $('#randVal2').html(blinded2.r.toString());
         }
 
         function unblindData() {
             var message = document.getElementById('signed').value;
             var r = $('#randVal').html();
+            var r2 = $('#randVal2').html();
             var n = new BigInteger(
                 "108182674951968852666449405909438166109771964094185953581483749473135671444735956446128426451389437838293182571403114948625203599342302391397220297359451226860449558602359497253344604069561763332009206777668589464067817524572438777182040635407307000695208057481048088804554425507797641731051027032035412027473");
-            var unblidedData = unblind(new BigInteger(message), new BigInteger(r), n);
+            var unblidedData = unblind(new BigInteger(message), new BigInteger(r2), n);
+            unblidedData = unblind(unblidedData, new BigInteger(r), n);
             $('#unblinded').html(unblidedData.toString());
         }
     </script>
@@ -38,6 +42,7 @@
 <button onclick="unblindData()">Unblind</button>
 <div id="blinded">---</div>
 <div id="randVal">---</div>
+<div id="randVal2">---</div>
 <div id="unblinded">---</div>
 </body>
 </html>
