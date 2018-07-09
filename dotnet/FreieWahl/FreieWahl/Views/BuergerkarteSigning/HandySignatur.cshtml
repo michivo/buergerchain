@@ -1,7 +1,46 @@
 ﻿@{
-    ViewData["Title"] = "About";
+    ViewData["Title"] = "Get tokens";
 }
 <h2>@ViewData["Title"].</h2>
 <h3>@ViewData["Message"]</h3>
 
-<iframe id="signatureFrame" width="250px" height="250px" src="@ViewData["IFrameUri"]" scrolling="no"></iframe>
+<form target="signatureFrame" id="buergerkarteLoader" action="https://www.a-trust.at/mobile/https-security-layer-request/default.aspx" enctype="application/x-www-form-urlencoded" method="post" style="display: none;">
+
+    <!-- XMLRequest -->
+    <input type="hidden" name="XMLRequest" id="sigRequest" value="<?xml version='1.0' encoding='UTF-8' ?>
+    <sl:CreateCMSSignatureRequest xmlns:sl='http://www.buergerkarte.at/namespaces/securitylayer/1.2#' Structure='enveloping'>
+        <sl:KeyboxIdentifier>SecureSignatureKeypair</sl:KeyboxIdentifier>
+        <sl:DataObject>
+            <sl:MetaInfo><sl:MimeType>text/plain</sl:MimeType></sl:MetaInfo>
+            <sl:Content>
+                <sl:Base64Content>TOKEN_PLACEHOLDER</sl:Base64Content>
+            </sl:Content>
+        </sl:DataObject>
+    </sl:CreateCMSSignatureRequest>" />
+
+
+
+    <input type="hidden" name="appletheight" value="250" />
+    <input type="hidden" name="appletwidth" value="250" />
+
+    <!-- DataURL -->
+    <input type="hidden" name="DataURL" value="https://groovy-cider-826.appspot.com/HandySignatur" />
+
+    <!-- Submit Button -->
+    <input type="submit" value="Test Request">
+
+</form>
+
+<iframe name="signatureFrame" id="signatureFrame" width="250px" height="250px" src="www.google.at" scrolling="no"></iframe>
+
+<script>
+    var orig_val = $("#sigRequest").val();
+    var tokens = {
+        'VotingId': '123456789',
+        'Tokens' : [ 'random1', 'random2', 'random3']
+    };
+    var json = JSON.stringify(tokens);
+    var base64_encoded = window.btoa(json);
+    $("#sigRequest").val(orig_val.replace("TOKEN_PLACEHOLDER", base64_encoded));
+    $("#buergerkarteLoader").submit();
+</script>
