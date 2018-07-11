@@ -39,7 +39,7 @@ namespace FreieWahl.Security.Signing.Buergerkarte
 
             var jObject = JObject.Parse(data.Data);
             var votingId = (string)jObject.GetValue("VotingId", StringComparison.OrdinalIgnoreCase);
-            // TODO: verify that voter is registered for voting
+            
             var tokens = (JArray)jObject.GetValue("Tokens", StringComparison.OrdinalIgnoreCase);
             var signedTokens = new List<string>();
             foreach (var token in tokens)

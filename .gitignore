@@ -11,3 +11,4 @@
 /dotnet/FreieWahl/.axoCover/runs
 *.pyc
 /dotnet/FreieWahl/FreieWahl/appsettings.json
+/tokenstore/node_modules
