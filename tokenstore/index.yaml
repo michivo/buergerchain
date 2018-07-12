@@ -1,0 +1,6 @@
+indexes:
+
+- kind: registration
+  properties:
+    - name: votingId
+      direction: asc

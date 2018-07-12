@@ -12,3 +12,6 @@
 *.pyc
 /dotnet/FreieWahl/FreieWahl/appsettings.json
 /tokenstore/node_modules
+/tokenstore/.nyc_output
+/tokenstore/.vscode
+/tokenstore/coverage
