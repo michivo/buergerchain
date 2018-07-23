@@ -16,10 +16,6 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using Org.BouncyCastle.Crypto.Generators;
-using Org.BouncyCastle.Crypto.Parameters;
-using Org.BouncyCastle.Math;
-using Org.BouncyCastle.Security;
 
 namespace FreieWahl
 {
@@ -57,13 +53,6 @@ namespace FreieWahl
                     options.Version = GetVersion();
                 });
 
-            // TODO: create proper key
-            var keyGenParams = new RsaKeyGenerationParameters(
-                new BigInteger("65537"), new SecureRandom(), 2048, 5);
-            var keyGen = new RsaKeyPairGenerator();
-            keyGen.Init(keyGenParams);
-            var keys = keyGen.GenerateKeyPair();
-
             // TODO: put root CAs in config
             
             var buergerkarteRootCa5 =
@@ -78,8 +67,11 @@ namespace FreieWahl
             services.AddSingleton<IAuthenticationManager, AuthenticationManager>();
             services.AddSingleton<IMailProvider>(p => new SendGridMailProvider(Configuration["SendGrid:ApiKey"],
                 Configuration["SendGrid:FromMail"], Configuration["SendGrid:FromName"]));
-            services.AddSingleton<IVotingTokenSigning>(p => new VotingTokenSigning(keys));
             services.AddSingleton<ISignatureHandler>(p => new SignatureHandler(new[] { cert }));
+            services.AddSingleton<IVotingKeyStore, VotingKeyStore>();
+            var sp = services.BuildServiceProvider();
+            services.AddSingleton<IVotingTokenHandler>(p => new VotingTokenHandler(sp.GetService<IVotingKeyStore>(),
+                int.Parse(Configuration["VotingSettings:MaxNumQuestions"])));
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

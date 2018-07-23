@@ -4,7 +4,7 @@ using Org.BouncyCastle.Crypto;
 
 namespace FreieWahl.Security.Signing.VotingTokens
 {
-    interface IVotingKeyStore
+    public interface IVotingKeyStore
     {
         Task StoreKeyPairs(long votingId, Dictionary<int, AsymmetricCipherKeyPair> keys);
 

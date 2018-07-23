@@ -2,10 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using FreieWahl.Voting.Common;
 using FreieWahl.Voting.Models;
 using Google.Cloud.Datastore.V1;
-using Microsoft.AspNetCore.Mvc;
 
 namespace FreieWahl.Voting.Storage
 {

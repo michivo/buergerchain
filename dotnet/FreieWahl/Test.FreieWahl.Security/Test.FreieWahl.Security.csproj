@@ -122,7 +122,6 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Signing\Buergerkarte\Test_BuergerkarteSigning.cs" />
     <Compile Include="Signing\VotingTokens\Test_VotingKeyStore.cs" />
-    <Compile Include="Signing\VotingTokens\Test_VotingTokenSigning.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />

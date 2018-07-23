@@ -1,13 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
-using System.Linq;
+using System.Threading.Tasks;
 using System.Xml;
-using System.Xml.XPath;
 using FreieWahl.Security.Signing.VotingTokens;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.WebUtilities;
-using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
 namespace FreieWahl.Security.Signing.Buergerkarte
@@ -15,18 +11,17 @@ namespace FreieWahl.Security.Signing.Buergerkarte
     public class BuergerkarteSigningController : Controller
     {
         private readonly ISignatureHandler _signatureHandler;
-        private readonly IVotingTokenSigning _votingTokenSigning;
-        private string _lastSigResult;
+        private readonly IVotingTokenHandler _votingTokenHandler;
 
         public BuergerkarteSigningController(ISignatureHandler signatureHandler,
-            IVotingTokenSigning votingTokenSigning)
+            IVotingTokenHandler votingTokenHandler)
         {
             _signatureHandler = signatureHandler;
-            _votingTokenSigning = votingTokenSigning;
+            _votingTokenHandler = votingTokenHandler;
         }
 
         [HttpPost]
-        public IActionResult SignatureDataUrl()
+        public async Task<IActionResult> SignatureDataUrl()
         {
             var response = Request.Form["XMLResponse"];
             
@@ -42,9 +37,11 @@ namespace FreieWahl.Security.Signing.Buergerkarte
             
             var tokens = (JArray)jObject.GetValue("Tokens", StringComparison.OrdinalIgnoreCase);
             var signedTokens = new List<string>();
+            int index = 0;
+            var votingIdVal = long.Parse(votingId);
             foreach (var token in tokens)
             {
-                signedTokens.Add(_votingTokenSigning.Sign((string) token));
+                signedTokens.Add(await _votingTokenHandler.Sign((string) token, votingIdVal, index++)); // TODO: index should be provided!
             }
 
             // TODO: save signed tokens for voting

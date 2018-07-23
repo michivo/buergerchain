@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+﻿using System.Threading.Tasks;
 using FreieWahl.Security.Signing.VotingTokens;
 using Microsoft.AspNetCore.Mvc;
 
@@ -8,26 +8,25 @@ namespace FreieWahl.Controllers
 {
     public class VotingController : Controller
     {
-        private readonly IVotingTokenSigning _signing;
-        private readonly IVotingTokenVerifier _verifier;
+        private readonly IVotingTokenHandler _votingTokenHandler;
 
         public VotingController(
-            IVotingTokenSigning signing,
-            IVotingTokenVerifier verifier)
+            IVotingTokenHandler votingTokenHandler)
         {
-            _signing = signing;
-            _verifier = verifier;
+            _votingTokenHandler = votingTokenHandler;
         }
 
         // GET: /VotingController/
-        public IActionResult SignTokens(string[] tokens, string signature)
+        public async Task<IActionResult> SignTokens(string votingId, string[] tokens, string signature)
         {
             
             var signedTokens = new string[tokens.Length];
             int count = 0;
+            var votingIdVal = long.Parse(votingId);
             foreach (var token in tokens)
             {
-                signedTokens[count++] = _signing.Sign(token);
+                signedTokens[count] = await _votingTokenHandler.Sign(token, votingIdVal, count);
+                count++;
             }
 
             var result = new JsonResult(new

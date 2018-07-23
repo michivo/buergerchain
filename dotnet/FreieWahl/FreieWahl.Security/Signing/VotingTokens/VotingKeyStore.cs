@@ -48,16 +48,6 @@ namespace FreieWahl.Security.Signing.VotingTokens
             return _db.InsertAsync(entities.ToArray());
         }
 
-        private Value GetPublicKey(AsymmetricCipherKeyPair keys)
-        {
-            TextWriter textWriter = new StringWriter();
-            PemWriter pemWriter = new PemWriter(textWriter);
-            pemWriter.WriteObject(keys.Public);
-            pemWriter.Writer.Flush();
-
-            return textWriter.ToString();
-        }
-
         private string GetPrivateKey(AsymmetricCipherKeyPair keys)
         {
             TextWriter textWriter = new StringWriter();
@@ -89,7 +79,7 @@ namespace FreieWahl.Security.Signing.VotingTokens
             var privateKeyReader = new PemReader(new StringReader(privateKey));
             var privateKeyObj = privateKeyReader.ReadObject();
 
-            return privateKeyObj as AsymmetricCipherKeyPair;
+            return (AsymmetricCipherKeyPair)privateKeyObj;
         }
     }
 }

@@ -1,6 +1,4 @@
-﻿using System;
-using System.Text;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Threading.Tasks;
 using FreieWahl.Security.Signing.VotingTokens;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -67,8 +65,13 @@ namespace Test.FreieWahl.Security.Signing.VotingTokens
 
             var readKeys1 = await _votingStore.GetKeyPair(1234, 1);
             var readKeys2 = await _votingStore.GetKeyPair(1234, 2);
-            Assert.AreEqual(keys1, readKeys1);
-            Assert.AreEqual(keys2, readKeys2);
+            var private1 = (RsaPrivateCrtKeyParameters) readKeys1.Private;
+            var private2 = (RsaPrivateCrtKeyParameters) readKeys2.Private;
+
+            var origPrivate1 = (RsaPrivateCrtKeyParameters)keys1.Private;
+            var origPrivate2 = (RsaPrivateCrtKeyParameters)keys2.Private;
+            Assert.AreEqual(origPrivate1, private1);
+            Assert.AreEqual(origPrivate2, private2);
         }
     }
 }
