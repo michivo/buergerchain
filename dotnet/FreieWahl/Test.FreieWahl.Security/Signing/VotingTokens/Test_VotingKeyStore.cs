@@ -1,0 +1,74 @@
+﻿using System;
+using System.Text;
+using System.Collections.Generic;
+using System.Threading.Tasks;
+using FreieWahl.Security.Signing.VotingTokens;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Org.BouncyCastle.Crypto;
+using Org.BouncyCastle.Crypto.Generators;
+using Org.BouncyCastle.Crypto.Parameters;
+using Org.BouncyCastle.Math;
+using Org.BouncyCastle.Security;
+
+namespace Test.FreieWahl.Security.Signing.VotingTokens
+{
+    /// <summary>
+    /// Summary description for Test_VotingKeyStore
+    /// </summary>
+    [TestClass]
+    public class Test_VotingKeyStore
+    {
+        private static readonly string ProjectId = "groovy-cider-826";
+        private VotingKeyStore _votingStore;
+
+        [TestInitialize]
+        public void Init()
+        {
+            _votingStore = new VotingKeyStore(ProjectId, VotingKeyStore.TestNamespace);
+            //_votingStore.ClearAll();
+        }
+
+        #region Additional test attributes
+        //
+        // You can use the following additional attributes as you write your tests:
+        //
+        // Use ClassInitialize to run code before running the first test in the class
+        // [ClassInitialize()]
+        // public static void MyClassInitialize(TestContext testContext) { }
+        //
+        // Use ClassCleanup to run code after all tests in a class have run
+        // [ClassCleanup()]
+        // public static void MyClassCleanup() { }
+        //
+        //
+        // Use TestCleanup to run code after each test has run
+        // [TestCleanup()]
+        // public void MyTestCleanup() { }
+        //
+        #endregion
+
+        [TestMethod]
+        public async Task TestWriteAndRead()
+        {
+            var keyGenParams = new RsaKeyGenerationParameters(
+                new BigInteger("65537"), new SecureRandom(), 2048, 5);
+            var keyGen = new RsaKeyPairGenerator();
+            keyGen.Init(keyGenParams);
+            var keys1 = keyGen.GenerateKeyPair();
+            var keys2 = keyGen.GenerateKeyPair();
+
+            var keyDict = new Dictionary<int, AsymmetricCipherKeyPair>()
+            {
+                {1, keys1 },
+                {2, keys2 }
+            };
+
+            await _votingStore.StoreKeyPairs(1234, keyDict);
+
+            var readKeys1 = await _votingStore.GetKeyPair(1234, 1);
+            var readKeys2 = await _votingStore.GetKeyPair(1234, 2);
+            Assert.AreEqual(keys1, readKeys1);
+            Assert.AreEqual(keys2, readKeys2);
+        }
+    }
+}

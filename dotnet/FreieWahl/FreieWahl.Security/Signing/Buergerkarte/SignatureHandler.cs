@@ -12,7 +12,7 @@ namespace FreieWahl.Security.Signing.Buergerkarte
     public class SignatureHandler : ISignatureHandler
     {
         private readonly X509Certificate2[] _trustedRootCertificates;
-        static DerObjectIdentifier sFullNameIdentifier = new DerId
+        //static DerObjectIdentifier sFullNameIdentifier = new DerId
 
         public SignatureHandler(X509Certificate2[] trustedRootCertificates)
         {

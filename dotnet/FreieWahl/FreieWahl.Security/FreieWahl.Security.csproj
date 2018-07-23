@@ -5,7 +5,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.AspNetCore.Mvc.Abstractions" Version="2.0.3" />
+    <PackageReference Include="Google.Cloud.Datastore.V1" Version="2.1.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.Abstractions" Version="2.1.1" />
     <PackageReference Include="Portable.BouncyCastle" Version="1.8.2" />
   </ItemGroup>
 
@@ -14,6 +15,9 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Reference Include="Google.Cloud.Datastore.V1">
+      <HintPath>C:\Users\Michael\.nuget\packages\google.cloud.datastore.v1\2.1.0\lib\netstandard1.5\Google.Cloud.Datastore.V1.dll</HintPath>
+    </Reference>
     <Reference Include="Microsoft.AspNetCore.Mvc.Abstractions">
       <HintPath>C:\Users\Michael\.nuget\packages\microsoft.aspnetcore.mvc.abstractions\2.0.0\lib\netstandard2.0\Microsoft.AspNetCore.Mvc.Abstractions.dll</HintPath>
     </Reference>

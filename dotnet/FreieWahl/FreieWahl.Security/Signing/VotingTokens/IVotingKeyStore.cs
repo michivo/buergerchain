@@ -1,0 +1,13 @@
+﻿using System.Collections.Generic;
+using System.Threading.Tasks;
+using Org.BouncyCastle.Crypto;
+
+namespace FreieWahl.Security.Signing.VotingTokens
+{
+    interface IVotingKeyStore
+    {
+        Task StoreKeyPairs(long votingId, Dictionary<int, AsymmetricCipherKeyPair> keys);
+
+        Task<AsymmetricCipherKeyPair> GetKeyPair(long votingId, int index);
+    }
+}
