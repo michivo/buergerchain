@@ -72,6 +72,13 @@ namespace FreieWahl.Voting.Storage
             throw new InvalidOperationException("Tried to update inexistent question");
         }
 
+        public async Task UpdateState(long votingId, VotingState state)
+        {
+            var voting = await _GetVoting(votingId);
+            voting.State = state;
+            await _db.UpdateAsync(ToEntity(voting));
+        }
+
         public async Task Update(StandardVoting voting)
         {
             var readVoting = await _GetVoting(voting.Id);
@@ -117,19 +124,6 @@ namespace FreieWahl.Voting.Storage
             return FromEntity(result.Entities.Single());
         }
 
-        public async Task<IEnumerable<StandardVoting>> GetAllPublic()
-        {
-            var query = new Query(StoreKind)
-            {
-                Filter = Filter.Equal("Visibility", (int)VotingVisibility.Public),
-                Order = { { "DateCreated", PropertyOrder.Types.Direction.Descending } }
-            };
-
-            var results = await _db.RunQueryAsync(query).ConfigureAwait(false);
-
-            return results.Entities.Select(FromEntity);
-        }
-
         public async Task<IEnumerable<StandardVoting>> GetForUserId(string userId)
         {
             var query = new Query(StoreKind)
@@ -169,7 +163,9 @@ namespace FreieWahl.Voting.Storage
         {
             var visibility = (int?)entity["Visibility"];
             var visibilityValue = visibility == null ? VotingVisibility.OwnerOnly : (VotingVisibility)visibility;
-            
+            var state = (int?)entity["State"];
+            var stateValue = state == null ? VotingState.Ready : (VotingState)state;
+
             return new StandardVoting()
             {
                 Id = entity.Key.Path.First().Id,
@@ -178,6 +174,7 @@ namespace FreieWahl.Voting.Storage
                 Description = (string)entity["Description"],
                 DateCreated = (DateTime)entity["DateCreated"],
                 Visibility = visibilityValue,
+                State = stateValue,
                 Questions = FromQuestionsEntity(entity["Questions"])
             };
         }
@@ -192,6 +189,7 @@ namespace FreieWahl.Voting.Storage
                 ["DateCreated"] = standardVoting.DateCreated.ToUniversalTime(),
                 ["Description"] = standardVoting.Description,
                 ["Visibility"] = (int)standardVoting.Visibility,
+                ["State"] = (int)standardVoting.State,
                 ["Questions"] = ToEntities(standardVoting.Questions)
             };
         }

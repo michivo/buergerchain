@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Diagnostics;
 using System.Threading.Tasks;
 using FreieWahl.Security.Signing.VotingTokens;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -54,7 +56,7 @@ namespace Test.FreieWahl.Security.Signing.VotingTokens
             keyGen.Init(keyGenParams);
             var keys1 = keyGen.GenerateKeyPair();
             var keys2 = keyGen.GenerateKeyPair();
-
+            
             var keyDict = new Dictionary<int, AsymmetricCipherKeyPair>()
             {
                 {1, keys1 },
@@ -72,6 +74,8 @@ namespace Test.FreieWahl.Security.Signing.VotingTokens
             var origPrivate2 = (RsaPrivateCrtKeyParameters)keys2.Private;
             Assert.AreEqual(origPrivate1, private1);
             Assert.AreEqual(origPrivate2, private2);
+            Assert.AreNotEqual(origPrivate2, private1);
+            Assert.AreNotEqual(origPrivate1, private2);
         }
     }
 }

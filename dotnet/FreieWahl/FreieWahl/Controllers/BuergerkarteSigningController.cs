@@ -37,12 +37,16 @@ namespace FreieWahl.Security.Signing.Buergerkarte
             
             var tokens = (JArray)jObject.GetValue("Tokens", StringComparison.OrdinalIgnoreCase);
             var signedTokens = new List<string>();
-            int index = 0;
             var votingIdVal = long.Parse(votingId);
             foreach (var token in tokens)
             {
-                signedTokens.Add(await _votingTokenHandler.Sign((string) token, votingIdVal, index++)); // TODO: index should be provided!
+                var index = (int)token["Index"];
+                var tokenValue = (string) token["Token"];
+                signedTokens.Add(await _votingTokenHandler.Sign(tokenValue, votingIdVal, index));
             }
+
+            var registrationId = Guid.NewGuid().ToString();
+            
 
             // TODO: save signed tokens for voting
 

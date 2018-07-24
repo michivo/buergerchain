@@ -21,9 +21,13 @@ namespace FreieWahl.Security.Signing.VotingTokens
             _maxNumTokens = maxNumTokens;
         }
 
-        public async Task GenerateTokens(long votingId, int numTokens)
+        public async Task GenerateTokens(long votingId, int? numTokens)
         {
-            if (numTokens < 1 || numTokens > _maxNumTokens)
+            if (numTokens == null)
+            {
+                numTokens = _maxNumTokens;
+            }
+            else if (numTokens < 1 || numTokens > _maxNumTokens)
             {
                 throw new ArgumentException("Invalid number of tokens");
             }
@@ -49,6 +53,7 @@ namespace FreieWahl.Security.Signing.VotingTokens
         {
             var signer = SignerUtilities.GetSigner("SHA256withRSA");
             var keyPair = await _keyStore.GetKeyPair(votingId, tokenIndex);
+
             signer.Init(true, keyPair.Private);
             var rawToken = Encoding.UTF8.GetBytes(token);
             signer.BlockUpdate(rawToken, 0, rawToken.Length);

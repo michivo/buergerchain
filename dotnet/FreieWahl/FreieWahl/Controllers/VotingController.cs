@@ -18,8 +18,7 @@ namespace FreieWahl.Controllers
 
         // GET: /VotingController/
         public async Task<IActionResult> SignTokens(string votingId, string[] tokens, string signature)
-        {
-            
+        {   
             var signedTokens = new string[tokens.Length];
             int count = 0;
             var votingIdVal = long.Parse(votingId);

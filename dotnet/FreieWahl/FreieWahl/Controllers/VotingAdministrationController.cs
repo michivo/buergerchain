@@ -13,6 +13,7 @@ using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
 using FreieWahl.Mail;
+using FreieWahl.Security.Signing.VotingTokens;
 
 namespace FreieWahl.Controllers
 {
@@ -25,6 +26,7 @@ namespace FreieWahl.Controllers
         private readonly IUserHandler _userHandler;
         private readonly IAuthenticationManager _authManager;
         private readonly IMailProvider _mailProvider;
+        private readonly IVotingTokenHandler _tokenHandler;
         private UserInformation _user;
 
         public VotingAdministrationController(ILogger<HomeController> logger,
@@ -33,7 +35,8 @@ namespace FreieWahl.Controllers
             IJwtAuthentication authentication,
             IUserHandler userHandler,
             IAuthenticationManager authManager,
-            IMailProvider mailProvider)
+            IMailProvider mailProvider,
+            IVotingTokenHandler tokenHandler)
         {
             _logger = logger;
             _votingStore = votingStore;
@@ -42,6 +45,7 @@ namespace FreieWahl.Controllers
             _userHandler = userHandler;
             _authManager = authManager;
             _mailProvider = mailProvider;
+            _tokenHandler = tokenHandler;
         }
 
         public IActionResult Overview()
@@ -294,10 +298,22 @@ namespace FreieWahl.Controllers
                 Description = desc,
                 Questions = new List<Question>(),
                 Title = title,
-                Visibility = VotingVisibility.OwnerOnly
+                Visibility = VotingVisibility.OwnerOnly,
+                State = VotingState.InPreparation
             };
 
             await _votingStore.Insert(voting).ConfigureAwait(false);
+
+            // not awaited intentionally! this might take a few minutes, we do not need to wait for it to finish
+#pragma warning disable 4014
+            _tokenHandler.GenerateTokens(voting.Id).ContinueWith(t =>
+                {
+                    if (t.IsCompletedSuccessfully)
+                    {
+                        _votingStore.UpdateState(voting.Id, VotingState.Ready);
+                    }
+                });
+#pragma warning restore 4014
 
             return Ok();
         }

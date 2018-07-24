@@ -12,8 +12,6 @@ namespace FreieWahl.Voting.Storage
 
         Task<StandardVoting> GetById(long id);
 
-        Task<IEnumerable<StandardVoting>> GetAllPublic();
-
         Task<IEnumerable<StandardVoting>> GetForUserId(string userId);
 
         Task<IEnumerable<StandardVoting>> GetAll();
@@ -27,5 +25,7 @@ namespace FreieWahl.Voting.Storage
         Task ClearQuestions(long votingId);
 
         Task UpdateQuestion(long votingId, Question question);
+
+        Task UpdateState(long votingId, VotingState state);
     }
 }

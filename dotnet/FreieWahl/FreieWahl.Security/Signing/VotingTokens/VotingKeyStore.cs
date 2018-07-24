@@ -16,16 +16,17 @@ namespace FreieWahl.Security.Signing.VotingTokens
         public static readonly string TestNamespace = "test";
         public static readonly string DevNamespace = "dev";
         private readonly KeyFactory _keyFactory;
+        private readonly Dictionary<long, Dictionary<int, AsymmetricCipherKeyPair>> _keyCache;
 
         public VotingKeyStore(string projectId, string namespaceId = "", DatastoreClient client = null)
         {
             _db = DatastoreDb.Create(projectId, namespaceId, client);
             _keyFactory = new KeyFactory(projectId, namespaceId, StoreKind);
+            _keyCache = new Dictionary<long, Dictionary<int, AsymmetricCipherKeyPair>>();
         }
 
-        public Task StoreKeyPairs(long votingId, Dictionary<int, AsymmetricCipherKeyPair> keys)
+        public async Task StoreKeyPairs(long votingId, Dictionary<int, AsymmetricCipherKeyPair> keys)
         {
-
             var entities = keys.Select(x =>
             {
                 var privateKey = GetPrivateKey(x.Value);
@@ -44,8 +45,10 @@ namespace FreieWahl.Security.Signing.VotingTokens
                     ["KeyIndex"] = x.Key
                 };
             });
-           
-            return _db.InsertAsync(entities.ToArray());
+
+            // TODO: what if entries with the same voting id already exist?
+            await _db.InsertAsync(entities.ToArray()).ConfigureAwait(false);
+            _keyCache[votingId] = keys;
         }
 
         private string GetPrivateKey(AsymmetricCipherKeyPair keys)
@@ -60,6 +63,11 @@ namespace FreieWahl.Security.Signing.VotingTokens
 
         public async Task<AsymmetricCipherKeyPair> GetKeyPair(long votingId, int index)
         {
+            if (_keyCache.ContainsKey(votingId) && _keyCache[votingId].ContainsKey(index))
+            {
+                return _keyCache[votingId][index];
+            }
+
             var query = new Query(StoreKind)
             {
                 Filter = Filter.And(Filter.Equal("VotingId", votingId),
@@ -79,7 +87,20 @@ namespace FreieWahl.Security.Signing.VotingTokens
             var privateKeyReader = new PemReader(new StringReader(privateKey));
             var privateKeyObj = privateKeyReader.ReadObject();
 
-            return (AsymmetricCipherKeyPair)privateKeyObj;
+            var result = (AsymmetricCipherKeyPair)privateKeyObj;
+            _AddToCache(votingId, index, result);
+
+            return result;
+        }
+
+        private void _AddToCache(long votingId, int index, AsymmetricCipherKeyPair result)
+        {
+            if (_keyCache.ContainsKey(votingId) == false)
+            {
+                _keyCache.Add(votingId, new Dictionary<int, AsymmetricCipherKeyPair>());
+            }
+
+            _keyCache[votingId][index] = result;
         }
     }
 }
