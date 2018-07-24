@@ -114,6 +114,7 @@
     <Compile Include="Common\Test_ExtensionMethods.cs" />
     <Compile Include="Models\Test_AnswerDetail.cs" />
     <Compile Include="Models\Test_AnswerOption.cs" />
+    <Compile Include="Registrations\Test_RegistrationStore.cs" />
     <Compile Include="Storage\Test_VotingStorage.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

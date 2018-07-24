@@ -169,9 +169,9 @@ namespace FreieWahl.Voting.Storage
             return new StandardVoting()
             {
                 Id = entity.Key.Path.First().Id,
-                Title = (string)entity["Title"],
-                Creator = (string)entity["Creator"],
-                Description = (string)entity["Description"],
+                Title = entity["Title"].StringValue,
+                Creator = entity["Creator"].StringValue,
+                Description = entity["Description"].StringValue,
                 DateCreated = (DateTime)entity["DateCreated"],
                 Visibility = visibilityValue,
                 State = stateValue,

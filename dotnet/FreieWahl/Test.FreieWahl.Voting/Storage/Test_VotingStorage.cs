@@ -154,49 +154,49 @@ namespace Test.FreieWahl.Voting.Storage
             Assert.AreEqual(0, votingsForSomeoneElse.Count);
         }
 
-        [TestMethod]
-        public async Task GetAllPublic()
-        {
-            // arrange 
-            var voting1 = new StandardVoting
-            {
-                Creator = "Michael",
-                DateCreated = DateTime.UtcNow,
-                Description = "Desc",
-                Title = "Title",
-                Visibility = VotingVisibility.WithLink,
-                Questions = _CreateDummyQuestions()
-            };
-            var voting2 = new StandardVoting
-            {
-                Creator = "Douglas",
-                DateCreated = DateTime.UtcNow,
-                Description = "Desc",
-                Title = "Title",
-                Visibility = VotingVisibility.Public,
-                Questions = _CreateDummyQuestions()
-            };
-            var voting3 = new StandardVoting
-            {
-                Creator = "Michael",
-                DateCreated = DateTime.UtcNow,
-                Description = "Desc",
-                Title = "Title",
-                Visibility = VotingVisibility.Public,
-                Questions = _CreateDummyQuestions()
-            };
-            await _votingStore.Insert(voting1);
-            await _votingStore.Insert(voting2);
-            await _votingStore.Insert(voting3);
+        //[TestMethod]
+        //public async Task GetAllPublic()
+        //{
+        //    // arrange 
+        //    var voting1 = new StandardVoting
+        //    {
+        //        Creator = "Michael",
+        //        DateCreated = DateTime.UtcNow,
+        //        Description = "Desc",
+        //        Title = "Title",
+        //        Visibility = VotingVisibility.WithLink,
+        //        Questions = _CreateDummyQuestions()
+        //    };
+        //    var voting2 = new StandardVoting
+        //    {
+        //        Creator = "Douglas",
+        //        DateCreated = DateTime.UtcNow,
+        //        Description = "Desc",
+        //        Title = "Title",
+        //        Visibility = VotingVisibility.Public,
+        //        Questions = _CreateDummyQuestions()
+        //    };
+        //    var voting3 = new StandardVoting
+        //    {
+        //        Creator = "Michael",
+        //        DateCreated = DateTime.UtcNow,
+        //        Description = "Desc",
+        //        Title = "Title",
+        //        Visibility = VotingVisibility.Public,
+        //        Questions = _CreateDummyQuestions()
+        //    };
+        //    await _votingStore.Insert(voting1);
+        //    await _votingStore.Insert(voting2);
+        //    await _votingStore.Insert(voting3);
 
-            // act
-            var publicVotings = (await _votingStore.GetAllPublic()).ToList();
+        //    // act
+        //    var publicVotings = (await _votingStore.GetAllPublic()).ToList();
 
-            // assert
-            Assert.AreEqual(2, publicVotings.Count);
-            Assert.IsTrue(publicVotings.Exists(x => x.Id == voting2.Id));
-            Assert.IsTrue(publicVotings.Exists(x => x.Id == voting3.Id));
-        }
+        //    // assert
+        //    Assert.AreEqual(2, publicVotings.Count);
+        //    Assert.IsTrue(publicVotings.Exists(x => x.Id == voting2.Id));
+        //    Assert.IsTrue(publicVotings.Exists(x => x.Id == voting3.Id));
+        //}
 
         [TestMethod]
         public async Task ClearAll()
