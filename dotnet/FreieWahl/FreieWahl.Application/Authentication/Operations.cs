@@ -9,6 +9,8 @@
         UpdateQuestion = 0x08,
         DeleteQuestion = 0x10,
         DeleteVoting = 0x20,
-        Invite = 0x40
+        Invite = 0x40,
+        GrantRegistration = 0x80,
+        List = 0x100
     }
 }

@@ -67,5 +67,23 @@ namespace FreieWahl.Voting.Registrations
                 VoterName = entity["VoterName"].StringValue
             };
         }
+
+        public async Task RemoveRegistration(long id)
+        {
+            Query q = new Query(StoreKind)
+            {
+                Filter = Filter.Equal("__key__", _keyFactory.CreateKey(id)),
+                Limit = 1
+            };
+
+            var results = await _db.RunQueryAsync(q);
+            if (results.Entities.Count == 0)
+            {
+                return;
+            }
+
+            var entity = results.Entities.Single();
+            await _db.DeleteAsync(entity).ConfigureAwait(false);
+        }
     }
 }

@@ -23,7 +23,7 @@ namespace FreieWahl.Application.Authentication
         {
             try
             {
-                if (votingId == null && operation == Operation.Create)
+                if (votingId == null && (operation == Operation.Create || operation == Operation.List))
                     return !string.IsNullOrEmpty(userId);
                 if (votingId == null)
                     return false;

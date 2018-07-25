@@ -2,6 +2,7 @@
 using System;
 using System.Security.Cryptography.X509Certificates;
 using FreieWahl.Application.Authentication;
+using FreieWahl.Application.Registrations;
 using FreieWahl.Common;
 using FreieWahl.Mail;
 using FreieWahl.Mail.SendGrid;
@@ -10,6 +11,7 @@ using FreieWahl.Security.Signing.Buergerkarte;
 using FreieWahl.Security.Signing.VotingTokens;
 using FreieWahl.Security.TimeStamps;
 using FreieWahl.Security.UserHandling;
+using FreieWahl.Voting.Registrations;
 using FreieWahl.Voting.Storage;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -68,7 +70,11 @@ namespace FreieWahl
             services.AddSingleton<IMailProvider>(p => new SendGridMailProvider(Configuration["SendGrid:ApiKey"],
                 Configuration["SendGrid:FromMail"], Configuration["SendGrid:FromName"]));
             services.AddSingleton<ISignatureHandler>(p => new SignatureHandler(new[] { cert }));
-            services.AddSingleton<IVotingKeyStore, VotingKeyStore>();
+            services.AddSingleton<IVotingKeyStore>(p => new VotingKeyStore(Configuration["Datastore:ProjectId"]));
+            services.AddSingleton<IRegistrationHandler, RegistrationHandler>();
+            services.AddSingleton<IAuthorizationHandler, AuthorizationHandler>();
+            services.AddSingleton<IRemoteTokenStore>(p => new RemoteTokenStore(Configuration["RemoteTokenStore:Url"]));
+            services.AddSingleton<IRegistrationStore, RegistrationStore>();
             var sp = services.BuildServiceProvider();
             services.AddSingleton<IVotingTokenHandler>(p => new VotingTokenHandler(sp.GetService<IVotingKeyStore>(),
                 int.Parse(Configuration["VotingSettings:MaxNumQuestions"])));

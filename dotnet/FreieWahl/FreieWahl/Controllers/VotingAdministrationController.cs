@@ -19,33 +19,24 @@ namespace FreieWahl.Controllers
 {
     public class VotingAdministrationController : Controller
     {
-        private readonly ILogger<HomeController> _logger;
         private readonly IVotingStore _votingStore;
         private readonly IStringLocalizer<VotingAdministrationController> _localizer;
-        private readonly IJwtAuthentication _authentication;
-        private readonly IUserHandler _userHandler;
-        private readonly IAuthenticationManager _authManager;
         private readonly IMailProvider _mailProvider;
         private readonly IVotingTokenHandler _tokenHandler;
-        private UserInformation _user;
+        private readonly IAuthorizationHandler _authorizationHandler;
 
-        public VotingAdministrationController(ILogger<HomeController> logger,
+        public VotingAdministrationController(
             IVotingStore votingStore,
             IStringLocalizer<VotingAdministrationController> localizer,
-            IJwtAuthentication authentication,
-            IUserHandler userHandler,
-            IAuthenticationManager authManager,
             IMailProvider mailProvider,
-            IVotingTokenHandler tokenHandler)
+            IVotingTokenHandler tokenHandler, 
+            IAuthorizationHandler authorizationHandler)
         {
-            _logger = logger;
             _votingStore = votingStore;
             _localizer = localizer;
-            _authentication = authentication;
-            _userHandler = userHandler;
-            _authManager = authManager;
             _mailProvider = mailProvider;
             _tokenHandler = tokenHandler;
+            _authorizationHandler = authorizationHandler;
         }
 
         public IActionResult Overview()
@@ -60,42 +51,32 @@ namespace FreieWahl.Controllers
 
         public async Task<IActionResult> GetVotingsForUser()
         {
-            var result = _authentication.CheckToken(Request.Headers["Authorization"]);
-            if (!result.Success)
+            var user = await _authorizationHandler.GetAuthorizedUser
+                (null, Operation.List, Request.Headers["Authorization"]);
+            if (user == null)
                 return Unauthorized();
-
-            UserInformation user;
-            try
-            {
-                user = _userHandler.MapUser(result.User);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogWarning(ex, "Error getting votings for user!");
-                return Unauthorized();
-            }
-
+            
             var votingsForUser = await _votingStore.GetForUserId(user.UserId);
             var resultForSerialization = votingsForUser.Select(x => new
             {
-                Title = x.Title,
+                x.Title,
                 Description = x.Description ?? string.Empty,
-                Id = x.Id
+                x.Id
             });
             return new JsonResult(resultForSerialization.ToArray());
         }
 
         public async Task<IActionResult> GetVotingDetails(string id)
         {
-            if (await _CheckAuthorization(id, Operation.Read) == false)
+            if (await _authorizationHandler.CheckAuthorization(id, Operation.Read, Request.Headers["Authorization"]) == false)
                 return Unauthorized();
 
             var voting = await _votingStore.GetById(_GetId(id));
             var result = new
             {
                 Id = voting.Id.ToString(CultureInfo.InvariantCulture),
-                Title = voting.Title,
-                Description = voting.Description,
+                voting.Title,
+                voting.Description,
                 Questions = voting.Questions.Select(x =>
                     new
                     {
@@ -110,7 +91,7 @@ namespace FreieWahl.Controllers
 
         public async Task<IActionResult> GetQuestion(string votingId, string questionId)
         {
-            if (await _CheckAuthorization(votingId, Operation.UpdateQuestion) == false)
+            if (await _authorizationHandler.CheckAuthorization(votingId, Operation.UpdateQuestion, Request.Headers["Authorization"]) == false)
                 return Unauthorized();
 
             var voting = await _votingStore.GetById(_GetId(votingId));
@@ -120,13 +101,13 @@ namespace FreieWahl.Controllers
                 return BadRequest("Invalid question id"); // TODO
             var result = new
             {
-                Id = question.Id,
+                question.Id,
                 Text = question.QuestionText,
                 Description = _GetDescription(question),
                 AnswerOptions = question.AnswerOptions.Select(x =>
                     new
                     {
-                        Id = x.Id,
+                        x.Id,
                         Text = x.AnswerText
                     })
             };
@@ -142,36 +123,6 @@ namespace FreieWahl.Controllers
             }
 
             return string.Empty;
-        }
-
-        private async Task<bool> _CheckAuthorization(string id, Operation operation)
-        {
-            _user = null;
-            var auth = _authentication.CheckToken(Request.Headers["Authorization"]);
-            if (!auth.Success)
-            {
-                return false;
-            }
-
-            try
-            {
-                _user = _userHandler.MapUser(auth.User);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogWarning(ex, "Error getting votings for user!");
-                return false;
-            }
-
-            long? idVal = string.IsNullOrEmpty(id) ? (long?)null : long.Parse(id);
-            var authorized = await _authManager.IsAuthorized(_user.UserId, idVal, operation);
-            if (!authorized)
-            {
-                _logger.LogWarning("User tried to open voting without being authorized");
-                return false;
-            }
-
-            return true;
         }
 
         private long _GetId(string s)
@@ -203,7 +154,9 @@ namespace FreieWahl.Controllers
         {
             var idVal = _GetId(id);
             var operation = idVal == 0 ? Operation.Create : Operation.UpdateVoting;
-            if (await _CheckAuthorization(id, operation) == false)
+            UserInformation user = await
+                _authorizationHandler.GetAuthorizedUser(id, operation, Request.Headers["Authorization"]);
+            if (user == null)
                 return Unauthorized();
 
             if (idVal != 0)
@@ -211,13 +164,13 @@ namespace FreieWahl.Controllers
                 return await _UpdateVoting(id, title, desc);
             }
 
-            return await _InsertVoting(title, desc, _user);
+            return await _InsertVoting(title, desc, user);
         }
 
         [HttpPost]
         public async Task<IActionResult> UpdateVotingQuestion(string id, string qid, string title, string desc, string[] answers)
         {
-            if (await _CheckAuthorization(id, Operation.UpdateQuestion) == false)
+            if (await _authorizationHandler.CheckAuthorization(id, Operation.UpdateQuestion, Request.Headers["Authorization"]) == false)
                 return Unauthorized();
 
             var voting = await _votingStore.GetById(_GetId(id)); // TODO - handle missing voting
@@ -236,7 +189,7 @@ namespace FreieWahl.Controllers
         [HttpPost]
         public async Task<IActionResult> DeleteVotingQuestion(string id, string qid)
         {
-            if (await _CheckAuthorization(id, Operation.UpdateQuestion) == false)
+            if (await _authorizationHandler.CheckAuthorization(id, Operation.UpdateQuestion, Request.Headers["Authorization"]) == false)
                 return Unauthorized();
 
             await _votingStore.DeleteQuestion(_GetId(id), _GetId(qid));
@@ -246,7 +199,7 @@ namespace FreieWahl.Controllers
         [HttpPost]
         public async Task<IActionResult> SendInvitationMail(string votingId, string[] addresses)
         {
-            if (await _CheckAuthorization(votingId, Operation.Invite) == false) // TODO authorization operation
+            if (await _authorizationHandler.CheckAuthorization(votingId, Operation.Invite, Request.Headers["Authorization"]) == false)
                 return Unauthorized();
 
             await _mailProvider.SendMail("Michael Faschinger", addresses[0], "Hello World", "This is just a -test-", 
@@ -288,7 +241,7 @@ namespace FreieWahl.Controllers
 
         private async Task<IActionResult> _InsertVoting(string title, string desc, UserInformation user)
         {
-            if (await _CheckAuthorization(null, Operation.Create) == false)
+            if (await _authorizationHandler.CheckAuthorization(null, Operation.UpdateQuestion, Request.Headers["Authorization"]) == false)
                 return Unauthorized();
 
             StandardVoting voting = new StandardVoting()
