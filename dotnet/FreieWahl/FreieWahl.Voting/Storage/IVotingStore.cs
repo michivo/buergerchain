@@ -20,7 +20,7 @@ namespace FreieWahl.Voting.Storage
 
         Task AddQuestion(long votingId, Question question);
 
-        Task DeleteQuestion(long votingId, long questionId);
+        Task DeleteQuestion(long votingId, int questionIndex);
 
         Task ClearQuestions(long votingId);
 

@@ -23,7 +23,7 @@ namespace FreieWahl.Voting.Storage
         {
             return new Entity
             {
-                ["Id"] = question.Id,
+                ["QuestionIndex"] = question.QuestionIndex,
                 ["Status"] = (int)question.Status,
                 ["QuestionText"] = question.QuestionText,
                 ["Details"] = ToEntities(question.Details),
@@ -63,7 +63,7 @@ namespace FreieWahl.Voting.Storage
                 Entity e = value.EntityValue;
                 var result = new Question
                 {
-                    Id = e.Properties.ContainsKey("Id") ? e["Id"].IntegerValue : IdHelper.GetId(),
+                    QuestionIndex = (int?)e["QuestionIndex"] ?? 0,
                     Status = e.Properties.ContainsKey("Status") ? (QuestionStatus)e["Status"].IntegerValue : QuestionStatus.InPreparation,
                     QuestionText = e["QuestionText"].StringValue,
                     AnswerOptions = FromAnswerOptionEntity(e["AnswerOptions"]),

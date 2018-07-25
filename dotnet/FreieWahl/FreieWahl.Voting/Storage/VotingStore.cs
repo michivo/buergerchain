@@ -23,6 +23,11 @@ namespace FreieWahl.Voting.Storage
 
         public async Task Insert(StandardVoting voting)
         {
+            voting.CurrentQuestionIndex = voting.Questions.Count;
+            for (int i = 0; i < voting.Questions.Count; i++)
+            {
+                voting.Questions[i].QuestionIndex = i;
+            }
             var entity = ToEntity(voting);
             entity.Key = _keyFactory.CreateIncompleteKey();
             var key = await _db.InsertAsync(entity);
@@ -32,20 +37,21 @@ namespace FreieWahl.Voting.Storage
         public async Task AddQuestion(long votingId, Question question)
         {
             var voting = await _GetVoting(votingId);
-
+            question.QuestionIndex = voting.CurrentQuestionIndex;
+            voting.CurrentQuestionIndex += 1;
             voting.Questions.Add(question);
             await _db.UpdateAsync(ToEntity(voting));
         }
 
-        public async Task DeleteQuestion(long votingId, long questionId)
+        public async Task DeleteQuestion(long votingId, int questionIndex)
         {
             var voting = await _GetVoting(votingId);
-            if (voting.Questions.All(x => x.Id != questionId))
+            if (voting.Questions.All(x => x.QuestionIndex != questionIndex))
             {
                 throw new InvalidOperationException("Trying to delete inexistent question");
             }
 
-            voting.Questions = voting.Questions.Where(x => x.Id != questionId).ToList();
+            voting.Questions = voting.Questions.Where(x => x.QuestionIndex != questionIndex).ToList();
             await _db.UpdateAsync(ToEntity(voting));
         }
 
@@ -61,7 +67,7 @@ namespace FreieWahl.Voting.Storage
             var voting = await _GetVoting(votingId);
             for (int i = 0; i < voting.Questions.Count; i++)
             {
-                if (voting.Questions[i].Id == question.Id)
+                if (voting.Questions[i].QuestionIndex == question.QuestionIndex)
                 {
                     voting.Questions[i] = question;
                     await _db.UpdateAsync(ToEntity(voting));
@@ -88,10 +94,27 @@ namespace FreieWahl.Voting.Storage
             }
 
             readVoting.Description = voting.Description;
+            _CheckQuestionsForEquality(voting, readVoting);
             readVoting.Questions = voting.Questions;
             readVoting.Title = voting.Title;
             readVoting.Visibility = voting.Visibility;
             await _db.UpdateAsync(ToEntity(readVoting));
+        }
+
+        private static void _CheckQuestionsForEquality(StandardVoting voting, StandardVoting readVoting)
+        {
+            if (readVoting.Questions.Count != voting.Questions.Count)
+            {
+                throw new InvalidOperationException("Cannot modify number of questions!");
+            }
+
+            for (int i = 0; i < voting.Questions.Count; i++)
+            {
+                if (voting.Questions[i].QuestionIndex != readVoting.Questions[i].QuestionIndex)
+                {
+                    throw new InvalidOperationException("Cannot modify index of questions!");
+                }
+            }
         }
 
         private async Task<StandardVoting> _GetVoting(long votingId)
@@ -175,7 +198,8 @@ namespace FreieWahl.Voting.Storage
                 DateCreated = (DateTime)entity["DateCreated"],
                 Visibility = visibilityValue,
                 State = stateValue,
-                Questions = FromQuestionsEntity(entity["Questions"])
+                Questions = FromQuestionsEntity(entity["Questions"]),
+                CurrentQuestionIndex = (int?)entity["CurrentQuestionIndex"] ?? 0
             };
         }
 
@@ -190,7 +214,8 @@ namespace FreieWahl.Voting.Storage
                 ["Description"] = standardVoting.Description,
                 ["Visibility"] = (int)standardVoting.Visibility,
                 ["State"] = (int)standardVoting.State,
-                ["Questions"] = ToEntities(standardVoting.Questions)
+                ["Questions"] = ToEntities(standardVoting.Questions),
+                ["CurrentQuestionIndex"] = standardVoting.CurrentQuestionIndex
             };
         }
     }

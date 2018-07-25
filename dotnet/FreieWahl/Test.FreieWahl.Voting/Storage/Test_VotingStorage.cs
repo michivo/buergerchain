@@ -288,17 +288,21 @@ namespace Test.FreieWahl.Voting.Storage
                 Questions = new List<Question>()
             };
             await _votingStore.Insert(votingWritten);
-            Question q = _CreateDummyQuestions().First();
+            Question q = _CreateDummyQuestions()[0];
+            Question q2 = _CreateDummyQuestions()[0];
 
             // act
             await _votingStore.AddQuestion(votingWritten.Id, q);
+            await _votingStore.AddQuestion(votingWritten.Id, q2);
 
             // assert
             var voting = await _votingStore.GetById(votingWritten.Id);
-            Assert.AreEqual(1, voting.Questions.Count);
-            Assert.AreNotEqual(0, voting.Questions[0].Id);
-            q.Id = voting.Questions[0].Id;
+            Assert.AreEqual(2, voting.Questions.Count);
+            Assert.AreEqual(2, voting.CurrentQuestionIndex);
+            Assert.AreEqual(0, voting.Questions[0].QuestionIndex);
             Assert.AreEqual(q, voting.Questions[0]);
+            Assert.AreEqual(1, voting.Questions[1].QuestionIndex);
+            Assert.AreEqual(q2, voting.Questions[1]);
         }
 
         [TestMethod]
@@ -352,7 +356,7 @@ namespace Test.FreieWahl.Voting.Storage
             await _votingStore.Insert(votingWritten);
 
             // act
-            await _votingStore.DeleteQuestion(votingWritten.Id, votingWritten.Questions[0].Id);
+            await _votingStore.DeleteQuestion(votingWritten.Id, votingWritten.Questions[0].QuestionIndex);
 
             // assert
             var voting = await _votingStore.GetById(votingWritten.Id);

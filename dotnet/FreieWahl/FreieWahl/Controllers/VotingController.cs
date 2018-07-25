@@ -35,5 +35,17 @@ namespace FreieWahl.Controllers
 
             return result;
         }
+
+        public async Task<IActionResult> CastVote(string votingId, int questionIndex, string answerId,
+            string signedToken, string token)
+        {
+            var votingIdVal = long.Parse(votingId);
+            if (await _votingTokenHandler.Verify(signedToken, token, votingIdVal, questionIndex) == false)
+                return Unauthorized();
+
+
+
+            return Ok();
+        }
     }
 }

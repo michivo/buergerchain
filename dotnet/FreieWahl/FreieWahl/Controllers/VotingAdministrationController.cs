@@ -82,7 +82,7 @@ namespace FreieWahl.Controllers
                     {
                         Text = x.QuestionText,
                         AnswerOptions = x.AnswerOptions.Select(a => a.AnswerText).ToArray(),
-                        Id = x.Id.ToString(CultureInfo.InvariantCulture)
+                        Id = x.QuestionIndex.ToString(CultureInfo.InvariantCulture)
                     }).ToArray()
             };
 
@@ -96,12 +96,12 @@ namespace FreieWahl.Controllers
 
             var voting = await _votingStore.GetById(_GetId(votingId));
             var qid = _GetId(questionId);
-            var question = voting.Questions.SingleOrDefault(x => x.Id == qid);
+            var question = voting.Questions.SingleOrDefault(x => x.QuestionIndex == qid);
             if (question == null)
                 return BadRequest("Invalid question id"); // TODO
             var result = new
             {
-                question.Id,
+                Id = question.QuestionIndex,
                 Text = question.QuestionText,
                 Description = _GetDescription(question),
                 AnswerOptions = question.AnswerOptions.Select(x =>
@@ -125,13 +125,13 @@ namespace FreieWahl.Controllers
             return string.Empty;
         }
 
-        private long _GetId(string s)
+        private int _GetId(string s)
         {
-            long result = 0;
+            int result = 0;
             if (string.IsNullOrEmpty(s))
                 return result;
 
-            if (!long.TryParse(s, out result))
+            if (!int.TryParse(s, out result))
                 return 0;
 
             return result;
@@ -175,8 +175,8 @@ namespace FreieWahl.Controllers
 
             var voting = await _votingStore.GetById(_GetId(id)); // TODO - handle missing voting
             var question = _GetQuestion(title, desc, answers);
-            question.Id = _GetId(qid);
-            if (question.Id == 0)
+            question.QuestionIndex = _GetId(qid);
+            if (question.QuestionIndex == 0)
             {
                 await _votingStore.AddQuestion(voting.Id, question);
                 return Ok();

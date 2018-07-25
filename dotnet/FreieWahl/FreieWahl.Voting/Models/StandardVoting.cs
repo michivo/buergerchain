@@ -30,6 +30,8 @@ namespace FreieWahl.Voting.Models
 
         public VotingState State { get; set; }
 
+        public int CurrentQuestionIndex { get; set; }
+
         [DataType(DataType.Date)]
         public DateTime DateCreated { get; set; }
 
@@ -44,6 +46,7 @@ namespace FreieWahl.Voting.Models
             if (other is null) return false;
             if (ReferenceEquals(this, other)) return true;
             return Id == other.Id &&
+                   CurrentQuestionIndex == other.CurrentQuestionIndex &&
                    Title.EqualsDefault(other.Title) &&
                    Description.EqualsDefault(other.Description) &&
                    Creator.EqualsDefault(other.Creator) &&
@@ -66,6 +69,7 @@ namespace FreieWahl.Voting.Models
             unchecked
             {
                 var hashCode = Id.GetHashCode();
+                hashCode = (hashCode * 397) ^ CurrentQuestionIndex.GetHashCode();
                 hashCode = (hashCode * 397) ^ (Title != null ? Title.GetHashCode() : 0);
                 hashCode = (hashCode * 397) ^ (Description != null ? Description.GetHashCode() : 0);
                 hashCode = (hashCode * 397) ^ (Creator != null ? Creator.GetHashCode() : 0);

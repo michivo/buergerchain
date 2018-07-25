@@ -14,7 +14,7 @@ namespace Test.FreieWahl.Voting.Models
             Assert.IsNotNull(answerOption.Details);
             Assert.AreEqual(0, answerOption.Details.Count);
             Assert.IsNull(answerOption.AnswerText);
-            Assert.IsNull(answerOption.Id);
+            Assert.IsNotNull(answerOption.Id);
         }
 
         [TestMethod]

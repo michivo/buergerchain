@@ -14,7 +14,6 @@ namespace FreieWahl.Voting.Models
         {
             Details = new List<QuestionDetail>();
             AnswerOptions = new List<AnswerOption>();
-            Id = IdHelper.GetId();
         }
 
         public string QuestionText { get; set; }
@@ -31,15 +30,16 @@ namespace FreieWahl.Voting.Models
             set => _answerOptions = value ?? new List<AnswerOption>();
         }
 
-        public long Id { get; set; }
-
         public QuestionStatus Status { get; set; }
+
+        public int QuestionIndex { get; set; }
 
         public bool Equals(Question other)
         {
             if (other is null) return false;
             if (ReferenceEquals(this, other)) return true;
-            return Id.Equals(other.Id) && Status.Equals(other.Status) &&
+            return Status.Equals(other.Status) &&
+                   QuestionIndex.Equals(other.QuestionIndex) &&
                    QuestionText.EqualsDefault(other.QuestionText) && 
                    Details.SequenceEqual(other.Details) && 
                    AnswerOptions.SequenceEqual(other.AnswerOptions);
@@ -57,7 +57,7 @@ namespace FreieWahl.Voting.Models
         {
             unchecked
             {
-                var hashCode = Id.GetHashCode();
+                var hashCode = QuestionIndex.GetHashCode();
                 hashCode = (hashCode * 397) ^ Status.GetHashCode();
                 hashCode = (hashCode * 397) ^ (QuestionText != null ? QuestionText.GetHashCode() : 0);
                 hashCode = (hashCode * 397) ^ (Details != null ? Details.GetHashCode() : 0);
