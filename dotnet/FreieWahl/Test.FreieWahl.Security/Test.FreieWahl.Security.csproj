@@ -78,6 +78,7 @@
       <HintPath>..\packages\Grpc.Core.1.13.1\lib\net45\Grpc.Core.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.CSharp" />
+    <Reference Include="Microsoft.Extensions.Logging.Abstractions, Version=2.0.0.0, Culture=neutral, PublicKeyToken=adb9793829ddae60" />
     <Reference Include="Microsoft.VisualStudio.TestPlatform.TestFramework, Version=14.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
       <HintPath>..\packages\MSTest.TestFramework.1.3.2\lib\net45\Microsoft.VisualStudio.TestPlatform.TestFramework.dll</HintPath>
     </Reference>
@@ -123,6 +124,7 @@
     <Compile Include="Signing\Buergerkarte\Test_BuergerkarteSigning.cs" />
     <Compile Include="Signing\Common\Test_SignatureProvider.cs" />
     <Compile Include="Signing\VotingTokens\Test_VotingKeyStore.cs" />
+    <Compile Include="TimeStamps\Test_TimestampService.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />

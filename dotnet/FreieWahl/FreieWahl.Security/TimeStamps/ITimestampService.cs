@@ -1,4 +1,5 @@
-﻿using Org.BouncyCastle.Tsp;
+﻿using System.Threading.Tasks;
+using Org.BouncyCastle.Tsp;
 
 namespace FreieWahl.Security.TimeStamps
 {
@@ -13,6 +14,6 @@ namespace FreieWahl.Security.TimeStamps
         /// </summary>
         /// <param name="data">the data for which a time stamp should be created</param>
         /// <returns>a time stamp token issued by a time stamp authority</returns>
-        TimeStampToken GetToken(byte[] data);
+        Task<TimeStampToken> GetToken(byte[] data);
     }
 }

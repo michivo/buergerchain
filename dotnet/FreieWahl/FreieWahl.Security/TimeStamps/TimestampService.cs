@@ -3,11 +3,15 @@ using System.Globalization;
 using System.IO;
 using System.Net;
 using System.Security.Cryptography;
+using System.Threading.Tasks;
 using FreieWahl.Common;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
 using Org.BouncyCastle.Math;
+using Org.BouncyCastle.OpenSsl;
 using Org.BouncyCastle.Security;
 using Org.BouncyCastle.Tsp;
+using Org.BouncyCastle.X509;
 
 namespace FreieWahl.Security.TimeStamps
 {
@@ -16,18 +20,22 @@ namespace FreieWahl.Security.TimeStamps
         private readonly string _serverUrl;
         private readonly SecureRandom _random;
         private readonly ILogger _logger;
+        private X509Certificate _cert;
         private const string Sha512Id = "2.16.840.1.101.3.4.2.3"; // sha512NoSign according to https://msdn.microsoft.com/en-us/library/ff635603.aspx
         private const string RequestContentType = "application/timestamp-query";
         private const string RequestMethod = "POST";
 
-        public TimestampService(string serverUrl)
+        public TimestampService(string serverUrl, string certificate, ILogger logger = null)
         {
+            PemReader reader = new PemReader(new StringReader(certificate));
+            var obj = reader.ReadObject();
+            _cert = (X509Certificate)obj;
             _serverUrl = serverUrl;
-            _logger = LogFactory.CreateLogger("FreieWahl.Security.TimeStamps.TimestampService");
+            _logger = logger ?? NullLogger.Instance;
             _random = new SecureRandom();
         }
 
-        public TimeStampToken GetToken(byte[] data)
+        public async Task<TimeStampToken> GetToken(byte[] data)
         {
             try
             {
@@ -37,12 +45,13 @@ namespace FreieWahl.Security.TimeStamps
 
                 var request = _CreateRequest(digest);
                 _logger.LogTrace("Sending http request to server {0}", _serverUrl);
-                var httpResponse = _GetHttpResponse(request.GetEncoded());
+                var httpResponse = await _GetHttpResponse(request.GetEncoded()).ConfigureAwait(false);
                 _logger.LogTrace("Received response from server");
                 var timestampResponse = new TimeStampResponse(httpResponse);
                 _logger.LogTrace("Successfully converted response for time stamp request");
                 _ValidateResponse(request, timestampResponse);
                 _logger.LogDebug("Successfully converted and validated response for time stamp request");
+                timestampResponse.TimeStampToken.Validate(_cert);
                 return timestampResponse.TimeStampToken;
             }
             catch (Exception ex)
@@ -113,7 +122,7 @@ namespace FreieWahl.Security.TimeStamps
         }
 
 
-        private byte[] _GetHttpResponse(byte[] request)
+        private async Task<byte[]> _GetHttpResponse(byte[] request)
         {
             HttpWebRequest httpReq = (HttpWebRequest)WebRequest.Create(_serverUrl);
             httpReq.Method = RequestMethod;
@@ -122,7 +131,7 @@ namespace FreieWahl.Security.TimeStamps
             var reqStream = httpReq.GetRequestStream();
             reqStream.Write(request, 0, request.Length);
             reqStream.Close();
-            WebResponse httpResp = httpReq.GetResponse();
+            WebResponse httpResp = await httpReq.GetResponseAsync().ConfigureAwait(false);
             var respStream = httpResp.GetResponseStream();
 
             byte[] buffer = new byte[16 * 1024];

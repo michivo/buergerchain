@@ -1,0 +1,1 @@
+export DATASTORE_EMULATOR_HOST=localhost:8081

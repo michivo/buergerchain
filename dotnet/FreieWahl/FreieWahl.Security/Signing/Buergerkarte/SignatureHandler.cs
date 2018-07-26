@@ -21,8 +21,6 @@ namespace FreieWahl.Security.Signing.Buergerkarte
         {
             var rawData = Convert.FromBase64String(data);
             CmsSignedData cms = new CmsSignedData(rawData);
-            var parser = new CmsSignedDataParser(rawData);
-            Console.WriteLine(parser.ToString());
             return cms;
         }
 

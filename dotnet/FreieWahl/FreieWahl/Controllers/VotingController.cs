@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System.Collections.Generic;
+using System.Threading.Tasks;
 using FreieWahl.Security.Signing.VotingTokens;
 using Microsoft.AspNetCore.Mvc;
 
@@ -36,13 +37,14 @@ namespace FreieWahl.Controllers
             return result;
         }
 
-        public async Task<IActionResult> CastVote(string votingId, int questionIndex, string answerId,
+        public async Task<IActionResult> CastVote(string votingId, int questionIndex, List<string> answerId,
             string signedToken, string token)
         {
             var votingIdVal = long.Parse(votingId);
             if (await _votingTokenHandler.Verify(signedToken, token, votingIdVal, questionIndex) == false)
                 return Unauthorized();
 
+            // TODO: check that number of answers is valid
 
 
             return Ok();

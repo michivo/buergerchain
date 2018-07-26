@@ -65,7 +65,6 @@ namespace Test.FreieWahl.Voting.Storage
             readVoting.Title = "Title2";
             readVoting.DateCreated = DateTime.UtcNow;
             readVoting.Visibility = VotingVisibility.OwnerOnly;
-            readVoting.Questions = _CreateDummyQuestions();
 
             await _votingStore.Update(readVoting);
             var updatedVoting = (await _votingStore.GetAll()).Single();
@@ -75,10 +74,6 @@ namespace Test.FreieWahl.Voting.Storage
             Assert.IsTrue(Math.Abs(updatedVoting.DateCreated.Subtract(creationDate).TotalMilliseconds) < 10);
             Assert.AreEqual("Title2", updatedVoting.Title);
             Assert.AreEqual(readVoting.Questions.Count, updatedVoting.Questions.Count);
-            for (int i = 0; i < readVoting.Questions.Count; i++)
-            {
-                Assert.AreEqual(readVoting.Questions[i], updatedVoting.Questions[i]);
-            }
             Assert.AreEqual(VotingVisibility.OwnerOnly, updatedVoting.Visibility);
             Assert.AreEqual("Foobar", updatedVoting.Description);
             Assert.AreEqual(readVoting.Id, updatedVoting.Id);
