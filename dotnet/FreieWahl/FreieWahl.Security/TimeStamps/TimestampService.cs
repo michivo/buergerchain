@@ -2,14 +2,13 @@
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
+using System.Linq;
 using System.Net;
 using System.Security.Cryptography;
 using System.Threading.Tasks;
-using FreieWahl.Common;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using Org.BouncyCastle.Math;
-using Org.BouncyCastle.OpenSsl;
 using Org.BouncyCastle.Security;
 using Org.BouncyCastle.Tsp;
 using Org.BouncyCastle.X509;
@@ -25,6 +24,8 @@ namespace FreieWahl.Security.TimeStamps
         private const string RequestContentType = "application/timestamp-query";
         private const string RequestMethod = "POST";
         private int _serverIndex;
+        private const int BadServerMalus = 10;
+        private const int GoodServerBonus = 1;
 
         public TimestampService(List<TimestampServer> tsServers, ILogger logger = null)
         {
@@ -38,16 +39,37 @@ namespace FreieWahl.Security.TimeStamps
             _random = new SecureRandom();
         }
 
-        public async Task<TimeStampToken> GetToken(byte[] data, bool checkCertificate = false)
+        public async Task<TimeStampToken> GetToken(byte[] data, bool checkCertificate = true)
+        {
+            var servers = _servers.OrderByDescending(x => x.Priority);
+
+            foreach (var server in servers)
+            {
+                try
+                {
+                    var token = await _GetTokenWithServer(data, checkCertificate, server);
+                    server.Priority += GoodServerBonus;
+                    return token;
+                }
+                catch (Exception ex)
+                {
+                    server.Priority -= BadServerMalus;
+                    _logger.LogDebug("Failed getting timestamp from server with url " + server.Url + ", setting prio to " + server.Priority);
+                }
+            }
+
+            throw new TspException("Failed generation time stamp");
+        }
+
+        private async Task<TimeStampToken> _GetTokenWithServer(byte[] data, bool checkCertificate, TimestampServer server)
         {
             try
             {
-                var server = _GetServer();
                 _logger.LogTrace("Got new request for token with {0} bytes of data", data.Length);
                 var digestAlg = new SHA512Managed();
                 var digest = digestAlg.ComputeHash(data);
 
-                var request = _CreateRequest(digest);
+                var request = _CreateRequest(digest, checkCertificate);
                 _logger.LogTrace("Sending http request to server {0}", server.Url);
                 var httpResponse = await _GetHttpResponse(request.GetEncoded(), server.Url).ConfigureAwait(false);
                 _logger.LogTrace("Received response from server");
@@ -57,7 +79,22 @@ namespace FreieWahl.Security.TimeStamps
                 _logger.LogDebug("Successfully converted and validated response for time stamp request");
 
                 if (checkCertificate)
-                    timestampResponse.TimeStampToken.Validate(server.Certificate);
+                {
+                    var certStore = timestampResponse.TimeStampToken.GetCertificates("Collection");
+                    var matches = certStore.GetMatches(null).Cast<X509Certificate>();
+                    bool isValid = false;
+                    foreach (var x509Certificate in matches)
+                    {
+                        if (x509Certificate.Equals(server.Certificate))
+                        {
+                            isValid = true;
+                            break;
+                        }
+                    }
+
+                    if (!isValid)
+                        throw new TspValidationException("Invalid server certificate");
+                }
 
                 return timestampResponse.TimeStampToken;
             }
@@ -123,11 +160,11 @@ namespace FreieWahl.Security.TimeStamps
             return true;
         }
 
-        private TimeStampRequest _CreateRequest(byte[] digest)
+        private TimeStampRequest _CreateRequest(byte[] digest, bool withCertificate)
         {
             TimeStampRequestGenerator tsqGenerator = new TimeStampRequestGenerator();
 
-            tsqGenerator.SetCertReq(true);
+            tsqGenerator.SetCertReq(withCertificate);
 
             var tsreq = tsqGenerator.Generate(Sha512Id, digest, new BigInteger(64, _random));
 
@@ -162,3 +199,4 @@ namespace FreieWahl.Security.TimeStamps
         }
     }
 }
+

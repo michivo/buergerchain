@@ -96,10 +96,11 @@ namespace FreieWahl
             {
                 var url = serverInfo["Url"];
                 var cert = serverInfo["Certificate"];
+                var prio = int.Parse(serverInfo["Priority"]);
                 var reader = new PemReader(new StringReader(cert));
                 var obj = reader.ReadObject();
                 var x509Cert = (Org.BouncyCastle.X509.X509Certificate) obj;
-                result.Add(new TimestampServer(url, x509Cert));
+                result.Add(new TimestampServer(url, x509Cert, prio));
             }
 
             return result;

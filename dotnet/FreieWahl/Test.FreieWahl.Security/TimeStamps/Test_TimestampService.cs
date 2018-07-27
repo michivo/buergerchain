@@ -1,5 +1,4 @@
-﻿using System;
-using System.Text;
+﻿using System.Text;
 using System.Collections.Generic;
 using System.IO;
 using System.Security.Cryptography;
@@ -8,10 +7,7 @@ using FreieWahl.Security.TimeStamps;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Org.BouncyCastle.Asn1;
 using Org.BouncyCastle.Cms;
-using Org.BouncyCastle.Crypto.Digests;
-using Org.BouncyCastle.OpenSsl;
 using Org.BouncyCastle.Tsp;
-using Org.BouncyCastle.X509;
 
 namespace Test.FreieWahl.Security.TimeStamps
 {
@@ -21,8 +17,10 @@ namespace Test.FreieWahl.Security.TimeStamps
     [TestClass]
     public class Test_TimestampService
     {
-        #region Certificate
-        static string _certificate = @"-----BEGIN CERTIFICATE-----
+        // List of free RFC3161 servers: https://gist.github.com/Manouchehri/fd754e402d98430243455713efada710
+        #region Certificates
+
+        private static string _certificate = @"-----BEGIN CERTIFICATE-----
 MIIIATCCBemgAwIBAgIJAMHphhYNqOmCMA0GCSqGSIb3DQEBDQUAMIGVMREwDwYD
 VQQKEwhGcmVlIFRTQTEQMA4GA1UECxMHUm9vdCBDQTEYMBYGA1UEAxMPd3d3LmZy
 ZWV0c2Eub3JnMSIwIAYJKoZIhvcNAQkBFhNidXNpbGV6YXNAZ21haWwuY29tMRIw
@@ -70,31 +68,32 @@ DgUIrLjqguolBSdvPJ2io9O0rTi7+IQr2jb8JEgpH1WNwC3R4A==
 ";
 
         private static string _certumCert = @"-----BEGIN CERTIFICATE-----
-MIIElTCCA32gAwIBAgIUJ+aS4Kljd4Fu23Hp++0y+ElpFbswDQYJKoZIhvcNAQEF
-BQAwbjELMAkGA1UEBhMCUEwxLjAsBgNVBAoMJU1pbmlzdGVyIHdsYXNjaXd5IGRv
-IHNwcmF3IGdvc3BvZGFya2kxLzAtBgNVBAMMJk5hcm9kb3dlIENlbnRydW0gQ2Vy
-dHlmaWthY2ppIChOQ0NlcnQpMB4XDTE2MDQwMTE0MzkzN1oXDTIwMTAyNjIzNTk1
-OVowXTEVMBMGA1UEBRMMTnIgd3Bpc3U6IDE1MQswCQYDVQQGEwJQTDEhMB8GA1UE
-CgwYQXNzZWNvIERhdGEgU3lzdGVtcyBTLkEuMRQwEgYDVQQDDAtDRVJUVU0gUVRT
-QTCCASIwDQYJKoZIhvcNAQEBBQADggEPADCCAQoCggEBAN2nFu94S1vAFuPhXSNy
-NUQJgAl/5z/avS7Fx3DMMo5wtYAR0L3w9zfU0miFqWNIZP/0iiTbyGe/PnEn7O95
-ydGhsPb1abS6pQ3rU20tc3YqdkhI3uUQEm4kesANGHxZtCbRup8F+rnxILBT55/0
-v2DIu2xv6zad5oLivXcqUwjudeAEJQKmGgtf8XDRBj0hkXqsQW6uzn1s0l6YuetS
-KQVyUs9A3XcdifqQt4lyZIlVjJSqUopzJjL9WbwUnCR/nh2J6vqMcuO5KdI1Kkvx
-O8k4uUca0KoZAODqlgM5tGQRZHWg+V19umP0DrFZe20vrLl0bpeTBfQoeuERt3CW
-jKMCAwEAAaOCATowggE2MBYGA1UdJQEB/wQMMAoGCCsGAQUFBwMIMAwGA1UdEwEB
-/wQCMAAwgasGA1UdIwSBozCBoIAUWTQM+33nRQFvyXCWwk4G+A+BQ/ahcqRwMG4x
-CzAJBgNVBAYTAlBMMS4wLAYDVQQKDCVNaW5pc3RlciB3bGFzY2l3eSBkbyBzcHJh
-dyBnb3Nwb2RhcmtpMS8wLQYDVQQDDCZOYXJvZG93ZSBDZW50cnVtIENlcnR5Zmlr
-YWNqaSAoTkNDZXJ0KYIUYqcNBMMkuNQnVsw/gWvy6zLvBxkwMQYDVR0gAQH/BCcw
-JTAjBgRVHSAAMBswGQYIKwYBBQUHAgEWDXd3dy5uY2NlcnQucGwwDgYDVR0PAQH/
-BAQDAgbAMB0GA1UdDgQWBBStXdivePhtlTJL/rHXlK86nM4VhzANBgkqhkiG9w0B
-AQUFAAOCAQEARqcpOhHLJMgR3Ih7k5CqSWPL15mkk39IcKhGl2Hk6mhPV+jVix75
-7/S6g4myYwKNLS5IrqyT6xOM3nw+wv3pFfMQbJEPE5BN+L7L219tImCxpP4P/nnp
-5Gv5VGZZLp2KbPaTX4j9KdH9qMOnAi6ZEsmCDUD1Xb2udAmM1JlKiyJIURbTmFsP
-uYS/hDDQ/ITkw2ju2grevXWNR31I0MkaVqnVPmeioDBLGab0eBiCuOWwta5xK1Of
-xTYYWbtaO24RnUhZ8obLvxlzDv89kGFTf1K598UabNGDqBbtf8ylMfYV0YnoBCgZ
-IxVNtBHRQVDi2QSTedpiYWpDvSm+s0aE2Q==
+MIIE3DCCA8SgAwIBAgIRAP5n5PFaJOPGDVR8oCDCdnAwDQYJKoZIhvcNAQELBQAw
+fjELMAkGA1UEBhMCUEwxIjAgBgNVBAoTGVVuaXpldG8gVGVjaG5vbG9naWVzIFMu
+QS4xJzAlBgNVBAsTHkNlcnR1bSBDZXJ0aWZpY2F0aW9uIEF1dGhvcml0eTEiMCAG
+A1UEAxMZQ2VydHVtIFRydXN0ZWQgTmV0d29yayBDQTAeFw0xNjAzMDgxMzEwNDNa
+Fw0yNzA1MzAxMzEwNDNaMHcxCzAJBgNVBAYTAlBMMSIwIAYDVQQKDBlVbml6ZXRv
+IFRlY2hub2xvZ2llcyBTLkEuMScwJQYDVQQLDB5DZXJ0dW0gQ2VydGlmaWNhdGlv
+biBBdXRob3JpdHkxGzAZBgNVBAMMEkNlcnR1bSBFViBUU0EgU0hBMjCCASIwDQYJ
+KoZIhvcNAQEBBQADggEPADCCAQoCggEBAL9Xi7yRM1ouVzF/JVf0W1NYaiWq6IEg
+zA0dRzhwGqMWN523RHS1GoEk+vUYSjhLC6C6xb80b+qM9Z1CGtAxqFbdqCUOtDwl
+xazGy1zjgJLqo68tAEBAfNJBKB8rCOhR0F2JcCJsaXbQdhI8LksHKSbp+AHh0OUo
+9iTDFfqmkIR0hVyDLA7E2nhJlGodJIaX6SLAxgw14HQyqj27Adh+zBNMIMeVLUn2
+8S0XvMYp9/hVdpx9Fdze4UKVk2CZ90PFlEIhvZisHLNm3P14YEQ/PcSVaWfuYcva
+0LnmdvehPwT00+dxryECXhHaU6SmtZF42ZARW7Sh7qduCtlzpDgFUiMCAwEAAaOC
+AVowggFWMAwGA1UdEwEB/wQCMAAwHQYDVR0OBBYEFPM1yo5GCA05jd9BxzNuZOQW
+O5grMB8GA1UdIwQYMBaAFAh2zcsH/yT2xc3tu5C84oQ3RnX3MA4GA1UdDwEB/wQE
+AwIHgDAWBgNVHSUBAf8EDDAKBggrBgEFBQcDCDAvBgNVHR8EKDAmMCSgIqAghh5o
+dHRwOi8vY3JsLmNlcnR1bS5wbC9jdG5jYS5jcmwwawYIKwYBBQUHAQEEXzBdMCgG
+CCsGAQUFBzABhhxodHRwOi8vc3ViY2Eub2NzcC1jZXJ0dW0uY29tMDEGCCsGAQUF
+BzAChiVodHRwOi8vcmVwb3NpdG9yeS5jZXJ0dW0ucGwvY3RuY2EuY2VyMEAGA1Ud
+IAQ5MDcwNQYLKoRoAYb2dwIFAQswJjAkBggrBgEFBQcCARYYaHR0cDovL3d3dy5j
+ZXJ0dW0ucGwvQ1BTMA0GCSqGSIb3DQEBCwUAA4IBAQDKdOQ4vTLJGjz6K1jFVy01
+UwuQ3i0FsvEzMkAblv8iRYc5rgzwGc7B0DJEGjMMgOs9Myt8eTROxoFENFhWujkN
+8OSzA6w3dcB667dA9pr8foBtqbRViT2YSMpW9FWkLunh0361OJGVxM+7ph51a1ZQ
+m26n69Gc4XEg1dWmWKvh5SldgfEEteQbZEKhOHE9e3NkxmnUIjCWsCTDAlsRqDw0
+YntnZ+FGhld86IqfkLs4W9m1ieoDKNuNt1sHbTK7h3/cJs4uXujWq9vmptDiGQIS
++aDbPp1SxEy9V4XteO3BlkTNRrDOZdVXcjokxhDhsHPEj1qDrPbGcpT5cnf/AdUh
 -----END CERTIFICATE-----
 ";
 
@@ -131,26 +130,43 @@ nNNFy24/5Y64/EbVXMmwqwU6bTcoo6hGZW9VoWiI6lI+yfTU5vo/pOQmgLU6a9bD
         {
             var servers = new List<TimestampServer>
             {
-                //new TimestampServer("https://freetsa.org/tsr", _certificate)
-                new TimestampServer("http://timestamp.apple.com/ts01", _appleCert),
+                new TimestampServer("https://freetsa.org/tsr", _certificate, 10)
             };
             var timeStampService = new TimestampService(servers);
             var data = Encoding.UTF8.GetBytes("Hello World! Hello FreieWahl!");
             var token = await timeStampService.GetToken(data);
-            var cmsData = token.ToCmsSignedData();
-            var signers = cmsData.GetSignerInfos();
-            //var certs2 = cmsData.GetCertificates("*");
-            //var foo = cmsData.GetCrls(null);
-            //Console.WriteLine(foo.ToString());
-            var certs3 = cmsData.GetCertificates("Collection");
-            Console.WriteLine(certs3.ToString());
-            Console.WriteLine(signers.Count);
-            var swriter = new StringWriter();
-            var writer = new PemWriter(swriter);
-            writer.WriteObject(token.SignerID.Certificate);
-            var s = swriter.ToString();
-            Console.WriteLine(s);
             Assert.IsTrue(_CheckTokenContent(token, data));
+        }
+
+        [TestMethod]
+        public async Task TestTimestampIgnoringCert()
+        {
+            var servers = new List<TimestampServer>
+            {
+                new TimestampServer("http://timestamp.apple.com/ts01", _certumCert, 80) // bad certificate!
+            };
+            var timeStampService = new TimestampService(servers);
+            var data = Encoding.UTF8.GetBytes("Hello World! Hello FreieWahl!");
+            var token = await timeStampService.GetToken(data, false);
+            Assert.IsTrue(_CheckTokenContent(token, data));
+            Assert.AreEqual(servers[0].Priority, 90);
+            Assert.AreEqual(servers[1].Priority, 81);
+        }
+
+        [TestMethod]
+        public async Task TestTimestampWithFallback()
+        {
+            var servers = new List<TimestampServer>
+            {
+                new TimestampServer("https://freetsa.org/tsr", _certumCert, 100), // bad certificate!
+                new TimestampServer("http://timestamp.apple.com/ts01", _appleCert, 80)
+            };
+            var timeStampService = new TimestampService(servers);
+            var data = Encoding.UTF8.GetBytes("Hello World! Hello FreieWahl!");
+            var token = await timeStampService.GetToken(data);
+            Assert.IsTrue(_CheckTokenContent(token, data));
+            Assert.AreEqual(servers[0].Priority, 90);
+            Assert.AreEqual(servers[1].Priority, 81);
         }
 
         private static bool _CheckTokenContent(TimeStampToken token, byte[] data)
@@ -207,7 +223,7 @@ nNNFy24/5Y64/EbVXMmwqwU6bTcoo6hGZW9VoWiI6lI+yfTU5vo/pOQmgLU6a9bD
         {
             var servers = new List<TimestampServer>
             {
-                new TimestampServer("https://freetsa.org/tsr", _certumCert)
+                new TimestampServer("https://freetsa.org/tsr", _certumCert, 100)
             };
             var timeStampService = new TimestampService(servers);
             var data = Encoding.UTF8.GetBytes("Hello World! Hello FreieWahl!");
@@ -222,9 +238,9 @@ nNNFy24/5Y64/EbVXMmwqwU6bTcoo6hGZW9VoWiI6lI+yfTU5vo/pOQmgLU6a9bD
         {
             var servers = new List<TimestampServer>
             {
-                //new TimestampServer("https://freetsa.org/tsr", _certificate),
-                new TimestampServer("http://timestamp.apple.com/ts01", _appleCert),
-                new TimestampServer("http://time.certum.pl", _certumCert)
+                new TimestampServer("https://freetsa.org/tsr", _certificate, 100),
+                new TimestampServer("http://timestamp.apple.com/ts01", _appleCert, 100),
+                new TimestampServer("http://time.certum.pl", _certumCert, 100)
             };
             var timeStampService = new TimestampService(servers);
 
