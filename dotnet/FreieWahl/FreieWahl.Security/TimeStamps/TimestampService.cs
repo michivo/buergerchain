@@ -5,9 +5,12 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Security.Cryptography;
+using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
+using Org.BouncyCastle.Asn1;
+using Org.BouncyCastle.Cms;
 using Org.BouncyCastle.Math;
 using Org.BouncyCastle.Security;
 using Org.BouncyCastle.Tsp;
@@ -42,6 +45,7 @@ namespace FreieWahl.Security.TimeStamps
         public async Task<TimeStampToken> GetToken(byte[] data, bool checkCertificate = true)
         {
             var servers = _servers.OrderByDescending(x => x.Priority);
+            Exception lastException = null;
 
             foreach (var server in servers)
             {
@@ -55,10 +59,11 @@ namespace FreieWahl.Security.TimeStamps
                 {
                     server.Priority -= BadServerMalus;
                     _logger.LogDebug("Failed getting timestamp from server with url " + server.Url + ", setting prio to " + server.Priority);
+                    lastException = ex;
                 }
             }
 
-            throw new TspException("Failed generation time stamp");
+            throw lastException ?? new TspException("Failed generation time stamp");
         }
 
         private async Task<TimeStampToken> _GetTokenWithServer(byte[] data, bool checkCertificate, TimestampServer server)
@@ -73,6 +78,8 @@ namespace FreieWahl.Security.TimeStamps
                 _logger.LogTrace("Sending http request to server {0}", server.Url);
                 var httpResponse = await _GetHttpResponse(request.GetEncoded(), server.Url).ConfigureAwait(false);
                 _logger.LogTrace("Received response from server");
+                var stringa = Encoding.UTF8.GetString(httpResponse);
+                Console.WriteLine(stringa);
                 var timestampResponse = new TimeStampResponse(httpResponse);
                 _logger.LogTrace("Successfully converted response for time stamp request");
                 _ValidateResponse(request, timestampResponse);
@@ -80,20 +87,7 @@ namespace FreieWahl.Security.TimeStamps
 
                 if (checkCertificate)
                 {
-                    var certStore = timestampResponse.TimeStampToken.GetCertificates("Collection");
-                    var matches = certStore.GetMatches(null).Cast<X509Certificate>();
-                    bool isValid = false;
-                    foreach (var x509Certificate in matches)
-                    {
-                        if (x509Certificate.Equals(server.Certificate))
-                        {
-                            isValid = true;
-                            break;
-                        }
-                    }
-
-                    if (!isValid)
-                        throw new TspValidationException("Invalid server certificate");
+                    _CheckCertificate(server.Certificate, timestampResponse);
                 }
 
                 return timestampResponse.TimeStampToken;
@@ -105,10 +99,78 @@ namespace FreieWahl.Security.TimeStamps
             }
         }
 
-        private TimestampServer _GetServer()
+        private static void _CheckCertificate(X509Certificate serverCertificate, TimeStampResponse timestampResponse)
         {
-            var index = _serverIndex++ % _servers.Count;
-            return _servers[index];
+            var certStore = timestampResponse.TimeStampToken.GetCertificates("Collection");
+            var matches = certStore.GetMatches(null).Cast<X509Certificate>();
+            bool isValid = false;
+            foreach (var x509Certificate in matches)
+            {
+                if (x509Certificate.Equals(serverCertificate))
+                {
+                    isValid = true;
+                    break;
+                }
+            }
+
+            if (!isValid)
+                throw new TspValidationException("Invalid server certificate");
+        }
+
+        public bool CheckTokenContent(TimeStampToken token, byte[] data)
+        {
+            var cms = token.ToCmsSignedData();
+            var enc = (CmsProcessableByteArray)cms.SignedContent;
+            var stream = enc.GetInputStream();
+            byte[] encData;
+            using (var bs = new BinaryReader(stream))
+            {
+                encData = bs.ReadBytes((int)stream.Length);
+            }
+
+            Asn1InputStream asnis = new Asn1InputStream(encData);
+
+            var asnobj = asnis.ReadObject();
+            Asn1StreamParser parser = new Asn1StreamParser(asnis);
+            Asn1Sequence seq = Asn1Sequence.GetInstance(asnobj);
+            foreach (Asn1Encodable asn1Encodable in seq)
+            {
+                if (asn1Encodable is Asn1Sequence subseq)
+                {
+                    if (subseq.Count != 2)
+                        continue;
+                    if (subseq[0] is Asn1Sequence hashSeq)
+                    {
+                        if (hashSeq.Count > 1 && hashSeq[0] is DerObjectIdentifier objId &&
+                            objId.Id == "2.16.840.1.101.3.4.2.3")
+                        {
+                            var encoded = subseq[1] as DerOctetString;
+                            if (encoded == null)
+                                continue;
+
+                            var readDigest = encoded.GetOctets();
+                            var digestAlg = new SHA512Managed();
+                            var digest = digestAlg.ComputeHash(data);
+                            if (digest.Length != readDigest.Length)
+                            {
+                                throw new TspValidationException("Invalid digest length");
+                            }
+
+                            for (int i = 0; i < digest.Length; i++)
+                            {
+                                if (readDigest[i] != digest[i])
+                                {
+                                    throw new TspValidationException("Invalid digest");
+                                }
+                            }
+
+                            return true;
+                        }
+                    }
+                }
+            }
+
+            return false;
         }
 
         private static void _ValidateResponse(TimeStampRequest request, TimeStampResponse response)

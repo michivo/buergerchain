@@ -123,34 +123,105 @@ nNNFy24/5Y64/EbVXMmwqwU6bTcoo6hGZW9VoWiI6lI+yfTU5vo/pOQmgLU6a9bD
 -----END CERTIFICATE-----
 ";
 
-#endregion
+        private static string _symantecCert = @"-----BEGIN CERTIFICATE-----
+MIIFODCCBCCgAwIBAgIQewWx1EloUUT3yYnSnBmdEjANBgkqhkiG9w0BAQsFADCB
+vTELMAkGA1UEBhMCVVMxFzAVBgNVBAoTDlZlcmlTaWduLCBJbmMuMR8wHQYDVQQL
+ExZWZXJpU2lnbiBUcnVzdCBOZXR3b3JrMTowOAYDVQQLEzEoYykgMjAwOCBWZXJp
+U2lnbiwgSW5jLiAtIEZvciBhdXRob3JpemVkIHVzZSBvbmx5MTgwNgYDVQQDEy9W
+ZXJpU2lnbiBVbml2ZXJzYWwgUm9vdCBDZXJ0aWZpY2F0aW9uIEF1dGhvcml0eTAe
+Fw0xNjAxMTIwMDAwMDBaFw0zMTAxMTEyMzU5NTlaMHcxCzAJBgNVBAYTAlVTMR0w
+GwYDVQQKExRTeW1hbnRlYyBDb3Jwb3JhdGlvbjEfMB0GA1UECxMWU3ltYW50ZWMg
+VHJ1c3QgTmV0d29yazEoMCYGA1UEAxMfU3ltYW50ZWMgU0hBMjU2IFRpbWVTdGFt
+cGluZyBDQTCCASIwDQYJKoZIhvcNAQEBBQADggEPADCCAQoCggEBALtZnVlVT52M
+cl0agaLrVfOwAa08cawyjwVrhponADKXak3JZBRLKbvC2Sm5Luxjs+HPPwtWkPhi
+G37rpgfi3n9ebUA41JEG50F8eRzLy60bv9iVkfPw7mz4rZY5Ln/BJ7h4OcWEpe3t
+r4eOzo3HberSmLU6Hx45ncP0mqj0hOHE0XxxxgYptD/kgw0mw3sIPk35CrczSf/K
+O9T1sptL4YiZGvXA6TMU1t/HgNuR7v68kldyd/TNqMz+CfWTN76ViGrF3PSxS9TO
+6AmRX7WEeTWKeKwZMo8jwTJBG1kOqT6xzPnWK++32OTVHW0ROpL2k8mc40juu1MO
+1DaXhnjFoTcCAwEAAaOCAXcwggFzMA4GA1UdDwEB/wQEAwIBBjASBgNVHRMBAf8E
+CDAGAQH/AgEAMGYGA1UdIARfMF0wWwYLYIZIAYb4RQEHFwMwTDAjBggrBgEFBQcC
+ARYXaHR0cHM6Ly9kLnN5bWNiLmNvbS9jcHMwJQYIKwYBBQUHAgIwGRoXaHR0cHM6
+Ly9kLnN5bWNiLmNvbS9ycGEwLgYIKwYBBQUHAQEEIjAgMB4GCCsGAQUFBzABhhJo
+dHRwOi8vcy5zeW1jZC5jb20wNgYDVR0fBC8wLTAroCmgJ4YlaHR0cDovL3Muc3lt
+Y2IuY29tL3VuaXZlcnNhbC1yb290LmNybDATBgNVHSUEDDAKBggrBgEFBQcDCDAo
+BgNVHREEITAfpB0wGzEZMBcGA1UEAxMQVGltZVN0YW1wLTIwNDgtMzAdBgNVHQ4E
+FgQUr2PWyqNOhXLgp7xB8ymiOH+AdWIwHwYDVR0jBBgwFoAUtnf6aUhHn1MS1cLq
+BzJ2B9GXBxkwDQYJKoZIhvcNAQELBQADggEBAHXqsC3VNBlcMkX+DuHUT6Z4wW/X
+6t3cT/OhyIGI96ePFeZAKa3mXfSi2VZkhHEwKt0eYRdmIFYGmBmNXXHy+Je8Cf0c
+kUfJ4uiNA/vMkC/WCmxOM+zWtJPITJBjSDlAIcTd1m6JmDy1mJfoqQa3CcmPU1dB
+kC/hHk1O3MoQeGxCbvC2xfhhXFL1TvZrjfdKer7zzf0D19n2A6gP41P3CnXsxnUu
+qmaFBJm3+AZX4cYO9uiv2uybGB+queM6AL/OipTLAduexzi7D1Kr0eOUA2AKTaD+
+J20UMvw/l0Dhv5mJ2+Q5FL3a5NPD6itas5VYVQR9x5rsIwONhSrS/66pYYE=
+-----END CERTIFICATE-----
+";
+
+        #endregion
 
         [TestMethod]
-        public async Task TestSingleTimestamp()
+        public async Task TestSingleTimestampSymantec()
         {
             var servers = new List<TimestampServer>
             {
-                new TimestampServer("https://freetsa.org/tsr", _certificate, 10)
+                new TimestampServer("http://sha256timestamp.ws.symantec.com/sha256/timestamp", _symantecCert, 20),
             };
             var timeStampService = new TimestampService(servers);
             var data = Encoding.UTF8.GetBytes("Hello World! Hello FreieWahl!");
             var token = await timeStampService.GetToken(data);
-            Assert.IsTrue(_CheckTokenContent(token, data));
+            timeStampService.CheckTokenContent(token, data);
         }
+
+        [TestMethod]
+        public async Task TestSingleTimestampApple()
+        {
+            var servers = new List<TimestampServer>
+            {
+                new TimestampServer("http://timestamp.apple.com/ts01", _appleCert, 20),
+            };
+            var timeStampService = new TimestampService(servers);
+            var data = Encoding.UTF8.GetBytes("Hello World! Hello FreieWahl!");
+            var token = await timeStampService.GetToken(data);
+            timeStampService.CheckTokenContent(token, data);
+        }
+
+        [TestMethod]
+        public async Task TestSingleTimestampCertum()
+        {
+            var servers = new List<TimestampServer>
+            {
+                new TimestampServer("http://time.certum.pl", _certumCert, 20),
+            };
+            var timeStampService = new TimestampService(servers);
+            var data = Encoding.UTF8.GetBytes("Hello World! Hello FreieWahl!");
+            var token = await timeStampService.GetToken(data);
+            timeStampService.CheckTokenContent(token, data);
+        }
+
+        [TestMethod]
+        public async Task TestSingleTimestampFreeTsa()
+        {
+            var servers = new List<TimestampServer>
+            {
+                new TimestampServer("https://freetsa.org/tsr", _certificate, 20),
+            };
+            var timeStampService = new TimestampService(servers);
+            var data = Encoding.UTF8.GetBytes("Hello World! Hello FreieWahl!");
+            var token = await timeStampService.GetToken(data);
+            timeStampService.CheckTokenContent(token, data);
+        }
+
 
         [TestMethod]
         public async Task TestTimestampIgnoringCert()
         {
             var servers = new List<TimestampServer>
             {
-                new TimestampServer("http://timestamp.apple.com/ts01", _certumCert, 80) // bad certificate!
+                new TimestampServer("http://timestamp.apple.com/ts01", _certumCert, 80) // bad certificate, but ignored
             };
             var timeStampService = new TimestampService(servers);
             var data = Encoding.UTF8.GetBytes("Hello World! Hello FreieWahl!");
             var token = await timeStampService.GetToken(data, false);
-            Assert.IsTrue(_CheckTokenContent(token, data));
-            Assert.AreEqual(servers[0].Priority, 90);
-            Assert.AreEqual(servers[1].Priority, 81);
+            timeStampService.CheckTokenContent(token, data);
+            Assert.AreEqual(servers[0].Priority, 81);
         }
 
         [TestMethod]
@@ -164,58 +235,9 @@ nNNFy24/5Y64/EbVXMmwqwU6bTcoo6hGZW9VoWiI6lI+yfTU5vo/pOQmgLU6a9bD
             var timeStampService = new TimestampService(servers);
             var data = Encoding.UTF8.GetBytes("Hello World! Hello FreieWahl!");
             var token = await timeStampService.GetToken(data);
-            Assert.IsTrue(_CheckTokenContent(token, data));
+            timeStampService.CheckTokenContent(token, data);
             Assert.AreEqual(servers[0].Priority, 90);
             Assert.AreEqual(servers[1].Priority, 81);
-        }
-
-        private static bool _CheckTokenContent(TimeStampToken token, byte[] data)
-        {
-            var cms = token.ToCmsSignedData();
-            var enc = (CmsProcessableByteArray) cms.SignedContent;
-            var stream = enc.GetInputStream();
-            byte[] encData;
-            using (var bs = new BinaryReader(stream))
-            {
-                encData = bs.ReadBytes((int) stream.Length);
-            }
-
-            Asn1InputStream asnis = new Asn1InputStream(encData);
-
-            var asnobj = asnis.ReadObject();
-            Asn1StreamParser parser = new Asn1StreamParser(asnis);
-            Asn1Sequence seq = Asn1Sequence.GetInstance(asnobj);
-            foreach (Asn1Encodable asn1Encodable in seq)
-            {
-                if (asn1Encodable is Asn1Sequence subseq)
-                {
-                    if (subseq.Count != 2)
-                        continue;
-                    if (subseq[0] is Asn1Sequence hashSeq)
-                    {
-                        if (hashSeq.Count > 1 && hashSeq[0] is DerObjectIdentifier objId &&
-                            objId.Id == "2.16.840.1.101.3.4.2.3")
-                        {
-                            var encoded = subseq[1] as DerOctetString;
-                            if (encoded == null)
-                                continue;
-
-                            var readDigest = encoded.GetOctets();
-                            var digestAlg = new SHA512Managed();
-                            var digest = digestAlg.ComputeHash(data);
-                            Assert.AreEqual(readDigest.Length, digest.Length);
-                            for (int i = 0; i < digest.Length; i++)
-                            {
-                                Assert.AreEqual(readDigest[i], digest[i]);
-                            }
-
-                            return true;
-                        }
-                    }
-                }
-            }
-
-            return false;
         }
 
         [TestMethod]
@@ -258,7 +280,7 @@ nNNFy24/5Y64/EbVXMmwqwU6bTcoo6hGZW9VoWiI6lI+yfTU5vo/pOQmgLU6a9bD
                 tasks[i] = Task.Run(async () =>
                 {
                     var token = await timeStampService.GetToken(results[idx]).ConfigureAwait(false);
-                    Assert.IsTrue(_CheckTokenContent(token, results[idx]));
+                    timeStampService.CheckTokenContent(token, results[idx]);
                 });
             }
 
