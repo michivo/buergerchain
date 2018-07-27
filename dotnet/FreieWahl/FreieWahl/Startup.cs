@@ -1,5 +1,7 @@
 ﻿using Google.Cloud.Diagnostics.AspNetCore;
 using System;
+using System.Collections.Generic;
+using System.IO;
 using System.Security.Cryptography.X509Certificates;
 using FreieWahl.Application.Authentication;
 using FreieWahl.Application.Registrations;
@@ -18,6 +20,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Org.BouncyCastle.OpenSsl;
 
 namespace FreieWahl
 {
@@ -66,8 +69,9 @@ namespace FreieWahl
             services.AddSingleton<IUserHandler, UserHandler>();
             services.AddSingleton<ITimestampService>(p =>
             {
+                var timestampServers = _GetTimestampServers();
                 var logger = LogFactory.CreateLogger("FreieWahl.Security.TimeStamps.TimestampService");
-                return new TimestampService(Configuration["TimestampServer:Url"], Configuration["TimestampServer:Certificate"], logger);
+                return new TimestampService(timestampServers, logger);
             });
             services.AddSingleton<IVotingStore>(p => new VotingStore(Configuration["Datastore:ProjectId"]));
             services.AddSingleton<IAuthenticationManager, AuthenticationManager>();
@@ -82,6 +86,23 @@ namespace FreieWahl
             var sp = services.BuildServiceProvider();
             services.AddSingleton<IVotingTokenHandler>(p => new VotingTokenHandler(sp.GetService<IVotingKeyStore>(),
                 int.Parse(Configuration["VotingSettings:MaxNumQuestions"])));
+        }
+
+        private List<TimestampServer> _GetTimestampServers()
+        {
+            var servers = Configuration.GetSection("TimestampServers:Servers").GetChildren();
+            var result = new List<TimestampServer>();
+            foreach (var serverInfo in servers)
+            {
+                var url = serverInfo["Url"];
+                var cert = serverInfo["Certificate"];
+                var reader = new PemReader(new StringReader(cert));
+                var obj = reader.ReadObject();
+                var x509Cert = (Org.BouncyCastle.X509.X509Certificate) obj;
+                result.Add(new TimestampServer(url, x509Cert));
+            }
+
+            return result;
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

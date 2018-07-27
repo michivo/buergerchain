@@ -69,71 +69,103 @@ DgUIrLjqguolBSdvPJ2io9O0rTi7+IQr2jb8JEgpH1WNwC3R4A==
 -----END CERTIFICATE-----
 ";
 
-        private static string _otherCert = @"-----BEGIN CERTIFICATE-----
-MIIH/zCCBeegAwIBAgIJAMHphhYNqOmAMA0GCSqGSIb3DQEBDQUAMIGVMREwDwYD
-VQQKEwhGcmVlIFRTQTEQMA4GA1UECxMHUm9vdCBDQTEYMBYGA1UEAxMPd3d3LmZy
-ZWV0c2Eub3JnMSIwIAYJKoZIhvcNAQkBFhNidXNpbGV6YXNAZ21haWwuY29tMRIw
-EAYDVQQHEwlXdWVyemJ1cmcxDzANBgNVBAgTBkJheWVybjELMAkGA1UEBhMCREUw
-HhcNMTYwMzEzMDE1MjEzWhcNNDEwMzA3MDE1MjEzWjCBlTERMA8GA1UEChMIRnJl
-ZSBUU0ExEDAOBgNVBAsTB1Jvb3QgQ0ExGDAWBgNVBAMTD3d3dy5mcmVldHNhLm9y
-ZzEiMCAGCSqGSIb3DQEJARYTYnVzaWxlemFzQGdtYWlsLmNvbTESMBAGA1UEBxMJ
-V3VlcnpidXJnMQ8wDQYDVQQIEwZCYXllcm4xCzAJBgNVBAYTAkRFMIICIjANBgkq
-hkiG9w0BAQEFAAOCAg8AMIICCgKCAgEAtgKODjAy8REQ2WTNqUudAnjhlCrpE6ql
-mQfNppeTmVvZrH4zutn+NwTaHAGpjSGv4/WRpZ1wZ3BRZ5mPUBZyLgq0YrIfQ5Fx
-0s/MRZPzc1r3lKWrMR9sAQx4mN4z11xFEO529L0dFJjPF9MD8Gpd2feWzGyptlel
-b+PqT+++fOa2oY0+NaMM7l/xcNHPOaMz0/2olk0i22hbKeVhvokPCqhFhzsuhKsm
-q4Of/o+t6dI7sx5h0nPMm4gGSRhfq+z6BTRgCrqQG2FOLoVFgt6iIm/BnNffUr7V
-DYd3zZmIwFOj/H3DKHoGik/xK3E82YA2ZulVOFRW/zj4ApjPa5OFbpIkd0pmzxzd
-EcL479hSA9dFiyVmSxPtY5ze1P+BE9bMU1PScpRzw8MHFXxyKqW13Qv7LWw4sbk3
-SciB7GACbQiVGzgkvXG6y85HOuvWNvC5GLSiyP9GlPB0V68tbxz4JVTRdw/Xn/XT
-FNzRBM3cq8lBOAVt/PAX5+uFcv1S9wFE8YjaBfWCP1jdBil+c4e+0tdywT2oJmYB
-BF/kEt1wmGwMmHunNEuQNzh1FtJY54hbUfiWi38mASE7xMtMhfj/C4SvapiDN837
-gYaPfs8x3KZxbX7C3YAsFnJinlwAUss1fdKar8Q/YVs7H/nU4c4Ixxxz4f67fcVq
-M2ITKentbCMCAwEAAaOCAk4wggJKMAwGA1UdEwQFMAMBAf8wDgYDVR0PAQH/BAQD
-AgHGMB0GA1UdDgQWBBT6VQ2MNGZRQ0z357OnbJWveuaklzCBygYDVR0jBIHCMIG/
-gBT6VQ2MNGZRQ0z357OnbJWveuakl6GBm6SBmDCBlTERMA8GA1UEChMIRnJlZSBU
-U0ExEDAOBgNVBAsTB1Jvb3QgQ0ExGDAWBgNVBAMTD3d3dy5mcmVldHNhLm9yZzEi
-MCAGCSqGSIb3DQEJARYTYnVzaWxlemFzQGdtYWlsLmNvbTESMBAGA1UEBxMJV3Vl
-cnpidXJnMQ8wDQYDVQQIEwZCYXllcm4xCzAJBgNVBAYTAkRFggkAwemGFg2o6YAw
-MwYDVR0fBCwwKjAooCagJIYiaHR0cDovL3d3dy5mcmVldHNhLm9yZy9yb290X2Nh
-LmNybDCBzwYDVR0gBIHHMIHEMIHBBgorBgEEAYHyJAEBMIGyMDMGCCsGAQUFBwIB
-FidodHRwOi8vd3d3LmZyZWV0c2Eub3JnL2ZyZWV0c2FfY3BzLmh0bWwwMgYIKwYB
-BQUHAgEWJmh0dHA6Ly93d3cuZnJlZXRzYS5vcmcvZnJlZXRzYV9jcHMucGRmMEcG
-CCsGAQUFBwICMDsaOUZyZWVUU0EgdHJ1c3RlZCB0aW1lc3RhbXBpbmcgU29mdHdh
-cmUgYXMgYSBTZXJ2aWNlIChTYWFTKTA3BggrBgEFBQcBAQQrMCkwJwYIKwYBBQUH
-MAGGG2h0dHA6Ly93d3cuZnJlZXRzYS5vcmc6MjU2MDANBgkqhkiG9w0BAQ0FAAOC
-AgEAaK9+v5OFYu9M6ztYC+L69sw1omdyli89lZAfpWMMh9CRmJhM6KBqM/ipwoLt
-nxyxGsbCPhcQjuTvzm+ylN6VwTMmIlVyVSLKYZcdSjt/eCUN+41K7sD7GVmxZBAF
-ILnBDmTGJmLkrU0KuuIpj8lI/E6Z6NnmuP2+RAQSHsfBQi6sssnXMo4HOW5gtPO7
-gDrUpVXID++1P4XndkoKn7Svw5n0zS9fv1hxBcYIHPPQUze2u30bAQt0n0iIyRLz
-aWuhtpAtd7ffwEbASgzB7E+NGF4tpV37e8KiA2xiGSRqT5ndu28fgpOY87gD3ArZ
-DctZvvTCfHdAS5kEO3gnGGeZEVLDmfEsv8TGJa3AljVa5E40IQDsUXpQLi8G+UC4
-1DWZu8EVT4rnYaCw1VX7ShOR1PNCCvjb8S8tfdudd9zhU3gEB0rxdeTy1tVbNLXW
-99y90xcwr1ZIDUwM/xQ/noO8FRhm0LoPC73Ef+J4ZBdrvWwauF3zJe33d4ibxEcb
-8/pz5WzFkeixYM2nsHhqHsBKw7JPouKNXRnl5IAE1eFmqDyC7G/VT7OF669xM6hb
-Ut5G21JE4cNK6NNucS+fzg1JPX0+3VhsYZjj7D5uljRvQXrJ8iHgr/M6j2oLHvTA
-I2MLdq2qjZFDOCXsxBxJpbmLGBx9ow6ZerlUxzws2AWv2pk=
+        private static string _certumCert = @"-----BEGIN CERTIFICATE-----
+MIIElTCCA32gAwIBAgIUJ+aS4Kljd4Fu23Hp++0y+ElpFbswDQYJKoZIhvcNAQEF
+BQAwbjELMAkGA1UEBhMCUEwxLjAsBgNVBAoMJU1pbmlzdGVyIHdsYXNjaXd5IGRv
+IHNwcmF3IGdvc3BvZGFya2kxLzAtBgNVBAMMJk5hcm9kb3dlIENlbnRydW0gQ2Vy
+dHlmaWthY2ppIChOQ0NlcnQpMB4XDTE2MDQwMTE0MzkzN1oXDTIwMTAyNjIzNTk1
+OVowXTEVMBMGA1UEBRMMTnIgd3Bpc3U6IDE1MQswCQYDVQQGEwJQTDEhMB8GA1UE
+CgwYQXNzZWNvIERhdGEgU3lzdGVtcyBTLkEuMRQwEgYDVQQDDAtDRVJUVU0gUVRT
+QTCCASIwDQYJKoZIhvcNAQEBBQADggEPADCCAQoCggEBAN2nFu94S1vAFuPhXSNy
+NUQJgAl/5z/avS7Fx3DMMo5wtYAR0L3w9zfU0miFqWNIZP/0iiTbyGe/PnEn7O95
+ydGhsPb1abS6pQ3rU20tc3YqdkhI3uUQEm4kesANGHxZtCbRup8F+rnxILBT55/0
+v2DIu2xv6zad5oLivXcqUwjudeAEJQKmGgtf8XDRBj0hkXqsQW6uzn1s0l6YuetS
+KQVyUs9A3XcdifqQt4lyZIlVjJSqUopzJjL9WbwUnCR/nh2J6vqMcuO5KdI1Kkvx
+O8k4uUca0KoZAODqlgM5tGQRZHWg+V19umP0DrFZe20vrLl0bpeTBfQoeuERt3CW
+jKMCAwEAAaOCATowggE2MBYGA1UdJQEB/wQMMAoGCCsGAQUFBwMIMAwGA1UdEwEB
+/wQCMAAwgasGA1UdIwSBozCBoIAUWTQM+33nRQFvyXCWwk4G+A+BQ/ahcqRwMG4x
+CzAJBgNVBAYTAlBMMS4wLAYDVQQKDCVNaW5pc3RlciB3bGFzY2l3eSBkbyBzcHJh
+dyBnb3Nwb2RhcmtpMS8wLQYDVQQDDCZOYXJvZG93ZSBDZW50cnVtIENlcnR5Zmlr
+YWNqaSAoTkNDZXJ0KYIUYqcNBMMkuNQnVsw/gWvy6zLvBxkwMQYDVR0gAQH/BCcw
+JTAjBgRVHSAAMBswGQYIKwYBBQUHAgEWDXd3dy5uY2NlcnQucGwwDgYDVR0PAQH/
+BAQDAgbAMB0GA1UdDgQWBBStXdivePhtlTJL/rHXlK86nM4VhzANBgkqhkiG9w0B
+AQUFAAOCAQEARqcpOhHLJMgR3Ih7k5CqSWPL15mkk39IcKhGl2Hk6mhPV+jVix75
+7/S6g4myYwKNLS5IrqyT6xOM3nw+wv3pFfMQbJEPE5BN+L7L219tImCxpP4P/nnp
+5Gv5VGZZLp2KbPaTX4j9KdH9qMOnAi6ZEsmCDUD1Xb2udAmM1JlKiyJIURbTmFsP
+uYS/hDDQ/ITkw2ju2grevXWNR31I0MkaVqnVPmeioDBLGab0eBiCuOWwta5xK1Of
+xTYYWbtaO24RnUhZ8obLvxlzDv89kGFTf1K598UabNGDqBbtf8ylMfYV0YnoBCgZ
+IxVNtBHRQVDi2QSTedpiYWpDvSm+s0aE2Q==
 -----END CERTIFICATE-----
 ";
+
+        private static string _appleCert = @"-----BEGIN CERTIFICATE-----
+MIIEBzCCAu+gAwIBAgIIfUxXY5/z8LcwDQYJKoZIhvcNAQELBQAwYjELMAkGA1UE
+BhMCVVMxEzARBgNVBAoTCkFwcGxlIEluYy4xJjAkBgNVBAsTHUFwcGxlIENlcnRp
+ZmljYXRpb24gQXV0aG9yaXR5MRYwFAYDVQQDEw1BcHBsZSBSb290IENBMB4XDTEy
+MDQwNTEyMDI0NFoXDTI3MDQwNTEyMDI0NFowfDEwMC4GA1UEAwwnQXBwbGUgVGlt
+ZXN0YW1wIENlcnRpZmljYXRpb24gQXV0aG9yaXR5MSYwJAYDVQQLDB1BcHBsZSBD
+ZXJ0aWZpY2F0aW9uIEF1dGhvcml0eTETMBEGA1UECgwKQXBwbGUgSW5jLjELMAkG
+A1UEBhMCVVMwggEiMA0GCSqGSIb3DQEBAQUAA4IBDwAwggEKAoIBAQDTdxih95kQ
+Z1zSLp64jyNnPvxC4gl9Coq4GPxzQC+9xNhQxSfI/rg0cKANEzy9CE6ak285N9qe
+ZfW0Y/SQyEltXSDTOf0JuvQ6885KaWQFmUbg2jXEZRgexhajEmG0LvXwiQ2M3D32
+Bs9vhiVMCcIbyA54iI3BIri6IRObyu6Knt17W/+j6dGjgX7+/+aMSeQ7CvkQpnIz
+uyzESlpyCjlQdN0obnlffqeoFM9Ws1ZspenwxK756iCOGMcodOIITYkmQnle9mDj
+RVih+1FJXpJKTbnv1HO12gR741Kfy6MZXaxrmGye4ux0LUQ+4GE+B0V+NHUmmECb
+dZ7IMO1Lv3ePAgMBAAGjgaYwgaMwHQYDVR0OBBYEFDTNJU7N3jeFOKFYJvj54ine
+8hyTMA8GA1UdEwEB/wQFMAMBAf8wHwYDVR0jBBgwFoAUK9BpR5R2Cf70a40uQKb3
+R01/CF4wLgYDVR0fBCcwJTAjoCGgH4YdaHR0cDovL2NybC5hcHBsZS5jb20vcm9v
+dC5jcmwwDgYDVR0PAQH/BAQDAgGGMBAGCiqGSIb3Y2QGAgkEAgUAMA0GCSqGSIb3
+DQEBCwUAA4IBAQA20vXecVMHySPYeJtlvPPVW+m4fxsjx6LPtKko6fjdcIghOfPb
+M5zDckPWPUJRl7qtHY6S0nWLw12c9cuM3GpqOt3rVH3tFGvz1j6TyG16VF/yQ44Q
+0HZcmwAMHU7KPM365vfCPnK3uN7oNKoVoK5cZ6gMrJseZbPjDzBCNOmu0wHTp91C
+c3V8UUOFmmAQ3K4n0mtnyTNFb8mYHqCaf00Rk+Fp/+xLRfNOyiIOV9ciB+UitIfp
+nNNFy24/5Y64/EbVXMmwqwU6bTcoo6hGZW9VoWiI6lI+yfTU5vo/pOQmgLU6a9bD
+5fkygcgyokjhjgajGeSzyztL3+DMDrKvmNGD
+-----END CERTIFICATE-----
+";
+
 #endregion
 
         [TestMethod]
         public async Task TestSingleTimestamp()
         {
-            var timeStampService = new TimestampService("https://freetsa.org/tsr", _certificate);
+            var servers = new List<TimestampServer>
+            {
+                //new TimestampServer("https://freetsa.org/tsr", _certificate)
+                new TimestampServer("http://timestamp.apple.com/ts01", _appleCert),
+            };
+            var timeStampService = new TimestampService(servers);
             var data = Encoding.UTF8.GetBytes("Hello World! Hello FreieWahl!");
             var token = await timeStampService.GetToken(data);
+            var cmsData = token.ToCmsSignedData();
+            var signers = cmsData.GetSignerInfos();
+            //var certs2 = cmsData.GetCertificates("*");
+            //var foo = cmsData.GetCrls(null);
+            //Console.WriteLine(foo.ToString());
+            var certs3 = cmsData.GetCertificates("Collection");
+            Console.WriteLine(certs3.ToString());
+            Console.WriteLine(signers.Count);
+            var swriter = new StringWriter();
+            var writer = new PemWriter(swriter);
+            writer.WriteObject(token.SignerID.Certificate);
+            var s = swriter.ToString();
+            Console.WriteLine(s);
+            Assert.IsTrue(_CheckTokenContent(token, data));
+        }
+
+        private static bool _CheckTokenContent(TimeStampToken token, byte[] data)
+        {
             var cms = token.ToCmsSignedData();
-            var enc = (CmsProcessableByteArray)cms.SignedContent;
+            var enc = (CmsProcessableByteArray) cms.SignedContent;
             var stream = enc.GetInputStream();
             byte[] encData;
             using (var bs = new BinaryReader(stream))
             {
-                encData = bs.ReadBytes((int)stream.Length);
+                encData = bs.ReadBytes((int) stream.Length);
             }
-            
+
             Asn1InputStream asnis = new Asn1InputStream(encData);
-            
+
             var asnobj = asnis.ReadObject();
             Asn1StreamParser parser = new Asn1StreamParser(asnis);
             Asn1Sequence seq = Asn1Sequence.GetInstance(asnobj);
@@ -145,10 +177,11 @@ I2MLdq2qjZFDOCXsxBxJpbmLGBx9ow6ZerlUxzws2AWv2pk=
                         continue;
                     if (subseq[0] is Asn1Sequence hashSeq)
                     {
-                        if (hashSeq.Count > 1 && hashSeq[0] is DerObjectIdentifier objId && objId.Id == "2.16.840.1.101.3.4.2.3")
+                        if (hashSeq.Count > 1 && hashSeq[0] is DerObjectIdentifier objId &&
+                            objId.Id == "2.16.840.1.101.3.4.2.3")
                         {
                             var encoded = subseq[1] as DerOctetString;
-                            if(encoded == null)
+                            if (encoded == null)
                                 continue;
 
                             var readDigest = encoded.GetOctets();
@@ -159,19 +192,24 @@ I2MLdq2qjZFDOCXsxBxJpbmLGBx9ow6ZerlUxzws2AWv2pk=
                             {
                                 Assert.AreEqual(readDigest[i], digest[i]);
                             }
-                            return;
+
+                            return true;
                         }
                     }
                 }
             }
 
-            Assert.Fail(); // Should not reach this part of the code
+            return false;
         }
 
         [TestMethod]
         public async Task TestInvalidCert()
         {
-            var timeStampService = new TimestampService("https://freetsa.org/tsr", _otherCert);
+            var servers = new List<TimestampServer>
+            {
+                new TimestampServer("https://freetsa.org/tsr", _certumCert)
+            };
+            var timeStampService = new TimestampService(servers);
             var data = Encoding.UTF8.GetBytes("Hello World! Hello FreieWahl!");
             await Assert.ThrowsExceptionAsync<TspValidationException>(async () =>
             {
@@ -182,7 +220,14 @@ I2MLdq2qjZFDOCXsxBxJpbmLGBx9ow6ZerlUxzws2AWv2pk=
         [TestMethod]
         public void TestTenTimestamps()
         {
-            var timeStampService = new TimestampService("https://freetsa.org/tsr", _certificate);
+            var servers = new List<TimestampServer>
+            {
+                //new TimestampServer("https://freetsa.org/tsr", _certificate),
+                new TimestampServer("http://timestamp.apple.com/ts01", _appleCert),
+                new TimestampServer("http://time.certum.pl", _certumCert)
+            };
+            var timeStampService = new TimestampService(servers);
+
             List<byte[]> results = new List<byte[]>();
             for (int i = 0; i < 10; i++)
             {
@@ -197,10 +242,7 @@ I2MLdq2qjZFDOCXsxBxJpbmLGBx9ow6ZerlUxzws2AWv2pk=
                 tasks[i] = Task.Run(async () =>
                 {
                     var token = await timeStampService.GetToken(results[idx]).ConfigureAwait(false);
-                    PemReader reader = new PemReader(new StringReader(_certificate));
-                    var obj = reader.ReadObject();
-                    X509Certificate cert = (X509Certificate) obj;
-                    token.Validate(cert);
+                    Assert.IsTrue(_CheckTokenContent(token, results[idx]));
                 });
             }
 
