@@ -8,7 +8,7 @@ namespace FreieWahl.Voting.Models
     {
         public long VotingId { get; set; }
 
-        public int QuestionIndext { get; set; }
+        public int QuestionIndex { get; set; }
 
         public List<long> SelectedAnswers { get; set; }
 
@@ -18,6 +18,6 @@ namespace FreieWahl.Voting.Models
 
         public string TimestampData { get; set; }
 
-        public string VoteSignature { get; set; }
+        public string PreviousBlockSignature { get; set; }
     }
 }

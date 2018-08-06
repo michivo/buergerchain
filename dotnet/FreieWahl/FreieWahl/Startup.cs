@@ -60,7 +60,7 @@ namespace FreieWahl
 
             var buergerkarteRootCa5 = Configuration["Buergerkarte:RootCertificate"];
 
-            var certRaw = System.Convert.FromBase64String(buergerkarteRootCa5);
+            var certRaw = Convert.FromBase64String(buergerkarteRootCa5);
             X509Certificate2 cert = new X509Certificate2(certRaw);
 
             services.AddSingleton<IJwtAuthentication, FirebaseJwtAuthentication>();
