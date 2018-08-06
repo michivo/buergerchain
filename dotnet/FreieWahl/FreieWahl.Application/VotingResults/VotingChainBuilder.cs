@@ -102,9 +102,9 @@ namespace FreieWahl.Application.VotingResults
             jsonVote["Timestamp"] = vote.TimestampData;
             jsonVote["PreviousBlockSignature"] = vote.PreviousBlockSignature;
             var jsonAnswers = new JArray();
-            foreach (var answer in vote.SelectedAnswers)
+            foreach (var answer in vote.SelectedAnswerIds)
             {
-                jsonAnswers.Add(answer.ToString(CultureInfo.InvariantCulture));
+                jsonAnswers.Add(answer);
             }
 
             jsonVote["Answers"] = jsonAnswers;

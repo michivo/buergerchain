@@ -10,7 +10,7 @@ namespace FreieWahl.Voting.Models
 
         public int QuestionIndex { get; set; }
 
-        public List<long> SelectedAnswers { get; set; }
+        public List<string> SelectedAnswerIds { get; set; }
 
         public string Token { get; set; }
 

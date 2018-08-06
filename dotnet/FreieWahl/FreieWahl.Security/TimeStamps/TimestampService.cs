@@ -26,7 +26,6 @@ namespace FreieWahl.Security.TimeStamps
         private const string Sha512Id = "2.16.840.1.101.3.4.2.3"; // sha512NoSign according to https://msdn.microsoft.com/en-us/library/ff635603.aspx
         private const string RequestContentType = "application/timestamp-query";
         private const string RequestMethod = "POST";
-        private int _serverIndex;
         private const int BadServerMalus = 10;
         private const int GoodServerBonus = 1;
 
@@ -35,7 +34,6 @@ namespace FreieWahl.Security.TimeStamps
             if (tsServers.Count == 0)
                 throw new ArgumentException("At least one timestamp server is required");
 
-            _serverIndex = 0;
             _servers = tsServers;
 
             _logger = logger ?? NullLogger.Instance;
