@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <link rel="stylesheet" type="text/css" href="slick/slick.css"/>
+  <link rel="stylesheet" type="text/css" href="slick/slick-theme.css"/>
+  <link rel="stylesheet" type="text/css" href="freiewahl.css">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+  <!-- Bootstrap CSS -->
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
+  <script src="https://www.gstatic.com/firebasejs/ui/3.2.0/firebase-ui-auth__de.js"></script>
+  <link type="text/css" rel="stylesheet" href="https://www.gstatic.com/firebasejs/ui/3.2.0/firebase-ui-auth.css" />
+  <title>Freie Wahl</title>
+  <script src="https://www.gstatic.com/firebasejs/5.3.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/5.3.1/firebase-auth.js"></script>
+  <script>
+  // Initialize Firebase
+  var config = {
+    apiKey: "AIzaSyDM8e5m6ToGxu5MZPpUeEYOkypSY1_j0PY",
+    authDomain: "stunning-lambda-162919.firebaseapp.com",
+    databaseURL: "https://stunning-lambda-162919.firebaseio.com",
+    projectId: "stunning-lambda-162919",
+    storageBucket: "stunning-lambda-162919.appspot.com",
+    messagingSenderId: "576087239560"
+  };
+  firebase.initializeApp(config);
+  </script>
+  <script type="text/javascript">
+  // FirebaseUI config.
+  var uiConfig = {
+    signInSuccessUrl: 'https://www.freiewahl.eu',
+    signInOptions: [
+      // Leave the lines as is for the providers you want to offer your users.
+      firebase.auth.EmailAuthProvider.PROVIDER_ID
+    ],
+    // Terms of service url.
+    tosUrl: 'https://www.freiewahl.eu',
+    // Privacy policy url.
+    privacyPolicyUrl: 'https://www.freiewahl.eu'
+  };
+
+  // Initialize the FirebaseUI Widget using Firebase.
+  var ui = new firebaseui.auth.AuthUI(firebase.auth());
+  // The start method will wait until the DOM is loaded.
+  ui.start('#fw-firebase-auth-container', uiConfig);
+</script>
+</head>
+
+<body>
+  <!-- Accent-colored raised button with ripple -->
+  <div class="fw-titlepage-banner" id="fw-title-banner">
+    <div class="fw-titlepage-bannercontent">
+      <div class="fw-titlepage-bannertext">
+        <h1>
+          Freie Wahl
+        </h1>
+        <p>
+          Deine Partei, dein Verein, deine Organisation will &uuml;ber etwas abstimmen? Du willst Sicherheit, Nachvollziehbarkeit, Transparenz? Dann bist du hier richtig!
+        </p>
+      </div>
+      <div id="fw-firebase-auth-container">
+      </div>
+    </div>
+  </div>
+
+  <div class="fw-titlepage-info">
+    <div class="fw-titlepage-box">
+      <h1>Sicher, transparent, anonym
+      </h1>
+      <div class="fw-titlepage-flex">
+        <div class="fw-titlepage-media">
+          <img src="icons/outline-people-24px.svg" style="width: 100%">
+        </div>
+        <div class="fw-titlepage-boxtext">
+          Dein Verein, deine Partei, dein Team möchte über etwas abstimmen. Euch ist Sicherheit, Transparenz und Anonymität wichtig. Die Freie Wahl ist die Lösung für euch. Frei heißt gratis, einfach und transparent. Probier' es einfach aus.
+        </div>
+      </div>
+    </div>
+
+    <div class="fw-titlepage-box">
+      <h1>So funktioniert es
+      </h1>
+      <div id="functions-slick" class="fw-titlepage-boxcontent">
+        <div class="col-xs-6 col-sm-6 col-md-4 col-lg-3">
+          <div class="card border-light">
+            <img class="card-img-top fw-card-svg" src="icons/outline-create-24px.svg" alt="Wahl erstellen" />
+            <div class="card-body">
+              <h5 class="card-title">Erstellen</h5>
+              <p class="card-text">Erstelle eine neue Wahl. In wenigen Schritten hast du alles eingestellt.</p>
+            </div>
+          </div>
+        </div>
+        <div class="col-xs-6 col-sm-6 col-md-4 col-lg-3">
+          <div class="card border-light">
+            <img class="card-img-top fw-card-svg" src="icons/outline-email-24px.svg" alt="Wahlberechtigte einladen">
+            <div class="card-body">
+              <h5 class="card-title">Einladen</h5>
+              <p class="card-text">Lade Wahlberechtigte dazu ein, an deiner Wahl teilzunehmen.</p>
+            </div>
+          </div>
+        </div>
+        <div class="col-xs-6 col-sm-6 col-md-4 col-lg-3">
+          <div class="card border-light">
+            <img class="card-img-top fw-card-svg" src="icons/outline-how_to_reg-24px.svg" alt="Registrierung">
+            <div class="card-body">
+              <h5 class="card-title">Registrierung</h5>
+              <p class="card-text">Warte ab, welche Wahlberechtigten deiner Einladung folgen.</p>
+            </div>
+          </div>
+        </div>
+        <div class="col-xs-6 col-sm-6 col-md-4 col-lg-3">
+          <div class="card border-light">
+            <img class="card-img-top fw-card-svg" src="icons/outline-how_to_vote-24px.svg" alt="Durchführung" >
+            <div class="card-body">
+              <h5 class="card-title">Durchführung</h5>
+              <p class="card-text">Stelle Fragen, lass abstimmen. Jetzt sind die WählerInnen am Wort!</p>
+            </div>
+          </div>
+        </div>
+        <div class="col-xs-6 col-sm-6 col-md-4 col-lg-3">
+          <div class="card border-light">
+            <img class="card-img-top fw-card-svg" src="icons/outline-insert_chart-24px.svg" alt="Auswertung">
+            <div class="card-body">
+              <h5 class="card-title">Auswertung</h5>
+              <p class="card-text">Welche Option bekommt die meisten Stimmen? Wie ist die Stimmverteilung?</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="fw-titlepage-box">
+      <h1>Sicherheit
+      </h1>
+      <div class="fw-titlepage-flex" style="flex-direction: row-reverse">
+        <div class="fw-titlepage-media">
+          <img src="icons/outline-lock-24px.svg" style="width: 100%">
+        </div>
+        <div class="fw-titlepage-boxtext">
+          Du möchtest verhindern, dass jemand doppelt abstimmt? Du möchtest sicherstellen, dass
+          nur registrierte, berechtigte Personen abstimmen? Durch den Einsatz der Handysignatur
+          können wir garantieren, dass niemand schummelt. Wir speichern die Wahlergebnisse
+          anonymisiert, trotzdem kannst du nachprüfen, dass deine Stimme richtig gezählt wurde.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49" crossorigin="anonymous"></script>
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js" integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy" crossorigin="anonymous"></script>
+  <script type="text/javascript" src="slick/slick.min.js"></script>
+  <script type="text/javascript" src="freiewahl.js"></script>
+
+</body>
+
+</html>
