@@ -1,32 +1,40 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Globalization;
-using System.Security.Cryptography;
 using System.Text;
 using FreieWahl.Voting.Models;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using Org.BouncyCastle.Crypto;
 using Org.BouncyCastle.Crypto.Digests;
 
 namespace FreieWahl.Application.VotingResults
 {
     public class VotingChainBuilder : IVotingChainBuilder
     {
-        private SHA512Managed _digest;
+        private const int FormatVersion = 1;
 
         public VotingChainBuilder()
         {
-            _digest = new SHA512Managed();
+        }
+
+        private IDigest _CreateDigest()
+        {
+            return new KeccakDigest();
         }
 
         public string GetGenesisValue(Question q)
         {
             var serializedQuestion = _GetSerializedQuestion(q);
-            var hash = _digest.ComputeHash(serializedQuestion);
-            var result = new List<byte>();
-            result.AddRange(BitConverter.GetBytes(1)); // version
-            result.AddRange(hash);
-            return Convert.ToBase64String(result.ToArray());
+            var digest = _CreateDigest();
+            var digestSize = digest.GetDigestSize();
+
+            digest.Reset();
+            digest.BlockUpdate(serializedQuestion, 0, serializedQuestion.Length);
+            var version = BitConverter.GetBytes(FormatVersion);
+            var result = new byte[digestSize + 4];
+            digest.DoFinal(result, 4);
+            Array.Copy(version, result, 4);
+            return Convert.ToBase64String(result);
         }
 
         private byte[] _GetSerializedQuestion(Question question)
@@ -50,15 +58,19 @@ namespace FreieWahl.Application.VotingResults
             var jsonAnswers = new JArray();
             foreach (var answerOption in question.AnswerOptions)
             {
-                var jsonAnswer = new JObject();
-                jsonAnswer["Text"] = answerOption.AnswerText;
-                jsonAnswer["Id"] = answerOption.Id;
+                var jsonAnswer = new JObject
+                {
+                    ["Text"] = answerOption.AnswerText,
+                    ["Id"] = answerOption.Id
+                };
                 var jsonAnswerDetails = new JArray();
                 foreach (var answerDetail in answerOption.Details)
                 {
-                    var jsonAnswerDetail = new JObject();
-                    jsonAnswerDetail["Type"] = (int) answerDetail.DetailType;
-                    jsonAnswerDetail["Value"] = answerDetail.DetailValue;
+                    var jsonAnswerDetail = new JObject
+                    {
+                        ["Type"] = (int) answerDetail.DetailType,
+                        ["Value"] = answerDetail.DetailValue
+                    };
                     jsonAnswerDetails.Add(jsonAnswerDetail);
                 }
 
@@ -86,21 +98,29 @@ namespace FreieWahl.Application.VotingResults
         public string GetSignature(Vote v)
         {
             var serializedVote = _GetSerializedVote(v);
-            var hash = _digest.ComputeHash(serializedVote);
-            var result = new List<byte>();
-            result.AddRange(BitConverter.GetBytes(1)); // version
-            result.AddRange(hash);
-            return Convert.ToBase64String(result.ToArray());
+
+            var digest = _CreateDigest();
+            var digestSize = digest.GetDigestSize();
+
+            digest.Reset();
+            digest.BlockUpdate(serializedVote, 0, serializedVote.Length);
+            var version = BitConverter.GetBytes(FormatVersion);
+            var result = new byte[digestSize + 4];
+            digest.DoFinal(result, 4);
+            Array.Copy(version, result, 4);
+            return Convert.ToBase64String(result);
         }
 
         private byte[] _GetSerializedVote(Vote vote)
         {
-            var jsonVote = new JObject();
-            jsonVote["QuestionIndex"] = vote.QuestionIndex;
-            jsonVote["Token"] = vote.Token;
-            jsonVote["SignedToken"] = vote.SignedToken;
-            jsonVote["Timestamp"] = vote.TimestampData;
-            jsonVote["PreviousBlockSignature"] = vote.PreviousBlockSignature;
+            var jsonVote = new JObject
+            {
+                ["QuestionIndex"] = vote.QuestionIndex,
+                ["Token"] = vote.Token,
+                ["SignedToken"] = vote.SignedToken,
+                ["Timestamp"] = vote.TimestampData,
+                ["PreviousBlockSignature"] = vote.PreviousBlockSignature
+            };
             var jsonAnswers = new JArray();
             foreach (var answer in vote.SelectedAnswerIds)
             {

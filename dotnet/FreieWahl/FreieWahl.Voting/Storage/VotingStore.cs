@@ -3,7 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using FreieWahl.Voting.Models;
+using Google.Api.Gax.Grpc;
 using Google.Cloud.Datastore.V1;
+using Grpc.Core;
 
 namespace FreieWahl.Voting.Storage
 {
@@ -30,7 +32,7 @@ namespace FreieWahl.Voting.Storage
             }
             var entity = ToEntity(voting);
             entity.Key = _keyFactory.CreateIncompleteKey();
-            var key = await _db.InsertAsync(entity);
+            var key = await _db.InsertAsync(entity).ConfigureAwait(false);
             voting.Id = key.Path.First().Id;
         }
 
@@ -59,6 +61,7 @@ namespace FreieWahl.Voting.Storage
         {
             var voting = await _GetVoting(votingId);
             voting.Questions = new List<Question>();
+            Console.WriteLine(votingId);
             await _db.UpdateAsync(ToEntity(voting));
         }
 
@@ -119,32 +122,19 @@ namespace FreieWahl.Voting.Storage
 
         private async Task<StandardVoting> _GetVoting(long votingId)
         {
-            var query = new Query(StoreKind)
+            var key = _keyFactory.CreateKey(votingId);
+            var result = await _db.LookupAsync(key).ConfigureAwait(false);
+            if (result == null)
             {
-                Filter = Filter.Equal("__key__", _keyFactory.CreateKey(votingId)),
-                Limit = 1
-            };
-
-            var result = await _db.RunQueryAsync(query).ConfigureAwait(false);
-            if (result.Entities.Count != 1)
-            {
-                throw new InvalidOperationException("No voting to update!");
+                throw new InvalidOperationException("No voting with id " + votingId + " was found.");
             }
 
-            var readVoting = FromEntity(result.Entities.Single());
-            return readVoting;
+            return FromEntity(result);
         }
 
-        public async Task<StandardVoting> GetById(long id)
+        public Task<StandardVoting> GetById(long id)
         {
-            var query = new Query(StoreKind)
-            {
-                Filter = Filter.Equal("__key__", _keyFactory.CreateKey(id)),
-                Limit = 1
-            };
-
-            var result = await _db.RunQueryAsync(query).ConfigureAwait(false);
-            return FromEntity(result.Entities.Single());
+            return _GetVoting(id);
         }
 
         public async Task<IEnumerable<StandardVoting>> GetForUserId(string userId)

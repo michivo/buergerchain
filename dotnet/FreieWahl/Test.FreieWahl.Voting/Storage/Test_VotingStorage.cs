@@ -15,10 +15,12 @@ namespace Test.FreieWahl.Voting.Storage
         private VotingStore _votingStore;
 
         [TestInitialize]
-        public void Init()
+        public async Task Init()
         {
             _votingStore = new VotingStore(ProjectId, VotingStore.TestNamespace);
+            await Task.Delay(500);
             _votingStore.ClearAll();
+            await Task.Delay(500);
         }
 
         [TestCleanup]
@@ -67,7 +69,7 @@ namespace Test.FreieWahl.Voting.Storage
             readVoting.Visibility = VotingVisibility.OwnerOnly;
 
             await _votingStore.Update(readVoting);
-            var updatedVoting = (await _votingStore.GetAll()).Single();
+            var updatedVoting = await _votingStore.GetById(readVoting.Id);
             
             // assert that voting was updated correctly
             Assert.AreEqual("Michael", updatedVoting.Creator); // should not have been updated!
@@ -93,7 +95,7 @@ namespace Test.FreieWahl.Voting.Storage
                 Questions = _CreateDummyQuestions()
             };
             await _votingStore.Insert(votingWritten);
-
+            await Task.Delay(1000); // to increase probability that we reached consistency
             var result = (await _votingStore.GetAll()).ToList();
             Assert.AreEqual(1, result.Count());
             var votingRead = result.Single();
@@ -227,12 +229,14 @@ namespace Test.FreieWahl.Voting.Storage
             await _votingStore.Insert(voting1);
             await _votingStore.Insert(voting2);
             await _votingStore.Insert(voting3);
+            await Task.Delay(1000); // to increase probability that we reached consistency
+
             var allVotings = (await _votingStore.GetAll()).ToList();
             Assert.AreEqual(3, allVotings.Count);
 
             // act
             _votingStore.ClearAll();
-
+            await Task.Delay(1000);
 
             // assert
             allVotings = (await _votingStore.GetAll()).ToList();
