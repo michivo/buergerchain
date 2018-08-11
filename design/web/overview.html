@@ -46,8 +46,16 @@
   ui.start('#fw-firebase-auth-container', uiConfig);
 </script>
 </head>
-<body>
-  <h2>Aktive Abstimmungen</h2>
+<body style="padding-top: 65px;">
+    <nav class="navbar navbar-dark fixed-top navbar-expand-md">
+        <a class="navbar-brand" id="fw-navtitle" href="#">
+          <img src="icons/freiewahl_mono.png" width="168" height="45" alt="Logo">
+          <span>freie<strong>wahl</strong></span>
+      </a>
+  </nav>
+  <main role="main" class="container">
+  <div class="fw-overview-list">
+  <h1>Aktive Abstimmungen</h1>
   <div class="container">
     <div class="row">
       <div class="col-xl-4 col-md-6 col-sm-12">
@@ -62,7 +70,9 @@
       </div>
     </div>
   </div>
-  <h2>Abgeschlossene Abstimmungen</h2>
+</div>
+  <div class="fw-overview-list">
+  <h1>Abgeschlossene Abstimmungen</h1>
   <div class="container">
     <div class="row">
       <div class="card" style="width: 18rem;">
@@ -83,5 +93,7 @@
       </div>
     </div>
   </div>
+</div>
+</main>
 </body>
 </html>

@@ -4,6 +4,26 @@
   margin-bottom: 2rem;
 }
 
+#fw-navtitle {
+  display: flex;
+  font-size: 32pt;
+  align-items: center;
+  font-family: Calibri, Roboto, Arial, sans-serif;
+}
+
+#fw-navtitle img {
+  margin-right: 1rem;
+}
+
+#fw-navtitle span {
+  margin-top: -1rem;
+  margin-bottom: -1rem;
+}
+
+nav.navbar-dark {
+  background-color: #657F8C;
+}
+
 div.fw-titlepage-bannercontent {
   padding: 2rem;
   display: flex;
@@ -11,16 +31,20 @@ div.fw-titlepage-bannercontent {
   justify-content: center;
 }
 
+div.fw-titlepage-bannercontent div {
+  margin-right: 1rem;
+  margin-left: 1rem;
+}
+
 @media only screen and (max-width: 1024px) {
   div.fw-titlepage-bannercontent {
     margin: auto;
     flex-direction: column;
   }
-}
 
-div.fw-titlepage-bannertext h1 {
-  font-size: 48pt;
-  font-weight: 100;
+    #fw-navtitle span {
+      display: none;
+    }
 }
 
 @media only screen and (min-width: 1024px) {
@@ -29,17 +53,19 @@ div.fw-titlepage-bannertext h1 {
   }
 }
 
-div.fw-titlepage-info {
+div.fw-titlepage-info, div.fw-overview-list {
   color: #657F8E;
 }
 
-div.fw-titlepage-box h1 {
+h1 {
+  font-family: Calibri, Roboto, Arial, sans-serif;
+  font-size: 48pt;
   text-transform: uppercase;
   width: 100%;
   border-bottom: 1px solid;
   padding-left: 1em;
   font-weight: 100;
-  clear: both;
+  color: #657F8E;
 }
 
 .clearfix::after {
@@ -79,9 +105,10 @@ div.fw-titlepage-boxtext {
 }
 
 @media only screen and (min-width: 1024px) {
-  div.fw-titlepage-info {
+  div.fw-titlepage-info, div.fw-overview-list {
     width: 80%;
     margin: 0 auto;
+    padding: 2rem 0;
   }
 }
 
