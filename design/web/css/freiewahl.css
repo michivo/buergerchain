@@ -1,7 +1,9 @@
 #fw-title-banner {
-  background-image: url('background.png');
+  background-image: url('../images/background.png');
   color: white;
   margin-bottom: 2rem;
+  display: flex;
+  justify-content: center;
 }
 
 #fw-navtitle {
@@ -9,6 +11,10 @@
   font-size: 32pt;
   align-items: center;
   font-family: Calibri, Roboto, Arial, sans-serif;
+}
+
+#fw-firebase-auth-container {
+  flex-basis: 40%;
 }
 
 #fw-navtitle img {
@@ -43,8 +49,7 @@ nav.navbar-dark {
 div.fw-titlepage-bannercontent {
   padding: 2rem;
   display: flex;
-  width: 100%;
-  justify-content: center;
+  justify-content: space-between;
 }
 
 div.fw-titlepage-bannercontent div {
@@ -56,6 +61,7 @@ div.fw-titlepage-bannercontent div {
   div.fw-titlepage-bannercontent {
     margin: auto;
     flex-direction: column;
+    width: 100%;
   }
 
     #fw-navtitle span {
@@ -63,9 +69,23 @@ div.fw-titlepage-bannercontent div {
     }
 }
 
-@media only screen and (min-width: 1024px) {
+@media only screen and (min-width: 1706px) {
+  div.fw-titlepage-bannercontent {
+      width: 60%;
+  }
+
   div.fw-titlepage-bannertext {
-    flex-basis: 25rem
+    flex-basis: 40%;
+  }
+}
+
+@media only screen and (min-width: 1024px) and (max-width: 1706px) {
+  div.fw-titlepage-bannertext {
+    flex-basis: 40%;
+  }
+
+  div.fw-titlepage-bannercontent {
+      width: 1024;
   }
 }
 
