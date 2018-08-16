@@ -54,37 +54,16 @@ namespace FreieWahl.Controllers
             var signedData = doc.SelectSingleNode("//sl:CreateCMSSignatureResponse/sl:CMSSignature", manager).InnerText;
             var data = _signatureHandler.GetSignedContent(signedData);
 
-            var jObject = JObject.Parse(data.Data);
-            var votingId = (string)jObject.GetValue("VotingId", StringComparison.OrdinalIgnoreCase);
-            var signeeId = data.SigneeId;
-            var signeeName = data.SigneeName;
-            var tokens = (JArray)jObject.GetValue("Tokens", StringComparison.OrdinalIgnoreCase);
-            var signedTokens = new List<string>();
-            var votingIdVal = long.Parse(votingId);
-            foreach (var token in tokens)
+            var votingId = data.Data;
+            long votingIdVal = long.Parse(votingId); // TODO err handling
+            await _registrationStore.AddRegistration(new Registration
             {
-                var index = (int)token["Index"];
-                var tokenValue = (string)token["Token"];
-                signedTokens.Add(await _votingTokenHandler.Sign(tokenValue, votingIdVal, index));
-            }
-
-            var registration = new Registration
-            {
-                VoterName = signeeName,
-                VotingId = long.Parse(votingId),
-                VoterIdentity = signeeId
-            };
-            await _registrationStore.AddRegistration(registration);
-
-            var regId = registration.RegistrationId.ToString(CultureInfo.InvariantCulture);
-            var regIdSigned = _signatureProvider.SignData(BitConverter.GetBytes(registration.RegistrationId));
-            var regIdSignedString = Convert.ToBase64String(regIdSigned);
-            return new JsonResult(new
-            {
-                RegistrationId = regId,
-                RegistrationIdSigned = regIdSignedString,
-                SignedTokens = signedTokens
+                VotingId = votingIdVal,
+                VoterIdentity = data.SigneeId,
+                VoterName = data.SigneeName
             });
+
+            return Ok();
         }
 
         [HttpPost]

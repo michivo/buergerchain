@@ -17,6 +17,12 @@ namespace FreieWahl.Controllers
             _votingTokenHandler = votingTokenHandler;
         }
 
+        public IActionResult Register(string votingId)
+        {
+            ViewData["VotingId"] = votingId;
+            return View();
+        }
+
         // GET: /VotingController/
         public async Task<IActionResult> SignTokens(string votingId, string[] tokens, string signature)
         {   

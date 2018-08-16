@@ -51,7 +51,7 @@
     firebase.auth().onAuthStateChanged(function (currentUser) { editVoting(currentUser); });
 
     function isEmpty(str) {
-        return (!str || 0 === str.length);
+        return (!str || 0 === str.length || str === '0');
     }
 
     function cancelEditing() {

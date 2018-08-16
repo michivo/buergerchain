@@ -14,6 +14,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using FreieWahl.Mail;
 using FreieWahl.Security.Signing.VotingTokens;
+using Microsoft.ApplicationInsights.AspNetCore.Extensions;
 
 namespace FreieWahl.Controllers
 {
@@ -125,13 +126,13 @@ namespace FreieWahl.Controllers
             return string.Empty;
         }
 
-        private int _GetId(string s)
+        private long _GetId(string s)
         {
-            int result = 0;
+            long result = 0;
             if (string.IsNullOrEmpty(s))
                 return result;
 
-            if (!int.TryParse(s, out result))
+            if (!long.TryParse(s, out result))
                 return 0;
 
             return result;
@@ -175,7 +176,7 @@ namespace FreieWahl.Controllers
 
             var voting = await _votingStore.GetById(_GetId(id)); // TODO - handle missing voting
             var question = _GetQuestion(title, desc, answers);
-            question.QuestionIndex = _GetId(qid);
+            question.QuestionIndex = (int)_GetId(qid); // TODO: is cast ok here?
             if (question.QuestionIndex == 0)
             {
                 await _votingStore.AddQuestion(voting.Id, question);
@@ -192,7 +193,7 @@ namespace FreieWahl.Controllers
             if (await _authorizationHandler.CheckAuthorization(id, Operation.UpdateQuestion, Request.Headers["Authorization"]) == false)
                 return Unauthorized();
 
-            await _votingStore.DeleteQuestion(_GetId(id), _GetId(qid));
+            await _votingStore.DeleteQuestion(_GetId(id), (int)_GetId(qid));// TODO: is cast ok here?
             return Ok(); // TODO err handling
         }
 
@@ -202,9 +203,17 @@ namespace FreieWahl.Controllers
             if (await _authorizationHandler.CheckAuthorization(votingId, Operation.Invite, Request.Headers["Authorization"]) == false)
                 return Unauthorized();
 
-            await _mailProvider.SendMail("Michael Faschinger", addresses[0], "Hello World", "This is just a -test-", 
-                new Dictionary<string, string> {{"-test-", "surprise"}});
+            await _mailProvider.SendMail("Michael Faschinger", addresses[0], "Hello World", "This is just a -test-. Feel free to register for a voting <a href=\"-votingUrl-\">here</a> or copy the url to your browser: -votingUrl-.", 
+                new Dictionary<string, string> {{"-test-", "surprise"}, {"-votingUrl-", _GetRegistrationUrl(votingId)}});
             return Ok();
+        }
+
+        private string _GetRegistrationUrl(string votingId)
+        {
+            var url = Request.GetUri();
+            var baseUrl = url.GetLeftPart(UriPartial.Authority);
+            var registrationUrl = baseUrl + "/Voting/Register?votingId=" + votingId;
+            return registrationUrl;
         }
 
         private static Question _GetQuestion(string title, string desc, string[] answers)
@@ -241,7 +250,7 @@ namespace FreieWahl.Controllers
 
         private async Task<IActionResult> _InsertVoting(string title, string desc, UserInformation user)
         {
-            if (await _authorizationHandler.CheckAuthorization(null, Operation.UpdateQuestion, Request.Headers["Authorization"]) == false)
+            if (await _authorizationHandler.CheckAuthorization(null, Operation.Create, Request.Headers["Authorization"]) == false)
                 return Unauthorized();
 
             StandardVoting voting = new StandardVoting()

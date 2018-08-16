@@ -7,7 +7,8 @@ var config = {
     messagingSenderId: "576087239560",
     projectId: "stunning-lambda-162919"
 };
-var app = firebase.initializeApp(config);
+
+var app = firebase.apps.length === 0 ? firebase.initializeApp(config) : firebase.app();
 var currentUser = null;
 
 // Firebase log-in widget

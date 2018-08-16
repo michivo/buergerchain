@@ -24,7 +24,7 @@ namespace FreieWahl.Security.Signing.Buergerkarte
         public async Task<IActionResult> SignatureDataUrl()
         {
             var response = Request.Form["XMLResponse"];
-            
+
             var doc = new XmlDocument();
             doc.LoadXml(response);
             XmlNamespaceManager manager = new XmlNamespaceManager(doc.NameTable);

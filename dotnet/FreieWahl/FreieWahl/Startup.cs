@@ -10,6 +10,7 @@ using FreieWahl.Mail;
 using FreieWahl.Mail.SendGrid;
 using FreieWahl.Security.Authentication;
 using FreieWahl.Security.Signing.Buergerkarte;
+using FreieWahl.Security.Signing.Common;
 using FreieWahl.Security.Signing.VotingTokens;
 using FreieWahl.Security.TimeStamps;
 using FreieWahl.Security.UserHandling;
@@ -80,7 +81,8 @@ namespace FreieWahl
             services.AddSingleton<IRegistrationHandler, RegistrationHandler>();
             services.AddSingleton<IAuthorizationHandler, AuthorizationHandler>();
             services.AddSingleton<IRemoteTokenStore>(p => new RemoteTokenStore(Configuration["RemoteTokenStore:Url"]));
-            services.AddSingleton<IRegistrationStore, RegistrationStore>();
+            services.AddSingleton<IRegistrationStore>(p => new RegistrationStore(Configuration["Datastore:ProjectId"]));
+            services.AddSingleton<ISignatureProvider, SignatureProvider>();
             var sp = services.BuildServiceProvider();
             services.AddSingleton<IVotingTokenHandler>(p => new VotingTokenHandler(sp.GetService<IVotingKeyStore>(),
                 int.Parse(Configuration["VotingSettings:MaxNumQuestions"])));

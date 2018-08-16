@@ -27,7 +27,7 @@ namespace FreieWahl.Application.Authentication
 
         public async Task<bool> CheckAuthorization(string votingId, Operation operation, string authToken)
         {
-            return await GetAuthorizedUser(votingId, operation, authToken).ConfigureAwait(false) == null;
+            return await GetAuthorizedUser(votingId, operation, authToken).ConfigureAwait(false) != null;
         }
 
         public async Task<UserInformation> GetAuthorizedUser(string votingId, Operation operation, string authToken)
@@ -50,6 +50,9 @@ namespace FreieWahl.Application.Authentication
             }
 
             long? idVal = string.IsNullOrEmpty(votingId) ? (long?)null : long.Parse(votingId);
+            if (idVal.HasValue && idVal.Value == 0)
+                idVal = null;
+
             var authorized = await _authManager.IsAuthorized(user.UserId, idVal, operation).ConfigureAwait(false);
             if (!authorized)
             {

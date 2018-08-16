@@ -35,7 +35,7 @@
 
 <script>
     var orig_val = $("#sigRequest").val();
-    var base64_encoded = window.btoa('@ViewData["VotingId"]');
+    var base64_encoded = window.btoa(@ViewData["VotingId"]);
     $("#sigRequest").val(orig_val.replace("TOKEN_PLACEHOLDER", base64_encoded));
     $("#buergerkarteLoader").submit();
 </script>
