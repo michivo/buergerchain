@@ -1,8 +1,10 @@
-﻿using System.Globalization;
+﻿using System;
+using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Xml;
 using FreieWahl.Application.Authentication;
+using FreieWahl.Application.Registrations;
 using FreieWahl.Common;
 using FreieWahl.Security.Signing.Buergerkarte;
 using FreieWahl.Security.Signing.Common;
@@ -20,23 +22,20 @@ namespace FreieWahl.Controllers
     {
         private readonly ISignatureHandler _signatureHandler;
         private readonly IRegistrationStore _registrationStore;
-        private readonly ISignatureProvider _signatureProvider;
-        private readonly IVotingTokenHandler _votingTokenHandler;
         private readonly IAuthorizationHandler _authHandler;
+        private readonly IRegistrationHandler _registrationHandler;
         private UserInformation _user;
 
         public RegistrationController(ILogger<RegistrationController> logger,
             ISignatureHandler signatureHandler,
             IRegistrationStore registrationStore,
-            ISignatureProvider signatureProvider,
-            IVotingTokenHandler votingTokenHandler,
-            IAuthorizationHandler authHandler)
+            IAuthorizationHandler authHandler,
+            IRegistrationHandler registrationHandler)
         {
             _signatureHandler = signatureHandler;
             _registrationStore = registrationStore;
-            _signatureProvider = signatureProvider;
-            _votingTokenHandler = votingTokenHandler;
             _authHandler = authHandler;
+            _registrationHandler = registrationHandler;
         }
 
         [HttpPost]
@@ -57,20 +56,29 @@ namespace FreieWahl.Controllers
             {
                 VotingId = votingIdVal,
                 VoterIdentity = data.SigneeId,
-                VoterName = data.SigneeName
+                VoterName = data.SigneeName,
+                RegistrationTime = DateTime.UtcNow
             });
 
             return Ok();
         }
 
         [HttpPost]
-        public async Task<IActionResult> UnlockRegistration(string votingId, string registrationId)
+        public async Task<IActionResult> GrantRegistration(string votingId, string registrationId)
         {
             if (await _authHandler.CheckAuthorization(votingId,
                     Operation.GrantRegistration, Request.Headers["Authorization"]) == false)
             {
                 return Unauthorized();
             }
+
+            var regId = registrationId.ToId();
+            if (regId == null)
+            {
+                return BadRequest();
+            }
+
+            await _registrationHandler.GrantRegistration(regId.Value, registrationId + "_" + votingId);
 
             return Ok();
         }

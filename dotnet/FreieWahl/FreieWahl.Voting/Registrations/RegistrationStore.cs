@@ -46,13 +46,14 @@ namespace FreieWahl.Voting.Registrations
                 Key = _keyFactory.CreateIncompleteKey(),
                 ["VotingId"] = registration.VotingId,
                 ["VoterId"] = registration.VoterIdentity,
-                ["VoterName"] = registration.VoterName
+                ["VoterName"] = registration.VoterName,
+                ["RegistrationTime"] = registration.RegistrationTime
             };
         }
 
         public async Task<IReadOnlyList<Registration>> GetRegistrationsForVoting(long votingId)
         {
-            Query q = new Query()
+            Query q = new Query(StoreKind)
             {
                 Filter = Filter.Equal("VotingId", votingId)
             };
@@ -76,7 +77,8 @@ namespace FreieWahl.Voting.Registrations
                 RegistrationId = entity.Key.Path.First().Id,
                 VoterIdentity = entity["VoterId"].StringValue,
                 VotingId = ((long?)entity["VotingId"]).Value,
-                VoterName = entity["VoterName"].StringValue
+                VoterName = entity["VoterName"].StringValue,
+                RegistrationTime = entity["RegistrationTime"].TimestampValue.ToDateTime()
             };
         }
 

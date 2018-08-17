@@ -30,7 +30,8 @@ namespace Test.FreieWahl.Voting.Registrations
             {
                 VoterName = "Michael Faschinger",
                 VoterIdentity = "schwurbelschwarbel",
-                VotingId = 4294967297123456789L
+                VotingId = 4294967297123456789L,
+                RegistrationTime = DateTime.UtcNow
             };
 
             await _votingStore.AddRegistration(registration);
@@ -43,6 +44,11 @@ namespace Test.FreieWahl.Voting.Registrations
             Assert.AreEqual(registration.VoterName, readRegistration.VoterName);
             Assert.AreEqual(registration.VoterIdentity, readRegistration.VoterIdentity);
             Assert.AreEqual(registration.RegistrationId, readRegistration.RegistrationId);
+            Assert.AreEqual(registration.RegistrationTime.Year, readRegistration.RegistrationTime.Year);
+            Assert.AreEqual(registration.RegistrationTime.DayOfYear, readRegistration.RegistrationTime.DayOfYear);
+            Assert.AreEqual(registration.RegistrationTime.Hour, readRegistration.RegistrationTime.Hour);
+            Assert.AreEqual(registration.RegistrationTime.Minute, readRegistration.RegistrationTime.Minute);
+            Assert.AreEqual(registration.RegistrationTime.Second, readRegistration.RegistrationTime.Second);
         }
     }
 }

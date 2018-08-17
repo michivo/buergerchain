@@ -1,4 +1,6 @@
-﻿namespace FreieWahl.Voting.Registrations
+﻿using System;
+
+namespace FreieWahl.Voting.Registrations
 {
     public class Registration
     {
@@ -9,5 +11,7 @@
         public string VoterName { get; set; }
 
         public string VoterIdentity { get; set; }
+
+        public DateTime RegistrationTime { get; set; }
     }
 }

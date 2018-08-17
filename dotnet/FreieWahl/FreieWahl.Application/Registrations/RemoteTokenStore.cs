@@ -16,7 +16,7 @@ namespace FreieWahl.Application.Registrations
 
         public async Task<string> GrantRegistration(long registrationId, string signedChallengeString)
         {
-            var request = WebRequest.CreateHttp(_remoteUrl);
+            var request = WebRequest.CreateHttp(_remoteUrl + "/Grant");
             request.ContentType = "application/json";
             request.Method = WebRequestMethods.Http.Post;
 

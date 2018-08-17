@@ -109,22 +109,23 @@
             var item = '<div class="card"><div class="card-body">' +
                 ' <p class="card-text">' +
                 '  <i class="material-icons">check_circle</i>' +
-                registration.VoterName +
+                registration.voterName +
                 '</p>';
             item +=
                 ' <a class="btn btn-primary text-light mr-5" href="../Registrations/GrantRegistration?rid=' +
-                registration.RegistrationId + '><i class="material-icons align-top mr-3">edit</i>*** Grant</a>';
+                registration.registrationId + '"><i class="material-icons align-top mr-3">edit</i>*** Grant</a>';
             item += '<a class="btn btn-primary text-light" onclick="deleteQuestion(\''
-                + registration.RegistrationId + '\')"><i class="material-icons align-top mr-3">delete</i>*** Deny</a></div>';
+                + registration.registrationId + '\')"><i class="material-icons align-top mr-3">delete</i>*** Deny</a></div>';
             items.push(item);
         }
 
-        $("#votingQuestionsListContent").empty();
+        $("#registrationList").empty();
         $("<div/>",
             {
                 "class": "d-flex flex-column my-2",
                 html: items.join("\n")
-            }).appendTo("#votingQuestionsListContent");
+            }).appendTo("#registrationList");
+
     }
 
     function showVotingDetails(voting) {
@@ -148,12 +149,16 @@
 
         }
 
-        $("#registrationList").empty();
+        $("#votingQuestionsListContent").empty();
         $("<div/>",
             {
                 "class": "d-flex flex-column my-2",
                 html: items.join("\n")
-            }).appendTo("#registrationList");
+            }).appendTo("#votingQuestionsListContent");
+
+
+        $("#votingLoadProgress").hide("fast");
+        $("#votingEditView").show("fast");
     }
 
     function deleteQuestion(qid) {
