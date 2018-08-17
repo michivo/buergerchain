@@ -41,6 +41,9 @@
             <a class="btn btn-primary" href="EditQuestion?qid=0&id=@(Model.VotingId)"><i class="material-icons align-top mr-3">add</i>*** Add Question</a>
         </div>
     </div>
+    <div style="float: none" class="mt-4">
+        <div id="registrationList"></div>
+    </div>
 </div>
 
 <div>
@@ -76,11 +79,52 @@
                      beforeSend: function(xhr) {
                          xhr.setRequestHeader("Authorization", idToken);
                      },
-                     success: function(data) { showVotingDetails(data); }
+                     success: function(data) {
+                         showVotingDetails(data);
+                     }
+                     // error: todo
+                 });
+
+                 $.ajax({
+                     url: '../Registration/GetRegistrations',
+                     data: { "votingId": @Model.VotingId },
+                     type: 'GET',
+                     datatype: 'json',
+                     beforeSend: function(xhr) {
+                         xhr.setRequestHeader("Authorization", idToken);
+                     },
+                     success: function(data) {
+                         showRegistrations(data);
+                     }
                      // error: todo
                  });
              });
          }
+    }
+
+    function showRegistrations(registrations) {
+        var items = [];
+        for (var i = 0; i < registrations.length; i++) {
+            var registration = registrations[i];
+            var item = '<div class="card"><div class="card-body">' +
+                ' <p class="card-text">' +
+                '  <i class="material-icons">check_circle</i>' +
+                registration.VoterName +
+                '</p>';
+            item +=
+                ' <a class="btn btn-primary text-light mr-5" href="../Registrations/GrantRegistration?rid=' +
+                registration.RegistrationId + '><i class="material-icons align-top mr-3">edit</i>*** Grant</a>';
+            item += '<a class="btn btn-primary text-light" onclick="deleteQuestion(\''
+                + registration.RegistrationId + '\')"><i class="material-icons align-top mr-3">delete</i>*** Deny</a></div>';
+            items.push(item);
+        }
+
+        $("#votingQuestionsListContent").empty();
+        $("<div/>",
+            {
+                "class": "d-flex flex-column my-2",
+                html: items.join("\n")
+            }).appendTo("#votingQuestionsListContent");
     }
 
     function showVotingDetails(voting) {
@@ -104,15 +148,12 @@
 
         }
 
-        $("#votingQuestionsListContent").empty();
+        $("#registrationList").empty();
         $("<div/>",
             {
                 "class": "d-flex flex-column my-2",
                 html: items.join("\n")
-            }).appendTo("#votingQuestionsListContent");
-
-        $("#votingLoadProgress").hide("fast");
-        $("#votingEditView").show("fast");
+            }).appendTo("#registrationList");
     }
 
     function deleteQuestion(qid) {

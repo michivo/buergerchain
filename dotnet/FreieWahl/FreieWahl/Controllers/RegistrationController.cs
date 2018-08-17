@@ -1,11 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Globalization;
-using System.Text;
+﻿using System.Globalization;
+using System.Linq;
 using System.Threading.Tasks;
 using System.Xml;
 using FreieWahl.Application.Authentication;
-using FreieWahl.Security.Authentication;
+using FreieWahl.Common;
 using FreieWahl.Security.Signing.Buergerkarte;
 using FreieWahl.Security.Signing.Common;
 using FreieWahl.Security.Signing.VotingTokens;
@@ -13,7 +11,6 @@ using FreieWahl.Security.UserHandling;
 using FreieWahl.Voting.Registrations;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
-using Newtonsoft.Json.Linq;
 
 // For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -77,5 +74,34 @@ namespace FreieWahl.Controllers
 
             return Ok();
         }
+
+        public async Task<IActionResult> GetRegistrations(string votingId)
+        {
+            if (await _authHandler.CheckAuthorization(votingId,
+                    Operation.GrantRegistration, Request.Headers["Authorization"]) == false)
+            {
+                return Unauthorized();
+            }
+
+            var votingIdVal = votingId.ToId();
+            if (votingIdVal == null)
+            {
+                return BadRequest("Invalid voting id");
+            }
+
+            var registrations = await _registrationStore.GetRegistrationsForVoting(votingIdVal.Value);
+            var result = registrations.Select(x =>
+                new
+                {
+                    x.VoterName,
+                    x.VoterIdentity,
+                    RegistrationId = x.RegistrationId.ToString(CultureInfo.InvariantCulture)
+                }
+            ).ToArray();
+
+            return new JsonResult(result);
+        }
+
+
     }
 }

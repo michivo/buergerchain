@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Google.Cloud.Datastore.V1;
 
@@ -32,33 +33,44 @@ namespace FreieWahl.Voting.Registrations
                 await _db.DeleteAsync(results.Entities);
             }
 
-            var entity = new Entity()
-                {
-                    Key = _keyFactory.CreateIncompleteKey(),
-                    ["VotingId"] = registration.VotingId,
-                    ["VoterId"] = registration.VoterIdentity,
-                    ["VoterName"] = registration.VoterName
-                };
+            var entity = _MapToEntity(registration);
 
             var key = await _db.InsertAsync(entity).ConfigureAwait(false);
             registration.RegistrationId = key.Path.First().Id;
         }
 
-        public async Task<Registration> GetRegistration(long id)
+        private Entity _MapToEntity(Registration registration)
         {
-            Query q = new Query(StoreKind)
+            return new Entity()
             {
-                Filter = Filter.Equal("__key__", _keyFactory.CreateKey(id)),
-                Limit = 1
+                Key = _keyFactory.CreateIncompleteKey(),
+                ["VotingId"] = registration.VotingId,
+                ["VoterId"] = registration.VoterIdentity,
+                ["VoterName"] = registration.VoterName
+            };
+        }
+
+        public async Task<IReadOnlyList<Registration>> GetRegistrationsForVoting(long votingId)
+        {
+            Query q = new Query()
+            {
+                Filter = Filter.Equal("VotingId", votingId)
             };
 
             var results = await _db.RunQueryAsync(q);
-            if (results.Entities.Count == 0)
-            {
-                return null;
-            }
 
-            var entity = results.Entities.Single();
+            return new List<Registration>(results.Entities.Select(_FromEntity));
+        }
+
+        public async Task<Registration> GetRegistration(long id)
+        {
+            var entity = await _db.LookupAsync(_keyFactory.CreateKey(id));
+
+            return _FromEntity(entity);
+        }
+
+        private static Registration _FromEntity(Entity entity)
+        {
             return new Registration
             {
                 RegistrationId = entity.Key.Path.First().Id,
@@ -68,22 +80,9 @@ namespace FreieWahl.Voting.Registrations
             };
         }
 
-        public async Task RemoveRegistration(long id)
+        public Task RemoveRegistration(long id)
         {
-            Query q = new Query(StoreKind)
-            {
-                Filter = Filter.Equal("__key__", _keyFactory.CreateKey(id)),
-                Limit = 1
-            };
-
-            var results = await _db.RunQueryAsync(q);
-            if (results.Entities.Count == 0)
-            {
-                return;
-            }
-
-            var entity = results.Entities.Single();
-            await _db.DeleteAsync(entity).ConfigureAwait(false);
+            return _db.DeleteAsync(_keyFactory.CreateKey(id));
         }
     }
 }

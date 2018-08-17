@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace FreieWahl.Voting.Registrations
 {
@@ -9,5 +10,6 @@ namespace FreieWahl.Voting.Registrations
         Task<Registration> GetRegistration(long id);
 
         Task RemoveRegistration(long id);
+        Task<IReadOnlyList<Registration>> GetRegistrationsForVoting(long votingId);
     }
 }
