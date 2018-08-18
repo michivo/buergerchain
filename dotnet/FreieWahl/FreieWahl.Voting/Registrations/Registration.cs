@@ -13,5 +13,7 @@ namespace FreieWahl.Voting.Registrations
         public string VoterIdentity { get; set; }
 
         public DateTime RegistrationTime { get; set; }
+
+        public string EMailAdress { get; set; }
     }
 }

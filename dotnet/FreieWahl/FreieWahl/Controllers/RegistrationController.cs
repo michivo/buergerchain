@@ -25,6 +25,7 @@ namespace FreieWahl.Controllers
         private readonly IAuthorizationHandler _authHandler;
         private readonly IRegistrationHandler _registrationHandler;
         private UserInformation _user;
+        private static char _tokenFieldSeparator = '_';
 
         public RegistrationController(ILogger<RegistrationController> logger,
             ISignatureHandler signatureHandler,
@@ -50,14 +51,25 @@ namespace FreieWahl.Controllers
             var signedData = doc.SelectSingleNode("//sl:CreateCMSSignatureResponse/sl:CMSSignature", manager).InnerText;
             var data = _signatureHandler.GetSignedContent(signedData);
 
-            var votingId = data.Data;
-            long votingIdVal = long.Parse(votingId); // TODO err handling
+            var dataContent = data.Data;
+            var separatorIdx = dataContent.IndexOf(_tokenFieldSeparator);
+            if (separatorIdx < 1 || separatorIdx >= dataContent.Length - 1)
+                return BadRequest();
+
+            var votingIdPart = dataContent.Substring(0, separatorIdx);
+            var votingId = votingIdPart.ToId();
+            if (votingId == null)
+                return BadRequest();
+
+            var mail = dataContent.Substring(separatorIdx + 1);
+
             await _registrationStore.AddRegistration(new Registration
             {
-                VotingId = votingIdVal,
+                VotingId = votingId.Value,
                 VoterIdentity = data.SigneeId,
                 VoterName = data.SigneeName,
-                RegistrationTime = DateTime.UtcNow
+                RegistrationTime = DateTime.UtcNow,
+                EMailAdress = mail
             });
 
             return Ok();

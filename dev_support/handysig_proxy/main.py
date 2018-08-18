@@ -29,18 +29,19 @@ class MainPage(webapp2.RequestHandler):
     def get(self):
         logging.info('hello hey ho')
         self.response.headers['Content-Type'] = 'text/plain'
-        self.response.write('Hello, World! This is Python! Version 1.3')
+        self.response.write('Hello, World! This is Python! Version 1.3, proxy version 5')
 
 class SignatureDataUrl(webapp2.RequestHandler):
    def get(self):
         self.response.headers['Content-Type'] = 'text/plain'
-        self.response.write('Hello, World! This is the proxy!')
+        self.response.write('Well done mate, well done!')
    def post(self):
        payload = (('XMLResponse', self.request.get('XMLResponse')), ('ResponseType', self.request.get('ResponseType')))
        logging.info(self.request.get('XMLResponse'))
        r = requests.post(remoteUrl, data=payload)
        logging.info(r)
-       self.response.write("Thank you for the signature!")
+       self.response.headers['Content-Type'] = 'text/html'
+       self.response.write('<!DOCTYPE html><html><head><script>window.top.location.href = "../VotingAdministration/Overview";</script></head></html>')
 
 
 app = webapp2.WSGIApplication([

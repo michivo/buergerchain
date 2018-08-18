@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Threading.Tasks;
 using Google.Cloud.Datastore.V1;
+using Google.Protobuf.WellKnownTypes;
 
 namespace FreieWahl.Voting.Registrations
 {
@@ -47,7 +48,8 @@ namespace FreieWahl.Voting.Registrations
                 ["VotingId"] = registration.VotingId,
                 ["VoterId"] = registration.VoterIdentity,
                 ["VoterName"] = registration.VoterName,
-                ["RegistrationTime"] = registration.RegistrationTime
+                ["RegistrationTime"] = Timestamp.FromDateTime(registration.RegistrationTime),
+                ["Mail"] = registration.EMailAdress
             };
         }
 
@@ -78,7 +80,8 @@ namespace FreieWahl.Voting.Registrations
                 VoterIdentity = entity["VoterId"].StringValue,
                 VotingId = ((long?)entity["VotingId"]).Value,
                 VoterName = entity["VoterName"].StringValue,
-                RegistrationTime = entity["RegistrationTime"].TimestampValue.ToDateTime()
+                RegistrationTime = entity["RegistrationTime"].TimestampValue.ToDateTime(),
+                EMailAdress = entity["Mail"].StringValue
             };
         }
 

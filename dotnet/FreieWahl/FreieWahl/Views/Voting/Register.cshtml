@@ -18,8 +18,6 @@
         </sl:DataObject>
     </sl:CreateCMSSignatureRequest>" />
 
-
-
     <input type="hidden" name="appletheight" value="250" />
     <input type="hidden" name="appletwidth" value="250" />
 
@@ -27,15 +25,15 @@
     <input type="hidden" name="DataURL" value="https://groovy-cider-826.appspot.com/HandySignatur" />
 
     <!-- Submit Button -->
-    <input type="submit" value="Test Request">
+    <input type="submit" value="Test Request" />
 
 </form>
 
-<iframe name="signatureFrame" id="signatureFrame" width="250px" height="250px" src="www.google.at" scrolling="no"></iframe>
+<iframe name="signatureFrame" id="signatureFrame" width="250px" height="250px" scrolling="no"></iframe>
 
 <script>
     var orig_val = $("#sigRequest").val();
-    var base64_encoded = window.btoa(@ViewData["VotingId"]);
+    var base64_encoded = window.btoa(@ViewData["VotingId"] + '_michfasch@gmx.at');
     $("#sigRequest").val(orig_val.replace("TOKEN_PLACEHOLDER", base64_encoded));
     $("#buergerkarteLoader").submit();
 </script>
