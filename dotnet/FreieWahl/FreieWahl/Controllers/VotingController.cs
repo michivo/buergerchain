@@ -21,7 +21,7 @@ namespace FreieWahl.Controllers
         public IActionResult Register(string votingId)
         {
             ViewData["VotingId"] = votingId;
-            ViewData["RegistrationUid"] = Guid.NewGuid().ToString("D");
+            ViewData["RegistrationStoreId"] = Guid.NewGuid().ToString("D");
             return View();
         }
 

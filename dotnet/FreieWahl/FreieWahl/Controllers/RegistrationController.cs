@@ -7,14 +7,9 @@ using FreieWahl.Application.Authentication;
 using FreieWahl.Application.Registrations;
 using FreieWahl.Common;
 using FreieWahl.Security.Signing.Buergerkarte;
-using FreieWahl.Security.Signing.Common;
-using FreieWahl.Security.Signing.VotingTokens;
-using FreieWahl.Security.UserHandling;
 using FreieWahl.Voting.Registrations;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
-
-// For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
 namespace FreieWahl.Controllers
 {
@@ -24,8 +19,9 @@ namespace FreieWahl.Controllers
         private readonly IRegistrationStore _registrationStore;
         private readonly IAuthorizationHandler _authHandler;
         private readonly IRegistrationHandler _registrationHandler;
-        private UserInformation _user;
         private static char _tokenFieldSeparator = '_';
+        private static int _readRetryCount = 3;
+        private static int _readRetryDelayMs = 500;
 
         public RegistrationController(ILogger<RegistrationController> logger,
             ISignatureHandler signatureHandler,
@@ -69,6 +65,7 @@ namespace FreieWahl.Controllers
                 VoterIdentity = data.SigneeId,
                 VoterName = data.SigneeName,
                 RegistrationTime = DateTime.UtcNow,
+                RegistrationStoreId = regUid,
                 EMailAdress = mail
             });
 
@@ -77,7 +74,7 @@ namespace FreieWahl.Controllers
 
         public IActionResult RegistrationDetails(string regUid)
         {
-            ViewData["RegistrationUid"] = regUid;
+            ViewData["RegistrationStoreId"] = regUid;
             return View();
         }
 

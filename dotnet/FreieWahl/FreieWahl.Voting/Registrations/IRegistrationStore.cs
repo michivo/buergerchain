@@ -10,6 +10,9 @@ namespace FreieWahl.Voting.Registrations
         Task<Registration> GetRegistration(long id);
 
         Task RemoveRegistration(long id);
+
         Task<IReadOnlyList<Registration>> GetRegistrationsForVoting(long votingId);
+
+        Task<Registration> GetRegistration(string registrationStoreId);
     }
 }

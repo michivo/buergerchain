@@ -49,7 +49,8 @@ namespace FreieWahl.Voting.Registrations
                 ["VoterId"] = registration.VoterIdentity,
                 ["VoterName"] = registration.VoterName,
                 ["RegistrationTime"] = Timestamp.FromDateTime(registration.RegistrationTime),
-                ["Mail"] = registration.EMailAdress
+                ["Mail"] = registration.EMailAdress,
+                ["RegistrationStoreId"] = registration.RegistrationStoreId
             };
         }
 
@@ -63,6 +64,23 @@ namespace FreieWahl.Voting.Registrations
             var results = await _db.RunQueryAsync(q);
 
             return new List<Registration>(results.Entities.Select(_FromEntity));
+        }
+
+        public async Task<Registration> GetRegistration(string registrationStoreId)
+        {
+            Query q = new Query(StoreKind)
+            {
+                Filter = Filter.Equal("RegistrationStoreId", registrationStoreId),
+                Limit = 1
+            };
+
+            var results = await _db.RunQueryAsync(q);
+            if (results.Entities.Count == 0)
+            {
+                return null;
+            }
+
+            return _FromEntity(results.Entities.Single());
         }
 
         public async Task<Registration> GetRegistration(long id)
@@ -81,7 +99,8 @@ namespace FreieWahl.Voting.Registrations
                 VotingId = ((long?)entity["VotingId"]).Value,
                 VoterName = entity["VoterName"].StringValue,
                 RegistrationTime = entity["RegistrationTime"].TimestampValue.ToDateTime(),
-                EMailAdress = entity["Mail"].StringValue
+                EMailAdress = entity["Mail"].StringValue,
+                RegistrationStoreId = entity["RegistrationStoreId"].StringValue
             };
         }
 
