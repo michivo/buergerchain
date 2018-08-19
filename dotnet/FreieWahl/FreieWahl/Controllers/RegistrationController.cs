@@ -40,7 +40,7 @@ namespace FreieWahl.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Register()
+        public async Task<IActionResult> Register(string regUid)
         {
             var response = Request.Form["XMLResponse"];
 
@@ -72,7 +72,13 @@ namespace FreieWahl.Controllers
                 EMailAdress = mail
             });
 
-            return Ok();
+            return Ok(votingIdPart);
+        }
+
+        public IActionResult RegistrationDetails(string regUid)
+        {
+            ViewData["RegistrationUid"] = regUid;
+            return View();
         }
 
         [HttpPost]

@@ -1,4 +1,5 @@
 {
   "localUrl": "/BuergerkarteSigning/SignatureDataUrl",
+  "redirectUrl": "http://localhost:61878/Registration/RegistrationDetails",
   "remoteUrl": "http://localhost:61878/Registration/Register"
 }

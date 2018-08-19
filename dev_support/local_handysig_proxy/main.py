@@ -24,6 +24,7 @@ json_data=open('config.json').read()
 data = json.loads(json_data)
 localUrl = data['localUrl']
 remoteUrl = data['remoteUrl']
+redirectUrl = data['redirectUrl']
 
 logging.info('Hello world, hi there!')
 print('hello console!')
@@ -36,15 +37,20 @@ class MainPage(webapp2.RequestHandler):
 
 class SignatureDataUrl(webapp2.RequestHandler):
    def get(self):
-        self.response.headers['Content-Type'] = 'text/plain'
-        self.response.write('Hello, World! This is the proxy!')
+       self.response.headers['Content-Type'] = 'text/html'
+       name = self.request.get('name')
+       respContent = '<!DOCTYPE html><html><head><script>window.top.location.href = "' + redirectUrl + '?name=' + name + '";</script></head></html>'
+       self.response.write(respContent)
    def post(self):
        logging.info('forwarding to ')
        logging.info(remoteUrl)
+
        payload = (('XMLResponse', self.request.get('XMLResponse')), ('ResponseType', self.request.get('ResponseType')))
-       r = requests.post(remoteUrl, data=payload)
-       logging.info(r)
-       self.response.write("Thank you for your signature!")
+       queryParams = {'name': self.requests.get('name')}
+       r = requests.post(remoteUrl, data=payload, params=queryParams)
+       self.response.headers['Content-Type'] = 'text/html'
+       respContent = '<!DOCTYPE html><html><head><script>window.top.location.href = "' + redirectUrl + '?name=' + name + '";</script></head></html>'
+       self.response.write(respContent)
 
 
 app = webapp2.WSGIApplication([

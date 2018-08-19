@@ -24,12 +24,15 @@ json_data=open('config.json').read()
 data = json.loads(json_data)
 localUrl = data['localUrl']
 remoteUrl = data['remoteUrl']
+redirectUrl = data['redirectUrl']
 
 class MainPage(webapp2.RequestHandler):
     def get(self):
+        for parkey in iter(self.request.POST):
+            print parkey + " " + self.request.get(parkey)
         logging.info('hello hey ho')
         self.response.headers['Content-Type'] = 'text/plain'
-        self.response.write('Hello, World! This is Python! Version 1.3, proxy version 5')
+        self.response.write('Hello, World! This is Python! Version 1.3, proxy version 12')
 
 class SignatureDataUrl(webapp2.RequestHandler):
    def get(self):
@@ -37,11 +40,13 @@ class SignatureDataUrl(webapp2.RequestHandler):
         self.response.write('Well done mate, well done!')
    def post(self):
        payload = (('XMLResponse', self.request.get('XMLResponse')), ('ResponseType', self.request.get('ResponseType')))
+
+       regUid = self.request.get('regUid')
+       queryParams = { 'regUid': regUid }
        logging.info(self.request.get('XMLResponse'))
-       r = requests.post(remoteUrl, data=payload)
-       logging.info(r)
+       r = requests.post(remoteUrl, data=payload, params=queryParams)
        self.response.headers['Content-Type'] = 'text/html'
-       self.response.write('<!DOCTYPE html><html><head><script>window.top.location.href = "../VotingAdministration/Overview";</script></head></html>')
+       self.response.write('<!DOCTYPE html><html><head><script>window.top.location.href = "' + redirectUrl + '?regUid=' + regUid + '";</script></head></html>')
 
 
 app = webapp2.WSGIApplication([

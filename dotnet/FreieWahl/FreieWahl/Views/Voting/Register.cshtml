@@ -4,7 +4,7 @@
 <h2>@ViewData["Title"].</h2>
 <h3>@ViewData["Message"]</h3>
 
-<form target="signatureFrame" id="buergerkarteLoader" action="https://www.a-trust.at/mobile/https-security-layer-request/default.aspx" enctype="application/x-www-form-urlencoded" method="post" style="display: none;">
+<form target="signatureFrame" id="buergerkarteLoader" action="https://www.a-trust.at/mobile/https-security-layer-request/default.aspx?FWRedirectURLi=http%3A%2F%2Fwww.sehenohnegrenzen.org" enctype="application/x-www-form-urlencoded" method="post" style="display: none;">
 
     <!-- XMLRequest -->
     <input type="hidden" name="XMLRequest" id="sigRequest" value="<?xml version='1.0' encoding='UTF-8' ?>
@@ -22,7 +22,7 @@
     <input type="hidden" name="appletwidth" value="250" />
 
     <!-- DataURL -->
-    <input type="hidden" name="DataURL" value="https://groovy-cider-826.appspot.com/HandySignatur" />
+    <input type="hidden" name="DataURL" value="https://groovy-cider-826.appspot.com/HandySignatur?regUid=@ViewData["RegistrationUid"]" />
 
     <!-- Submit Button -->
     <input type="submit" value="Test Request" />

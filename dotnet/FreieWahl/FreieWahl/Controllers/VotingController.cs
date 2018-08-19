@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using FreieWahl.Security.Signing.VotingTokens;
 using Microsoft.AspNetCore.Mvc;
@@ -20,6 +21,7 @@ namespace FreieWahl.Controllers
         public IActionResult Register(string votingId)
         {
             ViewData["VotingId"] = votingId;
+            ViewData["RegistrationUid"] = Guid.NewGuid().ToString("D");
             return View();
         }
 
