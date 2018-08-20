@@ -124,6 +124,7 @@
     <Compile Include="Signing\Buergerkarte\Test_BuergerkarteSigning.cs" />
     <Compile Include="Signing\Common\Test_SignatureProvider.cs" />
     <Compile Include="Signing\VotingTokens\Test_VotingKeyStore.cs" />
+    <Compile Include="Signing\VotingTokens\Test_VotingTokenSigning.cs" />
     <Compile Include="TimeStamps\Test_TimestampService.cs" />
   </ItemGroup>
   <ItemGroup>

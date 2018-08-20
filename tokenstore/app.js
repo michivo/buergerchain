@@ -18,8 +18,8 @@
 // [START app]
 const express = require('express');
 const dbwrapper = require('./dbwrapper');
+const tokengenerator = require('./tokengenerator');
 const bodyParser = require('body-parser');
-const uuidv4 = require('uuid/v4');
 
 const app = express();
 
