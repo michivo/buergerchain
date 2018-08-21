@@ -1,10 +1,10 @@
 # Demos
 
-This folder contains some demos in the context of the blockchain or the Bürgerkarte. The following demos are available:
+This folder contains some demos in the context of the blockchain or the BÃ¼rgerkarte. The following demos are available:
 
 ## demo1_buergerkarte_signature
 
-A simple demo showing how one can sign data safely and securely using the mobile-phone-bases electronic signature using the Bürgerkarte.
+A simple demo showing how one can sign data safely and securely using the mobile-phone-bases electronic signature using the BÃ¼rgerkarte.
 
 ## demo2_simple_blockchain
 
