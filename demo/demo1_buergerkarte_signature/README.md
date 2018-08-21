@@ -1,7 +1,7 @@
 # Simple Signature Demo
 
 The purpose of this demo is to show in a very minimal example how to use the API provided
-by a-trust for digital signatures using a mobile phone as your Bürgerkarte. Some information
+by a-trust for digital signatures using a mobile phone as your BÃ¼rgerkarte. Some information
 is also provided by A-Trust in their A-Trust labs at 
 https://labs.a-trust.at/developer/Default.aspx .
 
