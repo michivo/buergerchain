@@ -19,43 +19,20 @@ function messageToHashInt(message) {
   return messageBig;
 }
 
-function blindToken(token, passwordHash) {
-  var message = messageToHashInt(token);
-  var pwdInt = new BigInteger(passwordHash, 16);
-  var bigOne = new BigInteger('1');
-  var gcd;
-  var r;
-  var rRaw;
-  do {
-      var randR = secureRandom(64);
-      rRaw = "";
-      for (var i = 0; i < 64; i++) {
-          if (randR[i] < 16)
-              rRaw += "0" + randR[i].toString(16);
-          else
-              rRaw += randR[i].toString(16);
-      }
-
-      r = new BigInteger(rRaw, 16).mod(PUBLIC_KEY_N);
-      gcd = r.gcd(PUBLIC_KEY_N);
-  } while (
-      !gcd.equals(bigOne) ||
-          r.compareTo(PUBLIC_KEY_N) >= 0 ||
-          r.compareTo(bigOne) <= 0
-  );
-  var blinded = message.multiply(r.modPow(PUBLIC_KEY_E, PUBLIC_KEY_N)).mod(PUBLIC_KEY_N);
-  r = r.xor(pwdInt);
-
-  return {
-      blinded,
-      r
-  };
+function blindToken(token) {
+  return BlindSignature.blind({
+    message: token,
+    N: PUBLIC_KEY_N,
+    E: PUBLIC_KEY_E
+  });
 }
 
 function unblindToken(message, r, passwordHash) {
-  var pwdInt = new BigInteger(passwordHash, 16);
-  r = r.xor(pwdInt);
-  return message.multiply(r.modInverse(PUBLIC_KEY_N)).mod(PUBLIC_KEY_N);
+  return BlindSignature.unblind({
+    signed: message,
+    N: PUBLIC_KEY_N,
+    r: r
+  })
 }
 
 

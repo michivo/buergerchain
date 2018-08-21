@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 using Org.BouncyCastle.Crypto;
@@ -14,11 +15,14 @@ namespace FreieWahl.Security.Signing.VotingTokens
     {
         private readonly IVotingKeyStore _keyStore;
         private readonly int _maxNumTokens;
+        private readonly SHA256Managed _digest;
 
         public VotingTokenHandler(IVotingKeyStore keyStore, int maxNumTokens)
         {
             _keyStore = keyStore;
             _maxNumTokens = maxNumTokens;
+            _digest = new SHA256Managed();
+            _digest.Initialize();
         }
 
         public async Task GenerateTokens(long votingId, int? numTokens)
@@ -51,27 +55,24 @@ namespace FreieWahl.Security.Signing.VotingTokens
 
         public async Task<string> Sign(string token, long votingId, int tokenIndex)
         {
-            var signer = SignerUtilities.GetSigner("SHA256withRSA");
             var keyPair = await _keyStore.GetKeyPair(votingId, tokenIndex);
-
-            signer.Init(true, keyPair.Private);
-            var rawToken = Encoding.UTF8.GetBytes(token);
-            signer.BlockUpdate(rawToken, 0, rawToken.Length);
-            var signedData = signer.GenerateSignature();
-            var result = new BigInteger(signedData);
-            return result.ToString(16);
+            var privateKey = (RsaPrivateCrtKeyParameters) keyPair.Private;
+            BigInteger tokenInt = new BigInteger(token, 16);
+            var signed = tokenInt.ModPow(privateKey.Exponent, privateKey.Modulus);
+            return signed.ToString(16);
         }
+
+
 
         public async Task<bool> Verify(string signature, string origMessage, long votingId, int tokenIndex)
         {
-            var verifier = SignerUtilities.GetSigner("SHA256withRSA");
             var keyPair = await _keyStore.GetKeyPair(votingId, tokenIndex);
-            verifier.Init(false, keyPair.Public);
-            var sigRaw = new BigInteger(signature, 16);
-            var sigRawData = sigRaw.ToByteArray();
-            var messageRaw = Encoding.UTF8.GetBytes(origMessage);
-            verifier.BlockUpdate(messageRaw, 0, messageRaw.Length);
-            return verifier.VerifySignature(sigRawData);
+            var sigInt = new BigInteger(signature, 16);
+            var publicKey = (RsaKeyParameters) keyPair.Public;
+
+            var messageHash = new BigInteger(_digest.ComputeHash(Encoding.UTF8.GetBytes(origMessage)));
+            var sigIntVerification = sigInt.ModPow(publicKey.Exponent, publicKey.Modulus);
+            return Equals(messageHash, sigIntVerification);
         }
     }
 }
