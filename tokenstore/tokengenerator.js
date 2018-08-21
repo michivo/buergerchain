@@ -19,15 +19,19 @@ function messageToHashInt(message) {
   return messageBig;
 }
 
-function blindToken(token) {
-  return BlindSignature.blind({
+function blindToken(token, password) {
+  var result = BlindSignature.blind({
     message: token,
     N: PUBLIC_KEY_N,
     E: PUBLIC_KEY_E
   });
+
+  result.r = result.r.xor(messageToHashInt(password));
+  return result;
 }
 
-function unblindToken(message, r, passwordHash) {
+function unblindToken(message, r, password) {
+  r = r.xor(messageToHashInt(password));
   return BlindSignature.unblind({
     signed: message,
     N: PUBLIC_KEY_N,
