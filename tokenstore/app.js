@@ -50,6 +50,14 @@ app.post('/registerTokens', (req, res) => {
   });
 });
 
+app.post('/saveRegistrationDetails', (req, res) => {
+  var registrationId = req.body.id;
+  var votingId = req.body.password;
+  var email = req.body.mail;
+  console.log('saving registration details: ' + email);
+  res.status(200).send("OK!").end;
+});
+
 // Start the server
 const PORT = process.env.PORT || 8082;
 app.listen(PORT, () => {

@@ -20,8 +20,6 @@ namespace FreieWahl.Controllers
         private readonly IAuthorizationHandler _authHandler;
         private readonly IRegistrationHandler _registrationHandler;
         private static char _tokenFieldSeparator = '_';
-        private static int _readRetryCount = 3;
-        private static int _readRetryDelayMs = 500;
 
         public RegistrationController(ILogger<RegistrationController> logger,
             ISignatureHandler signatureHandler,
@@ -75,6 +73,7 @@ namespace FreieWahl.Controllers
         public IActionResult RegistrationDetails(string regUid)
         {
             ViewData["RegistrationStoreId"] = regUid;
+            ViewData["RegistrationStoreSaveRegUrl"] = "http://localhost:8082/saveRegistrationDetails";
             return View();
         }
 

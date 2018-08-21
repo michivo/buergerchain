@@ -1,2 +1,47 @@
 ﻿<h2>RegistrationDetails</h2>
 
+<div id="detailsInput">
+    <div class="form-group">
+        <label for="inputEmail">Email address</label>
+        <input type="email" class="form-control" id="inputEmail" aria-describedby="emailHelp" placeholder="Enter email">
+        <small id="emailHelp" class="form-text text-muted">Wir geben deine E-Mail-Adresse niemals weiter.</small>
+    </div>
+    <div class="form-group">
+        <label for="inputPassword">Password</label>
+        <input type="password" class="form-control" id="inputPassword" placeholder="Password">
+        <small id="passwordHelp" class="form-text text-muted">Vergiss dein Passwort nicht! Es kann nicht zurückgesetzt werden.</small>
+    </div>
+    <button class="btn btn-primary" onclick="saveRegistration()">Registrierung abschließen</button>
+</div>
+
+<div id="registrationSuccess" style="display: none">
+    Die Registrierung wurde erfolgreich abgeschlossen. Sie bekommen eine Mail, sobald Sie für die Wahl freigeschaltet wurden.
+</div>
+
+<script>
+    function saveRegistration() {
+        var mail = $('#inputEmail').val();
+        var pwd = $('#inputPassword').val();
+        $('#inputEmail').disabled = true;
+        $('#inputPassword').disabled = true;
+
+        $.ajax({
+            url: '@ViewData["RegistrationStoreSaveRegUrl"]',
+            data: { "id": '@ViewData["RegistrationStoreId"]', "mail": mail, "password": pwd },
+            type: 'POST',
+            datatype: 'json',
+            success: function(x) {
+                showRegistrationSuccess();
+            },
+            error: function(x) {
+                showRegistrationSuccess();
+            }
+            // error: todo
+        });
+    }
+
+    function showRegistrationSuccess() {
+        $('#detailsInput').hide();
+        $('#registrationSuccess').show();
+    }
+</script>
