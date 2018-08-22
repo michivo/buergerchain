@@ -70,10 +70,11 @@ namespace FreieWahl.Controllers
             return Ok(votingIdPart);
         }
 
-        public IActionResult RegistrationDetails(string regUid)
+        public IActionResult RegistrationDetails(string regUid, string votingId)
         {
             ViewData["RegistrationStoreId"] = regUid;
-            ViewData["RegistrationStoreSaveRegUrl"] = "http://localhost:8082/saveRegistrationDetails";
+            ViewData["VotingId"] = votingId;
+            ViewData["RegistrationStoreSaveRegUrl"] = "https://tokenstore-210111.appspot.com/saveRegistrationDetails";
             return View();
         }
 

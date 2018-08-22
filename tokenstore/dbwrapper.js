@@ -9,13 +9,13 @@ function hello() {
     return "hello dbwrapper!";
 }
 
-async function addRegisteredTokens(registrationId, votingId, email, tokens) {
+async function addRegisteredTokens(registrationId, email, tokens, blindingFactors) {
     const newRegistration = {
         timestamp: new Date(),
         registrationId: registrationId,
-        votingId: votingId,
         email: email,
-        tokens: tokens
+        tokens: tokens,
+        blindingFactors: blindingFactors
     };
     await datastore.save({
         key: datastore.key(TABLE_REGISTRATIONS),
@@ -63,7 +63,6 @@ function getToken(votingId, voterId, index) {
 
 function unlockVoter(registrationId, votingId, voterId) {
     const query = datastore.createQuery(TABLE_REGISTRATIONS)
-        .filter('votingId', '=', votingId)
         .filter('registrationId', '=', registrationId);
 
     return datastore.runQuery(query).then(async (results) => {
@@ -72,7 +71,7 @@ function unlockVoter(registrationId, votingId, voterId) {
             // TODO error
         }
 
-        var tokens = queryResult[0].tokens.map(x => mapToken(x, voterId, votingId));
+        var tokens = queryResult[0].tokens.map(x => mapToken(x));
 
         await datastore.save(tokens);
         // TODO error handling, api response stuff
@@ -85,9 +84,7 @@ function mapToken(origToken, voterId, votingId) {
         data: {
             index: origToken.index,
             tokenId: origToken.tokenId,
-            blindingFactor: origToken.blindingFactor,
-            voterId: voterId,
-            votingId: votingId
+            blindingFactor: origToken.blindingFactor
         }
     };
 }

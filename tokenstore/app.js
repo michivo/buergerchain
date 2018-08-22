@@ -20,15 +20,34 @@ const express = require('express');
 const dbwrapper = require('./dbwrapper');
 const tokengenerator = require('./tokengenerator');
 const bodyParser = require('body-parser');
+const config = require('./config.json');
+// Imports the Google Cloud client library
+const Logging = require('@google-cloud/logging');
+
+// Your Google Cloud Platform project ID
+const projectId = config.GCLOUD_PROJECT;
+
+// Creates a client
+const logging = new Logging({
+  projectId: projectId,
+});
+
+const logName = 'main-app';
+const log = logging.log(logName);
+const logResource = {
+  type: 'global',
+};
 
 const app = express();
 
 app.use(bodyParser.json()); // support json encoded bodies
 app.use(bodyParser.urlencoded({ extended: true })); // support encoded bodies
 
+const TOKEN_COUNT = config.TOKEN_COUNT;
+
 app.get('/', (req, res) => {
   console.log('received request, sending response');
-  var result = '<html><head><title>Hello</title></head><body><form action="/foo" method="post"><input type="submit" value="foo" /></form>';
+  var result = '<html><head><title>Hello</title></head><body><form action="/foo" method="post"><input type="submit" value="foo" /></form>Version 3</body></html>';
   res.status(200).send(result).end();
 });
 
@@ -52,10 +71,22 @@ app.post('/registerTokens', (req, res) => {
 
 app.post('/saveRegistrationDetails', (req, res) => {
   var registrationId = req.body.id;
-  var votingId = req.body.password;
   var email = req.body.mail;
-  console.log('saving registration details: ' + email);
-  res.status(200).send("OK!").end;
+  var password = req.body.password;
+  var i;
+  var tokens = [];
+  var blindingFactors = [];
+  for(i = 0; i < TOKEN_COUNT; i++) {
+    var token = tokengenerator.generateToken();
+    var blindedToken = tokengenerator.blindToken(token, password);
+    blindingFactors[i] = blindedToken.r;
+    tokens[i] = blindedToken.blinded;
+  }
+  log.entry({resource: logResource}, 'Saving Registration details for registration with id' + registrationId);
+  dbwrapper.registerTokens(registrationId, email, tokens, blindingFactors)
+    .then(() => {
+      res.status(200).send("OK!").end;
+  });
 });
 
 // Start the server
