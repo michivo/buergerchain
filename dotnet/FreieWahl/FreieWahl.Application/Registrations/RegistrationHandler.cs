@@ -22,11 +22,13 @@ namespace FreieWahl.Application.Registrations
             _remoteTokenStore = remoteTokenStore;
         }
 
-        public async Task GrantRegistration(long registrationId, string challenge)
+        public async Task GrantRegistration(long registrationId)
         {
+            var registration = await _store.GetRegistration(registrationId);
+            var challenge = await _remoteTokenStore.GetChallenge(registration.RegistrationStoreId);
             var signedChallenge = _signatureProvider.SignData(Encoding.UTF8.GetBytes(challenge));
             var signedChallengeString = Convert.ToBase64String(signedChallenge);
-            await _remoteTokenStore.GrantRegistration(registrationId, signedChallengeString);
+            await _remoteTokenStore.GrantRegistration(registration.RegistrationStoreId, signedChallengeString);
             await _store.RemoveRegistration(registrationId);
         }
 

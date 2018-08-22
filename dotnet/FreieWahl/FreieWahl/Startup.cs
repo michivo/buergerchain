@@ -63,7 +63,7 @@ namespace FreieWahl
 
             var certRaw = Convert.FromBase64String(buergerkarteRootCa5);
             X509Certificate2 cert = new X509Certificate2(certRaw);
-
+            services.AddSingleton<IConfiguration>(Configuration);
             services.AddSingleton<IJwtAuthentication, FirebaseJwtAuthentication>();
             services.AddSingleton<IUserHandler, UserHandler>();
             services.AddSingleton<ITimestampService>(p =>

@@ -21,6 +21,9 @@ const dbwrapper = require('./dbwrapper');
 const tokengenerator = require('./tokengenerator');
 const bodyParser = require('body-parser');
 const config = require('./config.json');
+const uuidv4 = require('uuid/v4');
+const NodeRSA = require('node-rsa');
+
 // Imports the Google Cloud client library
 const Logging = require('@google-cloud/logging');
 
@@ -40,6 +43,8 @@ const logResource = {
 
 const app = express();
 
+const rsaVerifier = new NodeRSA(config.FREIEWAHL_PUBLICKEY_CHALLENGE_PEM);
+
 app.use(bodyParser.json()); // support json encoded bodies
 app.use(bodyParser.urlencoded({ extended: true })); // support encoded bodies
 
@@ -47,7 +52,7 @@ const TOKEN_COUNT = config.TOKEN_COUNT;
 
 app.get('/', (req, res) => {
   console.log('received request, sending response');
-  var result = '<html><head><title>Hello</title></head><body><form action="/foo" method="post"><input type="submit" value="foo" /></form>Version 3</body></html>';
+  var result = '<html><head><title>Hello</title></head><body><form action="/foo" method="post"><input type="submit" value="foo" /></form>Version 5</body></html>';
   res.status(200).send(result).end();
 });
 
@@ -57,16 +62,30 @@ app.get('/registerTokens', (req, res) => {
   res.status(200).send(result).end();
 });
 
-app.post('/registerTokens', (req, res) => {
+app.post('/grantRegistration', async function(req, res) {
   var registrationId = req.body.registrationId;
-  var votingId = req.body.votingId;
-  var email = req.body.email;
-  var tokens = JSON.parse(req.body.tokens);
+  var challenge = await dbwrapper.getChallenge(registrationId);
 
-  dbwrapper.registerTokens(registrationId, votingId, email, tokens)
+  const challengeSignature = Buffer.from(req.body.challengeSignature, 'base64');
+  const challengeBuffer = Buffer.from(challenge);
+  var result = rsaVerifier.verify(challengeBuffer, challengeSignature);
+  if(result) {
+    log.entry({resource: logResource}, 'Successfully received signature for challenge for registration ' + registrationId);
+  }
+  else {
+    log.entry({resource: logResource}, 'Received invalid signature for challenge for registration ' + registrationId);
+  }
+
+  res.status(200).send("OK!").end;
+});
+
+app.post('/getChallenge', (req, res) => {
+  var challenge = uuidv4();
+  var date = Date.now();
+  dbwrapper.setChallenge(req.body.registrationId, challenge, date.toString())
     .then(() => {
-      res.status(200).send("OK!").end;
-  });
+      res.set('Content-Type', 'text/plain').status(200).send(challenge).end;
+    });
 });
 
 app.post('/saveRegistrationDetails', (req, res) => {

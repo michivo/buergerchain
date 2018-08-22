@@ -14,16 +14,41 @@ namespace FreieWahl.Application.Registrations
             _remoteUrl = remoteUrl;
         }
 
-        public async Task<string> GrantRegistration(long registrationId, string signedChallengeString)
+        public async Task<string> GrantRegistration(string registrationStoreId, string signedChallengeString)
         {
-            var request = WebRequest.CreateHttp(_remoteUrl + "/Grant");
+            var request = WebRequest.CreateHttp(_remoteUrl + "grantRegistration");
             request.ContentType = "application/json";
             request.Method = WebRequestMethods.Http.Post;
 
             using (var streamWriter = new StreamWriter(request.GetRequestStream()))
             {
-                string json = "{\"registrationId\":\"" + registrationId.ToString(CultureInfo.InvariantCulture) + "\"," +
-                                 "\"signedChallenge\":\"" + signedChallengeString + "\"}";
+                string json = "{\"registrationId\":\"" + registrationStoreId + "\"," +
+                                 "\"challengeSignature\":\"" + signedChallengeString + "\"}";
+
+                streamWriter.Write(json);
+                streamWriter.Flush();
+                streamWriter.Close();
+            }
+
+            var httpResponse = await request.GetResponseAsync();
+            string result;
+            using (var streamReader = new StreamReader(httpResponse.GetResponseStream()))
+            {
+                result = streamReader.ReadToEnd();
+            }
+
+            return result;
+        }
+
+        public async Task<string> GetChallenge(string registrationStoreId)
+        {
+            var request = WebRequest.CreateHttp(_remoteUrl + "getChallenge");
+            request.ContentType = "application/json";
+            request.Method = WebRequestMethods.Http.Post;
+
+            using (var streamWriter = new StreamWriter(request.GetRequestStream()))
+            {
+                string json = "{\"registrationId\":\"" + registrationStoreId + "\" }";
 
                 streamWriter.Write(json);
                 streamWriter.Flush();

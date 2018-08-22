@@ -51,6 +51,11 @@ q1BIZdVZcDIj1fF3N3qT9W1FQzTKp4+2gI/dQyAri48uyGxfkpMnWg==
             // arrange
             var pemReader = new PemReader(new StringReader(_key));
             var key = (AsymmetricCipherKeyPair) pemReader.ReadObject();
+            StringWriter sw = new StringWriter();
+            PemWriter pemWriter = new PemWriter(sw);
+            pemWriter.WriteObject(key.Public);
+            var resuklt = sw.ToString();
+            Console.WriteLine(resuklt);
             var sigProvider = new SignatureProvider(key);
 
             var data = Guid.NewGuid().ToByteArray();

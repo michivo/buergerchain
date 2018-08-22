@@ -9,6 +9,7 @@ using FreieWahl.Common;
 using FreieWahl.Security.Signing.Buergerkarte;
 using FreieWahl.Voting.Registrations;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 
 namespace FreieWahl.Controllers
@@ -20,17 +21,20 @@ namespace FreieWahl.Controllers
         private readonly IAuthorizationHandler _authHandler;
         private readonly IRegistrationHandler _registrationHandler;
         private static char _tokenFieldSeparator = '_';
+        private string _regUrl;
 
         public RegistrationController(ILogger<RegistrationController> logger,
             ISignatureHandler signatureHandler,
             IRegistrationStore registrationStore,
             IAuthorizationHandler authHandler,
-            IRegistrationHandler registrationHandler)
+            IRegistrationHandler registrationHandler,
+            IConfiguration configuration)
         {
             _signatureHandler = signatureHandler;
             _registrationStore = registrationStore;
             _authHandler = authHandler;
             _registrationHandler = registrationHandler;
+            _regUrl = configuration["RemoteTokenStore:Url"];
         }
 
         [HttpPost]
@@ -70,30 +74,32 @@ namespace FreieWahl.Controllers
             return Ok(votingIdPart);
         }
 
-        public IActionResult RegistrationDetails(string regUid, string votingId)
+        public IActionResult RegistrationDetails(string regUid)
         {
             ViewData["RegistrationStoreId"] = regUid;
-            ViewData["VotingId"] = votingId;
-            ViewData["RegistrationStoreSaveRegUrl"] = "https://tokenstore-210111.appspot.com/saveRegistrationDetails";
+            ViewData["RegistrationStoreSaveRegUrl"] = _regUrl + "saveRegistrationDetails";
             return View();
         }
 
-        [HttpPost]
-        public async Task<IActionResult> GrantRegistration(string votingId, string registrationId)
+        [HttpGet]
+        public async Task<IActionResult> GrantRegistration(string rid)
         {
-            if (await _authHandler.CheckAuthorization(votingId,
-                    Operation.GrantRegistration, Request.Headers["Authorization"]) == false)
-            {
-                return Unauthorized();
-            }
-
-            var regId = registrationId.ToId();
+            var regId = rid.ToId();
             if (regId == null)
             {
                 return BadRequest();
             }
 
-            await _registrationHandler.GrantRegistration(regId.Value, registrationId + "_" + votingId);
+            var registration = await _registrationStore.GetRegistration(regId.Value);
+            string vid = registration.VotingId.ToString(CultureInfo.InvariantCulture);
+            if (await _authHandler.CheckAuthorization(vid,
+                    Operation.GrantRegistration, Request.Headers["Authorization"]) == false)
+            {
+                return Unauthorized();
+            }
+
+
+            await _registrationHandler.GrantRegistration(regId.Value);
 
             return Ok();
         }

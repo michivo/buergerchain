@@ -4,7 +4,7 @@ namespace FreieWahl.Application.Registrations
 {
     public interface IRegistrationHandler
     {
-        Task GrantRegistration(long registrationId, string challenge);
+        Task GrantRegistration(long registrationId);
 
         Task DenyRegistration(long registrationId);
     }
