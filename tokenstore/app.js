@@ -78,9 +78,9 @@ app.post('/grantRegistration', async function(req, res) {
     log.entry({resource: logResource}, 'Received invalid signature for challenge for registration ' + registrationId);
   }
 
-  const registration = dbwrapper.getRegistration(registrationId);
+  const registration = await dbwrapper.getRegistration(registrationId);
   const voterId = uuidv4();
-  dbwrapper.insertVotingTokens(registration.votingId, voterId, request.body.tokens, registration.blindingFactors);
+  await dbwrapper.insertVotingTokens(registration.votingId, voterId, req.body.tokens, registration.blindingFactors);
   mailProvider.sendInvitation(registration.email, registration.votingId, voterId);
   res.status(200).send("OK!").end;
 });
@@ -97,10 +97,10 @@ app.post('/saveRegistrationDetails', (req, res) => {
   const registrationId = req.body.id;
   const email = req.body.mail;
   const password = req.body.password;
-  const i;
-  const tokens = [];
-  const blindingFactors = [];
-  for(i = 0; i < TOKEN_COUNT; i++) {
+
+  let tokens = [];
+  let blindingFactors = [];
+  for(let i = 0; i < TOKEN_COUNT; i++) {
     const token = tokengenerator.generateToken();
     const blindedToken = tokengenerator.blindToken(token, password);
     blindingFactors[i] = blindedToken.r;

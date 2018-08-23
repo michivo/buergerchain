@@ -98,7 +98,7 @@ function getRegistration(registrationId) {
     });
 }
 
-function insertVotingTokens(votingId, voterId, signedTokens, blindingFactors) {
+async function insertVotingTokens(votingId, voterId, signedTokens, blindingFactors) {
   const newRegistration = {
       timestamp: new Date(),
       votingId: votingId,

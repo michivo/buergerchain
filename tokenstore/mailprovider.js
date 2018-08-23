@@ -8,8 +8,12 @@ function sendInvitation(email, voterId, votingId) {
     to: email,
     from: privateConfig.MAIL_FROM,
     subject: 'Your registration to a voting was granted',
-    text: 'great! your voter id is "' + voterId '", your voting id is "' + votingId + '"';
+    text: 'great! your voter id is "' + voterId + '", your voting id is "' + votingId + '"'
   }
 
   sgMail.send(msg);
+}
+
+module.exports = {
+  sendInvitation: sendInvitation
 }
