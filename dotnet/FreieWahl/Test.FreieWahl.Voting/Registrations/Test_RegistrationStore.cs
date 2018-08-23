@@ -26,7 +26,7 @@ namespace Test.FreieWahl.Voting.Registrations
         [TestMethod]
         public async Task AddAndGet()
         {
-            var registration = new Registration
+            var registration = new OpenRegistration
             {
                 VoterName = "Michael Faschinger",
                 VoterIdentity = "schwurbelschwarbel",
@@ -34,11 +34,11 @@ namespace Test.FreieWahl.Voting.Registrations
                 RegistrationTime = DateTime.UtcNow
             };
 
-            await _votingStore.AddRegistration(registration);
+            await _votingStore.AddOpenRegistration(registration);
 
             Assert.AreNotEqual(0L, registration.RegistrationId);
 
-            var readRegistration = await _votingStore.GetRegistration(registration.RegistrationId);
+            var readRegistration = await _votingStore.GetOpenRegistration(registration.RegistrationId);
 
             Assert.AreEqual(registration.VotingId, readRegistration.VotingId);
             Assert.AreEqual(registration.VoterName, readRegistration.VoterName);

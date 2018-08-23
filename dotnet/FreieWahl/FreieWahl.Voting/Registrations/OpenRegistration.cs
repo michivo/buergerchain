@@ -2,7 +2,7 @@
 
 namespace FreieWahl.Voting.Registrations
 {
-    public class Registration
+    public class OpenRegistration
     {
         public long RegistrationId { get; set; }
 

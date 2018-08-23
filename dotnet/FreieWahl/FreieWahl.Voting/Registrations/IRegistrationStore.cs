@@ -5,14 +5,18 @@ namespace FreieWahl.Voting.Registrations
 {
     public interface IRegistrationStore
     {
-        Task AddRegistration(Registration registration);
+        Task AddOpenRegistration(OpenRegistration openRegistration);
 
-        Task<Registration> GetRegistration(long id);
+        Task AddCompletedRegistration(CompletedRegistration openRegistration);
 
-        Task RemoveRegistration(long id);
+        Task<OpenRegistration> GetOpenRegistration(long id);
 
-        Task<IReadOnlyList<Registration>> GetRegistrationsForVoting(long votingId);
+        Task RemoveOpenRegistration(long id);
 
-        Task<Registration> GetRegistration(string registrationStoreId);
+        Task<IReadOnlyList<OpenRegistration>> GetOpenRegistrationsForVoting(long votingId);
+
+        Task<OpenRegistration> GetOpenRegistration(string registrationStoreId);
+
+        Task<IReadOnlyList<CompletedRegistration>> GetCompletedRegistrations(long votingId);
     }
 }

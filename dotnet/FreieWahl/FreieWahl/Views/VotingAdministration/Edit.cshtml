@@ -112,8 +112,8 @@
                 registration.voterName +
                 '</p>';
             item +=
-                ' <a class="btn btn-primary text-light mr-5" href="../Registration/GrantRegistration?rid=' +
-                registration.registrationId + '"><i class="material-icons align-top mr-3">edit</i>*** Grant</a>';
+                ' <a class="btn btn-primary text-light mr-5" onclick="grantRegistration(' +
+                registration.registrationId + ')"><i class="material-icons align-top mr-3">edit</i>*** Grant</a>';
             item += '<a class="btn btn-primary text-light" onclick="deleteQuestion(\''
                 + registration.registrationId + '\')"><i class="material-icons align-top mr-3">delete</i>*** Deny</a></div>';
             items.push(item);
@@ -189,7 +189,7 @@
                     beforeSend: function (xhr) {
                         xhr.setRequestHeader("Authorization", idToken);
                     },
-                    success: function (data) { ref }
+                    success: function (data) { }
                     // error: todo
                 });
             });
@@ -209,6 +209,24 @@
                         xhr.setRequestHeader("Authorization", idToken);
                     },
                     success: function (data) { window.location.assign("Overview"); }
+                    // error: todo
+                });
+            });
+        }
+    }
+
+    function grantRegistration(regId) {
+        var currentUser = firebase.auth().currentUser;
+        if (currentUser) {
+            currentUser.getIdToken(true).then(function (idToken) {
+                $.post({
+                    url: '../Registration/GrantRegistration',
+                    data: { "rid": regId },
+                    beforeSend: function (xhr) {
+                        xhr.setRequestHeader("Authorization", idToken);
+                    },
+                    success: function (data) { // todo 
+                    }
                     // error: todo
                 });
             });

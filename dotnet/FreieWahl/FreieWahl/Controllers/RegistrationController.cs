@@ -61,7 +61,7 @@ namespace FreieWahl.Controllers
 
             var mail = dataContent.Substring(separatorIdx + 1);
 
-            await _registrationStore.AddRegistration(new Registration
+            await _registrationStore.AddOpenRegistration(new OpenRegistration
             {
                 VotingId = votingId.Value,
                 VoterIdentity = data.SigneeId,
@@ -81,7 +81,7 @@ namespace FreieWahl.Controllers
             return View();
         }
 
-        [HttpGet]
+        [HttpPost]
         public async Task<IActionResult> GrantRegistration(string rid)
         {
             var regId = rid.ToId();
@@ -90,7 +90,7 @@ namespace FreieWahl.Controllers
                 return BadRequest();
             }
 
-            var registration = await _registrationStore.GetRegistration(regId.Value);
+            var registration = await _registrationStore.GetOpenRegistration(regId.Value);
             string vid = registration.VotingId.ToString(CultureInfo.InvariantCulture);
             if (await _authHandler.CheckAuthorization(vid,
                     Operation.GrantRegistration, Request.Headers["Authorization"]) == false)
@@ -118,7 +118,7 @@ namespace FreieWahl.Controllers
                 return BadRequest("Invalid voting id");
             }
 
-            var registrations = await _registrationStore.GetRegistrationsForVoting(votingIdVal.Value);
+            var registrations = await _registrationStore.GetOpenRegistrationsForVoting(votingIdVal.Value);
             var result = registrations.Select(x =>
                 new
                 {
