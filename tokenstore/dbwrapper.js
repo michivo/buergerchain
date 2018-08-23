@@ -52,7 +52,7 @@ function getToken(votingId, voterId, index) {
         });
 }
 
-function setChallenge(registrationId, challenge, date) {
+function setChallengeAndGetTokens(registrationId, challenge, date) {
   const query = datastore.createQuery(TABLE_REGISTRATIONS)
       .filter('registrationId', '=', registrationId);
 
@@ -66,6 +66,7 @@ function setChallenge(registrationId, challenge, date) {
       registration.date = date;
       console.log(registration);
       await datastore.save(registration);
+      return registration.tokens;
   })
 }
 
@@ -124,6 +125,6 @@ module.exports = {
     unlockVoter: unlockVoter,
     getToken: getToken,
     datastore: datastore,
-    setChallenge: setChallenge,
+    setChallengeAndGetTokens: setChallengeAndGetTokens,
     getChallenge: getChallenge
 }

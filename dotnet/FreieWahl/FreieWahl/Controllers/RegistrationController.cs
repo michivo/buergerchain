@@ -92,15 +92,15 @@ namespace FreieWahl.Controllers
 
             var registration = await _registrationStore.GetOpenRegistration(regId.Value);
             string vid = registration.VotingId.ToString(CultureInfo.InvariantCulture);
-            if (await _authHandler.CheckAuthorization(vid,
-                    Operation.GrantRegistration, Request.Headers["Authorization"]) == false)
+            var user = await _authHandler.GetAuthorizedUser(vid,
+                Operation.GrantRegistration, Request.Headers["Authorization"]);
+            if (user == null)
             {
                 return Unauthorized();
             }
 
 
-            await _registrationHandler.GrantRegistration(regId.Value);
-
+            await _registrationHandler.GrantRegistration(regId.Value, user.UserId);
             return Ok();
         }
 

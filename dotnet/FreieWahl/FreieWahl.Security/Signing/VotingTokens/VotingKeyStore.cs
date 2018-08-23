@@ -61,7 +61,7 @@ namespace FreieWahl.Security.Signing.VotingTokens
             return textWriter.ToString();
         }
 
-        public async Task<AsymmetricCipherKeyPair> GetKeyPair(long votingId, int index)
+        public AsymmetricCipherKeyPair GetKeyPair(long votingId, int index)
         {
             if (_keyCache.ContainsKey(votingId) && _keyCache[votingId].ContainsKey(index))
             {
@@ -74,7 +74,8 @@ namespace FreieWahl.Security.Signing.VotingTokens
                     Filter.Equal("KeyIndex", index)),
                 Limit = 1
             };
-            var queryResult = await _db.RunQueryAsync(query);
+
+            var queryResult = _db.RunQuery(query);
             if (queryResult.Entities.Count != 1)
             {
                 throw new InvalidOperationException(

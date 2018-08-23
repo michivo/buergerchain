@@ -1,7 +1,11 @@
-﻿using System.Globalization;
+﻿using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
+using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 namespace FreieWahl.Application.Registrations
 {
@@ -14,7 +18,8 @@ namespace FreieWahl.Application.Registrations
             _remoteUrl = remoteUrl;
         }
 
-        public async Task<string> GrantRegistration(string registrationStoreId, string signedChallengeString)
+        public async Task<string> GrantRegistration(string registrationStoreId, string signedChallengeString,
+            List<string> signedTokens)
         {
             var request = WebRequest.CreateHttp(_remoteUrl + "grantRegistration");
             request.ContentType = "application/json";
@@ -22,8 +27,15 @@ namespace FreieWahl.Application.Registrations
 
             using (var streamWriter = new StreamWriter(request.GetRequestStream()))
             {
-                string json = "{\"registrationId\":\"" + registrationStoreId + "\"," +
-                                 "\"challengeSignature\":\"" + signedChallengeString + "\"}";
+                var resultData = new
+                {
+                    registrationId = registrationStoreId,
+                    challengeSignature = signedChallengeString,
+                    tokens = signedTokens
+                };
+
+                var jsonObject = new JObject(resultData);
+                var json = jsonObject.ToString(Formatting.None);
 
                 streamWriter.Write(json);
                 streamWriter.Flush();
@@ -40,7 +52,7 @@ namespace FreieWahl.Application.Registrations
             return result;
         }
 
-        public async Task<string> GetChallenge(string registrationStoreId)
+        public async Task<RegistrationChallenge> GetChallenge(string registrationStoreId)
         {
             var request = WebRequest.CreateHttp(_remoteUrl + "getChallenge");
             request.ContentType = "application/json";
@@ -62,7 +74,12 @@ namespace FreieWahl.Application.Registrations
                 result = streamReader.ReadToEnd();
             }
 
-            return result;
+            var jsonResult = JObject.Parse(result);
+            var challenge = (string) jsonResult["challenge"];
+            var tokens = (JArray) jsonResult["tokens"];
+
+            return new RegistrationChallenge(challenge,
+                tokens.Select(x => (string)x).ToList());
         }
     }
 }

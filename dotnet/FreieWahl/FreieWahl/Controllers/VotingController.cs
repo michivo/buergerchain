@@ -33,7 +33,7 @@ namespace FreieWahl.Controllers
             var votingIdVal = long.Parse(votingId);
             foreach (var token in tokens)
             {
-                signedTokens[count] = await _votingTokenHandler.Sign(token, votingIdVal, count);
+                signedTokens[count] = _votingTokenHandler.Sign(token, votingIdVal, count);
                 count++;
             }
 
@@ -49,7 +49,7 @@ namespace FreieWahl.Controllers
             string signedToken, string token)
         {
             var votingIdVal = long.Parse(votingId);
-            if (await _votingTokenHandler.Verify(signedToken, token, votingIdVal, questionIndex) == false)
+            if (_votingTokenHandler.Verify(signedToken, token, votingIdVal, questionIndex) == false)
                 return Unauthorized();
 
             // TODO: check that number of answers is valid

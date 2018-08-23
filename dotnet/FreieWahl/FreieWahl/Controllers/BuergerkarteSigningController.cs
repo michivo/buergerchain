@@ -42,7 +42,7 @@ namespace FreieWahl.Security.Signing.Buergerkarte
             {
                 var index = (int)token["Index"];
                 var tokenValue = (string) token["Token"];
-                signedTokens.Add(await _votingTokenHandler.Sign(tokenValue, votingIdVal, index));
+                signedTokens.Add(_votingTokenHandler.Sign(tokenValue, votingIdVal, index));
             }
 
             var registrationId = Guid.NewGuid().ToString();

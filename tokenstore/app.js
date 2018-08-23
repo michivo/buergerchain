@@ -76,16 +76,16 @@ app.post('/grantRegistration', async function(req, res) {
     log.entry({resource: logResource}, 'Received invalid signature for challenge for registration ' + registrationId);
   }
 
+  console.log(req.body.tokens);
   res.status(200).send("OK!").end;
 });
 
-app.post('/getChallenge', (req, res) => {
+app.post('/getChallengeAndTokens', async function(req, res) {
   var challenge = uuidv4();
   var date = Date.now();
-  dbwrapper.setChallenge(req.body.registrationId, challenge, date.toString())
-    .then(() => {
-      res.set('Content-Type', 'text/plain').status(200).send(challenge).end;
-    });
+  var tokens = await dbwrapper.setChallengeAndGetTokens(req.body.registrationId, challenge, date.toString());
+
+  res.json({"challenge": challenge, "tokens": tokens}).end;
 });
 
 app.post('/saveRegistrationDetails', (req, res) => {
