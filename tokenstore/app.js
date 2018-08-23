@@ -23,6 +23,7 @@ const bodyParser = require('body-parser');
 const config = require('./config.json');
 const uuidv4 = require('uuid/v4');
 const NodeRSA = require('node-rsa');
+const mailProvider = require('./mailprovider.js');
 
 // Imports the Google Cloud client library
 const Logging = require('@google-cloud/logging');
@@ -52,52 +53,56 @@ const TOKEN_COUNT = config.TOKEN_COUNT;
 
 app.get('/', (req, res) => {
   console.log('received request, sending response');
-  var result = '<html><head><title>Hello</title></head><body><form action="/foo" method="post"><input type="submit" value="foo" /></form>Version 5</body></html>';
+  const result = '<html><head><title>Hello</title></head><body><form action="/foo" method="post"><input type="submit" value="foo" /></form>Version 5</body></html>';
   res.status(200).send(result).end();
 });
 
 app.get('/registerTokens', (req, res) => {
   console.log('received request, sending response');
-  var result = '<html><head><title>Hello</title></head><body><form action="/registerTokens" method="post"><input type="hidden" name="tokens"' + ' value=\'[{ "index": 1, "tokenId": "t1234", "blindingFactor": "b123456" }, { "index": 2, "tokenId": "t4321", "blindingFactor": "b654321" }]\'/>' + '<input type="hidden" name="registrationId" value="1231231232"/><input type="hidden" name="votingId" value="1231231232"/><input type="hidden" name="email" value="michfasch@gmx.at"/><input type="submit" value="foo" /></form>';
+  const result = '<html><head><title>Hello</title></head><body><form action="/registerTokens" method="post"><input type="hidden" name="tokens"' + ' value=\'[{ "index": 1, "tokenId": "t1234", "blindingFactor": "b123456" }, { "index": 2, "tokenId": "t4321", "blindingFactor": "b654321" }]\'/>' + '<input type="hidden" name="registrationId" value="1231231232"/><input type="hidden" name="votingId" value="1231231232"/><input type="hidden" name="email" value="michfasch@gmx.at"/><input type="submit" value="foo" /></form>';
   res.status(200).send(result).end();
 });
 
 app.post('/grantRegistration', async function(req, res) {
-  var registrationId = req.body.registrationId;
-  var challenge = await dbwrapper.getChallenge(registrationId);
+  const registrationId = req.body.registrationId;
+  const challenge = await dbwrapper.getChallenge(registrationId);
 
   const challengeSignature = Buffer.from(req.body.challengeSignature, 'base64');
   const challengeBuffer = Buffer.from(challenge);
-  var result = rsaVerifier.verify(challengeBuffer, challengeSignature);
+  const result = rsaVerifier.verify(challengeBuffer, challengeSignature);
   if(result) {
     log.entry({resource: logResource}, 'Successfully received signature for challenge for registration ' + registrationId);
   }
   else {
+    // todo: error!
     log.entry({resource: logResource}, 'Received invalid signature for challenge for registration ' + registrationId);
   }
 
-  console.log(req.body.tokens);
+  const registration = dbwrapper.getRegistration(registrationId);
+  const voterId = uuidv4();
+  dbwrapper.insertVotingTokens(registration.votingId, voterId, request.body.tokens, registration.blindingFactors);
+  mailProvider.sendInvitation(registration.email, registration.votingId, voterId);
   res.status(200).send("OK!").end;
 });
 
 app.post('/getChallengeAndTokens', async function(req, res) {
-  var challenge = uuidv4();
-  var date = Date.now();
-  var tokens = await dbwrapper.setChallengeAndGetTokens(req.body.registrationId, challenge, date.toString());
+  const challenge = uuidv4();
+  const date = Date.now();
+  const tokens = await dbwrapper.setChallengeAndGetTokens(req.body.registrationId, challenge, date.toString());
 
   res.json({"challenge": challenge, "tokens": tokens}).end;
 });
 
 app.post('/saveRegistrationDetails', (req, res) => {
-  var registrationId = req.body.id;
-  var email = req.body.mail;
-  var password = req.body.password;
-  var i;
-  var tokens = [];
-  var blindingFactors = [];
+  const registrationId = req.body.id;
+  const email = req.body.mail;
+  const password = req.body.password;
+  const i;
+  const tokens = [];
+  const blindingFactors = [];
   for(i = 0; i < TOKEN_COUNT; i++) {
-    var token = tokengenerator.generateToken();
-    var blindedToken = tokengenerator.blindToken(token, password);
+    const token = tokengenerator.generateToken();
+    const blindedToken = tokengenerator.blindToken(token, password);
     blindingFactors[i] = blindedToken.r;
     tokens[i] = blindedToken.blinded;
   }
