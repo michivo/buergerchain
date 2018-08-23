@@ -45,7 +45,7 @@ const app = express();
 
 const rsaVerifier = new NodeRSA(config.FREIEWAHL_PUBLICKEY_CHALLENGE_PEM);
 
-app.use(bodyParser.json()); // support json encoded bodies
+app.use(bodyParser.json({limit: '5mb'})); // support json encoded bodies
 app.use(bodyParser.urlencoded({ extended: true })); // support encoded bodies
 
 const TOKEN_COUNT = config.TOKEN_COUNT;

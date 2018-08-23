@@ -46,7 +46,7 @@ class SignatureDataUrl(webapp2.RequestHandler):
        logging.info(remoteUrl)
 
        payload = (('XMLResponse', self.request.get('XMLResponse')), ('ResponseType', self.request.get('ResponseType')))
-       queryParams = {'name': self.request.get('name')}
+       queryParams = {'regUid': self.request.get('regUid')}
        r = requests.post(remoteUrl, data=payload, params=queryParams)
        self.response.headers['Content-Type'] = 'text/html'
        respContent = '<!DOCTYPE html><html><head><script>window.top.location.href = "' + redirectUrl + '?name=' + name + '";</script></head></html>'

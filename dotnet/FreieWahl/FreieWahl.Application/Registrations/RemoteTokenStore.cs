@@ -34,8 +34,7 @@ namespace FreieWahl.Application.Registrations
                     tokens = signedTokens
                 };
 
-                var jsonObject = new JObject(resultData);
-                var json = jsonObject.ToString(Formatting.None);
+                var json = JsonConvert.SerializeObject(resultData);
 
                 streamWriter.Write(json);
                 streamWriter.Flush();
@@ -54,7 +53,7 @@ namespace FreieWahl.Application.Registrations
 
         public async Task<RegistrationChallenge> GetChallenge(string registrationStoreId)
         {
-            var request = WebRequest.CreateHttp(_remoteUrl + "getChallenge");
+            var request = WebRequest.CreateHttp(_remoteUrl + "getChallengeAndTokens");
             request.ContentType = "application/json";
             request.Method = WebRequestMethods.Http.Post;
 
