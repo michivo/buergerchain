@@ -20,6 +20,18 @@ async function addRegisteredTokens(registrationId, email, tokens, blindingFactor
     });
 }
 
+function deleteRegistration(regId) {
+    const query = datastore.createQuery(TABLE_REGISTRATIONS)
+        .filter('registrationId', '=', regId)
+        .select('__key__')
+        .limit(1);
+
+    return datastore.runQuery(query)
+        .then((results) => { // TODO: error handling
+            datastore.delete(results[0].map(x => x[datastore.KEY]));
+        })
+}
+
 function clearTokensForVoting(votingId) {
     const query = datastore.createQuery(TABLE_REGISTRATIONS)
         .filter('votingId', '=', votingId);
@@ -30,11 +42,10 @@ function clearTokensForVoting(votingId) {
         })
 }
 
-function getToken(votingId, voterId, index) {
+function getTokens(votingId, voterId) {
     const query = datastore.createQuery(TABLE_VOTINGTOKENS)
         .filter('voterId', '=', voterId)
-        .filter('votingId', '=', votingId)
-        .filter('index', '=', index);
+        .limit(1);
 
     return datastore.runQuery(query)
         .then((results) => {
@@ -60,7 +71,6 @@ function setChallengeAndGetTokens(registrationId, challenge, date) {
       var registration = queryResult[0];
       registration.challenge = challenge;
       registration.date = date;
-      console.log(registration);
       await datastore.save(registration);
       return registration.tokens;
   })
@@ -126,9 +136,10 @@ function mapToken(origToken, voterId, votingId) {
 
 module.exports = {
     registerTokens: addRegisteredTokens,
-    getToken: getToken,
+    getTokens: getTokens,
     setChallengeAndGetTokens: setChallengeAndGetTokens,
     getChallenge: getChallenge,
     getRegistration: getRegistration,
-    insertVotingTokens: insertVotingTokens
+    insertVotingTokens: insertVotingTokens,
+    deleteRegistration: deleteRegistration
 }

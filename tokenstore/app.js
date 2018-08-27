@@ -71,17 +71,22 @@ app.post('/grantRegistration', async function(req, res) {
   const challengeBuffer = Buffer.from(challenge);
   const result = rsaVerifier.verify(challengeBuffer, challengeSignature);
   if(result) {
+    console.log('Successfully received signature for challenge for registration ' + registrationId);
     log.entry({resource: logResource}, 'Successfully received signature for challenge for registration ' + registrationId);
   }
   else {
     // todo: error!
+    console.log('Received invalid signature for challenge for registration ' + registrationId);
     log.entry({resource: logResource}, 'Received invalid signature for challenge for registration ' + registrationId);
   }
 
   const registration = await dbwrapper.getRegistration(registrationId);
   const voterId = uuidv4();
-  await dbwrapper.insertVotingTokens(registration.votingId, voterId, req.body.tokens, registration.blindingFactors);
-  mailProvider.sendInvitation(registration.email, registration.votingId, voterId);
+  const votingId = req.body.votingId;
+  console.log('inserting registration with id ' + registrationId + ', voter id ' + voterId + ', voting id ' + votingId);
+  await dbwrapper.insertVotingTokens(votingId, voterId, req.body.tokens, registration.blindingFactors);
+  await dbwrapper.deleteRegistration(registrationId);
+  mailProvider.sendInvitation(registration.email, voterId, registration.votingId);
   res.status(200).send("OK!").end;
 });
 
@@ -91,6 +96,17 @@ app.post('/getChallengeAndTokens', async function(req, res) {
   const tokens = await dbwrapper.setChallengeAndGetTokens(req.body.registrationId, challenge, date.toString());
 
   res.json({"challenge": challenge, "tokens": tokens}).end;
+});
+
+app.post('/getToken', async function(req, res) {
+  const password = req.body.password;
+  const voterId = req.body.voterId;
+  const index = req.body.questionIndex;
+  const voting = await dbwrapper.getTokens(voterId);
+  const token = voting.tokens[index];
+  const blindingFactor = voting.blindingFactor[index];
+  const unblindedToken = tokengenerator.unblind(token, blindingFactor, password);
+  res.json({"unblindedToken": unblindedToken, "blindingFactor": blindingFactor}).end;
 });
 
 app.post('/saveRegistrationDetails', (req, res) => {

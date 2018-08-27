@@ -34,7 +34,9 @@ namespace FreieWahl.Application.Registrations
             var signedChallengeString = Convert.ToBase64String(signedChallenge);
             var signedTokens = _SignTokens(registration, challenge.Tokens);
 
-            await _remoteTokenStore.GrantRegistration(registration.RegistrationStoreId, signedChallengeString, signedTokens);
+            await _remoteTokenStore.GrantRegistration(registration.RegistrationStoreId, 
+                registration.VotingId,
+                signedChallengeString, signedTokens);
             var completedReg = new CompletedRegistration()
             {
                 VotingId = registration.VotingId,

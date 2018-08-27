@@ -18,8 +18,8 @@ namespace FreieWahl.Application.Registrations
             _remoteUrl = remoteUrl;
         }
 
-        public async Task<string> GrantRegistration(string registrationStoreId, string signedChallengeString,
-            List<string> signedTokens)
+        public async Task<string> GrantRegistration(string registrationStoreId, long votingId,
+            string signedChallengeString, List<string> signedTokens)
         {
             var request = WebRequest.CreateHttp(_remoteUrl + "grantRegistration");
             request.ContentType = "application/json";
@@ -31,7 +31,8 @@ namespace FreieWahl.Application.Registrations
                 {
                     registrationId = registrationStoreId,
                     challengeSignature = signedChallengeString,
-                    tokens = signedTokens
+                    tokens = signedTokens,
+                    votingId = votingId.ToString(CultureInfo.InvariantCulture)
                 };
 
                 var json = JsonConvert.SerializeObject(resultData);
