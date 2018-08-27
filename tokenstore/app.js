@@ -49,7 +49,7 @@ const rsaVerifier = new NodeRSA(config.FREIEWAHL_PUBLICKEY_CHALLENGE_PEM);
 app.use(bodyParser.json({limit: '5mb'})); // support json encoded bodies
 app.use(bodyParser.urlencoded({ extended: true })); // support encoded bodies
 
-const TOKEN_COUNT = config.TOKEN_COUNT;
+const MAX_TOKEN_COUNT = config.MAX_TOKEN_COUNT;
 
 app.get('/', (req, res) => {
   console.log('received request, sending response');
@@ -84,7 +84,7 @@ app.post('/grantRegistration', async function(req, res) {
   const voterId = uuidv4();
   const votingId = req.body.votingId;
   console.log('inserting registration with id ' + registrationId + ', voter id ' + voterId + ', voting id ' + votingId);
-  await dbwrapper.insertVotingTokens(votingId, voterId, req.body.tokens, registration.blindingFactors);
+  await dbwrapper.insertVotingTokens(votingId, voterId, req.body.tokens, registration.tokens, registration.blindingFactors);
   await dbwrapper.deleteRegistration(registrationId);
   mailProvider.sendInvitation(registration.email, voterId, registration.votingId);
   res.status(200).send("OK!").end;
@@ -113,17 +113,26 @@ app.post('/saveRegistrationDetails', (req, res) => {
   const registrationId = req.body.id;
   const email = req.body.mail;
   const password = req.body.password;
+  const tokenCount = req.body.tokenCount;
+  if(tokenCount < 1) {
+    tokenCount = 1;
+  }
+  if(tokenCount > MAX_TOKEN_COUNT) {
+    tokenCount = MAX_TOKEN_COUNT;
+  }
 
   let tokens = [];
+  let blindedTokens = [];
   let blindingFactors = [];
-  for(let i = 0; i < TOKEN_COUNT; i++) {
+  for(let i = 0; i < tokenCount; i++) {
     const token = tokengenerator.generateToken();
     const blindedToken = tokengenerator.blindToken(token, password);
     blindingFactors[i] = blindedToken.r;
-    tokens[i] = blindedToken.blinded;
+    blindedTokens[i] = blindedToken.blinded;
+    tokens[i] = token;
   }
   log.entry({resource: logResource}, 'Saving Registration details for registration with id' + registrationId);
-  dbwrapper.registerTokens(registrationId, email, tokens, blindingFactors)
+  dbwrapper.registerTokens(registrationId, email, tokens, blindedTokens, blindingFactors)
     .then(() => {
       res.status(200).send("OK!").end;
   });

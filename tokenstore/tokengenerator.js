@@ -26,9 +26,10 @@ function blindToken(token, password) {
     E: PUBLIC_KEY_E
   });
 
-  result.r = result.r.xor(messageToHashInt(password)).toString(16);
-  result.blinded = result.blinded.toString(16);
-  return result;
+  return {
+    r: result.r.xor(messageToHashInt(password)).toString(16),
+    blinded: result.blinded.toString(16)
+  }
 }
 
 function unblindToken(message, r, password) {

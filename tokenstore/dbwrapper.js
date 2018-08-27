@@ -6,12 +6,13 @@ const datastore = Datastore();
 const TABLE_REGISTRATIONS = 'registration';
 const TABLE_VOTINGTOKENS = 'votingToken';
 
-async function addRegisteredTokens(registrationId, email, tokens, blindingFactors) {
+async function addRegisteredTokens(registrationId, email, tokens, blindedTokens, blindingFactors) {
     const newRegistration = {
         timestamp: new Date(),
         registrationId: registrationId,
         email: email,
         tokens: tokens,
+        blindedTokens: blindedTokens,
         blindingFactors: blindingFactors
     };
     await datastore.save({
@@ -67,12 +68,13 @@ function setChallengeAndGetTokens(registrationId, challenge, date) {
       var queryResult = results[0];
       if (queryResult.length != 1) {
           // TODO error
+          return null;
       }
       var registration = queryResult[0];
       registration.challenge = challenge;
       registration.date = date;
       await datastore.save(registration);
-      return registration.tokens;
+      return registration.blindedTokens;
   })
 }
 
@@ -108,14 +110,22 @@ function getRegistration(registrationId) {
     });
 }
 
-async function insertVotingTokens(votingId, voterId, signedTokens, blindingFactors) {
+async function insertVotingTokens(votingId, voterId, tokens, signedTokens, blindingFactors) {
   const newRegistration = {
       timestamp: new Date(),
       votingId: votingId,
       voterId: voterId,
+      tokens: tokens,
       signedTokens: signedTokens,
       blindingFactors: blindingFactors
   };
+  if(tokens.length() != signedTokens.length() || tokens.length() != blindingFactors.length()) {
+    // TODO exception!
+  }
+
+  for(let i = 0; i < tokens.length(); i++) {
+    datastore.save()
+  }
   await datastore.save({
       key: datastore.key(TABLE_VOTINGTOKENS),
       data: newRegistration

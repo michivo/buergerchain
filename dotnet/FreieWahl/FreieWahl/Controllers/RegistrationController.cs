@@ -21,7 +21,8 @@ namespace FreieWahl.Controllers
         private readonly IAuthorizationHandler _authHandler;
         private readonly IRegistrationHandler _registrationHandler;
         private static char _tokenFieldSeparator = '_';
-        private string _regUrl;
+        private readonly string _regUrl;
+        private int _tokenCount;
 
         public RegistrationController(ILogger<RegistrationController> logger,
             ISignatureHandler signatureHandler,
@@ -35,6 +36,7 @@ namespace FreieWahl.Controllers
             _authHandler = authHandler;
             _registrationHandler = registrationHandler;
             _regUrl = configuration["RemoteTokenStore:Url"];
+            _tokenCount = int.Parse(configuration["VotingSettings:MaxNumQuestions"]);
         }
 
         [HttpPost]
@@ -78,6 +80,7 @@ namespace FreieWahl.Controllers
         {
             ViewData["RegistrationStoreId"] = regUid;
             ViewData["RegistrationStoreSaveRegUrl"] = _regUrl + "saveRegistrationDetails";
+            ViewData["TokenCount"] = _tokenCount;
             return View();
         }
 
