@@ -38,7 +38,7 @@ function unblindToken(message, r, password) {
     signed: message,
     N: PUBLIC_KEY_N,
     r: r
-  })
+  }).toString(16);
 }
 
 

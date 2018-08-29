@@ -1,7 +1,7 @@
 const Datastore = require('@google-cloud/datastore');
 const config = require('./config.json');
 
-const datastore = Datastore();
+const datastore = Datastore({ projectId: config.GCLOUD_PROJECT });
 
 const TABLE_REGISTRATIONS = 'registration';
 const TABLE_VOTINGTOKENS = 'votingToken';
@@ -15,10 +15,12 @@ async function addRegisteredTokens(registrationId, email, tokens, blindedTokens,
         blindedTokens: blindedTokens,
         blindingFactors: blindingFactors
     };
+    console.log('inserting registration with ' + newRegistration.registrationId);
     await datastore.save({
         key: datastore.key(TABLE_REGISTRATIONS),
         data: newRegistration
     });
+
 }
 
 function deleteRegistration(regId) {
@@ -43,9 +45,10 @@ function clearTokensForVoting(votingId) {
         })
 }
 
-function getTokens(votingId, voterId) {
+function getToken(votingId, voterId, index) {
     const query = datastore.createQuery(TABLE_VOTINGTOKENS)
         .filter('voterId', '=', voterId)
+        .filter('tokenIndex', '=', index)
         .limit(1);
 
     return datastore.runQuery(query)
@@ -102,34 +105,38 @@ function getRegistration(registrationId) {
       .filter('registrationId', '=', registrationId);
 
   return datastore.runQuery(query).then(async (results) => {
-      var queryResult = results[0];
-      if (queryResult.length != 1) {
-          return null; // TODO logging
-      }
-      return queryResult[0];
+    let queryResult = results[0];
+    if (queryResult.length != 1) {
+        return null; // TODO logging
+    }
+
+    return queryResult[0];
     });
 }
 
 async function insertVotingTokens(votingId, voterId, tokens, signedTokens, blindingFactors) {
-  const newRegistration = {
-      timestamp: new Date(),
-      votingId: votingId,
-      voterId: voterId,
-      tokens: tokens,
-      signedTokens: signedTokens,
-      blindingFactors: blindingFactors
-  };
   if(tokens.length() != signedTokens.length() || tokens.length() != blindingFactors.length()) {
     // TODO exception!
+    return;
   }
 
+  var tokenEntities = [];
   for(let i = 0; i < tokens.length(); i++) {
-    datastore.save()
-  }
-  await datastore.save({
+    const newEntity = {
       key: datastore.key(TABLE_VOTINGTOKENS),
-      data: newRegistration
-  });
+      data: {
+        timestamp: new Date(),
+        votingId: votingId,
+        voterId: voterId,
+        tokenIndex: i,
+        token: tokens[i],
+        signedToken: signedTokens[i],
+        blindingFactor: blindingFactors[i]
+      }
+    };
+    tokenEntities[i] = newEntity;
+  }
+  await datastore.insert(tokenEntities);
 }
 
 function mapToken(origToken, voterId, votingId) {
@@ -146,10 +153,11 @@ function mapToken(origToken, voterId, votingId) {
 
 module.exports = {
     registerTokens: addRegisteredTokens,
-    getTokens: getTokens,
+    getToken: getToken,
     setChallengeAndGetTokens: setChallengeAndGetTokens,
     getChallenge: getChallenge,
     getRegistration: getRegistration,
     insertVotingTokens: insertVotingTokens,
-    deleteRegistration: deleteRegistration
+    deleteRegistration: deleteRegistration,
+    datastore: datastore
 }

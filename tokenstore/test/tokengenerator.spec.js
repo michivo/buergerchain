@@ -30,7 +30,7 @@ describe('Unblinding a token', function() {
     var r = new BigInteger('ce7cb577d0f15e0c15198a05d2985eb39dc66a8989ede8904d97a1007db42dfb2729189dd4089fdb7ac0849d45a6994a3079aa47e9b57b057dbb84ae1289294', 16);
     var unblindedToken = tokengenerator.unblindToken(blindedSignedToken, r, 'foobar42');
     const result = BlindSignature.verify({
-      unblinded: unblindedToken,
+      unblinded: new BigInteger(unblindedToken, 16),
       N: PUBLIC_KEY_N,
       E: PUBLIC_KEY_E,
       message: "52870df1-e940-4739-b05f-cf40f7c443a1"
@@ -56,7 +56,7 @@ describe('Unblinding a token', function() {
     var r = new BigInteger('ce7cb577d0f15e0c15198a05d2985eb39dc66a8989ede8904d97a1007db42dfb2729189dd4089fdb7ac0849d45a6994a3079aa47e9b57b057dbb84ae1289294', 16);
     var unblindedToken = tokengenerator.unblindToken(blindedSignedToken, r, 'foobar42');
     const result = BlindSignature.verify({
-      unblinded: unblindedToken,
+      unblinded: new BigInteger(unblindedToken, 16),
       N: PUBLIC_KEY_N,
       E: PUBLIC_KEY_E,
       message: "52870df1-e940-4739-b05f-cf40f7c443a2"

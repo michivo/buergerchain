@@ -102,11 +102,12 @@ app.post('/getToken', async function(req, res) {
   const password = req.body.password;
   const voterId = req.body.voterId;
   const index = req.body.questionIndex;
-  const voting = await dbwrapper.getTokens(voterId);
-  const token = voting.tokens[index];
-  const blindingFactor = voting.blindingFactor[index];
-  const unblindedToken = tokengenerator.unblind(token, blindingFactor, password);
-  res.json({"unblindedToken": unblindedToken, "blindingFactor": blindingFactor}).end;
+  const voting = await dbwrapper.getToken(voterId, questionIndex);
+  const token = voting.token;
+  const blindingFactor = voting.blindingFactor;
+  const signedToken = voting.signedToken;
+  const unblindedToken = tokengenerator.unblind(signedToken, blindingFactor, password);
+  res.json({"unblindedToken": unblindedToken, "token": token}).end;
 });
 
 app.post('/saveRegistrationDetails', (req, res) => {
