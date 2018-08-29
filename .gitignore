@@ -16,3 +16,4 @@
 /tokenstore/.vscode
 /tokenstore/coverage
 /tokenstore/privateconfig.json
+/tokenstore/.vs

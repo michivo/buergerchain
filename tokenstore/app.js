@@ -116,7 +116,7 @@ app.post('/saveRegistrationDetails', (req, res) => {
   const password = req.body.password;
   const tokenCount = req.body.tokenCount;
   if(tokenCount < 1) {
-    tokenCount = 1;
+    tokenCount = 1; // TODO err?
   }
   if(tokenCount > MAX_TOKEN_COUNT) {
     tokenCount = MAX_TOKEN_COUNT;
