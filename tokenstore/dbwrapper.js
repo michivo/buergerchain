@@ -35,7 +35,7 @@ function deleteRegistration(regId) {
   })
 }
 
-function getToken(votingId, voterId, index) {
+function getToken(voterId, index) {
   const query = datastore.createQuery(TABLE_VOTINGTOKENS)
   .filter('voterId', '=', voterId)
   .filter('tokenIndex', '=', index)
@@ -124,6 +124,16 @@ async function insertVotingTokens(votingId, voterId, tokens, signedTokens, blind
   await datastore.insert(tokenEntities);
 }
 
+function deleteTokens(votingId) {
+  const query = datastore.createQuery(TABLE_VOTINGTOKENS)
+  .filter('votingId', '=', votingId)
+  .select('__key__');
+
+  return datastore.runQuery(query).then((results) => { // TODO: error handling?
+    datastore.delete(results[0].map(x => x[datastore.KEY]));
+  })
+}
+
 module.exports = {
   registerTokens: addRegisteredTokens,
   getToken: getToken,
@@ -132,5 +142,6 @@ module.exports = {
   getRegistration: getRegistration,
   insertVotingTokens: insertVotingTokens,
   deleteRegistration: deleteRegistration,
+  deleteTokens: deleteTokens,
   datastore: datastore
 }

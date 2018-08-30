@@ -229,6 +229,7 @@ describe('The insertVotingTokens function', function() {
 describe('The getToken method', function() {
   after(async() => {
     await deleteVotingTokens('testVotingGetToken1');
+    await deleteVotingTokens('testVotingGetToken2');
   })
   it('gets a token previously inserted', async() => {
     // arrange
@@ -239,9 +240,9 @@ describe('The getToken method', function() {
     await timeout(DATASTORE_WAIT_TIME);
 
     // act
-    const token1 = await dbwrapper.getToken('testVotingGetToken1', 'voter345', 0);
-    const token2 = await dbwrapper.getToken('testVotingGetToken1', 'voter345', 1);
-    const token3 = await dbwrapper.getToken('testVotingGetToken1', 'voter345', 2);
+    const token1 = await dbwrapper.getToken('voter345', 0);
+    const token2 = await dbwrapper.getToken('voter345', 1);
+    const token3 = await dbwrapper.getToken('voter345', 2);
 
     expect(token1.votingId).to.equal('testVotingGetToken1');
     expect(token1.voterId).to.equal('voter345');
@@ -263,6 +264,45 @@ describe('The getToken method', function() {
     expect(token3.token).to.equal('token3');
     expect(token3.signedToken).to.equal('signed3');
     expect(token3.blindingFactor).to.equal('blinding3');
+  }),
+  it('does not fail when there is no such token', async() => {
+    // arrange
+    const tokens = [ 'token1', 'token2', 'token3' ];
+    const signed = [ 'signed1', 'signed2', 'signed3' ];
+    const blindingFactors = [ 'blinding1', 'blinding2', 'blinding3' ];
+    await dbwrapper.insertVotingTokens('testVotingGetToken2', 'voter456', tokens, signed, blindingFactors);
+    await timeout(DATASTORE_WAIT_TIME);
+
+    // act
+    const token1 = await dbwrapper.getToken('badVoterId', 0);
+    const token2 = await dbwrapper.getToken('voter456', 5);
+
+    // assert
+    assert(!token1);
+    assert(!token2);
+  })
+})
+
+describe('The deleteTokens function', function() {
+  it('should delete all tokens for a voting', async() => {
+    // arrange
+    const tokens = [ 'token1', 'token2', 'token3' ];
+    const signed = [ 'signed1', 'signed2', 'signed3' ];
+    const blindingFactors = [ 'blinding1', 'blinding2', 'blinding3' ];
+    await dbwrapper.insertVotingTokens('testVotingDeleteToken2', 'voter456', tokens, signed, blindingFactors);
+    await timeout(DATASTORE_WAIT_TIME);
+
+    // act
+    await dbwrapper.deleteTokens('testVotingDeleteToken2');
+    await timeout(DATASTORE_WAIT_TIME);
+
+    // assert
+    const query = datastore.createQuery(TABLE_VOTINGTOKENS)
+      .filter('votingId', '=', 'testVotingDeleteToken2')
+      .select('__key__');
+
+    const results = await datastore.runQuery(query);
+    expect(results[0].length).to.equal(0);
   })
 })
 
@@ -364,3 +404,5 @@ async function deleteVotingTokens(votingId) {
     datastore.delete(results[0].map(x => x[datastore.KEY]));
   })
 }
+
+// END helper functions
