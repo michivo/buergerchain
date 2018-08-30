@@ -14,18 +14,18 @@ function generateToken() {
 }
 
 function messageToHashInt(message) {
-  var messageHash = sha256(message);
-  var messageBig = new BigInteger(messageHash, 16);
+  const messageHash = sha256(message);
+  const messageBig = new BigInteger(messageHash, 16);
   return messageBig;
 }
 
 function blindToken(token, password) {
-  var result = BlindSignature.blind({
+  const result = BlindSignature.blind({
     message: token,
     N: PUBLIC_KEY_N,
     E: PUBLIC_KEY_E
   });
-  
+
   return {
     r: result.r.xor(messageToHashInt(password)).toString(16),
     blinded: result.blinded.toString(16)

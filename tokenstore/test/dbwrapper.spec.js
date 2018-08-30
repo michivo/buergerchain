@@ -226,6 +226,46 @@ describe('The insertVotingTokens function', function() {
   })
 })
 
+describe('The getToken method', function() {
+  after(async() => {
+    await deleteVotingTokens('testVotingGetToken1');
+  })
+  it('gets a token previously inserted', async() => {
+    // arrange
+    const tokens = [ 'token1', 'token2', 'token3' ];
+    const signed = [ 'signed1', 'signed2', 'signed3' ];
+    const blindingFactors = [ 'blinding1', 'blinding2', 'blinding3' ];
+    await dbwrapper.insertVotingTokens('testVotingGetToken1', 'voter345', tokens, signed, blindingFactors);
+    await timeout(DATASTORE_WAIT_TIME);
+
+    // act
+    const token1 = await dbwrapper.getToken('testVotingGetToken1', 'voter345', 0);
+    const token2 = await dbwrapper.getToken('testVotingGetToken1', 'voter345', 1);
+    const token3 = await dbwrapper.getToken('testVotingGetToken1', 'voter345', 2);
+
+    expect(token1.votingId).to.equal('testVotingGetToken1');
+    expect(token1.voterId).to.equal('voter345');
+    expect(token1.tokenIndex).to.equal(0);
+    expect(token1.token).to.equal('token1');
+    expect(token1.signedToken).to.equal('signed1');
+    expect(token1.blindingFactor).to.equal('blinding1');
+
+    expect(token2.votingId).to.equal('testVotingGetToken1');
+    expect(token2.voterId).to.equal('voter345');
+    expect(token2.tokenIndex).to.equal(1);
+    expect(token2.token).to.equal('token2');
+    expect(token2.signedToken).to.equal('signed2');
+    expect(token2.blindingFactor).to.equal('blinding2');
+
+    expect(token3.votingId).to.equal('testVotingGetToken1');
+    expect(token3.voterId).to.equal('voter345');
+    expect(token3.tokenIndex).to.equal(2);
+    expect(token3.token).to.equal('token3');
+    expect(token3.signedToken).to.equal('signed3');
+    expect(token3.blindingFactor).to.equal('blinding3');
+  })
+})
+
 describe('The getChallenge function', function() {
   after(async() => {
     await deleteRegistration('rTestGetCha0');

@@ -6,7 +6,7 @@ const datastore = Datastore({ projectId: config.GCLOUD_PROJECT });
 const TABLE_REGISTRATIONS = 'registration';
 const TABLE_VOTINGTOKENS = 'votingToken';
 
-// tested ok
+
 async function addRegisteredTokens(registrationId, email, tokens, blindedTokens, blindingFactors) {
   const newRegistration = {
     timestamp: new Date(),
@@ -24,7 +24,6 @@ async function addRegisteredTokens(registrationId, email, tokens, blindedTokens,
 
 }
 
-// tested ok
 function deleteRegistration(regId) {
   const query = datastore.createQuery(TABLE_REGISTRATIONS)
   .filter('registrationId', '=', regId)
@@ -45,7 +44,7 @@ function getToken(votingId, voterId, index) {
   return datastore.runQuery(query)
   .then((results) => {
     // TODO: error handling
-    var resultArray = results[0];
+    const resultArray = results[0];
     if(resultArray.length != 1) {
       return null;
     }
@@ -54,18 +53,17 @@ function getToken(votingId, voterId, index) {
   });
 }
 
-// tested ok
 function setChallengeAndGetTokens(registrationId, challenge, date) {
   const query = datastore.createQuery(TABLE_REGISTRATIONS)
   .filter('registrationId', '=', registrationId);
 
   return datastore.runQuery(query).then(async (results) => {
-    var queryResult = results[0];
+    const queryResult = results[0];
     if (queryResult.length != 1) {
       // TODO error
       return null;
     }
-    var registration = queryResult[0];
+    let registration = queryResult[0];
     registration.challenge = challenge;
     registration.date = date;
     await datastore.save(registration);
@@ -73,18 +71,17 @@ function setChallengeAndGetTokens(registrationId, challenge, date) {
   })
 }
 
-// tested ok
 function getChallenge(registrationId) {
   const query = datastore.createQuery(TABLE_REGISTRATIONS)
   .filter('registrationId', '=', registrationId);
 
   return datastore.runQuery(query).then(async (results) => {
-    var queryResult = results[0];
+    const queryResult = results[0];
     if (queryResult.length != 1) {
       return null; // TODO logging
     }
-    var registration = queryResult[0];
-    var now = Date.now();
+    const registration = queryResult[0];
+    const now = Date.now();
     if(now - registration.date > config.MAX_TIME_DELTA) {
       return null; // TODO logging
     }
@@ -93,7 +90,6 @@ function getChallenge(registrationId) {
   })
 }
 
-// tested ok
 function getRegistration(registrationId) {
   const query = datastore.createQuery(TABLE_REGISTRATIONS)
     .filter('registrationId', '=', registrationId);
@@ -109,7 +105,7 @@ function getRegistration(registrationId) {
 }
 
 async function insertVotingTokens(votingId, voterId, tokens, signedTokens, blindingFactors) {
-  var tokenEntities = [];
+  let tokenEntities = [];
   for(let i = 0; i < tokens.length; i++) {
     const newEntity = {
       key: datastore.key(TABLE_VOTINGTOKENS),
@@ -127,18 +123,6 @@ async function insertVotingTokens(votingId, voterId, tokens, signedTokens, blind
   }
   await datastore.insert(tokenEntities);
 }
-
-function mapToken(origToken, voterId, votingId) {
-  return {
-    key: datastore.key(TABLE_VOTINGTOKENS),
-    data: {
-      index: origToken.index,
-      tokenId: origToken.tokenId,
-      blindingFactor: origToken.blindingFactor
-    }
-  };
-}
-
 
 module.exports = {
   registerTokens: addRegisteredTokens,
