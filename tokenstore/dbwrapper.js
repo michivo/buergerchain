@@ -6,6 +6,7 @@ const datastore = Datastore({ projectId: config.GCLOUD_PROJECT });
 const TABLE_REGISTRATIONS = 'registration';
 const TABLE_VOTINGTOKENS = 'votingToken';
 
+// tested ok
 async function addRegisteredTokens(registrationId, email, tokens, blindedTokens, blindingFactors) {
   const newRegistration = {
     timestamp: new Date(),
@@ -23,24 +24,14 @@ async function addRegisteredTokens(registrationId, email, tokens, blindedTokens,
 
 }
 
+// tested ok
 function deleteRegistration(regId) {
   const query = datastore.createQuery(TABLE_REGISTRATIONS)
   .filter('registrationId', '=', regId)
   .select('__key__')
   .limit(1);
 
-  return datastore.runQuery(query)
-  .then((results) => { // TODO: error handling
-    datastore.delete(results[0].map(x => x[datastore.KEY]));
-  })
-}
-
-function clearTokensForVoting(votingId) {
-  const query = datastore.createQuery(TABLE_REGISTRATIONS)
-  .filter('votingId', '=', votingId);
-
-  return datastore.runQuery(query)
-  .then((results) => { // TODO: error handling
+  return datastore.runQuery(query).then((results) => { // TODO: error handling?
     datastore.delete(results[0].map(x => x[datastore.KEY]));
   })
 }
@@ -63,6 +54,7 @@ function getToken(votingId, voterId, index) {
   });
 }
 
+// tested ok
 function setChallengeAndGetTokens(registrationId, challenge, date) {
   const query = datastore.createQuery(TABLE_REGISTRATIONS)
   .filter('registrationId', '=', registrationId);
@@ -81,6 +73,7 @@ function setChallengeAndGetTokens(registrationId, challenge, date) {
   })
 }
 
+// tested ok
 function getChallenge(registrationId) {
   const query = datastore.createQuery(TABLE_REGISTRATIONS)
   .filter('registrationId', '=', registrationId);
@@ -100,9 +93,10 @@ function getChallenge(registrationId) {
   })
 }
 
+// tested ok
 function getRegistration(registrationId) {
   const query = datastore.createQuery(TABLE_REGISTRATIONS)
-  .filter('registrationId', '=', registrationId);
+    .filter('registrationId', '=', registrationId);
 
   return datastore.runQuery(query).then(async (results) => {
     let queryResult = results[0];
@@ -115,13 +109,12 @@ function getRegistration(registrationId) {
 }
 
 async function insertVotingTokens(votingId, voterId, tokens, signedTokens, blindingFactors) {
-
   var tokenEntities = [];
-  for(let i = 0; i < tokens.length(); i++) {
+  for(let i = 0; i < tokens.length; i++) {
     const newEntity = {
       key: datastore.key(TABLE_VOTINGTOKENS),
       data: {
-        timestamp: new Date(),
+        timestamp: Date.now().toString(),
         votingId: votingId,
         voterId: voterId,
         tokenIndex: i,
