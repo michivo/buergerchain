@@ -26,6 +26,7 @@ function blindToken(token, password) {
     E: PUBLIC_KEY_E
   });
 
+  console.log('orig r for token: ' + token.substring(1, 20) + " - " + result.r.toString(16));
   return {
     r: result.r.xor(messageToHashInt(password)).toString(16),
     blinded: result.blinded.toString(16)
@@ -34,6 +35,7 @@ function blindToken(token, password) {
 
 function unblindToken(message, r, password) {
   r = new BigInteger(r, 16).xor(messageToHashInt(password));
+  console.log('unpassworded r ' + r.toString(16));
   return BlindSignature.unblind({
     signed: message,
     N: PUBLIC_KEY_N,

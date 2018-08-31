@@ -53,13 +53,14 @@ const MAX_TOKEN_COUNT = config.MAX_TOKEN_COUNT;
 
 app.get('/', (req, res) => {
   console.log('received request, sending response');
-  const result = '<html><head><title>Hello</title></head><body><form action="/foo" method="post"><input type="submit" value="foo" /></form>Version 5</body></html>';
+  const result = '<html><head><title>Hello</title></head><body><form action="/foo" method="post"><input type="submit" value="foo" /></form>Version 6</body></html>';
   res.status(200).send(result).end();
 });
 
 app.get('/registerTokens', (req, res) => {
   console.log('received request, sending response');
   const result = '<html><head><title>Hello</title></head><body><form action="/registerTokens" method="post"><input type="hidden" name="tokens"' + ' value=\'[{ "index": 1, "tokenId": "t1234", "blindingFactor": "b123456" }, { "index": 2, "tokenId": "t4321", "blindingFactor": "b654321" }]\'/>' + '<input type="hidden" name="registrationId" value="1231231232"/><input type="hidden" name="votingId" value="1231231232"/><input type="hidden" name="email" value="michfasch@gmx.at"/><input type="submit" value="foo" /></form>';
+  prepareRes(res);
   res.status(200).send(result).end();
 });
 
@@ -84,9 +85,10 @@ app.post('/grantRegistration', async function(req, res) {
   const voterId = uuidv4();
   const votingId = req.body.votingId;
   console.log('inserting registration with id ' + registrationId + ', voter id ' + voterId + ', voting id ' + votingId);
-  await dbwrapper.insertVotingTokens(votingId, voterId, req.body.tokens, registration.tokens, registration.blindingFactors);
+  await dbwrapper.insertVotingTokens(votingId, voterId, registration.tokens, req.body.tokens, registration.blindingFactors);
   await dbwrapper.deleteRegistration(registrationId);
   mailProvider.sendInvitation(registration.email, voterId, registration.votingId);
+  prepareRes(res);
   res.status(200).send("OK!").end;
 });
 
@@ -94,7 +96,7 @@ app.post('/getChallengeAndTokens', async function(req, res) {
   const challenge = uuidv4();
   const date = Date.now();
   const tokens = await dbwrapper.setChallengeAndGetTokens(req.body.registrationId, challenge, date.toString());
-
+  prepareRes(res);
   res.json({"challenge": challenge, "tokens": tokens}).end;
 });
 
@@ -108,7 +110,7 @@ app.post('/getToken', async function(req, res) {
   const signedToken = voting.signedToken;
   const unblindedToken = tokengenerator.unblindToken(signedToken, blindingFactor, password);
   // Website you wish to allow to connect
-  res.setHeader('Access-Control-Allow-Origin', 'http://localhost:61878');
+  prepareRes(res);
   res.json({"unblindedToken": unblindedToken, "token": token}).end;
 });
 
@@ -135,8 +137,10 @@ app.post('/saveRegistrationDetails', (req, res) => {
     tokens[i] = token;
   }
   log.entry({resource: logResource}, 'Saving Registration details for registration with id' + registrationId);
+
   dbwrapper.registerTokens(registrationId, email, tokens, blindedTokens, blindingFactors)
     .then(() => {
+      prepareRes(res);
       res.status(200).send("OK!").end;
   });
 });
@@ -148,3 +152,7 @@ app.listen(PORT, () => {
   console.log('Press Ctrl+C to quit.');
 });
 // [END app]
+
+function prepareRes(res) {
+    res.setHeader('Access-Control-Allow-Origin', 'http://localhost:61878');
+}
