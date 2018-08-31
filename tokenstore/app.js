@@ -101,12 +101,14 @@ app.post('/getChallengeAndTokens', async function(req, res) {
 app.post('/getToken', async function(req, res) {
   const password = req.body.password;
   const voterId = req.body.voterId;
-  const index = req.body.questionIndex;
+  const questionIndex = req.body.questionIndex;
   const voting = await dbwrapper.getToken(voterId, questionIndex);
   const token = voting.token;
   const blindingFactor = voting.blindingFactor;
   const signedToken = voting.signedToken;
-  const unblindedToken = tokengenerator.unblind(signedToken, blindingFactor, password);
+  const unblindedToken = tokengenerator.unblindToken(signedToken, blindingFactor, password);
+  // Website you wish to allow to connect
+  res.setHeader('Access-Control-Allow-Origin', 'http://localhost:61878');
   res.json({"unblindedToken": unblindedToken, "token": token}).end;
 });
 

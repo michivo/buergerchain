@@ -37,15 +37,16 @@ function deleteRegistration(regId) {
 
 function getToken(voterId, index) {
   const query = datastore.createQuery(TABLE_VOTINGTOKENS)
-  .filter('voterId', '=', voterId)
-  .filter('tokenIndex', '=', index)
-  .limit(1);
+    .filter('voterId', '=', voterId)
+    .filter('tokenIndex', '=', parseInt(index.toString()))
+    .limit(1);
 
   return datastore.runQuery(query)
   .then((results) => {
     // TODO: error handling
     const resultArray = results[0];
     if(resultArray.length != 1) {
+      console.log('no token found for given voter id ' + voterId + '(' + typeof(voterId) + ') and index ' + index + '(' + typeof(index) + ')');
       return null;
     }
 

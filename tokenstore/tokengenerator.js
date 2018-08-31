@@ -33,7 +33,7 @@ function blindToken(token, password) {
 }
 
 function unblindToken(message, r, password) {
-  r = r.xor(messageToHashInt(password));
+  r = new BigInteger(r, 16).xor(messageToHashInt(password));
   return BlindSignature.unblind({
     signed: message,
     N: PUBLIC_KEY_N,

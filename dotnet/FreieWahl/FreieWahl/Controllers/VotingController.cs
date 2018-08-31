@@ -1,8 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
+using FreieWahl.Common;
 using FreieWahl.Security.Signing.VotingTokens;
+using FreieWahl.Voting.Models;
+using FreieWahl.Voting.Storage;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Configuration;
 
 // For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -11,11 +16,18 @@ namespace FreieWahl.Controllers
     public class VotingController : Controller
     {
         private readonly IVotingTokenHandler _votingTokenHandler;
+        private readonly IVotingStore _votingStore;
+        private string _regUrl;
 
         public VotingController(
-            IVotingTokenHandler votingTokenHandler)
+            IVotingTokenHandler votingTokenHandler,
+            IVotingStore votingStore,
+            IConfiguration configuration)
         {
             _votingTokenHandler = votingTokenHandler;
+            _votingStore = votingStore;
+
+            _regUrl = configuration["RemoteTokenStore:Url"];
         }
 
         public IActionResult Register(string votingId)
@@ -45,7 +57,26 @@ namespace FreieWahl.Controllers
             return result;
         }
 
-        public async Task<IActionResult> CastVote(string votingId, int questionIndex, List<string> answerId,
+        [HttpGet]
+        public async Task<IActionResult> CastVote(string votingId, string voterId, int questionIndex)
+        {
+            var voting = await _votingStore.GetById(votingId.ToId().Value);
+
+            var model = voting.Questions[questionIndex].AnswerOptions.Select(x => new FreieWahl.Models.Voting.AnswerOption
+            {
+                Text = x.AnswerText,
+                Description = "yadda yadda ", // TODO
+                Id = x.Id
+            });
+            ViewData["VoterId"] = voterId;
+            ViewData["VotingId"] = votingId;
+            ViewData["QuestionIndex"] = questionIndex;
+            ViewData["RegistrationStoreGetTokenUrl"] = _regUrl + "getToken";
+            return View(model);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> SubmitVote(string votingId, int questionIndex, string[] answerIds,
             string signedToken, string token)
         {
             var votingIdVal = long.Parse(votingId);
