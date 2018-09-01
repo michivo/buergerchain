@@ -27,7 +27,7 @@
 
         $.ajax({
             url: '@ViewData["RegistrationStoreSaveRegUrl"]',
-            data: { "id": '@ViewData["RegistrationStoreId"]', "tokenCount": @ViewData["TokenCount"], "mail": mail, "password": pwd },
+            data: { "id": '@ViewData["RegistrationStoreId"]', "tokenCount": @ViewData["TokenCount"], "mail": mail, "password": pwd, "votingId": '@ViewData["VotingId"]' },
             type: 'POST',
             datatype: 'json',
             success: function(x) {

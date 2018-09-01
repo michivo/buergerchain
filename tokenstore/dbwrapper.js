@@ -5,7 +5,7 @@ const datastore = Datastore({ projectId: config.GCLOUD_PROJECT });
 
 const TABLE_REGISTRATIONS = 'registration';
 const TABLE_VOTINGTOKENS = 'votingToken';
-
+const TABLE_PUBLICKEYS = 'publicKeys';
 
 async function addRegisteredTokens(registrationId, email, tokens, blindedTokens, blindingFactors) {
   const newRegistration = {
@@ -135,6 +135,48 @@ function deleteTokens(votingId) {
   })
 }
 
+function getKey(votingId, index) {
+  const query = datastore.createQuery(TABLE_PUBLICKEYS)
+    .filter('votingId', '=', votingId)
+    .filter('keyIndex', '=', parseInt(index.toString()));
+
+  return datastore.runQuery(query).then(async (results) => {
+    let queryResult = results[0];
+    if (queryResult.length != 1) {
+      return null; // TODO logging
+    }
+
+    return queryResult[0];
+  });
+}
+
+function getKeys(votingId) {
+  const query = datastore.createQuery(TABLE_PUBLICKEYS)
+    .filter('votingId', '=', votingId)
+    .order('keyIndex');
+
+  return datastore.runQuery(query).then(async (results) => {
+    return results[0];
+  });
+}
+
+function insertKeys(votingId, exponents, moduli) {
+  let keyEntities = [];
+  for(let i = 0; i < exponents.length; i++) {
+    const newEntity = {
+      key: datastore.key(TABLE_PUBLICKEYS),
+      data: {
+        votingId: votingId,
+        keyIndex: i,
+        exponent: exponents[i],
+        modulus: moduli[i]
+      }
+    };
+    keyEntities[i] = newEntity;
+  }
+  return datastore.insert(keyEntities);
+}
+
 module.exports = {
   registerTokens: addRegisteredTokens,
   getToken: getToken,
@@ -144,5 +186,8 @@ module.exports = {
   insertVotingTokens: insertVotingTokens,
   deleteRegistration: deleteRegistration,
   deleteTokens: deleteTokens,
+  insertKeys: insertKeys,
+  getKey: getKey,
+  getKeys: getKeys,
   datastore: datastore
 }

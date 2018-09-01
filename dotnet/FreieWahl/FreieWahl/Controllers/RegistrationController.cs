@@ -76,11 +76,13 @@ namespace FreieWahl.Controllers
             return Ok(votingIdPart);
         }
 
-        public IActionResult RegistrationDetails(string regUid)
+        public async Task<IActionResult> RegistrationDetails(string regUid)
         {
+            var registration = await _registrationStore.GetOpenRegistration(regUid);
             ViewData["RegistrationStoreId"] = regUid;
             ViewData["RegistrationStoreSaveRegUrl"] = _regUrl + "saveRegistrationDetails";
             ViewData["TokenCount"] = _tokenCount;
+            ViewData["VotingId"] = registration.VotingId.ToString(CultureInfo.InvariantCulture);
             return View();
         }
 

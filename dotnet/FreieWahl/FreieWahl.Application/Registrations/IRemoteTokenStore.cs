@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
+using Org.BouncyCastle.Crypto.Parameters;
 
 namespace FreieWahl.Application.Registrations
 {
@@ -11,5 +12,7 @@ namespace FreieWahl.Application.Registrations
             List<string> signedTokens);
 
         Task<RegistrationChallenge> GetChallenge(string registrationId);
+
+        Task InsertPublicKeys(long votingId, IEnumerable<RsaKeyParameters> publicKeys);
     }
 }

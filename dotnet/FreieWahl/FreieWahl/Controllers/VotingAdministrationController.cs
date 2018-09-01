@@ -12,6 +12,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
+using FreieWahl.Application.Registrations;
 using FreieWahl.Mail;
 using FreieWahl.Security.Signing.VotingTokens;
 using Microsoft.ApplicationInsights.AspNetCore.Extensions;
@@ -25,19 +26,22 @@ namespace FreieWahl.Controllers
         private readonly IMailProvider _mailProvider;
         private readonly IVotingTokenHandler _tokenHandler;
         private readonly IAuthorizationHandler _authorizationHandler;
+        private readonly IRemoteTokenStore _remoteTokenStore;
 
         public VotingAdministrationController(
             IVotingStore votingStore,
             IStringLocalizer<VotingAdministrationController> localizer,
             IMailProvider mailProvider,
             IVotingTokenHandler tokenHandler, 
-            IAuthorizationHandler authorizationHandler)
+            IAuthorizationHandler authorizationHandler,
+            IRemoteTokenStore remoteTokenStore)
         {
             _votingStore = votingStore;
             _localizer = localizer;
             _mailProvider = mailProvider;
             _tokenHandler = tokenHandler;
             _authorizationHandler = authorizationHandler;
+            _remoteTokenStore = remoteTokenStore;
         }
 
         public IActionResult Overview()
@@ -270,10 +274,11 @@ namespace FreieWahl.Controllers
 #pragma warning disable 4014
             _tokenHandler.GenerateTokens(voting.Id).ContinueWith(t =>
                 {
-                    if (t.IsCompletedSuccessfully)
-                    {
-                        _votingStore.UpdateState(voting.Id, VotingState.Ready);
-                    }
+                    if (!t.IsCompletedSuccessfully) return;
+
+                    var keys = t.Result;
+                    _remoteTokenStore.InsertPublicKeys(voting.Id, keys);
+                    _votingStore.UpdateState(voting.Id, VotingState.Ready);
                 });
 #pragma warning restore 4014
 

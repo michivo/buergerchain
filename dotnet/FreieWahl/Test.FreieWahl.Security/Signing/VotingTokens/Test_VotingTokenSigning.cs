@@ -2,6 +2,7 @@
 using System.Text;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Runtime.InteropServices;
 using System.Security.Cryptography;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -20,31 +21,31 @@ namespace Test.FreieWahl.Security.Signing.VotingTokens
     public class Test_VotingTokenSigning
     {
         static string _key = @"-----BEGIN RSA PRIVATE KEY-----
-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
+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
 -----END RSA PRIVATE KEY-----";
 
         [TestMethod]
@@ -55,23 +56,27 @@ XWpyUp0ln/id2ThI8JB5gQaIsqavGeaXKv0VvFO+LUVuS+Rm4b4LMw==
             RsaKeyParameters publicParams = (RsaKeyParameters)key.Public;
             RsaPrivateCrtKeyParameters privateKey = (RsaPrivateCrtKeyParameters) key.Private;
             var pubN = publicParams.Modulus.ToString(10);
-            Console.WriteLine(pubN);
 
             //signer.Init(true, key.Private);
-            var blindedToken = new BigInteger("51b46b81d9dc398df9c6da5bb1d36d7ce35379c6acfb434eb67a6ec408944d87d091d9bc71f601ef11ef73121041a0d896628808d5371b831634ae76ae075696fd1b1060257fc5dcc1daf1b4709abcb10de6ad86fe79ca3afa3d01235431297cdae2d7e4aa54fb5acd3389b5fe6e64ea67ebaf0115b5bc5efae5fca5327ed0ebab3c7e6f338b4f2a231255202a61bf589ef1cc541e1008fa3a5889819012d404b03d9b0c69ad6e3cf3c0d7b6b700f5b61a822b3fe866628a5af2ba9f58c61ea2fcb9d76ce359ba465e00b7a3620bc9fd7412f99707e73162ff986b72b8377ab325c940975c4cf1977cdabb98e50aa0d50ad72311996a33b9533cdcab018ed434", 16);
+            var blindedToken = new BigInteger("5cf1ebac13c1246effcddc5296aca1741114ebb11ab082d369c9edf6ee6b8d3e952af8f54fa725ec4d7653196fd690e6bd51e0182f1c79d3efad7a9dab29a8b968091504d636a2a7a9261923e3f793a59b302d0770c79b06f0ccb1cbbaf68fb44c9d9368e673fb9a520a8794cb9ac3dddf2e45dca5fa4420cf081c613da20bbbe5a679dd17e5fb036c7fa8a3ed115134abffeb5f5da1a8b09261712f5e7ab459c61e4ee1cd599d722e968293dc479ef967e5788a44844644cbfa8414e2ca71dea4fcc924a85d9748c67c781f0fed4389680b68283422a3b3a1b21b97fc96e21e6e721c5d511c2f340e31024c013769faf0a6e4098d3c58183323317c87a1623c", 16);
             var signed2 = blindedToken.ModPow(privateKey.Exponent, publicParams.Modulus);
             var signed = signed2.ToString(16);
             Console.WriteLine(signed);
 
-            var unblindedToken = new BigInteger("8077b5f994ca6094db3eb2bce4b81fb927853aa71e8ed1233833db63142e85b340d70ecec9d5b3d4620ea3d39c071cf42ffeb75dbaf3e4f68786d9d7a63a8b85e079c059e59722418225712f8a3a32f80afe4a1625df93afb9073bc2e794a516b37b8481ec9d67d353497c53d0f66aad84a2758a94be85cfefb686d8bef623abd17a5b4695080bc38cbaf34774c68a2593782d8f3bd6c0d8361962e606412ca0a303c4ec4ff3e928ca56cde319655b2223f852486a9ef20b5b1cdfbfb1910356686c4ae0d4645348f0a35e966b19ab9526091c2962fbed8bd9c1e63002f1b5bfcf0954b0114b73e3f7b177010c2ca984ee97a38933bcacf81055cd97fedb3508", 16);
-            var origToken = "6f37aef9-c5d5-429e-a7f3-297a67fbce36";
+            var unblindedToken = new BigInteger("44327549afe519c0840a1da8ad698078b1e97a4c0a8e17887fc65f33b63ec1aab757d9dddb20503777fb0cd66105d2e9eb9a7e8e20b3479ffc090dd3845e03b0d348c2f6a5123710156f759c0206950bd7ea398dd44bbe31064e3c8516bebf3b121e4355051d82e35ff2149e824cbbb02c412cffd6c481b94d71a0bdd94431a7909b187183d1150a6d06aea88398e1d3fef2fc8a7c431d537c8821d203c19bc29cdc9dcb14396f7b38f6f0976e62984ad5424d7ac183f6d41eb3d35623b2fd22153ecd607c4001f1d9c2a72e1e368d55426fb7d0a5fa55a3960a88a6bac2df99a11c3c10b897026756cbdfeff0d8a10120230d7948872fb44533fcee31fd7a23", 16);
+            var origToken = "dcfd22e3-f858-43bb-847a-0abaedfb649d";
 
             var publicKey = (RsaKeyParameters)key.Public;
             var digest = new SHA256Managed();
 
-            var messageHash = new BigInteger(digest.ComputeHash(Encoding.UTF8.GetBytes(origToken)));
+            var hashRaw = digest.ComputeHash(Encoding.UTF8.GetBytes(origToken)).SkipWhile(x => x == 0).ToArray();
             var sigIntVerification = unblindedToken.ModPow(publicKey.Exponent, publicKey.Modulus);
-            Assert.AreEqual(messageHash, sigIntVerification);
+            var sigUsRaw = sigIntVerification.ToByteArray().SkipWhile(x => x == 0).ToArray();
+            Assert.AreEqual(hashRaw.Length, sigUsRaw.Length);
+            for (int i = 0; i < hashRaw.Length; i++)
+            {
+                Assert.AreEqual(sigUsRaw[i], hashRaw[i]);
+            }
         }
     }
 }

@@ -6,9 +6,6 @@ const config = require('./config.json');
 const uuidv4 = require('uuid/v4');
 const sha256 = require('sha256');
 
-const PUBLIC_KEY_N = new BigInteger(config.FREIEWAHL_PUBLICKEY_N);
-const PUBLIC_KEY_E = new BigInteger(config.FREIEWAHL_PUBLICKEY_E);
-
 function generateToken() {
   return uuidv4();
 }
@@ -19,26 +16,25 @@ function messageToHashInt(message) {
   return messageBig;
 }
 
-function blindToken(token, password) {
+function blindToken(token, password, n, e) {
   const result = BlindSignature.blind({
     message: token,
-    N: PUBLIC_KEY_N,
-    E: PUBLIC_KEY_E
+    N: n,
+    E: e
   });
 
-  console.log('orig r for token: ' + token.substring(1, 20) + " - " + result.r.toString(16));
   return {
     r: result.r.xor(messageToHashInt(password)).toString(16),
     blinded: result.blinded.toString(16)
   }
 }
 
-function unblindToken(message, r, password) {
+function unblindToken(message, r, password, n) {
   r = new BigInteger(r, 16).xor(messageToHashInt(password));
   console.log('unpassworded r ' + r.toString(16));
   return BlindSignature.unblind({
     signed: message,
-    N: PUBLIC_KEY_N,
+    N: n,
     r: r
   }).toString(16);
 }

@@ -100,6 +100,14 @@ app.post('/getChallengeAndTokens', async function(req, res) {
   res.json({"challenge": challenge, "tokens": tokens}).end;
 });
 
+app.post('/setKeys', async function(req, res) {
+  const exponents = req.body.exponents;
+  const moduli = req.body.moduli;
+  const votingId = req.body.votingId;
+  await dbwrapper.insertKeys(votingId, exponents, moduli);
+  res.status(200).send("OK!").end;
+})
+
 app.post('/getToken', async function(req, res) {
   const password = req.body.password;
   const voterId = req.body.voterId;
@@ -108,13 +116,14 @@ app.post('/getToken', async function(req, res) {
   const token = voting.token;
   const blindingFactor = voting.blindingFactor;
   const signedToken = voting.signedToken;
-  const unblindedToken = tokengenerator.unblindToken(signedToken, blindingFactor, password);
+  const key = await dbwrapper.getKey(voting.votingId, questionIndex);
+  const unblindedToken = tokengenerator.unblindToken(signedToken, blindingFactor, password, key.modulus);
   // Website you wish to allow to connect
   prepareRes(res);
   res.json({"unblindedToken": unblindedToken, "token": token}).end;
 });
 
-app.post('/saveRegistrationDetails', (req, res) => {
+app.post('/saveRegistrationDetails', async function(req, res) {
   const registrationId = req.body.id;
   const email = req.body.mail;
   const password = req.body.password;
@@ -129,9 +138,10 @@ app.post('/saveRegistrationDetails', (req, res) => {
   let tokens = [];
   let blindedTokens = [];
   let blindingFactors = [];
+  const keys = await dbwrapper.getKeys(req.body.votingId);
   for(let i = 0; i < tokenCount; i++) {
     const token = tokengenerator.generateToken();
-    const blindedToken = tokengenerator.blindToken(token, password);
+    const blindedToken = tokengenerator.blindToken(token, password, keys[i].modulus, keys[i].exponent);
     blindingFactors[i] = blindedToken.r;
     blindedTokens[i] = blindedToken.blinded;
     tokens[i] = token;

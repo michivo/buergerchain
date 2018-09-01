@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
+using Org.BouncyCastle.Asn1.X509;
 using Org.BouncyCastle.Crypto;
 using Org.BouncyCastle.Crypto.Generators;
 using Org.BouncyCastle.Crypto.Parameters;
@@ -25,7 +27,7 @@ namespace FreieWahl.Security.Signing.VotingTokens
             _digest.Initialize();
         }
 
-        public async Task GenerateTokens(long votingId, int? numTokens)
+        public async Task<IEnumerable<RsaKeyParameters>> GenerateTokens(long votingId, int? numTokens = null)
         {
             if (numTokens == null)
             {
@@ -49,8 +51,10 @@ namespace FreieWahl.Security.Signing.VotingTokens
                     keyPairs.Add(index, keys);
                 }
             }).ConfigureAwait(false);
+            var publicKeys = keyPairs.Select(x => x.Value.Public).Cast<RsaKeyParameters>();
 
             await _keyStore.StoreKeyPairs(votingId, keyPairs).ConfigureAwait(false);
+            return publicKeys;
         }
 
         public string Sign(string token, long votingId, int tokenIndex)

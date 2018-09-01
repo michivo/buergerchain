@@ -11,8 +11,9 @@ const timeout = ms => new Promise(res => setTimeout(res, ms));
 
 const TABLE_REGISTRATIONS = 'registration';
 const TABLE_VOTINGTOKENS = 'votingToken';
+const TABLE_PUBLICKEYS = 'publicKeys';
 
-const DATASTORE_WAIT_TIME = 10;
+const DATASTORE_WAIT_TIME = 100;
 
 describe('The registerTokens function', function () {
   after(async() => {
@@ -306,6 +307,172 @@ describe('The deleteTokens function', function() {
   })
 })
 
+describe('The insertKeys function', function() {
+  after(async() => {
+    await deleteKeys('vTestInsertKeys1')
+  })
+  it('should insert keys', async() => {
+    // arrange
+    const votingId = 'vTestInsertKeys1';
+    const exponents = ['65537', '65538', '65539'];
+    const moduli = ['1234abcd', '4321dcba', '98765432'];
+
+    // act
+    await dbwrapper.insertKeys(votingId, exponents, moduli);
+    await timeout(DATASTORE_WAIT_TIME);
+
+    // assert
+    const query = datastore.createQuery(TABLE_PUBLICKEYS)
+      .order('keyIndex');
+    const results = await datastore.runQuery(query);
+    expect(results[0].length).to.equal(3);
+
+    expect(results[0][0].votingId).to.equal('vTestInsertKeys1');
+    expect(results[0][0].keyIndex).to.equal(0);
+    expect(results[0][0].exponent).to.equal('65537');
+    expect(results[0][0].modulus).to.equal('1234abcd');
+
+    expect(results[0][1].votingId).to.equal('vTestInsertKeys1');
+    expect(results[0][1].keyIndex).to.equal(1);
+    expect(results[0][1].exponent).to.equal('65538');
+    expect(results[0][1].modulus).to.equal('4321dcba');
+
+    expect(results[0][2].votingId).to.equal('vTestInsertKeys1');
+    expect(results[0][2].keyIndex).to.equal(2);
+    expect(results[0][2].exponent).to.equal('65539');
+    expect(results[0][2].modulus).to.equal('98765432');
+  })
+})
+
+describe('The getKey function', function() {
+  after(async() => {
+    await deleteKeys('vTestGetKey0');
+    await deleteKeys('vTestGetKey1');
+    await deleteKeys('vTestGetKey2');
+    await deleteKeys('vTestGetKey3');
+  })
+  it('gets a keys with a given voting id and index', async() => {
+    // arrange
+    const votingId = 'vTestGetKey0';
+    const exponents = ['65537', '65538', '65539'];
+    const moduli = ['1234abcd', '4321dcba', '98765432'];
+    const votingId2 = 'vTestGetKey1';
+    const exponents2 = ['165537', '165538', '165539'];
+    const moduli2 = ['1234abcda', '4321dcbab', '98765432c'];
+    await dbwrapper.insertKeys(votingId, exponents, moduli);
+    await timeout(DATASTORE_WAIT_TIME);
+    await dbwrapper.insertKeys(votingId2, exponents2, moduli2);
+    await timeout(DATASTORE_WAIT_TIME);
+
+    // act
+    const key0 = await dbwrapper.getKey(votingId, 0);
+    const key1 = await dbwrapper.getKey(votingId2, 1);
+    const key2 = await dbwrapper.getKey(votingId, 2);
+
+    // assert
+
+    expect(key0.votingId).to.equal('vTestGetKey0');
+    expect(key0.keyIndex).to.equal(0);
+    expect(key0.exponent).to.equal('65537');
+    expect(key0.modulus).to.equal('1234abcd');
+
+    expect(key1.votingId).to.equal('vTestGetKey1');
+    expect(key1.keyIndex).to.equal(1);
+    expect(key1.exponent).to.equal('165538');
+    expect(key1.modulus).to.equal('4321dcbab');
+
+    expect(key2.votingId).to.equal('vTestGetKey0');
+    expect(key2.keyIndex).to.equal(2);
+    expect(key2.exponent).to.equal('65539');
+    expect(key2.modulus).to.equal('98765432');
+  })
+  it('gets nothing when there is no matching key', async() => {
+    // arrange
+    const votingId = 'vTestGetKey2';
+    const exponents = ['65537', '65538'];
+    const moduli = ['1234abcd', '4321dcba'];
+    const votingId2 = 'vTestGetKey3';
+    const exponents2 = ['165537', '165538', '165539'];
+    const moduli2 = ['1234abcda', '4321dcbab', '98765432c'];
+    await dbwrapper.insertKeys(votingId, exponents, moduli);
+    await timeout(DATASTORE_WAIT_TIME);
+    await dbwrapper.insertKeys(votingId2, exponents2, moduli2);
+    await timeout(DATASTORE_WAIT_TIME);
+
+    // act
+    const key0 = await dbwrapper.getKey('badVotingId', 0);
+    const key1 = await dbwrapper.getKey(votingId, 2);
+    const key2 = await dbwrapper.getKey(votingId2, 3);
+
+    // assert
+    assert(!key0);
+    assert(!key2);
+    assert(!key1);
+  })
+})
+
+describe('The getKeys function', function() {
+  after(async() => {
+    await deleteKeys('vTestGetKeys0');
+    await deleteKeys('vTestGetKeys1');
+    await deleteKeys('vTestGetKeys2');
+    await deleteKeys('vTestGetKeys3');
+  })
+  it('gets all keys with a given voting id', async() => {
+    // arrange
+    const votingId = 'vTestGetKeys0';
+    const exponents = ['65537', '65538', '65539'];
+    const moduli = ['1234abcd', '4321dcba', '98765432'];
+    const votingId2 = 'vTestGetKeys1';
+    const exponents2 = ['165537', '165538', '165539'];
+    const moduli2 = ['1234abcda', '4321dcbab', '98765432c'];
+    await dbwrapper.insertKeys(votingId, exponents, moduli);
+    await timeout(DATASTORE_WAIT_TIME);
+    await dbwrapper.insertKeys(votingId2, exponents2, moduli2);
+    await timeout(DATASTORE_WAIT_TIME);
+
+    // act
+    const keys = await dbwrapper.getKeys(votingId);
+
+    // assert
+    expect(keys.length).to.equal(3);
+
+    expect(keys[0].votingId).to.equal('vTestGetKeys0');
+    expect(keys[0].keyIndex).to.equal(0);
+    expect(keys[0].exponent).to.equal('65537');
+    expect(keys[0].modulus).to.equal('1234abcd');
+
+    expect(keys[1].votingId).to.equal('vTestGetKeys0');
+    expect(keys[1].keyIndex).to.equal(1);
+    expect(keys[1].exponent).to.equal('65538');
+    expect(keys[1].modulus).to.equal('4321dcba');
+
+    expect(keys[2].votingId).to.equal('vTestGetKeys0');
+    expect(keys[2].keyIndex).to.equal(2);
+    expect(keys[2].exponent).to.equal('65539');
+    expect(keys[2].modulus).to.equal('98765432');
+  }),
+  it('gets nothing when there are no keys for a voting id', async() => {
+    // arrange
+    const votingId = 'vTestGetKeys2';
+    const exponents = ['65537', '65538', '65539'];
+    const moduli = ['1234abcd', '4321dcba', '98765432'];
+    const votingId2 = 'vTestGetKeys3';
+    const exponents2 = ['165537', '165538', '165539'];
+    const moduli2 = ['1234abcda', '4321dcbab', '98765432c'];
+    await dbwrapper.insertKeys(votingId, exponents, moduli);
+    await timeout(DATASTORE_WAIT_TIME);
+    await dbwrapper.insertKeys(votingId2, exponents2, moduli2);
+    await timeout(DATASTORE_WAIT_TIME);
+
+    // act
+    const keys = await dbwrapper.getKeys('badVotingId');
+
+    // assert
+    assert(!keys || keys.length == 0);
+  })
+})
+
 describe('The getChallenge function', function() {
   after(async() => {
     await deleteRegistration('rTestGetCha0');
@@ -385,9 +552,21 @@ async function printTable(table) {
   })
 }
 
+function deleteKeys(votingId) {
+  const query = datastore.createQuery(TABLE_PUBLICKEYS)
+    .filter('votingId', '=', votingId)
+    .select('__key__');
+
+  return datastore.runQuery(query)
+  .then((results) => {
+    datastore.delete(results[0].map(x => x[datastore.KEY]));
+  })
+}
+
 async function deleteRegistration(registrationId) {
   const query = datastore.createQuery(TABLE_REGISTRATIONS)
-    .filter('registrationId', '=', registrationId);
+    .filter('registrationId', '=', registrationId)
+    .select('__key__');
 
   return datastore.runQuery(query)
   .then((results) => {

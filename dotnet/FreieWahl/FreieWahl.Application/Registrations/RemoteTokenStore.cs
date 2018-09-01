@@ -6,6 +6,8 @@ using System.Net;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using Org.BouncyCastle.Asn1.X509;
+using Org.BouncyCastle.Crypto.Parameters;
 
 namespace FreieWahl.Application.Registrations
 {
@@ -80,6 +82,32 @@ namespace FreieWahl.Application.Registrations
 
             return new RegistrationChallenge(challenge,
                 tokens.Select(x => (string)x).ToList());
+        }
+
+        public async Task InsertPublicKeys(long votingIdVal, IEnumerable<RsaKeyParameters> publicKeys)
+        {
+            var request = WebRequest.CreateHttp(_remoteUrl + "setKeys");
+            request.ContentType = "application/json";
+            request.Method = WebRequestMethods.Http.Post;
+
+            using (var streamWriter = new StreamWriter(request.GetRequestStream()))
+            {
+                var publicKeyStructures = publicKeys as RsaKeyParameters[] ?? publicKeys.ToArray();
+                var resultData = new
+                {
+                    votingId = votingIdVal.ToString(CultureInfo.InvariantCulture),
+                    exponents = publicKeyStructures.Select(x => x.Exponent.ToString(16)).ToArray(),
+                    moduli = publicKeyStructures.Select(x => x.Modulus.ToString(16)).ToArray()
+                };
+
+                var json = JsonConvert.SerializeObject(resultData);
+
+                streamWriter.Write(json);
+                streamWriter.Flush();
+                streamWriter.Close();
+            }
+
+            await request.GetResponseAsync();
         }
     }
 }
