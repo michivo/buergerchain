@@ -1,1 +1,7 @@
 indexes:
+
+- kind: publicKeys
+  properties:
+  - name: votingId
+  - name: keyIndex
+    direction: asc
