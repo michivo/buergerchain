@@ -117,7 +117,7 @@ app.post('/getToken', async function(req, res) {
   const blindingFactor = voting.blindingFactor;
   const signedToken = voting.signedToken;
   const key = await dbwrapper.getKey(voting.votingId, questionIndex);
-  const unblindedToken = tokengenerator.unblindToken(signedToken, blindingFactor, password, key.modulus);
+  const unblindedToken = tokengenerator.unblindToken(signedToken, blindingFactor, password + "_" + questionIndex.toString() + "_" + voting.votingId, key.modulus);
   // Website you wish to allow to connect
   prepareRes(res);
   res.json({"unblindedToken": unblindedToken, "token": token}).end;
@@ -141,7 +141,7 @@ app.post('/saveRegistrationDetails', async function(req, res) {
   const keys = await dbwrapper.getKeys(req.body.votingId);
   for(let i = 0; i < tokenCount; i++) {
     const token = tokengenerator.generateToken();
-    const blindedToken = tokengenerator.blindToken(token, password, keys[i].modulus, keys[i].exponent);
+    const blindedToken = tokengenerator.blindToken(token, password + "_" + i.toString() + "_" + req.body.votingId, keys[i].modulus, keys[i].exponent);
     blindingFactors[i] = blindedToken.r;
     blindedTokens[i] = blindedToken.blinded;
     tokens[i] = token;

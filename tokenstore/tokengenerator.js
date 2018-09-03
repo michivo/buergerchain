@@ -17,12 +17,22 @@ function messageToHashInt(message) {
   return messageBig;
 }
 
-function blindToken(token, password, n, e) {
+function blindToken(token, password, n, e, r) {
   const messageHash = messageToHashInt(token);
   const nBig = new BigInteger(n, 16);
   const eBig = new BigInteger(e, 16);
 
   let gcd;
+  const rBig = new BigInteger(r, 16) || getR(nBig);
+
+  const blinded = messageHash.multiply(rBig.modPow(eBig, nBig)).mod(nBig);
+  return {
+    blinded: blinded.toString(16),
+    r: rBig.xor(messageToHashInt(password)).toString(16)
+  };
+}
+
+function getR(nBig) {
   let r;
   do {
     r = new BigInteger(secureRandom(64)).mod(nBig);
@@ -32,11 +42,8 @@ function blindToken(token, password, n, e) {
     r.compareTo(nBig) >= 0 ||
     r.compareTo(bigOne) <= 0
   );
-  const blinded = messageHash.multiply(r.modPow(eBig, nBig)).mod(nBig);
-  return {
-    blinded: blinded.toString(16),
-    r: r.xor(messageToHashInt(password)).toString(16)
-  };
+
+  return r;
 }
 
 function unblindToken(message, r, password, n) {

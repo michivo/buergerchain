@@ -83,8 +83,7 @@ namespace FreieWahl.Controllers
             if (_votingTokenHandler.Verify(signedToken, token, votingIdVal, questionIndex) == false)
                 return Unauthorized();
 
-            // TODO: check that number of answers is valid
-
+            _votingStore.
 
             return Ok();
         }

@@ -16,13 +16,15 @@ const config = require('./../config.json');
 
 describe('Blinding a message', function () {
   it('works', function () {
-    var token = tokengenerator.generateToken();
-    var pwd = 'foobar42';
-    var e = new BigInteger('65537', 10);
-    var n = new BigInteger('8e6c7c955ab5f721400290ec097a7304f79c1469a61c7110eb51d163ccd87d795370898540a933d4fe96b6ea57a03c09f5f1088320a46ecc79d09666bca5843aceffecfea3c78ee2f90a7bc3a7ba32c96749fc8bea5c1155356b00addaff0a310732dbeaf765ef94b45f6de248c9f6de5083757b4e5de9be651963e9fe3b3125751ed36feebd51a7303a650acf79b18eecce5db226e7371e5a80e6f4ae70ba64ce8632c58aa297ddeaf0804dab1a0bf08ab714fa753167cd98144756f3a6a68fc53e7e80a848ed8d722ea5d34c7c1d80caca93ed88188553bd812907ef15c4084bc7a85fe363c5a854d30ec27e43d26ef6ecceaa7b02c5e81a7a60d222d7cd0d', 16);
-    var blindedToken = tokengenerator.blindToken(token, pwd, n.toString(16), e.toString(16));
+    const token = 'ba2b5e6e-cebe-4f78-b0d2-b4e2725810b3';
+    const pwd = '123';
+    const e = '10001';
+    const n = '8f0f716a20a0bd9fea5c0f2bc8d4ca64b3622dff59b15ca32efb982d7487f8feee4764e9d7d6a08f26e8fc84688a3641299a0efd0475b5fc2fb47e15ca4abe8903b0ca8865c3a0494c7bb5d109fa66fe1ed350c2c333405d24912fdce810a18ddecc5ecc3ce6ab07a2c25139d2840fe79d43f465c06e1dd1ec4d83d938f2e9d981cfb37c215310aba96ae93ff2c45069dad9ccaacc340c3a1431dbd19eefc4f00e400c2fe0b5890defbfbbe5dc2e16e25e1271624c3b6001468f8f2029d92c2c30db26d341cbd53c68ac965a0ef7a833079a6d9874cb5763586dcd2795f0e5ae861bcfd512889abb69a8037824ce1869fe8cc8fc12ea13faf8c4bfe98a54ffb5';
+    const r = '6b647a635c352cb19fedb4d4050e55626fa866976f99617cc499a15da5a5ba8073d2095497566f72d233722cf071fece161ced4efbe7579603926dd965e6d339';
+    var blindedToken = tokengenerator.blindToken(token, pwd, n.toString(16), e.toString(16), r);
+    expect(blindedToken.blinded).to.equal('79db383f6d8397df44a24690d1cd0fcd8a7ce7978565157a26273a6d827a625a1eee3768c1f85dabfe9fe177b66df251b4712b5bc8e9bdc3e09525b87867176c17e25730f287878a1a1ce507a87db4e971b536b4f6d50c26375ad5311528621f07ac7a569722a5f2d5f97c17ea4b62e99a94b45c3a44fd80307d2c8c05ab9e19beb04850ea5b98d3b1d456b71d02e0560286439d13e25c3c9be0659d4f9731cdadf72f1fefe670d3018a511166b823bec2ec89ef08945807abeec648aaed298d51c5c0fb72634546fe884c1e48e5c79c226b54972b5b7d7b86a1d3be380fb1eb9d6b2df38fc009eb58bb235fc6ea19bbd70d833b77afe3c91bad81d03fdf2246');
   })
-})
+});
 
 describe('Unblinding a token', function() {
   it('works with real data', function() {
