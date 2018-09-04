@@ -5,7 +5,7 @@ namespace FreieWahl.Application.VotingResults
 {
     public interface IVotingResultManager
     {
-        Task StoreVote(long votingId, int questionIndex, List<long> answers, string token, string signedToken);
+        Task StoreVote(long votingId, int questionIndex, List<string> answers, string token, string signedToken);
 
         void CompleteVoting(long votingId);
 

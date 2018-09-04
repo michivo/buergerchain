@@ -5,6 +5,7 @@ using System.IO;
 using System.Security.Cryptography.X509Certificates;
 using FreieWahl.Application.Authentication;
 using FreieWahl.Application.Registrations;
+using FreieWahl.Application.VotingResults;
 using FreieWahl.Common;
 using FreieWahl.Mail;
 using FreieWahl.Mail.SendGrid;
@@ -83,6 +84,9 @@ namespace FreieWahl
             services.AddSingleton<IRemoteTokenStore>(p => new RemoteTokenStore(Configuration["RemoteTokenStore:Url"]));
             services.AddSingleton<IRegistrationStore>(p => new RegistrationStore(Configuration["Datastore:ProjectId"]));
             services.AddSingleton<ISignatureProvider, SignatureProvider>();
+            services.AddSingleton<IVotingResultManager, VotingResultManager>();
+            services.AddSingleton<IVotingChainBuilder, VotingChainBuilder>();
+            services.AddSingleton<IVotingResultStore>(p => new VotingResultStore(Configuration["Datastore:ProjectId"]));
             var sp = services.BuildServiceProvider();
             services.AddSingleton<IVotingTokenHandler>(p => new VotingTokenHandler(sp.GetService<IVotingKeyStore>(),
                 int.Parse(Configuration["VotingSettings:MaxNumQuestions"])));

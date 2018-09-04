@@ -5,15 +5,15 @@ indexes:
   - name: Visibility
   - name: DateCreated
     direction: desc
-	
+
 - kind: VotingResult
   properties: 
   - name: VotingId
   - name: QuestionIndex
-  
+
 - kind: VotingResult
   properties: 
   - name: VotingId
   - name: QuestionIndex
   - name: DateCreated
-	direction: desc
+    direction: desc

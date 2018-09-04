@@ -12,11 +12,7 @@ namespace FreieWahl.Application.VotingResults
     public class VotingChainBuilder : IVotingChainBuilder
     {
         private const int FormatVersion = 1;
-
-        public VotingChainBuilder()
-        {
-        }
-
+        
         private IDigest _CreateDigest()
         {
             return new KeccakDigest();

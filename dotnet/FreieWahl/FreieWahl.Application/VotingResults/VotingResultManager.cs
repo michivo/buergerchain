@@ -40,7 +40,7 @@ namespace FreieWahl.Application.VotingResults
             _voteStoreLocks = new Dictionary<long, Dictionary<int, SemaphoreSlim>>();
         }
 
-        public async Task StoreVote(long votingId, int questionIndex, List<long> answers, string token, string signedToken)
+        public async Task StoreVote(long votingId, int questionIndex, List<string> answers, string token, string signedToken)
         {
             if (_votingTokenHandler.Verify(signedToken, token, votingId, questionIndex) == false)
                 throw new InvalidOperationException("Token and signature do not match");
@@ -126,7 +126,7 @@ namespace FreieWahl.Application.VotingResults
                 _lastVoteCache[votingId].Remove(questionIndex);
         }
 
-        private byte[] _GetRawData(long votingId, int questionIndex, List<long> answers, string token, string signedToken)
+        private byte[] _GetRawData(long votingId, int questionIndex, List<string> answers, string token, string signedToken)
         {
             var result = new List<byte>();
             result.AddRange(BitConverter.GetBytes(1)); // version
@@ -135,7 +135,9 @@ namespace FreieWahl.Application.VotingResults
             result.AddRange(BitConverter.GetBytes(answers.Count)); // # answers
             foreach (var answer in answers)
             {
-                result.AddRange(BitConverter.GetBytes(answer)); // answer id
+                result.Add(2);
+                result.AddRange(Encoding.ASCII.GetBytes(answer)); // answer id
+                result.Add(3);
             }
             result.Add(2); // separator
             result.AddRange(Encoding.ASCII.GetBytes(token)); // token, in our application only consists of 0-9, a-f and -

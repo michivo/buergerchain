@@ -84,7 +84,7 @@ namespace FreieWahl.Controllers
             string signedToken, string token)
         {
             var votingIdVal = long.Parse(votingId);
-            _votingResultManager.StoreVote(votingIdVal, questionIndex, answerIds.Select(x => x.ToId().Value).ToList(), token,
+            await _votingResultManager.StoreVote(votingIdVal, questionIndex, answerIds.ToList(), token,
                 signedToken);
             return Ok();
         }

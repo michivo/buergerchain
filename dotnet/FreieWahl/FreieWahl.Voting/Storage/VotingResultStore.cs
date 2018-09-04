@@ -35,7 +35,7 @@ namespace FreieWahl.Voting.Storage
             var query = new Query(StoreKind)
             {
                 Filter = Filter.And(Filter.Equal("QuestionIndex", questionIndex), Filter.Equal("VotingId", votingId)),
-                Order = { { "", PropertyOrder.Types.Direction.Descending} },
+                Order = { { "DateCreated", PropertyOrder.Types.Direction.Descending} },
                 Limit = 1
             };
             var result = await _db.RunQueryAsync(query);
