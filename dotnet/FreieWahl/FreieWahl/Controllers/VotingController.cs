@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using FreieWahl.Application.VotingResults;
 using FreieWahl.Common;
 using FreieWahl.Security.Signing.VotingTokens;
 using FreieWahl.Voting.Models;
@@ -17,15 +18,18 @@ namespace FreieWahl.Controllers
     {
         private readonly IVotingTokenHandler _votingTokenHandler;
         private readonly IVotingStore _votingStore;
+        private readonly IVotingResultManager _votingResultManager;
         private string _regUrl;
 
         public VotingController(
             IVotingTokenHandler votingTokenHandler,
             IVotingStore votingStore,
-            IConfiguration configuration)
+            IConfiguration configuration,
+            IVotingResultManager votingResultManager)
         {
             _votingTokenHandler = votingTokenHandler;
             _votingStore = votingStore;
+            _votingResultManager = votingResultManager;
 
             _regUrl = configuration["RemoteTokenStore:Url"];
         }
@@ -80,11 +84,8 @@ namespace FreieWahl.Controllers
             string signedToken, string token)
         {
             var votingIdVal = long.Parse(votingId);
-            if (_votingTokenHandler.Verify(signedToken, token, votingIdVal, questionIndex) == false)
-                return Unauthorized();
-
-            _votingStore.
-
+            _votingResultManager.StoreVote(votingIdVal, questionIndex, answerIds.Select(x => x.ToId().Value).ToList(), token,
+                signedToken);
             return Ok();
         }
     }

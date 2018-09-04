@@ -53,14 +53,7 @@ const MAX_TOKEN_COUNT = config.MAX_TOKEN_COUNT;
 
 app.get('/', (req, res) => {
   console.log('received request, sending response');
-  const result = '<html><head><title>Hello</title></head><body><form action="/foo" method="post"><input type="submit" value="foo" /></form>Version 6</body></html>';
-  res.status(200).send(result).end();
-});
-
-app.get('/registerTokens', (req, res) => {
-  console.log('received request, sending response');
-  const result = '<html><head><title>Hello</title></head><body><form action="/registerTokens" method="post"><input type="hidden" name="tokens"' + ' value=\'[{ "index": 1, "tokenId": "t1234", "blindingFactor": "b123456" }, { "index": 2, "tokenId": "t4321", "blindingFactor": "b654321" }]\'/>' + '<input type="hidden" name="registrationId" value="1231231232"/><input type="hidden" name="votingId" value="1231231232"/><input type="hidden" name="email" value="michfasch@gmx.at"/><input type="submit" value="foo" /></form>';
-  prepareRes(res);
+  const result = '<html><head><title>Hello</title></head><body><form action="/foo" method="post"><input type="submit" value="foo" /></form>Version 7</body></html>';
   res.status(200).send(result).end();
 });
 
@@ -156,13 +149,17 @@ app.post('/saveRegistrationDetails', async function(req, res) {
 });
 
 // Start the server
-const PORT = process.env.PORT || 8082;
-app.listen(PORT, () => {
-  console.log(`App listening on port ${PORT}`);
-  console.log('Press Ctrl+C to quit.');
-});
+if(!module.parent) {
+  const PORT = process.env.PORT || 8082;
+  app.listen(PORT, () => {
+    console.log(`App listening on port ${PORT}`);
+    console.log('Press Ctrl+C to quit.');
+  });
+}
 // [END app]
 
 function prepareRes(res) {
     res.setHeader('Access-Control-Allow-Origin', 'http://localhost:61878');
 }
+
+module.exports = app

@@ -39,46 +39,35 @@ describe('Unblinding a token', function() {
     })
 
     expect(result).to.equal(true);
-  })
-/*  it('works', function() {
-    var blindedSignedToken =  '94b920e79ce9c297bfa0a82cdfc599749e4a4713d9036702e5c7dd56184381e393674eca98da2e57fb4cff07731004e4cb7f22c7948228ad497c4102d6b89f11954b882affd2fa1cf8f33bd88c59e89ca2c27c8b0f3a9b224f3e6e4105b1f7e86ee0a29a2778a5571dab780b5be22fd94d25b69f00bf689e78845928c2228138e6244a7d6793b0fa80afa9542a6ac806ee3f7358f99f0b2c6fae3b9289988e0e8e85fa3c891565adf64c5c8bfcb3c451c0ebb55038c003d1240f40fe1f320c9833fb4367f8b83694602a664b7c285426049221e49fde6c1b4a78dd8f4359657004de3af88616d69d834c6fa9f0d5c1d407e2cd066e44c69438eac310f0e9df79';
-    var r = 'ce7cb577d0f15e0c15198a05d2985eb39dc66a8989ede8904d97a1007db42dfb2729189dd4089fdb7ac0849d45a6994a3079aa47e9b57b057dbb84ae1289294';
-    var unblindedToken = tokengenerator.unblindToken(blindedSignedToken, r, 'foobar42');
-    const result = BlindSignature.verify({
-      unblinded: new BigInteger(unblindedToken, 16),
-      N: PUBLIC_KEY_N,
-      E: PUBLIC_KEY_E,
-      message: "52870df1-e940-4739-b05f-cf40f7c443a1"
-    })
-
-    expect(result).to.equal(true);
   }),
   it('fails with a wrong password', function() {
-    var blindedSignedToken =  '94b920e79ce9c297bfa0a82cdfc599749e4a4713d9036702e5c7dd56184381e393674eca98da2e57fb4cff07731004e4cb7f22c7948228ad497c4102d6b89f11954b882affd2fa1cf8f33bd88c59e89ca2c27c8b0f3a9b224f3e6e4105b1f7e86ee0a29a2778a5571dab780b5be22fd94d25b69f00bf689e78845928c2228138e6244a7d6793b0fa80afa9542a6ac806ee3f7358f99f0b2c6fae3b9289988e0e8e85fa3c891565adf64c5c8bfcb3c451c0ebb55038c003d1240f40fe1f320c9833fb4367f8b83694602a664b7c285426049221e49fde6c1b4a78dd8f4359657004de3af88616d69d834c6fa9f0d5c1d407e2cd066e44c69438eac310f0e9df79';
-    var r = 'ce7cb577d0f15e0c15198a05d2985eb39dc66a8989ede8904d97a1007db42dfb2729189dd4089fdb7ac0849d45a6994a3079aa47e9b57b057dbb84ae1289294';
-    var unblindedToken = tokengenerator.unblindToken(blindedSignedToken, r, 'foobar43');
-    const result = BlindSignature.verify({
-      unblinded: unblindedToken,
-      N: PUBLIC_KEY_N,
-      E: PUBLIC_KEY_E,
-      message: "52870df1-e940-4739-b05f-cf40f7c443a1"
+    var blindedSignedToken =  '115e5527c6f8505ce512ca81417ee42a276b61d8496b5021e4b974a2ba2b68f1ee67ab011790a49c8aaf8cc95a7097e26f23d1393c2dedfcad60018eacd8a356011e2fe85d761eed75b4fb5a5978161be84f40d55b3123c141ece65a2cd3ddfe22110d7088fa7cbb3786b842e428355c7dc321d091954b8dd1e74df447269083f763500aaf7f5af62b035cad9dca9ebe2f86ad8cd7f1a9fa9f68b195e5179d7fbb4d3203d062b9f9e45069e574dae417737a1cef4abb37008cf8fa7dd3fbfd663c872bbd2acdcdc690222f75445657de9c18df02068f18166159542771fb362b1af1f1c55e43956a3d75078364a993e72eabb02488530bed10df87401b6326cf';
+    var r = '6b647a635c352cb19fedb4d4050e55626fa866976f99617cc499a15da5a5ba80d5b7ad0db71440ef934d3a4b1fadb176b656f27104f8f7e89a1ceb2e9244a9da';
+    const n = '8f0f716a20a0bd9fea5c0f2bc8d4ca64b3622dff59b15ca32efb982d7487f8feee4764e9d7d6a08f26e8fc84688a3641299a0efd0475b5fc2fb47e15ca4abe8903b0ca8865c3a0494c7bb5d109fa66fe1ed350c2c333405d24912fdce810a18ddecc5ecc3ce6ab07a2c25139d2840fe79d43f465c06e1dd1ec4d83d938f2e9d981cfb37c215310aba96ae93ff2c45069dad9ccaacc340c3a1431dbd19eefc4f00e400c2fe0b5890defbfbbe5dc2e16e25e1271624c3b6001468f8f2029d92c2c30db26d341cbd53c68ac965a0ef7a833079a6d9874cb5763586dcd2795f0e5ae861bcfd512889abb69a8037824ce1869fe8cc8fc12ea13faf8c4bfe98a54ffb5';
+    var unblindedToken = tokengenerator.unblindToken(blindedSignedToken, r, '133', n);
+    const result = verify({
+      unblinded: new BigInteger(unblindedToken, 16),
+      N: new BigInteger( n, 16),
+      E: new BigInteger("65537", 10),
+      message: "ba2b5e6e-cebe-4f78-b0d2-b4e2725810b3"
     })
 
     expect(result).to.equal(false);
   }),
   it('fails with a wrong message', function() {
-    var blindedSignedToken =  '94b920e79ce9c297bfa0a82cdfc599749e4a4713d9036702e5c7dd56184381e393674eca98da2e57fb4cff07731004e4cb7f22c7948228ad497c4102d6b89f11954b882affd2fa1cf8f33bd88c59e89ca2c27c8b0f3a9b224f3e6e4105b1f7e86ee0a29a2778a5571dab780b5be22fd94d25b69f00bf689e78845928c2228138e6244a7d6793b0fa80afa9542a6ac806ee3f7358f99f0b2c6fae3b9289988e0e8e85fa3c891565adf64c5c8bfcb3c451c0ebb55038c003d1240f40fe1f320c9833fb4367f8b83694602a664b7c285426049221e49fde6c1b4a78dd8f4359657004de3af88616d69d834c6fa9f0d5c1d407e2cd066e44c69438eac310f0e9df79';
-    var r = 'ce7cb577d0f15e0c15198a05d2985eb39dc66a8989ede8904d97a1007db42dfb2729189dd4089fdb7ac0849d45a6994a3079aa47e9b57b057dbb84ae1289294';
-    var unblindedToken = tokengenerator.unblindToken(blindedSignedToken, r, 'foobar42');
-    const result = BlindSignature.verify({
+    var blindedSignedToken =  '115e5527c6f8505ce512ca81417ee42a276b61d8496b5021e4b974a2ba2b68f1ee67ab011790a49c8aaf8cc95a7097e26f23d1393c2dedfcad60018eacd8a356011e2fe85d761eed75b4fb5a5978161be84f40d55b3123c141ece65a2cd3ddfe22110d7088fa7cbb3786b842e428355c7dc321d091954b8dd1e74df447269083f763500aaf7f5af62b035cad9dca9ebe2f86ad8cd7f1a9fa9f68b195e5179d7fbb4d3203d062b9f9e45069e574dae417737a1cef4abb37008cf8fa7dd3fbfd663c872bbd2acdcdc690222f75445657de9c18df02068f18166159542771fb362b1af1f1c55e43956a3d75078364a993e72eabb02488530bed10df87401b6326cf';
+    var r = '6b647a635c352cb19fedb4d4050e55626fa866976f99617cc499a15da5a5ba80d5b7ad0db71440ef934d3a4b1fadb176b656f27104f8f7e89a1ceb2e9244a9da';
+    const n = '8f0f716a20a0bd9fea5c0f2bc8d4ca64b3622dff59b15ca32efb982d7487f8feee4764e9d7d6a08f26e8fc84688a3641299a0efd0475b5fc2fb47e15ca4abe8903b0ca8865c3a0494c7bb5d109fa66fe1ed350c2c333405d24912fdce810a18ddecc5ecc3ce6ab07a2c25139d2840fe79d43f465c06e1dd1ec4d83d938f2e9d981cfb37c215310aba96ae93ff2c45069dad9ccaacc340c3a1431dbd19eefc4f00e400c2fe0b5890defbfbbe5dc2e16e25e1271624c3b6001468f8f2029d92c2c30db26d341cbd53c68ac965a0ef7a833079a6d9874cb5763586dcd2795f0e5ae861bcfd512889abb69a8037824ce1869fe8cc8fc12ea13faf8c4bfe98a54ffb5';
+    var unblindedToken = tokengenerator.unblindToken(blindedSignedToken, r, '123', n);
+    const result = verify({
       unblinded: new BigInteger(unblindedToken, 16),
-      N: PUBLIC_KEY_N,
-      E: PUBLIC_KEY_E,
-      message: "52870df1-e940-4739-b05f-cf40f7c443a2"
+      N: new BigInteger( n, 16),
+      E: new BigInteger("65537", 10),
+      message: "ba2b5e6e-cebe-4f78-b0d2-b4e2725810b2"
     })
 
     expect(result).to.equal(false);
-  })*/
+  })
 });
 
 function verify({ unblinded, message, E, N }) {
