@@ -1,8 +1,28 @@
 $primary: #657f8C;
 
-$font-family-sans-serif: -apple-system, system-ui, BlinkMacSystemFont, Roboto, "Helvetica Neue", "Segoe UI", Arial, sans-serif !default;
+$font-family-sans-serif: Roboto, -apple-system, system-ui, BlinkMacSystemFont, "Helvetica Neue", "Segoe UI", Arial, sans-serif !default;
 $font-family-serif:      "Roboto Slab", Georgia, "Times New Roman", Times, serif !default;
 $font-family-monospace:  "Roboto Mono", Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace !default;
 $font-family-base:       $font-family-sans-serif !default;
 
+$headings-font-weight:  100 !default;
+
+$display-4-font-weight: 100 !default;
+
 @import "bootstrap";
+
+body {
+    padding-top: 5rem;
+}
+
+.freiewahl-main {
+    padding: 3rem 1.5rem;
+}
+
+.display-1 { font-weight: 100; }
+
+.display-2 { font-weight: 100; }
+
+.display-3 { font-weight: 100; }
+
+.display-4 { font-weight: 100; }
