@@ -45,11 +45,11 @@ namespace FreieWahl.Security.Signing.Buergerkarte
             var fullName = signerCert.SubjectDN.GetValueList(new DerObjectIdentifier("2.5.4.3")).Cast<string>().Single(); // id-at-commonName
             var serial = signerCert.SubjectDN.GetValueList(new DerObjectIdentifier("2.5.4.5")).Cast<string>().Single(); // id-at-serialNumber
 
-            var leafCert = new X509Certificate2(signerCert.GetEncoded()); // checking cert is easier with .net
-            var rootIssuer = _CheckIssuer(leafCert);
-            var root = _GetRootCertificate(rootIssuer);
+            // var leafCert = new X509Certificate2(signerCert.GetEncoded()); // checking cert is easier with .net
+            // var rootIssuer = _CheckIssuer(leafCert);
+            // var root = _GetRootCertificate(rootIssuer); // TODO - does not work in app engine, cert chain misses cert
 
-            return new SignedData(fullName, serial, root, content);
+            return new SignedData(fullName, serial, null, content);
         }
 
         private static X509Certificate2 _CheckIssuer(X509Certificate2 leafCert)

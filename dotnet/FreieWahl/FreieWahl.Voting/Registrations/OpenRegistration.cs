@@ -14,8 +14,6 @@ namespace FreieWahl.Voting.Registrations
 
         public DateTime RegistrationTime { get; set; }
 
-        public string EMailAdress { get; set; }
-
         public string RegistrationStoreId { get; set; }
     }
 }

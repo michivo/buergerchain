@@ -16,13 +16,14 @@ namespace FreieWahl.Controllers
 {
     public class RegistrationController : Controller
     {
+        private readonly ILogger<RegistrationController> _logger;
         private readonly ISignatureHandler _signatureHandler;
         private readonly IRegistrationStore _registrationStore;
         private readonly IAuthorizationHandler _authHandler;
         private readonly IRegistrationHandler _registrationHandler;
-        private static char _tokenFieldSeparator = '_';
         private readonly string _regUrl;
-        private int _tokenCount;
+        private readonly int _tokenCount;
+        private readonly string _redirectUrl;
 
         public RegistrationController(ILogger<RegistrationController> logger,
             ISignatureHandler signatureHandler,
@@ -31,49 +32,69 @@ namespace FreieWahl.Controllers
             IRegistrationHandler registrationHandler,
             IConfiguration configuration)
         {
+            _logger = logger;
             _signatureHandler = signatureHandler;
             _registrationStore = registrationStore;
             _authHandler = authHandler;
             _registrationHandler = registrationHandler;
             _regUrl = configuration["RemoteTokenStore:Url"];
             _tokenCount = int.Parse(configuration["VotingSettings:MaxNumQuestions"]);
+            _redirectUrl = configuration["Registration:RedirectUrl"];
         }
 
         [HttpPost]
         public async Task<IActionResult> Register(string regUid)
         {
-            var response = Request.Form["XMLResponse"];
-
-            var doc = new XmlDocument();
-            doc.LoadXml(response);
-            XmlNamespaceManager manager = new XmlNamespaceManager(doc.NameTable);
-            manager.AddNamespace("sl", "http://www.buergerkarte.at/namespaces/securitylayer/1.2#");
-            var signedData = doc.SelectSingleNode("//sl:CreateCMSSignatureResponse/sl:CMSSignature", manager).InnerText;
-            var data = _signatureHandler.GetSignedContent(signedData);
-
-            var dataContent = data.Data;
-            var separatorIdx = dataContent.IndexOf(_tokenFieldSeparator);
-            if (separatorIdx < 1 || separatorIdx >= dataContent.Length - 1)
-                return BadRequest();
-
-            var votingIdPart = dataContent.Substring(0, separatorIdx);
-            var votingId = votingIdPart.ToId();
-            if (votingId == null)
-                return BadRequest();
-
-            var mail = dataContent.Substring(separatorIdx + 1);
-
-            await _registrationStore.AddOpenRegistration(new OpenRegistration
+            try
             {
-                VotingId = votingId.Value,
-                VoterIdentity = data.SigneeId,
-                VoterName = data.SigneeName,
-                RegistrationTime = DateTime.UtcNow,
-                RegistrationStoreId = regUid,
-                EMailAdress = mail
-            });
+                _logger.LogInformation("Received response form: ");
+                foreach (var formPart in Request.Form)
+                {
+                    _logger.LogInformation(formPart.Key + " -> " +
+                                           formPart.Value.Aggregate("", (s, s1) => s + ", " + s1));
+                }
 
-            return Ok(votingIdPart);
+                var response = Request.Form["XMLResponse"];
+                _logger.LogInformation("Received response: " + response);
+                var doc = new XmlDocument();
+                doc.LoadXml(response);
+                XmlNamespaceManager manager = new XmlNamespaceManager(doc.NameTable);
+                manager.AddNamespace("sl", "http://www.buergerkarte.at/namespaces/securitylayer/1.2#");
+                var signedData = doc.SelectSingleNode("//sl:CreateCMSSignatureResponse/sl:CMSSignature", manager)
+                    .InnerText;
+                var data = _signatureHandler.GetSignedContent(signedData);
+                _logger.LogInformation("Received signed data: " + data.Data);
+                var dataContent = data.Data;
+                var votingId = dataContent.ToId();
+                if (votingId == null)
+                    return BadRequest();
+
+                await _registrationStore.AddOpenRegistration(new OpenRegistration
+                {
+                    VotingId = votingId.Value,
+                    VoterIdentity = data.SigneeId,
+                    VoterName = data.SigneeName,
+                    RegistrationTime = DateTime.UtcNow,
+                    RegistrationStoreId = regUid
+                });
+
+                return new ContentResult
+                {
+                    ContentType = "text/html",
+                    StatusCode = 200,
+                    Content = "<!DOCTYPE html><html><head><script>window.top.location.href = '" + _redirectUrl +
+                              "?regUid=" + regUid + "';</script></head></html>"
+                };
+            }
+            catch (Exception ex)
+            {
+                _logger.LogWarning(ex, "Error processing signature");
+                return BadRequest();
+            }
+            finally
+            {
+                _logger.LogInformation("Finished processing signature");
+            }
         }
 
         public async Task<IActionResult> RegistrationDetails(string regUid)

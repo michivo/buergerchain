@@ -70,7 +70,6 @@ namespace FreieWahl.Voting.Registrations
                 ["VoterId"] = openRegistration.VoterIdentity,
                 ["VoterName"] = openRegistration.VoterName,
                 ["RegistrationTime"] = Timestamp.FromDateTime(openRegistration.RegistrationTime),
-                ["Mail"] = openRegistration.EMailAdress,
                 ["RegistrationStoreId"] = openRegistration.RegistrationStoreId
             };
         }
@@ -160,7 +159,6 @@ namespace FreieWahl.Voting.Registrations
                 VotingId = entity["VotingId"].IntegerValue,
                 VoterName = entity["VoterName"].StringValue,
                 RegistrationTime = entity["RegistrationTime"].TimestampValue.ToDateTime(),
-                EMailAdress = entity["Mail"].StringValue,
                 RegistrationStoreId = entity["RegistrationStoreId"].StringValue
             };
         }
