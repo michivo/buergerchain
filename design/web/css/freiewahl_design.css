@@ -1,0 +1,154 @@
+#fw-title-banner {
+  background-image: url('../images/background.png');
+  color: white;
+  margin-bottom: 2rem;
+  display: flex;
+  justify-content: center;
+}
+
+#fw-navtitle {
+  display: flex;
+  font-size: 32pt;
+  align-items: center;
+  font-family: Calibri, Roboto, Arial, sans-serif;
+}
+
+#fw-firebase-auth-container {
+  flex-basis: 40%;
+}
+
+#fw-navtitle img {
+  margin-right: 1rem;
+}
+
+#fw-navtitle span {
+  margin-top: -1rem;
+  margin-bottom: -1rem;
+}
+
+#fw-overview-new-voting {
+  text-align: right;
+}
+
+div.fw-overview-header {
+  width: 100%;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: flex-end;
+  border-bottom: 1px solid #657f8C;
+  padding-bottom: 1rem;
+  padding-right: 3rem;
+  background-color: #C9D6DC;
+}
+
+nav.navbar-dark {
+  background-color: #657F8C;
+}
+
+div.fw-titlepage-bannercontent {
+  padding: 2rem;
+  display: flex;
+  justify-content: space-between;
+}
+
+div.fw-titlepage-bannercontent div {
+  margin-right: 1rem;
+  margin-left: 1rem;
+}
+
+@media only screen and (max-width: 1024px) {
+  div.fw-titlepage-bannercontent {
+    margin: auto;
+    flex-direction: column;
+    width: 100%;
+  }
+
+    #fw-navtitle span {
+      display: none;
+    }
+}
+
+@media only screen and (min-width: 1706px) {
+  div.fw-titlepage-bannercontent {
+      width: 60%;
+  }
+
+  div.fw-titlepage-bannertext {
+    flex-basis: 40%;
+  }
+}
+
+@media only screen and (min-width: 1024px) and (max-width: 1706px) {
+  div.fw-titlepage-bannertext {
+    flex-basis: 40%;
+  }
+
+  div.fw-titlepage-bannercontent {
+      width: 1024;
+  }
+}
+
+div.fw-titlepage-info, div.fw-overview-list {
+  color: #657F8E;
+}
+
+h1 {
+  font-family: Calibri, Roboto, Arial, sans-serif;
+  font-size: 48pt;
+  text-transform: uppercase;
+  width: 100%;
+  border-bottom: 1px solid;
+  padding-left: 1em;
+  font-weight: 100;
+  color: #657F8E;
+}
+
+.clearfix::after {
+   content: " ";
+   display: block;
+   height: 0;
+   clear: both;
+}
+
+div.fw-titlepage-flex {
+  display: flex;
+  width: 100%;
+  align-items: center;
+}
+
+div.fw-titlepage-media {
+  flex-shrink: 0;
+  flex-basis: 20%;
+}
+
+img.fw-card-svg {
+  width: 50%;
+  margin: auto;
+}
+
+div.fw-titlepage-boxcontent {
+  padding-left: 3em;
+  padding-right: 3em;
+}
+
+div.fw-titlepage-boxcontent p {
+  color: black;
+}
+
+div.fw-titlepage-boxtext {
+  color: black;
+}
+
+@media only screen and (min-width: 1024px) {
+  div.fw-titlepage-info, div.fw-overview-list {
+    width: 80%;
+    margin: 0 auto;
+    padding: 2rem 0;
+  }
+}
+
+.slick-prev:before,
+.slick-next:before {
+  color: #3582AC;
+}

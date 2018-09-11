@@ -1,4 +1,5 @@
 $primary: #657f8C;
+$fw-light: #DCE4E7;
 
 $font-family-sans-serif: Roboto, -apple-system, system-ui, BlinkMacSystemFont, "Helvetica Neue", "Segoe UI", Arial, sans-serif !default;
 $font-family-serif:      "Roboto Slab", Georgia, "Times New Roman", Times, serif !default;
@@ -26,3 +27,40 @@ body {
 .display-3 { font-weight: 100; }
 
 .display-4 { font-weight: 100; }
+
+nav.navbar-dark { 
+    background-image: url(../images/background_small.png);
+}
+
+a.navbar-brand {
+    background-color:white;
+    height:3rem;
+    font-size: 1.75rem;
+    padding:0.125rem .25rem; 
+    border-radius: .5rem;
+}
+
+#fw-brand-1 {
+    background-color:$primary;
+    font-weight:700;
+    padding:.125rem .5rem;
+    border-radius:.4rem;
+}
+
+#fw-brand-2 {
+    color:$primary;
+    font-weight: 400;
+    font-style: italic;
+    padding: .125rem;
+}
+
+#fw-account {
+    width:3rem;
+    height:3rem;
+    color:$primary;
+    background-color:$fw-light;
+    border-radius: 1.5rem;
+    font-size: 1.5rem;
+    text-align: center;
+    padding-top:.375rem;
+}

@@ -2,28 +2,27 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <link rel="stylesheet" type="text/css" href="slick/slick.css"/>
-  <link rel="stylesheet" type="text/css" href="slick/slick-theme.css"/>
-  <link rel="stylesheet" type="text/css" href="css/freiewahl.css">
+  <link rel="stylesheet" type="text/css" href="../../dotnet/FreieWahl/FreieWahl/wwwroot/css/freiewahl.css">
   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-
-  <!-- Bootstrap CSS -->
-  <link rel="stylesheet" href="css/bootstrap.css">
+  <link href="https://fonts.googleapis.com/css?family=Roboto:100,300,400,400i,700" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons"
+      rel="stylesheet">
   <title>Freie Wahl</title>
 </head>
 <body style="padding-top: 70px;">
-  <nav class="navbar navbar-dark fixed-top navbar-expand-md">
-    <a class="navbar-brand" id="fw-navtitle" href="#">
-      <img src="icons/freiewahl_mono.png" width="168" height="45" alt="Logo">
-      <span>freie<strong>wahl</strong></span>
-    </a>
+  <nav class="navbar navbar-dark fixed-top navbar-expand-md" style="height:70px">
+    <a class="navbar-brand" href="#">
+      <span id="fw-brand-1">freie</span><span id="fw-brand-2">Wahl</strong></span>
+    </a>   
+    <div class="d-flex justify-content-end align-content-center" style="width:100%;">
+        <span id="fw-account">MF</a>       
+      </div>
   </nav>
+  <div class="container-fluid" style="background-color:#DCE4E7;">
+      <i class="material-icons" style="font-size: 300px;color:#657f8C">account_circle</i>
+  </div>
   <main role="main" class="container">
-    <div class="fw-overview-header">
-      <img src="icons/outline-account_box-24px.svg" width="300" height="300">
-      <button type="button" class="btn btn-primary btn-lg" id="fw-overview-new-voting" data-toggle="modal" data-target="#newVotingModal">Neue Abstimmung</button>
-    </div>
-    <div class="modal fade" id="newVotingModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal fade" id="newVotingModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true" style="padding-top:300px;">
       <div class="modal-dialog" role="document">
         <div class="modal-content">
           <div class="modal-header">
