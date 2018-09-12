@@ -64,3 +64,52 @@ a.navbar-brand {
     text-align: center;
     padding-top:.375rem;
 }
+
+div.fw-banner {
+    background-color:#DCE4E7;
+}
+
+div.fw-userheader-container {
+    display:flex; 
+    align-items: flex-end;
+}
+
+i.fw-user-img {
+    font-size: 15rem;
+    color:#657f8C;
+}
+
+span.fw-userheader {
+    text-transform: uppercase; 
+    font-weight: 100; 
+    font-size: 3rem;
+    line-height: 3.25rem;
+    padding-bottom: 1rem; 
+    color:#657f8C
+}
+
+div.fw-userinfo {
+    margin-bottom:1rem;
+    margin-top:1rem;
+    color:#657f8C;
+    font-size: .9rem
+}
+
+span.fw-userinfo-block {
+    display:block;
+    height:1rem
+}
+
+span.fw-userinfo-important {
+    font-weight: 700;
+}
+
+div.fw-overview-list {
+    margin: 2rem 0rem;
+}
+
+div.fw-overview-list h1 {
+    text-transform:uppercase;
+    border-bottom: 2px solid #657F8C; 
+    color: #657F8C;
+}
