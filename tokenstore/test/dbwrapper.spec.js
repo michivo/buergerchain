@@ -1,8 +1,5 @@
-const sinon = require('sinon')
-const chai = require('chai')
-
-const expect = require('chai').expect
-const assert = require('chai').assert
+const expect = require('chai').expect;
+const assert = require('chai').assert;
 
 const dbwrapper = require('./../dbwrapper');
 const datastore = dbwrapper.datastore;
@@ -18,7 +15,7 @@ const DATASTORE_WAIT_TIME = 100;
 describe('The registerTokens function', function () {
   after(async() => {
     await deleteRegistration('rTestReg');
-  })
+  });
   it('adds a list of tokens', async () => {
     // arrange
     const tokens = [ 'token1', 'token2', 'token3' ];
@@ -31,7 +28,7 @@ describe('The registerTokens function', function () {
 
     // assert
     const query = datastore.createQuery(TABLE_REGISTRATIONS)
-    .filter('registrationId', '=', 'rTestReg');
+      .filter('registrationId', '=', 'rTestReg');
 
     const results = await datastore.runQuery(query);
     const queryResults = results[0];
@@ -54,14 +51,14 @@ describe('The registerTokens function', function () {
     expect(result.blindingFactors[0]).to.equal('blinding1');
     expect(result.blindingFactors[1]).to.equal('blinding2');
     expect(result.blindingFactors[2]).to.equal('blinding3');
-  })
-})
+  });
+});
 
 describe('The getRegistration function', function() {
   after(async() => {
     await deleteRegistration('rTestGetReg0');
     await deleteRegistration('rTestGetReg1');
-  })
+  });
   it('should return null/undefined if there is no matching registration', async () => {
     // arrange
     const tokens = [ 'token1', 'token2', 'token3' ];
@@ -75,7 +72,7 @@ describe('The getRegistration function', function() {
 
     // assert
     assert(!reg);
-  })
+  });
   it('should return a registration if there is one matching', async() => {
     // arrange
     const tokens = [ 'token1', 'token2', 'token3' ];
@@ -105,14 +102,14 @@ describe('The getRegistration function', function() {
     expect(result.blindingFactors[0]).to.equal('blinding1');
     expect(result.blindingFactors[1]).to.equal('blinding2');
     expect(result.blindingFactors[2]).to.equal('blinding3');
-  })
-})
+  });
+});
 
 describe('The setChallengeAndGetTokens function', function() {
   after(async() => {
     await deleteRegistration('rTestSetCha0');
     await deleteRegistration('rTestSetCha1');
-  })
+  });
   it('sets a challenge and returns the blinded tokens', async () => {
     // arrange
     const tokens = [ 'token1', 'token2', 'token3' ];
@@ -129,7 +126,7 @@ describe('The setChallengeAndGetTokens function', function() {
     expect(fetchedBlindedTokens[0]).to.equal('blinded1');
     expect(fetchedBlindedTokens[1]).to.equal('blinded2');
     expect(fetchedBlindedTokens[2]).to.equal('blinded3');
-  })
+  });
   it('returns null/undefined for a non-existent registration', async () => {
     // arrange
     const tokens = [ 'token1', 'token2', 'token3' ];
@@ -142,14 +139,14 @@ describe('The setChallengeAndGetTokens function', function() {
     const fetchedBlindedTokens = await dbwrapper.setChallengeAndGetTokens('badRegNumber', 'cha1234', Date.now().toString());
 
     assert(!fetchedBlindedTokens);
-  })
-})
+  });
+});
 
 describe('The deleteRegistration function', function() {
   after(async() => {
     await deleteRegistration('rTestDelReg0');
     await deleteRegistration('rTestDelReg1');
-  })
+  });
   it('should delete a registration', async() => {
     // arrange
     const tokens = [ 'token1', 'token2', 'token3' ];
@@ -165,7 +162,7 @@ describe('The deleteRegistration function', function() {
     await timeout(DATASTORE_WAIT_TIME);
     const reg = await dbwrapper.getRegistration('rTestDelReg0');
     assert(!reg);
-  })
+  });
   it('should not fail when deleting a non-existing registration', async() => {
     // arrange
     const tokens = [ 'token1', 'token2', 'token3' ];
@@ -180,13 +177,13 @@ describe('The deleteRegistration function', function() {
     // assert
     const reg = await dbwrapper.getRegistration('rTestDelReg1');
     assert(reg);
-  })
-})
+  });
+});
 
 describe('The insertVotingTokens function', function() {
   after(async() => {
     await deleteVotingTokens('testVotingInsert1');
-  })
+  });
   it('should insert a list of voting tokens', async() => {
     // arrange
     const tokens = [ 'token1', 'token2', 'token3' ];
@@ -224,14 +221,14 @@ describe('The insertVotingTokens function', function() {
     expect(votingTokens[0][2].token).to.equal('token3');
     expect(votingTokens[0][2].signedToken).to.equal('signed3');
     expect(votingTokens[0][2].blindingFactor).to.equal('blinding3');
-  })
-})
+  });
+});
 
 describe('The getToken method', function() {
   after(async() => {
     await deleteVotingTokens('testVotingGetToken1');
     await deleteVotingTokens('testVotingGetToken2');
-  })
+  });
   it('gets a token previously inserted', async() => {
     // arrange
     const tokens = [ 'token1', 'token2', 'token3' ];
@@ -281,8 +278,8 @@ describe('The getToken method', function() {
     // assert
     assert(!token1);
     assert(!token2);
-  })
-})
+  });
+});
 
 describe('The deleteTokens function', function() {
   it('should delete all tokens for a voting', async() => {
@@ -304,13 +301,13 @@ describe('The deleteTokens function', function() {
 
     const results = await datastore.runQuery(query);
     expect(results[0].length).to.equal(0);
-  })
-})
+  });
+});
 
 describe('The insertKeys function', function() {
   after(async() => {
-    await deleteKeys('vTestInsertKeys1')
-  })
+    await deleteKeys('vTestInsertKeys1');
+  });
   it('should insert keys', async() => {
     // arrange
     const votingId = 'vTestInsertKeys1';
@@ -341,8 +338,8 @@ describe('The insertKeys function', function() {
     expect(results[0][2].keyIndex).to.equal(2);
     expect(results[0][2].exponent).to.equal('65539');
     expect(results[0][2].modulus).to.equal('98765432');
-  })
-})
+  });
+});
 
 describe('The getKey function', function() {
   after(async() => {
@@ -350,7 +347,7 @@ describe('The getKey function', function() {
     await deleteKeys('vTestGetKey1');
     await deleteKeys('vTestGetKey2');
     await deleteKeys('vTestGetKey3');
-  })
+  });
   it('gets a keys with a given voting id and index', async() => {
     // arrange
     const votingId = 'vTestGetKey0';
@@ -385,7 +382,7 @@ describe('The getKey function', function() {
     expect(key2.keyIndex).to.equal(2);
     expect(key2.exponent).to.equal('65539');
     expect(key2.modulus).to.equal('98765432');
-  })
+  });
   it('gets nothing when there is no matching key', async() => {
     // arrange
     const votingId = 'vTestGetKey2';
@@ -408,8 +405,8 @@ describe('The getKey function', function() {
     assert(!key0);
     assert(!key2);
     assert(!key1);
-  })
-})
+  });
+});
 
 describe('The getKeys function', function() {
   after(async() => {
@@ -417,7 +414,7 @@ describe('The getKeys function', function() {
     await deleteKeys('vTestGetKeys1');
     await deleteKeys('vTestGetKeys2');
     await deleteKeys('vTestGetKeys3');
-  })
+  });
   it('gets all keys with a given voting id', async() => {
     // arrange
     const votingId = 'vTestGetKeys0';
@@ -470,8 +467,8 @@ describe('The getKeys function', function() {
 
     // assert
     assert(!keys || keys.length == 0);
-  })
-})
+  });
+});
 
 describe('The getChallenge function', function() {
   after(async() => {
@@ -479,7 +476,7 @@ describe('The getChallenge function', function() {
     await deleteRegistration('rTestGetCha1');
     await deleteRegistration('rTestGetCha2');
     await deleteRegistration('rTestGetCha3');
-  })
+  });
   it('should get the challenge previously set', async() => {
     // arrange
     const tokens = [ 'token1', 'token2', 'token3' ];
@@ -494,7 +491,7 @@ describe('The getChallenge function', function() {
 
     // assert
     expect(challenge).to.equal('cha1234');
-  })
+  });
   it('returns null/undefined if the date difference is too large', async() => {
     // arrange
     const tokens = [ 'token1', 'token2', 'token3' ];
@@ -509,7 +506,7 @@ describe('The getChallenge function', function() {
 
     // assert
     assert(!challenge);
-  })
+  });
   it('returns null/undefined if there is no such registration', async() => {
     // arrange
     const tokens = [ 'token1', 'token2', 'token3' ];
@@ -524,7 +521,7 @@ describe('The getChallenge function', function() {
 
     // assert
     assert(!challenge);
-  })
+  });
   it('returns null/undefined if no challenge was set', async() => {
     // arrange
     const tokens = [ 'token1', 'token2', 'token3' ];
@@ -538,19 +535,19 @@ describe('The getChallenge function', function() {
 
     // assert
     assert(!challenge);
-  })
-})
+  });
+});
 
 
 // BEGIN helper functions
-async function printTable(table) {
-  const query = datastore.createQuery(table);
+// async function printTable(table) {
+//   const query = datastore.createQuery(table);
 
-  return datastore.runQuery(query)
-  .then((results) => {
-    results[0].forEach(x => console.log(JSON.stringify(x)));
-  })
-}
+//   return datastore.runQuery(query)
+//   .then((results) => {
+//     results[0].forEach(x => console.log(JSON.stringify(x)));
+//   });
+// }
 
 function deleteKeys(votingId) {
   const query = datastore.createQuery(TABLE_PUBLICKEYS)
@@ -558,9 +555,9 @@ function deleteKeys(votingId) {
     .select('__key__');
 
   return datastore.runQuery(query)
-  .then((results) => {
-    datastore.delete(results[0].map(x => x[datastore.KEY]));
-  })
+    .then((results) => {
+      datastore.delete(results[0].map(x => x[datastore.KEY]));
+    });
 }
 
 async function deleteRegistration(registrationId) {
@@ -569,19 +566,19 @@ async function deleteRegistration(registrationId) {
     .select('__key__');
 
   return datastore.runQuery(query)
-  .then((results) => {
-    datastore.delete(results[0].map(x => x[datastore.KEY]));
-  })
+    .then((results) => {
+      datastore.delete(results[0].map(x => x[datastore.KEY]));
+    });
 }
 
 async function deleteVotingTokens(votingId) {
   const query = datastore.createQuery(TABLE_VOTINGTOKENS)
-  .filter('votingId', '=', votingId)
-  .select('__key__');
+    .filter('votingId', '=', votingId)
+    .select('__key__');
 
   return datastore.runQuery(query).then((results) => { // TODO: error handling?
     datastore.delete(results[0].map(x => x[datastore.KEY]));
-  })
+  });
 }
 
 // END helper functions

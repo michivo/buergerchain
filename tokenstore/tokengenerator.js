@@ -1,7 +1,5 @@
 const secureRandom = require('secure-random');
-const NodeRSA = require('node-rsa');
 const BigInteger = require('jsbn').BigInteger;
-const config = require('./config.json');
 const uuidv4 = require('uuid/v4');
 const sha256 = require('sha256');
 
@@ -22,7 +20,6 @@ function blindToken(token, password, n, e, r) {
   const nBig = new BigInteger(n, 16);
   const eBig = new BigInteger(e, 16);
 
-  let gcd;
   const rBig = new BigInteger(r, 16) || getR(nBig);
 
   const blinded = messageHash.multiply(rBig.modPow(eBig, nBig)).mod(nBig);
@@ -34,6 +31,7 @@ function blindToken(token, password, n, e, r) {
 
 function getR(nBig) {
   let r;
+  let gcd;
   do {
     r = new BigInteger(secureRandom(64)).mod(nBig);
     gcd = r.gcd(nBig);
@@ -61,4 +59,4 @@ module.exports = {
   generateToken: generateToken,
   blindToken: blindToken,
   unblindToken: unblindToken
-}
+};

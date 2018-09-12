@@ -1,16 +1,7 @@
-const sinon = require('sinon')
-const chai = require('chai')
-
-const expect = require('chai').expect
-const assert = require('chai').assert
-
+const expect = require('chai').expect;
 const sha256 = require('sha256');
 const BigInteger = require('jsbn').BigInteger;
-const NodeRSA = require('node-rsa');
-
 const tokengenerator = require('./../tokengenerator');
-
-const config = require('./../config.json');
 
 
 describe('Blinding a message', function () {
@@ -22,7 +13,7 @@ describe('Blinding a message', function () {
     const r = '6b647a635c352cb19fedb4d4050e55626fa866976f99617cc499a15da5a5ba8073d2095497566f72d233722cf071fece161ced4efbe7579603926dd965e6d339';
     var blindedToken = tokengenerator.blindToken(token, pwd, n.toString(16), e.toString(16), r);
     expect(blindedToken.blinded).to.equal('79db383f6d8397df44a24690d1cd0fcd8a7ce7978565157a26273a6d827a625a1eee3768c1f85dabfe9fe177b66df251b4712b5bc8e9bdc3e09525b87867176c17e25730f287878a1a1ce507a87db4e971b536b4f6d50c26375ad5311528621f07ac7a569722a5f2d5f97c17ea4b62e99a94b45c3a44fd80307d2c8c05ab9e19beb04850ea5b98d3b1d456b71d02e0560286439d13e25c3c9be0659d4f9731cdadf72f1fefe670d3018a511166b823bec2ec89ef08945807abeec648aaed298d51c5c0fb72634546fe884c1e48e5c79c226b54972b5b7d7b86a1d3be380fb1eb9d6b2df38fc009eb58bb235fc6ea19bbd70d833b77afe3c91bad81d03fdf2246');
-  })
+  });
 });
 
 describe('Unblinding a token', function() {
@@ -34,9 +25,9 @@ describe('Unblinding a token', function() {
     const result = verify({
       unblinded: new BigInteger(unblindedToken, 16),
       N: new BigInteger( n, 16),
-      E: new BigInteger("65537", 10),
-      message: "ba2b5e6e-cebe-4f78-b0d2-b4e2725810b3"
-    })
+      E: new BigInteger('65537', 10),
+      message: 'ba2b5e6e-cebe-4f78-b0d2-b4e2725810b3'
+    });
 
     expect(result).to.equal(true);
   }),
@@ -48,9 +39,9 @@ describe('Unblinding a token', function() {
     const result = verify({
       unblinded: new BigInteger(unblindedToken, 16),
       N: new BigInteger( n, 16),
-      E: new BigInteger("65537", 10),
-      message: "ba2b5e6e-cebe-4f78-b0d2-b4e2725810b3"
-    })
+      E: new BigInteger('65537', 10),
+      message: 'ba2b5e6e-cebe-4f78-b0d2-b4e2725810b3'
+    });
 
     expect(result).to.equal(false);
   }),
@@ -62,12 +53,12 @@ describe('Unblinding a token', function() {
     const result = verify({
       unblinded: new BigInteger(unblindedToken, 16),
       N: new BigInteger( n, 16),
-      E: new BigInteger("65537", 10),
-      message: "ba2b5e6e-cebe-4f78-b0d2-b4e2725810b2"
-    })
+      E: new BigInteger('65537', 10),
+      message: 'ba2b5e6e-cebe-4f78-b0d2-b4e2725810b2'
+    });
 
     expect(result).to.equal(false);
-  })
+  });
 });
 
 function verify({ unblinded, message, E, N }) {
@@ -82,8 +73,4 @@ function messageToHashInt(message) {
   const messageHash = sha256(message);
   const messageBig = new BigInteger(messageHash, 16);
   return messageBig;
-}
-
-function unblind({ signed, key, r, N }) {
-
 }
