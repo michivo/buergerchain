@@ -1,5 +1,7 @@
 $primary: #657f8C;
 $fw-light: #DCE4E7;
+$fw-medium: #3583A9;
+$header-height: 4rem;
 
 $font-family-sans-serif: Roboto, -apple-system, system-ui, BlinkMacSystemFont, "Helvetica Neue", "Segoe UI", Arial, sans-serif !default;
 $font-family-serif:      "Roboto Slab", Georgia, "Times New Roman", Times, serif !default;
@@ -13,7 +15,11 @@ $display-4-font-weight: 100 !default;
 @import "bootstrap";
 
 body {
-    padding-top: 5rem;
+    padding-top: $header-height;
+}
+
+nav.navbar {
+    height:$header-height;
 }
 
 .freiewahl-main {
@@ -55,18 +61,19 @@ a.navbar-brand {
 }
 
 #fw-account {
-    width:3rem;
-    height:3rem;
+    float:right;
+    width:2.5rem;
+    height:2.5rem;
     color:$primary;
     background-color:$fw-light;
     border-radius: 1.5rem;
-    font-size: 1.5rem;
+    font-size: 1.3rem;
     text-align: center;
-    padding-top:.375rem;
+    padding-top:.25rem;
 }
 
 div.fw-banner {
-    background-color:#DCE4E7;
+    background-color:$fw-light;
 }
 
 div.fw-userheader-container {
@@ -76,7 +83,7 @@ div.fw-userheader-container {
 
 i.fw-user-img {
     font-size: 15rem;
-    color:#657f8C;
+    color:$primary;
 }
 
 span.fw-userheader {
@@ -85,13 +92,13 @@ span.fw-userheader {
     font-size: 3rem;
     line-height: 3.25rem;
     padding-bottom: 1rem; 
-    color:#657f8C
+    color:$primary
 }
 
 div.fw-userinfo {
     margin-bottom:1rem;
     margin-top:1rem;
-    color:#657f8C;
+    color:$primary;
     font-size: .9rem
 }
 
@@ -110,6 +117,55 @@ div.fw-overview-list {
 
 div.fw-overview-list h1 {
     text-transform:uppercase;
-    border-bottom: 2px solid #657F8C; 
-    color: #657F8C;
+    border-bottom: 2px solid ; 
+    color: $primary;
+}
+
+div.fw-overview-card {
+    width: 18rem;
+}
+
+div.fw-overview-card div.card-body{ 
+    box-shadow: 1px 1px 3px #C0C0C0
+}
+
+div.fw-overview-card h5.card-title { 
+    font-weight:400;
+    color: $fw-medium;
+}
+
+div.fw-overview-card p.card-text { 
+    color:$primary; 
+    font-size:.9rem
+}
+
+a.fw-card-link-icon {
+    float:right;
+    background-color:$primary;
+    height:3rem;
+    width:3rem;
+    border-radius: 1.5rem;
+    padding:0.5rem;
+}
+
+a.fw-card-link-icon i {
+    font-size: 2rem;
+    color:white
+}
+
+@keyframes shadowPulse {
+    0% {
+        text-shadow: 0px 0px 30px $primary;
+    }
+
+    100% {
+        text-shadow: 0px 0px 0px $fw-light;
+    }
+}
+
+.shadow-pulse {
+    animation-name: shadowPulse;
+    animation-duration: 1.5s;
+    animation-iteration-count: 1;
+    animation-timing-function: linear;
 }
