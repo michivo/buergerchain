@@ -169,3 +169,40 @@ a.fw-card-link-icon i {
     animation-iteration-count: 1;
     animation-timing-function: linear;
 }
+
+img.fw-finished-vote {
+    max-width: 18rem;
+    max-height:18rem;
+    width:auto;
+    height:auto;
+    display:block;
+}
+
+div.fw-finished-vote-card {
+    width:18rem;
+    position:relative;
+}
+
+div.fw-finished-vote-card-content {
+    box-shadow: 1px 1px 3px #C0C0C0; 
+    position:absolute;
+    left:0;
+    right:0;
+    top:0;
+    bottom:0;
+    z-index: 10;
+    padding:0px;
+    display:flex;
+    flex-direction: column;
+    justify-content: flex-end
+}
+
+div.fw-finished-vote-card-text {
+    background-color: rgba(255, 255, 255, 0.6666666667); 
+    width:100%;
+    padding:0.25rem;
+}
+
+div.fw-finished-vote-card-text h5 {
+    font-weight: 400;
+}

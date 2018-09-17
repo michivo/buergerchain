@@ -12,7 +12,7 @@
 </head>
 
 <body>
-  <nav class="navbar navbar-dark fixed-top navbar-expand-md" style="border:1px solid black">
+  <nav class="navbar navbar-dark fixed-top navbar-expand-md">
     <a class="navbar-brand" href="#">
       <span id="fw-brand-1">freie</span><span id="fw-brand-2">Wahl</strong></span>
     </a>
@@ -62,7 +62,7 @@
                 </div>
                 <div class="form-group date">
                   <label for="exampleInputEmail1">Enddatum/-zeit</label>
-                  <input type="text" class="form-control form-control-sm"><span class="input-group-addon"></span>
+                  <input type="text" class="form-control form-control-sm"><span class="input-group-addon" placeholder="dd.mm.yyyy"></span>
                 </div>
                 <div class="form-group">
                   <input type="text" class="form-control form-control-sm" id="fwEndTime" aria-describedby="emailHelp"
@@ -139,7 +139,7 @@
           </div>
           <div class="col-xl-4 col-md-6 col-sm-12">
             <div class="card fw-overview-card" style="cursor: pointer; background-color:#DCE4E7;color:#657f8C" onclick="createVoting()"
-              onmouseenter="highlightAddVoting()" onmouseleave="resetAddVoting()">
+              onmouseenter="highlightAddVoting('#fw-add-voting-icon')" onmouseleave="resetAddVoting('#fw-add-voting-icon')">
               <i class="card-img-top material-icons" style="width:100%;text-align:center;font-size:15rem" id="fw-add-voting-icon">add_circle_outline</i>
               <div class="card-body">
                 <h5 class="card-title">Neue Abstimmung</h5>
@@ -160,24 +160,22 @@
       <div class="container">
         <div class="row">
           <div class="col-xl-4 col-md-6 col-sm-12">
-            <div style="width:18rem;position:relative">
-              <img src="images/traffic-jam-388924_640.jpg" style="max-width: 18rem;max-height:18rem;width:auto;height:auto;display:block;"
-                alt="Card image cap">
-              <div style="box-shadow: 1px 1px 3px #C0C0C0; position:absolute;left:0;right:0;top:0;bottom:0;z-index: 10;padding:0px;display:flex;flex-direction: column;justify-content: flex-end">
-                <div style="background-color: #FFFFFFAA; width:100%;padding:0.25rem;">
-                  <h5 style="font-weight: 400;">Citymaut in Graz</h5>
+            <div class="fw-finished-vote-card">
+              <img src="images/traffic-jam-388924_640.jpg" class="fw-finished-vote" alt="Card image cap">
+              <div class="fw-finished-vote-card-content">
+                <div class="fw-finished-vote-card-text">
+                  <h5>Citymaut in Graz</h5>
                   <p>Welche Linie soll die Partei bei der Citymaut verfolgen?</p>
                 </div>
               </div>
             </div>
           </div>
           <div class="col-xl-4 col-md-6 col-sm-12">
-            <div style="width:18rem;position:relative">
-              <img src="images/rings-1287753_640.jpg" style="max-width: 18rem;max-height:18rem;width:auto;height:auto;display:block;"
-                alt="Card image cap">
-              <div style="box-shadow: 1px 1px 3px #C0C0C0; position:absolute;left:0;right:0;top:0;bottom:0;z-index: 10;padding:0px;display:flex;flex-direction: column;justify-content: flex-end">
-                <div style="background-color: #FFFFFFAA; width:100%;padding:0.25rem;">
-                  <h5 style="font-weight: 400;">Olympiabewerbung</h5>
+            <div class="fw-finished-vote-card">
+              <img src="images/rings-1287753_640.jpg" class="fw-finished-vote" alt="Card image cap">
+              <div class="fw-finished-vote-card-content">
+                <div class="fw-finished-vote-card-text">
+                  <h5>Olympiabewerbung</h5>
                   <p>Soll Graz sich für die Austragung der Olympischen Winterspiele 2026 bewerben?</p>
                 </div>
               </div>
@@ -242,13 +240,13 @@
       $("#fw-user-img-upload").css("display", "inline");
     }
 
-    function highlightAddVoting() {
-      $("#fw-add-voting-icon").addClass('shadow-pulse');
+    function highlightAddVoting(jqueryPath) {
+      $(jqueryPath).addClass('shadow-pulse');
       console.log('asdf');
     }
 
-    function resetAddVoting() {
-      $("#fw-add-voting-icon").removeClass('shadow-pulse');
+    function resetAddVoting(jqueryPath) {
+      $(jqueryPath).removeClass('shadow-pulse');
     }
 
     function createVoting() {
