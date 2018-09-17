@@ -79,11 +79,11 @@
       </div>
     </div>
   </div>
-  
+
   <div class="container-fluid fw-banner">
     <div class="container">
       <div class="row align-items-end">
-        <div class="col-8 fw-userheader-container">
+        <div class="col-12 col-lg-8 fw-userheader-container">
           <div id="fw-user-img-content" class="fw-user-img" style="cursor: pointer" onclick="showFileSelector()">
             <div id="fw-user-img-selector" style="position:absolute;top:0;left:0;color:white;display:flex;align-content: center;padding:.1rem;border:1px solid #FFFFFF00;height:2rem">
               <i id="fw-user-img-icon" class="material-icons" style="font-size:2rem;text-shadow:0px 1px 1px #657f8C">
@@ -96,12 +96,15 @@
             <div id="fw-user-img-upload" style="display:none;position:absolute;top:2rem;left:0;background-color:white;border:1px solid #657f8c;padding:.5rem;border-radius: .5rem;">
               <form>
                 <p style="font-size: .8rem;">Wählen Sie ein 300x300px großes Bild.</p>
-                <button class="btn btn-primary" style="float:right;font-size:.9rem;" id="loadUserImg" onclick="document.getElementById('fw-userimg-selector').click();">Bild
-                  hochladen</button>
-                <input type="file" style="display:none;" id="fw-userimg-selector" name="file" />
+                <div class="custom-file">
+                  <input type="file" class="custom-file-input" id="fw-user-img-input" required>
+                  <label class="custom-file-label" for="validatedCustomFile">Choose file...</label>
+                  <div class="invalid-feedback">Example invalid custom file feedback</div>
+                </div>
               </form>
             </div>
-            <i class="material-icons fw-user-img">account_circle</i>
+            <i class="material-icons fw-user-img" id="fw-user-img-dummy">account_circle</i>
+            <canvas id="fw-user-img-real" style="display:none;" with="300" height="300"></canvas>
           </div>
           <span class="fw-userheader">Michael<br />Faschinger</span>
         </div>
@@ -207,8 +210,11 @@
       format: "dd.mm.yyyy"
     });
 
+    $('document').ready(function () {
+      $('#fw-user-img-input').change(function () { alert($(this).val()); previewAndUploadFile(); });
+    });
+
     function highlightImgSelector() {
-      console.log('a');
       $("#fw-user-img-selector").css("border", "1px solid #FFFFFF80");
       $("#fw-user-img-selector").animate({
         backgroundColor: 'rgba(0,0,0,.5)',
@@ -236,13 +242,11 @@
     }
 
     function showFileSelector() {
-      console.log('asdadas');
       $("#fw-user-img-upload").css("display", "inline");
     }
 
     function highlightAddVoting(jqueryPath) {
       $(jqueryPath).addClass('shadow-pulse');
-      console.log('asdf');
     }
 
     function resetAddVoting(jqueryPath) {
@@ -251,6 +255,53 @@
 
     function createVoting() {
       $("#newVotingModal").modal();
+    }
+
+    function previewAndUploadFile() {
+      var file = $('#fw-user-img-input')[0].files[0];
+      if (!file.type.match(/image.*/)) {
+        return; // TODO: inform user to upload actual image
+      };
+      var img = new Image();
+      var reader = new FileReader();
+      reader.onload = function (e) {
+        img.src = e.target.result;
+      }
+
+      img.onload = function () {
+        alert(this.height + 'x' + this.width);
+        var canvas = document.getElementById('fw-user-img-real');
+        var context = canvas.getContext('2d');
+        var MAX_WIDTH = 300;
+        var MAX_HEIGHT = 300;
+        var width = img.width;
+        var height = img.height;
+
+        if (width > height) {
+          if (width > MAX_WIDTH) {
+            height *= MAX_WIDTH / width;
+            width = MAX_WIDTH;
+          }
+        } else {
+          if (height > MAX_HEIGHT) {
+            width *= MAX_HEIGHT / height;
+            height = MAX_HEIGHT;
+          }
+        }
+        canvas.width = width;
+        canvas.height = height;
+        context.drawImage(img, 0, 0, width, height);
+        $('#fw-user-img-dummy').hide();
+        $('#fw-user-img-real').show();
+        uploadFile();
+      }
+      reader.readAsDataURL(file);
+    }
+
+    function uploadFile() {
+      var canvas = document.getElementById('fw-user-img-real');
+      var dataURL = canvas.toDataURL();
+      alert('uploading ' + dataURL);
     }
   </script>
 </body>
