@@ -15,6 +15,7 @@ using FreieWahl.Security.Signing.Common;
 using FreieWahl.Security.Signing.VotingTokens;
 using FreieWahl.Security.TimeStamps;
 using FreieWahl.Security.UserHandling;
+using FreieWahl.UserData.Mapper;
 using FreieWahl.Voting.Registrations;
 using FreieWahl.Voting.Storage;
 using Microsoft.AspNetCore.Builder;
@@ -90,6 +91,7 @@ namespace FreieWahl
             var sp = services.BuildServiceProvider();
             services.AddSingleton<IVotingTokenHandler>(p => new VotingTokenHandler(sp.GetService<IVotingKeyStore>(),
                 int.Parse(Configuration["VotingSettings:MaxNumQuestions"])));
+            services.AddSingleton<IUserDataStore>(p => new UserDataStore(Configuration["Datastore:ProjectId"]));
         }
 
         private List<TimestampServer> _GetTimestampServers()

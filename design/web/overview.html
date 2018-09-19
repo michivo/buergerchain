@@ -269,7 +269,6 @@
       }
 
       img.onload = function () {
-        alert(this.height + 'x' + this.width);
         var canvas = document.getElementById('fw-user-img-real');
         var context = canvas.getContext('2d');
         var MAX_WIDTH = 300;
@@ -301,7 +300,23 @@
     function uploadFile() {
       var canvas = document.getElementById('fw-user-img-real');
       var dataURL = canvas.toDataURL();
-      alert('uploading ' + dataURL);
+      $.ajax({
+        url: 'http://localhost:61878/VotingAdministration/UpdateUserImage',
+        type: 'POST',
+        data: {
+          imageData: dataURL
+        },
+        success: updateImage,
+        error: function (data) {
+          // TODO
+        },
+        // beforeSend: function (xhr) {
+        //   xhr.setRequestHeader("Authorization", idToken);
+        // }
+      });
+    }
+
+    function updateImage(data) {
     }
   </script>
 </body>

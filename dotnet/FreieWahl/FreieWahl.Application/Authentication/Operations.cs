@@ -11,6 +11,7 @@
         DeleteVoting = 0x20,
         Invite = 0x40,
         GrantRegistration = 0x80,
-        List = 0x100
+        List = 0x100,
+        EditUser = 0x200,
     }
 }

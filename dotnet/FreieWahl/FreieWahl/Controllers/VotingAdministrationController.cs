@@ -1,12 +1,10 @@
 ﻿using FreieWahl.Application.Authentication;
 using FreieWahl.Models.VotingAdministration;
-using FreieWahl.Security.Authentication;
 using FreieWahl.Security.UserHandling;
 using FreieWahl.Voting.Models;
 using FreieWahl.Voting.Storage;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Localization;
-using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -15,6 +13,7 @@ using System.Threading.Tasks;
 using FreieWahl.Application.Registrations;
 using FreieWahl.Mail;
 using FreieWahl.Security.Signing.VotingTokens;
+using FreieWahl.UserData.Store;
 using Microsoft.ApplicationInsights.AspNetCore.Extensions;
 
 namespace FreieWahl.Controllers
@@ -27,6 +26,7 @@ namespace FreieWahl.Controllers
         private readonly IVotingTokenHandler _tokenHandler;
         private readonly IAuthorizationHandler _authorizationHandler;
         private readonly IRemoteTokenStore _remoteTokenStore;
+        private readonly IUserDataStore _userDataStore;
 
         public VotingAdministrationController(
             IVotingStore votingStore,
@@ -34,7 +34,7 @@ namespace FreieWahl.Controllers
             IMailProvider mailProvider,
             IVotingTokenHandler tokenHandler, 
             IAuthorizationHandler authorizationHandler,
-            IRemoteTokenStore remoteTokenStore)
+            IRemoteTokenStore remoteTokenStore, IUserDataStore userDataStore)
         {
             _votingStore = votingStore;
             _localizer = localizer;
@@ -42,12 +42,20 @@ namespace FreieWahl.Controllers
             _tokenHandler = tokenHandler;
             _authorizationHandler = authorizationHandler;
             _remoteTokenStore = remoteTokenStore;
+            _userDataStore = userDataStore;
         }
 
-        public IActionResult Overview()
+        public async Task<IActionResult> Overview()
         {
+            var user = await _authorizationHandler.GetAuthorizedUser
+                (null, Operation.List, Request.Headers["Authorization"]);
+
+            if (user == null)
+                return Unauthorized();
+
             var model = new VotingOverviewModel
             {
+                // TODO user name, image, initials
                 Title = _localizer["Title"],
                 Header = _localizer["Header"]
             };
@@ -117,6 +125,19 @@ namespace FreieWahl.Controllers
                     })
             };
             return new JsonResult(result);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> UpdateUserImage(string imageData)
+        {
+            var user = await _authorizationHandler.GetAuthorizedUser(string.Empty, Operation.EditUser,
+                Request.Headers["Authorization"]);
+            if (user == null)
+                return Unauthorized();
+
+            await _userDataStore.SaveUserImage(user.UserId, imageData);
+
+            return Ok();
         }
 
         private string _GetDescription(Question question)

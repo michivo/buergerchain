@@ -15,11 +15,11 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Google.Apis.Auth" Version="1.35.1" />
-    <PackageReference Include="Google.Cloud.Diagnostics.AspNetCore" Version="2.0.0" />
+    <PackageReference Include="Google.Apis.Auth" Version="1.35.2" />
+    <PackageReference Include="Google.Cloud.Diagnostics.AspNetCore" Version="2.0.1" />
     <PackageReference Include="Microsoft.AspNetCore.All" Version="2.0.6" />
     <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="2.0.3" />
-    <PackageReference Include="Portable.BouncyCastle" Version="1.8.2" />
+    <PackageReference Include="Portable.BouncyCastle" Version="1.8.3" />
   </ItemGroup>
 
   <Target Name="PrepublishScript" BeforeTargets="PrepareForPublish">
@@ -36,6 +36,7 @@
     <ProjectReference Include="..\FreieWahl.Common\FreieWahl.Common.csproj" />
     <ProjectReference Include="..\FreieWahl.Mail\FreieWahl.Mail.csproj" />
     <ProjectReference Include="..\FreieWahl.Security\FreieWahl.Security.csproj" />
+    <ProjectReference Include="..\FreieWahl.UserData\FreieWahl.UserData.csproj" />
     <ProjectReference Include="..\FreieWahl.Voting\FreieWahl.Voting.csproj" />
   </ItemGroup>
 
