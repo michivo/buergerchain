@@ -17,8 +17,8 @@
         <script src="~/js/site.js" asp-append-version="true"></script>
         <link type="text/css" rel="stylesheet" href="~/lib/firebaseui/dist/firebaseui.css" />
         <link href="https://fonts.googleapis.com/css?family=Roboto:100,300,400,400i,700" rel="stylesheet">
-        <link href="https://fonts.googleapis.com/icon?family=Material+Icons"
-              rel="stylesheet">
+        <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+        <link rel="stylesheet" type="text/css" href="~/lib/bootstrap-datepicker/dist/css/bootstrap-datepicker3.standalone.min.css">
     </environment>
     <environment names="Staging,Production">
         <link rel="stylesheet" href="~/css/freiewahl.css" asp-append-version="true" />
@@ -33,8 +33,9 @@
 
         <link type="text/css" rel="stylesheet" href="~/lib/firebaseui/dist/firebaseui.css" />
         <link href="https://fonts.googleapis.com/css?family=Roboto:100,300,400,400i,700" rel="stylesheet">
-        <link href="https://fonts.googleapis.com/icon?family=Material+Icons"
-              rel="stylesheet">
+        <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+        <link rel="stylesheet" type="text/css" href="~/lib/bootstrap-datepicker/dist/css/bootstrap-datepicker3.standalone.min.css">
+
     </environment>
 
     <script>
@@ -43,32 +44,7 @@
 </head>
 <body>
 
-    <nav class="navbar navbar-expand-md navbar-dark bg-dark fixed-top">
-        @Html.ActionLink("***Freie Wahl", "Index", "Home", new { }, new { @class = "navbar-brand" })
-        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarsExampleDefault" aria-controls="navbarsExampleDefault" aria-expanded="false" aria-label="Toggle navigation">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-
-        <div class="collapse navbar-collapse" id="navbarsExampleDefault">
-            <ul class="navbar-nav mr-auto">
-                <li class="nav-item" id="fw-link-overview">
-                    @Html.ActionLink("***Overview", "Overview", "VotingAdministration", new { }, new { @class = "nav-link" })
-                </li>
-            </ul>
-            <div class="text-light" id="sign-in-status">
-
-            </div>
-            <div class="nav-item mx-3" id="sign-in">
-                <button type="button" class="btn btn-secondary" onclick="configureFirebaseLoginWidget()"><i class="material-icons align-top mx-1">person</i></button>
-            </div>
-            </ul>
-        </div>
-    </nav>
-    <main role="main" class="container">
-        <div class="freiewahl-main">
             @RenderBody()
-        </div>
-    </main>
     <footer>
         <p>&copy; 2018 - FreieWahl</p>
     </footer>

@@ -16,9 +16,9 @@
     <a class="navbar-brand" href="#">
       <span id="fw-brand-1">freie</span><span id="fw-brand-2">Wahl</strong></span>
     </a>
-    <div style="display: flex; justify-content: flex-end; width:100%">
+    <ul class="navbar-nav ml-auto">
       <a href="#"><span id="fw-account">MF</span></a>
-    </div>
+    </ul>
   </nav>
 
   <div class="modal fade" id="newVotingModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
@@ -215,11 +215,11 @@
     });
 
     function highlightImgSelector() {
-      $("#fw-user-img-selector").css("border", "1px solid #FFFFFF80");
+      $("#fw-user-img-selector").css("border", "1px solid rgba(255, 255, 255, 0.5)");
       $("#fw-user-img-selector").animate({
-        backgroundColor: 'rgba(0,0,0,.5)',
+        backgroundColor: 'rgb(0,0,0)'
       });
-      $("#fw-user-img-selector").css("box-shadow", "1px 1px 1px #00000080");
+      $("#fw-user-img-selector").css("box-shadow", "1px 1px 1px rgba(0, 0, 0, 0.5)");
       $("#fw-user-img-icon").animate(
         { fontSize: "1.5rem" });
       $("#fw-user-img-text").animate({
@@ -228,7 +228,7 @@
     }
 
     function resetImgSelector() {
-      $("#fw-user-img-selector").css("border", "0px solid #FFFFFF80");
+      $("#fw-user-img-selector").css("border", "0px solid rgba(255, 255, 255, 0.5)");
       $("#fw-user-img-selector").animate({
         backgroundColor: 'rgba(0,0,0,0)',
       });

@@ -144,6 +144,16 @@ namespace FreieWahl.Controllers
         }
 
         [HttpPost]
+        public async Task<IActionResult> SessionLogin(string idToken, string csrfToken)
+        {
+            var cookieToken = Request.Cookies["csrfToken"];
+            if (cookieToken != csrfToken)
+                return Unauthorized();
+
+            return Ok();
+        }
+
+        [HttpPost]
         public async Task<IActionResult> UpdateUserImage(string imageData)
         {
             var user = await _authorizationHandler.GetAuthorizedUser(string.Empty, Operation.EditUser,

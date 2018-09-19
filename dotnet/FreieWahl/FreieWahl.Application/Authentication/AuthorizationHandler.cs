@@ -1,8 +1,14 @@
 ﻿using System;
+using System.Net;
+using System.Net.Http;
+using System.Threading;
 using System.Threading.Tasks;
 using FreieWahl.Security.Authentication;
 using FreieWahl.Security.UserHandling;
+using Google.Apis.Auth.OAuth2;
+using Google.Apis.Http;
 using Microsoft.Extensions.Logging;
+using Newtonsoft.Json;
 
 namespace FreieWahl.Application.Authentication
 {
@@ -60,7 +66,7 @@ namespace FreieWahl.Application.Authentication
                 _logger.LogWarning("User tried to open voting without being authorized");
                 return null;
             }
-
+            
             return user;
         }
     }

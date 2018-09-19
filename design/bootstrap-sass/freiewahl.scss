@@ -74,6 +74,7 @@ a.navbar-brand {
 
 div.fw-banner {
     background-color:$fw-light;
+    min-height: 15rem;
 }
 
 div.fw-userheader-container {
@@ -206,3 +207,4 @@ div.fw-finished-vote-card-text {
 div.fw-finished-vote-card-text h5 {
     font-weight: 400;
 }
+

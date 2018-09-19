@@ -9,7 +9,7 @@ namespace FreieWahl.UserData.Store
     public class UserDataStore : IUserDataStore
     {
         private readonly DatastoreDb _db;
-        private const string StoreKind = "StandardVoting";
+        private const string StoreKind = "UserData";
         public static readonly string TestNamespace = "test";
         public static readonly string DevNamespace = "dev";
         private readonly KeyFactory _keyFactory;

@@ -52,12 +52,12 @@ function initApp() {
             // User is signed in.
             var displayName = user.displayName;
             user.getIdToken().then(function (accessToken) {
-                document.getElementById('sign-in-status').textContent = 'Signed in as ' + displayName;
+                //document.getElementById('sign-in-status').textContent = 'Signed in as ' + displayName;
             });
             currentUser = user;
         } else {
             // User is signed out.
-            document.getElementById('sign-in-status').textContent = 'Signed out';
+            //document.getElementById('sign-in-status').textContent = 'Signed out';
             currentUser = null;
         }
     }, function (error) {
