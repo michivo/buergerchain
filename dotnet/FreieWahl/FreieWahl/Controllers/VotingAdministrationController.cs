@@ -53,13 +53,28 @@ namespace FreieWahl.Controllers
             if (user == null)
                 return Unauthorized();
 
+            var img = await _userDataStore.GetUserImage(user.UserId);
+
             var model = new VotingOverviewModel
             {
-                // TODO user name, image, initials
-                Title = _localizer["Title"],
-                Header = _localizer["Header"]
+                Image = img,
+                FullName = user.Name,
+                Initials = _GetInitials(user.Name)
             };
             return View(model);
+        }
+
+        private string _GetInitials(string userName)
+        {
+            if (string.IsNullOrEmpty(userName))
+                return string.Empty;
+            var nameParts = userName.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+            if (nameParts.Length == 0)
+                return string.Empty;
+            if (nameParts.Length == 1)
+                return nameParts[0][0].ToString();
+
+            return nameParts[0][0].ToString() + nameParts[nameParts.Length - 1][0];
         }
 
         public async Task<IActionResult> GetVotingsForUser()

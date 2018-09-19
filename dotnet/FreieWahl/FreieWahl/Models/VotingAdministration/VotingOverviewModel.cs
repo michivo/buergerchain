@@ -5,7 +5,8 @@ namespace FreieWahl.Models.VotingAdministration
 {
     public class VotingOverviewModel : PageModel
     {
-        public LocalizedString Title { get; set; }
-        public LocalizedString Header { get; set; }
+        public string Image { get; set; }
+        public string FullName { get; set; }
+        public string Initials { get; set; }
     }
 }
