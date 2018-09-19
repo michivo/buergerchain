@@ -2,6 +2,7 @@
 using System.Text;
 using System.Threading.Tasks;
 using Google.Cloud.Datastore.V1;
+using Google.Protobuf;
 
 namespace FreieWahl.UserData.Store
 {
@@ -26,10 +27,11 @@ namespace FreieWahl.UserData.Store
 
             var entity = new Entity()
             {
-                Key = _keyFactory.CreateKey(imageData),
+                Key = _keyFactory.CreateKey(userId),
                 ["ImageData"] = rawData,
                 ["MimeType"] = mimeType
             };
+            entity["ImageData"].ExcludeFromIndexes = true;
 
             return _db.InsertAsync(entity);
         }

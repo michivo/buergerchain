@@ -2,83 +2,323 @@
 @using Microsoft.Extensions.Localization
 @model FreieWahl.Models.VotingAdministration.VotingOverviewModel
 
-@inject IStringLocalizer<VotingAdministrationController> Localizer
+<nav class="navbar navbar-dark fixed-top navbar-expand-md">
+    <a class="navbar-brand" href="#">
+        <span id="fw-brand-1">freie</span><span id="fw-brand-2">Wahl</strong></span>
+    </a>
+    <div style="display: flex; justify-content: flex-end; width:100%">
+        <a href="#"><span id="fw-account">@Model.Initials</span></a>
+    </div>
+</nav>
 
-@{
-    ViewData["Title"] = Model.Title;
-}
+<div class="modal fade" id="newVotingModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+     aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title" id="exampleModalLabel">Neue Abstimmung</h3>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="container">
+                    <div class="row" style="margin-bottom:1rem;">
+                        <div class="col-12">
+                            <input type="text" class="form-control form-control-lg" aria-label="Large" aria-describedby="inputGroup-sizing-sm"
+                                   placeholder="Name">
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-6">
+                            <textarea type="textarea" class="form-control form-control-sm" id="newVotingDescription" rows="7"
+                                      placeholder="Beschreibung"></textarea>
 
-<h2>@Localizer["Header"]</h2>
-
-<div id="votingLoadProgress">
-    <div class="progress">
-        <div id="fw-load-progress" class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100" style="width: 100%"></div>
+                            <p style="text-align:center">
+                                <i class="material-icons" style="font-size:12rem;color:#657f8C;cursor:pointer" onclick="document.getElementById('fw-votingimg-selector').click();">image</i>
+                            </p>
+                            <input type="file" style="display:none;" id="fw-votingimg-selector" name="file" />
+                            <p style="font-size:.8rem">Wählen Sie ein 300x300px großes Bild für Ihre Abstimmung.</p>
+                        </div>
+                        <div class="col-6">
+                            <div class="form-group form-group-sm date">
+                                <label for="fwStartDate">Startdatum/-zeit</label>
+                                <input type="text" class="form-control form-control-sm" id="fwStartDate" placeholder="dd.mm.yyyy"><span class="input-group-addon"></span>
+                            </div>
+                            <div class="form-group">
+                                <input type="text" class="form-control form-control-sm" id="fwStartTime" aria-describedby="emailHelp"
+                                       placeholder="hh:mm">
+                            </div>
+                            <div class="form-group date">
+                                <label for="exampleInputEmail1">Enddatum/-zeit</label>
+                                <input type="text" class="form-control form-control-sm"><span class="input-group-addon" placeholder="dd.mm.yyyy"></span>
+                            </div>
+                            <div class="form-group">
+                                <input type="text" class="form-control form-control-sm" id="fwEndTime" aria-describedby="emailHelp"
+                                       placeholder="hh:mm">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-light" data-dismiss="modal">Abbrechen</button>
+                <button type="button" class="btn btn-primary">OK</button>
+            </div>
+        </div>
     </div>
 </div>
-<div id="votingOverviewList" style="display: none">    
-    <div id="votingOverviewListContent"></div>
-    <div id="addVoting">
-        <a class="btn btn-primary text-light mr-5" href="Edit?id=0"><i class="material-icons align-top mr-3">add</i>***Create Voting</a>
+
+<div class="container-fluid fw-banner">
+    <div class="container">
+        <div class="row align-items-end">
+            <div class="col-12 col-lg-8 fw-userheader-container">
+                <div id="fw-user-img-content" class="fw-user-img" style="cursor: pointer" onclick="showFileSelector()">
+                    <div id="fw-user-img-selector" style="position:absolute;top:0;left:0;color:white;display:flex;align-content: center;padding:.1rem;border:1px solid #FFFFFF00;height:2rem">
+                        <i id="fw-user-img-icon" class="material-icons" style="font-size:2rem;text-shadow:0px 1px 1px #657f8C">
+                            photo_camera
+                        </i>
+                        <span id="fw-user-img-text" style="opacity: 0;margin:0.1rem .5rem;font-size: .9rem;font-weight: 400">
+                            Profilbild &auml;ndern
+                        </span>
+                    </div>
+                    <div id="fw-user-img-upload" style="display:none;position:absolute;top:2rem;left:0;background-color:white;border:1px solid #657f8c;padding:.5rem;border-radius: .5rem;">
+                        <form>
+                            <p style="font-size: .8rem;">Wählen Sie ein 300x300px großes Bild.</p>
+                            <div class="custom-file">
+                                <input type="file" class="custom-file-input" id="fw-user-img-input" required>
+                                <label class="custom-file-label" for="fw-user-img-input">Choose file...</label>
+                                <div class="invalid-feedback">Example invalid custom file feedback</div>
+                            </div>
+                        </form>
+                    </div>
+                    <i class="material-icons fw-user-img" id="fw-user-img-dummy" @(string.IsNullOrEmpty(Model.Image) ? "style=display:none" : "")>account_circle</i>
+                    @if (!string.IsNullOrEmpty(Model.Image))
+                    {
+                        <img src="@Model.Image" height="300" width="300" />
+                    }
+                    <canvas id="fw-user-img-real" style="display:none;" width="300" height="300"></canvas>
+                </div>
+                <span class="fw-userheader">@Model.FullName</span>
+            </div>
+            <div class="col">
+                <div class="fw-userinfo">
+                    <span class="fw-userinfo-block">3</span>
+                    <span class="fw-userinfo-block fw-userinfo-important">aktive</span>
+                    <span>Abstimmungen</span>
+                </div>
+                <div class="fw-userinfo">
+                    <span class="fw-userinfo-block">15</span>
+                    <span class="fw-userinfo-block fw-userinfo-important">abgeschlossene</span>
+                    <span>Abstimmungen</span>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
+<main role="main" class="container">
 
+
+    <div class="fw-overview-list">
+        <h1>Aktive Abstimmungen</h1>
+        <div class="container">
+            <div class="row">
+                <div class="col-xl-4 col-md-6 col-sm-12">
+                    <div class="card fw-overview-card">
+                        <img class="card-img-top" src="images/cigarette-110849_640.jpg">
+                        <div class="card-body">
+                            <h5 class="card-title">Rauchverbot</h5>
+                            <p class="card-text">Abstimmung zum Rauchverbot in Gastronomie und auf öffentlichen Plätzen.</p>
+                            <a class="fw-card-link-icon" href="#"><i class="material-icons">edit</i></a>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-xl-4 col-md-6 col-sm-12">
+                    <div class="card fw-overview-card" style="cursor: pointer; background-color:#DCE4E7;color:#657f8C" onclick="createVoting()"
+                         onmouseenter="highlightAddVoting('#fw-add-voting-icon')" onmouseleave="resetAddVoting('#fw-add-voting-icon')">
+                        <i class="card-img-top material-icons" style="width:100%;text-align:center;font-size:15rem" id="fw-add-voting-icon">add_circle_outline</i>
+                        <div class="card-body">
+                            <h5 class="card-title">Neue Abstimmung</h5>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- <div class="d-flex justify-content-end" style="width:100%">
+          <div style="background-color:#3481AB;height:3.5rem;width:3.5rem;border-radius: 2rem;box-shadow: 0px 3px 5px gray;padding:.5rem">
+            <a href="#">
+              <i class="material-icons" style="font-size: 2.5rem;font-weight: 900;color:white">add</i></a>
+          </div>
+        </div> -->
+    </div>
+    <div class="fw-overview-list" style="margin:2rem 0rem;">
+        <h1>Abgeschlossene Abstimmungen</h1>
+        <div class="container">
+            <div class="row">
+                <div class="col-xl-4 col-md-6 col-sm-12">
+                    <div class="fw-finished-vote-card">
+                        <img src="images/traffic-jam-388924_640.jpg" class="fw-finished-vote" alt="Card image cap">
+                        <div class="fw-finished-vote-card-content">
+                            <div class="fw-finished-vote-card-text">
+                                <h5>Citymaut in Graz</h5>
+                                <p>Welche Linie soll die Partei bei der Citymaut verfolgen?</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-xl-4 col-md-6 col-sm-12">
+                    <div class="fw-finished-vote-card">
+                        <img src="images/rings-1287753_640.jpg" class="fw-finished-vote" alt="Card image cap">
+                        <div class="fw-finished-vote-card-content">
+                            <div class="fw-finished-vote-card-text">
+                                <h5>Olympiabewerbung</h5>
+                                <p>Soll Graz sich für die Austragung der Olympischen Winterspiele 2026 bewerben?</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+
+<script src="https://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="
+        crossorigin="anonymous"></script>
+<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js" integrity="sha256-VazP97ZCwtekAsvgPBSUwPFKdrwD3unUfSGVYrahUqU="
+        crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49"
+        crossorigin="anonymous"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js" integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy"
+        crossorigin="anonymous"></script>
+
+<script src="./lib/bootstrap-datepicker/js/bootstrap-datepicker.js"></script>
+<script src="./lib/bootstrap-datepicker/js/locales/bootstrap-datepicker.de.js"></script>
 
 <script>
-    firebase.auth().onAuthStateChanged(function (currentUser) { showOverview(currentUser); });
-    $("#fw-link-overview").addClass("active");
-
-    function showOverview(currentUser) {
-        $("#votingOverviewListContent").empty();
-        $("#votingOverviewList").hide('fast');
-        $("#votingLoadProgress").show();
-        if (currentUser) {
-            currentUser.getIdToken(true).then(function (idToken) {
-                $.ajax({
-                    url: 'GetVotingsForUser',
-                    type: 'GET',
-                    datatype: 'json',
-                    success: showOverviewData,
-                    error: function(data) {
-                        $("#votingLoadProgress").hide("fast");
-                        $("#votingOverviewList").show('fast');
-                        $("<div/>",
-                            {
-                                "class": "bc-error-message",
-                                html: "An error occurred getting your votings: " + data
-                            }).appendTo("#votingOverviewListContent");
-                        componentHandler.upgradeDom();
-                    },
-                    beforeSend: function (xhr) {
-                        xhr.setRequestHeader("Authorization", idToken);
-                    }
+    var idToken;
+    firebase.auth().onAuthStateChanged(
+        function (currentUser) {
+            currentUser.getIdToken().then(
+                function(token) {
+                    idToken = token;
                 });
-            });
-        }
-    };
+        });
 
-    function showOverviewData(data) {
-        var items = [];
-        for (var i = 0; i < data.length; i++) {
-            var voting = data[i];
-            var item = '<div class="card"><div class="card-body">';
-            item += '  <h4 class="card-title">' + voting.title + '</h4>';
-            item += '  <p class="card-text">' +
-                voting.description +
-                '</p>';
-            item +=
-                ' <a class="btn btn-primary text-light mr-5" href="Edit?id=' + voting.id + '"><i class="material-icons align-top mr-3">edit</i>***Edit</a>';
-            item += '<a class="btn btn-primary text-light" onclick="deleteVoting(' +
-            voting.id +
-                ')"><i class="material-icons align-top mr-3">delete</i>***Delete</a></div ></div > ';
-            items.push(item);
+    $('#fw-user-img-content').hover(
+        function () { highlightImgSelector(); },
+        function () { resetImgSelector(); }
+    );
+
+    $('.form-group.date').datepicker({
+        format: "dd.mm.yyyy"
+    });
+
+    $('document').ready(function () {
+        $('#fw-user-img-input').change(function () { alert($(this).val()); previewAndUploadFile(); });
+    });
+
+    function highlightImgSelector() {
+        $("#fw-user-img-selector").css("border", "1px solid rgba(255, 255, 255, 0.5)");
+        $("#fw-user-img-selector").animate({
+            backgroundColor: 'rgba(0,0,0,.5)',
+        });
+        $("#fw-user-img-selector").css("box-shadow", "1px 1px 1px rgba(0, 0, 0, 0.5)");
+        $("#fw-user-img-icon").animate(
+            { fontSize: "1.5rem" });
+        $("#fw-user-img-text").animate({
+            opacity: 1
+        });
+    }
+
+    function resetImgSelector() {
+        $("#fw-user-img-selector").css("border", "0 solid rgba(255, 255, 255, 0.5)");
+        $("#fw-user-img-selector").animate({
+            backgroundColor: 'rgba(0,0,0,0)',
+        });
+        $("#fw-user-img-icon").animate(
+            { fontSize: "2rem" });
+        $("#fw-user-img-text").animate({
+            opacity: 0
+        });
+        $("#fw-user-img-selector").css("box-shadow", "0 0 0");
+        $('#fw-user-img-upload').css('display', 'none');
+    }
+
+    function showFileSelector() {
+        $("#fw-user-img-upload").css("display", "inline");
+    }
+
+    function highlightAddVoting(jqueryPath) {
+        $(jqueryPath).addClass('shadow-pulse');
+    }
+
+    function resetAddVoting(jqueryPath) {
+        $(jqueryPath).removeClass('shadow-pulse');
+    }
+
+    function createVoting() {
+        $("#newVotingModal").modal();
+    }
+
+    function previewAndUploadFile() {
+        var file = $('#fw-user-img-input')[0].files[0];
+        if (!file.type.match(/image.*/)) {
+            return; // TODO: inform user to upload actual image
+        };
+        var img = new Image();
+        var reader = new FileReader();
+        reader.onload = function (e) {
+            img.src = e.target.result;
         }
-        $("#votingLoadProgress").hide("fast");
-        $("#votingOverviewList").show('fast');
-        $("<div/>",
-            {
-                "class": "d-flex flex-column my-3",
-                html: items.join("\n")
-            }).appendTo("#votingOverviewListContent");
-        componentHandler.upgradeDom();
+
+        img.onload = function () {
+            var canvas = document.getElementById('fw-user-img-real');
+            var context = canvas.getContext('2d');
+            var MAX_WIDTH = 300;
+            var MAX_HEIGHT = 300;
+            var width = img.width;
+            var height = img.height;
+
+            if (width > height) {
+                if (width > MAX_WIDTH) {
+                    height *= MAX_WIDTH / width;
+                    width = MAX_WIDTH;
+                }
+            } else {
+                if (height > MAX_HEIGHT) {
+                    width *= MAX_HEIGHT / height;
+                    height = MAX_HEIGHT;
+                }
+            }
+            canvas.width = width;
+            canvas.height = height;
+            context.drawImage(img, 0, 0, width, height);
+            $('#fw-user-img-dummy').hide();
+            $('#fw-user-img-real').show();
+            uploadFile();
+        }
+        reader.readAsDataURL(file);
+    }
+
+    function uploadFile() {
+        var canvas = document.getElementById('fw-user-img-real');
+        var dataURL = canvas.toDataURL();
+        $.ajax({
+            url: 'UpdateUserImage',
+            type: 'POST',
+            data: {
+                imageData: dataURL
+            },
+            success: updateImage,
+            error: function (data) {
+                // TODO
+            },
+            beforeSend: function (xhr) {
+                xhr.setRequestHeader("Authorization", idToken);
+            }
+        });
+    }
+
+    function updateImage(data) {
     }
 </script>

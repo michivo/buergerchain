@@ -12,6 +12,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using FreieWahl.Application.Registrations;
 using FreieWahl.Mail;
+using FreieWahl.Security.Authentication;
 using FreieWahl.Security.Signing.VotingTokens;
 using FreieWahl.UserData.Store;
 using Microsoft.ApplicationInsights.AspNetCore.Extensions;
@@ -48,7 +49,7 @@ namespace FreieWahl.Controllers
         public async Task<IActionResult> Overview()
         {
             var user = await _authorizationHandler.GetAuthorizedUser
-                (null, Operation.List, Request.Headers["Authorization"]);
+                (null, Operation.List, Request.Cookies["token"]);
 
             if (user == null)
                 return Unauthorized();

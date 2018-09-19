@@ -12,7 +12,7 @@ namespace FreieWahl.Application.Authentication
         private readonly IJwtAuthentication _authentication;
         private readonly IAuthenticationManager _authManager;
         private readonly IUserHandler _userHandler;
-
+ 
         public AuthorizationHandler(
             ILogger<AuthorizationHandler> logger,
             IJwtAuthentication authentication,
@@ -34,6 +34,7 @@ namespace FreieWahl.Application.Authentication
         {
             UserInformation user = null;
             var auth = _authentication.CheckToken(authToken);
+            
             if (!auth.Success)
             {
                 return null;

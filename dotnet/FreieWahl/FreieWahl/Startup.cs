@@ -15,7 +15,7 @@ using FreieWahl.Security.Signing.Common;
 using FreieWahl.Security.Signing.VotingTokens;
 using FreieWahl.Security.TimeStamps;
 using FreieWahl.Security.UserHandling;
-using FreieWahl.UserData.Mapper;
+using FreieWahl.UserData.Store;
 using FreieWahl.Voting.Registrations;
 using FreieWahl.Voting.Storage;
 using Microsoft.AspNetCore.Builder;

@@ -51,7 +51,10 @@
 </div>
 
 <script>
-    firebase.auth().onAuthStateChanged(function (currentUser) { editVoting(currentUser); });
+    var idToken;
+    firebase.auth().onAuthStateChanged(function (currentUser) { currentUser.getIdToken().then(function(token) {
+        idToken = token;
+    }) });
 
     function isEmpty(str) {
         return (!str || 0 === str.length || str === '0');
@@ -62,44 +65,44 @@
     }
 
     function editVoting(currentUser) {
-         if (isEmpty('@(Model.VotingId)'))
-         {
-             $("#votingLoadProgress").hide("fast");
-             $("#votingEditView").show("fast");
-             return;
-         }
+        if (isEmpty('@(Model.VotingId)'))
+        {
+            $("#votingLoadProgress").hide("fast");
+            $("#votingEditView").show("fast");
+            return;
+        }
 
-         if (currentUser) {
-             currentUser.getIdToken(true).then(function(idToken) {
-             $.ajax({
-                     url: 'GetVotingDetails',
-                     data: { "id": @Model.VotingId },
-                     type: 'GET',
+        if (currentUser) {
+            currentUser.getIdToken(true).then(function(idToken) {
+                $.ajax({
+                    url: 'GetVotingDetails',
+                    data: { "id": @Model.VotingId },
+                    type: 'GET',
                     datatype: 'json',
-                     beforeSend: function(xhr) {
-                         xhr.setRequestHeader("Authorization", idToken);
-                     },
-                     success: function(data) {
-                         showVotingDetails(data);
-                     }
-                     // error: todo
-                 });
+                    beforeSend: function(xhr) {
+                        xhr.setRequestHeader("Authorization", idToken);
+                    },
+                    success: function(data) {
+                        showVotingDetails(data);
+                    }
+                    // error: todo
+                });
 
-                 $.ajax({
-                     url: '../Registration/GetRegistrations',
-                     data: { "votingId": @Model.VotingId },
-                     type: 'GET',
-                     datatype: 'json',
-                     beforeSend: function(xhr) {
-                         xhr.setRequestHeader("Authorization", idToken);
-                     },
-                     success: function(data) {
-                         showRegistrations(data);
-                     }
-                     // error: todo
-                 });
-             });
-         }
+                $.ajax({
+                    url: '../Registration/GetRegistrations',
+                    data: { "votingId": @Model.VotingId },
+                    type: 'GET',
+                    datatype: 'json',
+                    beforeSend: function(xhr) {
+                        xhr.setRequestHeader("Authorization", idToken);
+                    },
+                    success: function(data) {
+                        showRegistrations(data);
+                    }
+                    // error: todo
+                });
+            });
+        }
     }
 
     function showRegistrations(registrations) {

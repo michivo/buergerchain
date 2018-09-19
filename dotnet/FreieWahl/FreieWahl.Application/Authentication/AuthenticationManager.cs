@@ -18,7 +18,6 @@ namespace FreieWahl.Application.Authentication
             _logger = LogFactory.CreateLogger("FreieWahl.Security.TimeStamps.TimestampService");
         }
 
-
         public async Task<bool> IsAuthorized(string userId, long? votingId, Operation operation)
         {
             try
