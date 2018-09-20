@@ -32,6 +32,8 @@ namespace FreieWahl.Voting.Models
 
         public int CurrentQuestionIndex { get; set; }
 
+        public string ImageData { get; set; }
+
         [DataType(DataType.Date)]
         public DateTime DateCreated { get; set; }
 
@@ -53,7 +55,8 @@ namespace FreieWahl.Voting.Models
                    Visibility == other.Visibility &&
                    State == other.State &&
                    DateCreated.EqualsDefault(other.DateCreated) &&
-                   Questions.SequenceEqual(other.Questions);
+                   Questions.SequenceEqual(other.Questions) &&
+                   ImageData.Equals(other.ImageData);
         }
 
         public override bool Equals(object obj)
@@ -77,6 +80,7 @@ namespace FreieWahl.Voting.Models
                 hashCode = (hashCode * 397) ^ (int)State;
                 hashCode = (hashCode * 397) ^ DateCreated.GetHashCode();
                 hashCode = (hashCode * 397) ^ (Questions != null ? Questions.GetHashCode() : 0);
+                hashCode = (hashCode * 397) ^ (ImageData != null ? ImageData.GetHashCode() : 0);
                 return hashCode;
             }
         }

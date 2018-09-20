@@ -90,7 +90,8 @@ namespace FreieWahl.Controllers
             {
                 x.Title,
                 Description = x.Description ?? string.Empty,
-                x.Id
+                x.Id,
+                x.ImageData
             });
             return new JsonResult(resultForSerialization.ToArray());
         }
@@ -106,6 +107,7 @@ namespace FreieWahl.Controllers
                 Id = voting.Id.ToString(CultureInfo.InvariantCulture),
                 voting.Title,
                 voting.Description,
+                voting.ImageData,
                 Questions = voting.Questions.Select(x =>
                     new
                     {
@@ -202,7 +204,7 @@ namespace FreieWahl.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> UpdateVoting(string id, string title, string desc)
+        public async Task<IActionResult> UpdateVoting(string id, string title, string desc, string imageData)
         {
             var idVal = _GetId(id);
             var operation = idVal == 0 ? Operation.Create : Operation.UpdateVoting;
@@ -213,10 +215,10 @@ namespace FreieWahl.Controllers
 
             if (idVal != 0)
             {
-                return await _UpdateVoting(id, title, desc);
+                return await _UpdateVoting(id, title, desc, imageData);
             }
 
-            return await _InsertVoting(title, desc, user);
+            return await _InsertVoting(title, desc, user, imageData);
         }
 
         [HttpPost]
@@ -299,7 +301,7 @@ namespace FreieWahl.Controllers
             return question;
         }
 
-        private async Task<IActionResult> _InsertVoting(string title, string desc, UserInformation user)
+        private async Task<IActionResult> _InsertVoting(string title, string desc, UserInformation user, string imageData)
         {
             if (await _authorizationHandler.CheckAuthorization(null, Operation.Create, Request.Headers["Authorization"]) == false)
                 return Unauthorized();
@@ -312,7 +314,8 @@ namespace FreieWahl.Controllers
                 Questions = new List<Question>(),
                 Title = title,
                 Visibility = VotingVisibility.OwnerOnly,
-                State = VotingState.InPreparation
+                State = VotingState.InPreparation,
+                ImageData = imageData
             };
 
             await _votingStore.Insert(voting).ConfigureAwait(false);
@@ -332,11 +335,14 @@ namespace FreieWahl.Controllers
             return Ok();
         }
 
-        private async Task<IActionResult> _UpdateVoting(string id, string title, string desc)
+        private async Task<IActionResult> _UpdateVoting(string id, string title, string desc, string imageData)
         {
             var voting = await _votingStore.GetById(_GetId(id));
             voting.Title = title;
             voting.Description = desc;
+            if (!string.IsNullOrEmpty(imageData))
+                voting.ImageData = imageData;
+
             await _votingStore.Update(voting).ConfigureAwait(false);
 
             return Ok();

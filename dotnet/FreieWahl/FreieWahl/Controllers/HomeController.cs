@@ -50,27 +50,6 @@ namespace FreieWahl.Controllers
             return View(model);
         }
 
-        public IActionResult GetStuff()
-        {
-            var result = _authentication.CheckToken(Request.Headers["Authorization"]);
-            if (result.Success)
-            {
-                var user = _userHandler.MapUser(result.User);
-
-                _votingStore.Insert(new StandardVoting
-                {
-                    Creator = user.UserId,
-                    DateCreated = DateTime.UtcNow,
-                    Description = "Some funky voting",
-                    Title = "Vote vote vote"
-                });
-
-                return Ok(user.Name);
-            }
-
-            return Error();
-        }
-
         public IActionResult Index()
         {
             // Sends a message to configured loggers, including the Stackdriver logger.

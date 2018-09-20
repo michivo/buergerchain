@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using FreieWahl.Common;
 using FreieWahl.Voting.Models;
 using Google.Api.Gax.Grpc;
 using Google.Cloud.Datastore.V1;
@@ -101,6 +102,9 @@ namespace FreieWahl.Voting.Storage
             readVoting.Questions = voting.Questions;
             readVoting.Title = voting.Title;
             readVoting.Visibility = voting.Visibility;
+            if (!string.IsNullOrEmpty(voting.ImageData))
+                readVoting.ImageData = voting.ImageData;
+
             await _db.UpdateAsync(ToEntity(readVoting));
         }
 
@@ -178,6 +182,14 @@ namespace FreieWahl.Voting.Storage
             var visibilityValue = visibility == null ? VotingVisibility.OwnerOnly : (VotingVisibility)visibility;
             var state = (int?)entity["State"];
             var stateValue = state == null ? VotingState.Ready : (VotingState)state;
+            var mimeType = entity["ImageType"]?.StringValue;
+            var imageData = string.Empty;
+            if (!string.IsNullOrEmpty(mimeType))
+            {
+                var rawImageData = entity["ImageData"].BlobValue;
+                imageData = "data:" + mimeType + ";base64," + rawImageData.ToBase64();
+            }
+
 
             return new StandardVoting()
             {
@@ -189,13 +201,17 @@ namespace FreieWahl.Voting.Storage
                 Visibility = visibilityValue,
                 State = stateValue,
                 Questions = FromQuestionsEntity(entity["Questions"]),
-                CurrentQuestionIndex = (int?)entity["CurrentQuestionIndex"] ?? 0
+                CurrentQuestionIndex = (int?)entity["CurrentQuestionIndex"] ?? 0,
+                ImageData = imageData
             };
         }
 
         private Entity ToEntity(StandardVoting standardVoting)
         {
-            return new Entity
+            var mimeType = standardVoting.ImageData.GetMimeType();
+            var rawData = standardVoting.ImageData.GetImageData();
+
+            var result = new Entity
             {
                 Key = _keyFactory.CreateKey(standardVoting.Id),
                 ["Title"] = standardVoting.Title,
@@ -205,8 +221,12 @@ namespace FreieWahl.Voting.Storage
                 ["Visibility"] = (int)standardVoting.Visibility,
                 ["State"] = (int)standardVoting.State,
                 ["Questions"] = ToEntities(standardVoting.Questions),
-                ["CurrentQuestionIndex"] = standardVoting.CurrentQuestionIndex
+                ["CurrentQuestionIndex"] = standardVoting.CurrentQuestionIndex,
+                ["ImageData"] = rawData,
+                ["ImageType"] = mimeType
             };
+            result["ImageData"].ExcludeFromIndexes = true;
+            return result;
         }
     }
 }

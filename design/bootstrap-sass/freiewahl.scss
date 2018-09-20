@@ -85,6 +85,13 @@ div.fw-userheader-container {
 i.fw-user-img {
     font-size: 15rem;
     color:$primary;
+    position: relative;
+}
+
+i.fw-voting-img {
+    font-size: 12rem;
+    color:$primary;
+    position: relative;
 }
 
 span.fw-userheader {
@@ -208,3 +215,31 @@ div.fw-finished-vote-card-text h5 {
     font-weight: 400;
 }
 
+.loader-outer {
+    border: 1rem solid #f3f3f3; 
+    border-top: 1rem solid $primary; 
+    border-radius: 50%;
+    width: 8rem;
+    height: 8rem;
+    animation: spin 2s linear infinite;
+    padding:.5rem;
+}
+
+.loader-inner {
+    border: .75rem solid $fw-light; 
+    border-top: .75rem solid $fw-medium; 
+    border-radius: 50%;
+    width: 6rem;
+    height: 6rem;
+    animation: counterspin 2.5s linear infinite;
+}
+
+@keyframes counterspin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(-720deg); }
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}

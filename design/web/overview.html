@@ -44,11 +44,28 @@
                 <textarea type="textarea" class="form-control form-control-sm" id="newVotingDescription" rows="7"
                   placeholder="Beschreibung"></textarea>
 
-                <p style="text-align:center">
-                  <i class="material-icons" style="font-size:12rem;color:#657f8C;cursor:pointer" onclick="document.getElementById('fw-votingimg-selector').click();">image</i>
-                </p>
-                <input type="file" style="display:none;" id="fw-votingimg-selector" name="file" />
-                <p style="font-size:.8rem">Wählen Sie ein 300x300px großes Bild für Ihre Abstimmung.</p>
+                <div id="fw-voting-img-content" class="fw-voting-img" style="cursor: pointer; position: relative;" onclick="showFileSelector('#fw-voting-img-upload')">
+                  <i class="material-icons fw-voting-img" id="fw-voting-img-dummy">how_to_vote</i>
+                  <canvas id="fw-voting-img-real" style="display:none;" with="300" height="300"></canvas>                  
+                  <div id="fw-voting-img-selector" style="position:absolute;top:0rem;left:0rem;color:#DCE4E7;display:flex;align-content: center;padding:.1rem;border:1px solid #FFFFFF00;height:2rem">
+                    <i id="fw-voting-img-icon" class="material-icons" style="font-size:2rem;text-shadow:0px 1px 1px white;">
+                      photo_camera
+                    </i>
+                    <span id="fw-voting-img-text" style="opacity: 0;margin:0.1rem .5rem;font-size: .9rem;font-weight: 400">
+                      Bild &auml;ndern
+                    </span>
+                  </div>
+                  <div id="fw-voting-img-upload" style="display:none;position:absolute;top:2rem;left:0;background-color:white;border:1px solid #657f8c;padding:.5rem;border-radius: .5rem;">
+                    <form>
+                      <p style="font-size: .8rem;">Wählen Sie ein Bild für Ihre Abstimmung.</p>
+                      <div class="custom-file">
+                        <input type="file" class="custom-file-input" id="fw-voting-img-input" required>
+                        <label class="custom-file-label" for="validatedCustomFile">...</label>
+                        <div class="invalid-feedback">Yadda TODO</div>
+                      </div>
+                    </form>
+                  </div>
+                </div>
               </div>
               <div class="col-6">
                 <div class="form-group form-group-sm date">
@@ -84,7 +101,9 @@
     <div class="container">
       <div class="row align-items-end">
         <div class="col-12 col-lg-8 fw-userheader-container">
-          <div id="fw-user-img-content" class="fw-user-img" style="cursor: pointer" onclick="showFileSelector()">
+          <div id="fw-user-img-content" class="fw-user-img" style="cursor: pointer" onclick="showFileSelector('#fw-user-img-upload')">
+            <i class="material-icons fw-user-img" id="fw-user-img-dummy">account_circle</i>
+            <canvas id="fw-user-img-real" style="display:none;" with="300" height="300"></canvas>            
             <div id="fw-user-img-selector" style="position:absolute;top:0;left:0;color:white;display:flex;align-content: center;padding:.1rem;border:1px solid #FFFFFF00;height:2rem">
               <i id="fw-user-img-icon" class="material-icons" style="font-size:2rem;text-shadow:0px 1px 1px #657f8C">
                 photo_camera
@@ -95,16 +114,14 @@
             </div>
             <div id="fw-user-img-upload" style="display:none;position:absolute;top:2rem;left:0;background-color:white;border:1px solid #657f8c;padding:.5rem;border-radius: .5rem;">
               <form>
-                <p style="font-size: .8rem;">Wählen Sie ein 300x300px großes Bild.</p>
+                <p style="font-size: .8rem;">Wählen Sie ein Profilbild.</p>
                 <div class="custom-file">
                   <input type="file" class="custom-file-input" id="fw-user-img-input" required>
-                  <label class="custom-file-label" for="validatedCustomFile">Choose file...</label>
-                  <div class="invalid-feedback">Example invalid custom file feedback</div>
+                  <label class="custom-file-label" for="validatedCustomFile">...</label>
+                  <div class="invalid-feedback">Yadda yadda</div>
                 </div>
               </form>
             </div>
-            <i class="material-icons fw-user-img" id="fw-user-img-dummy">account_circle</i>
-            <canvas id="fw-user-img-real" style="display:none;" with="300" height="300"></canvas>
           </div>
           <span class="fw-userheader">Michael<br />Faschinger</span>
         </div>
@@ -140,6 +157,17 @@
               </div>
             </div>
           </div>
+          <div class="col-xl-4 col-md-6 col-sm-12">
+            <div class="card fw-overview-card">
+              <i class="material-icons fw-voting-img" style="text-align:center;width:100%">how_to_vote</i>
+              <div class="card-body">
+                <h5 class="card-title">Rauchverbot</h5>
+                <p class="card-text">Abstimmung zum Rauchverbot in Gastronomie und auf öffentlichen Plätzen.</p>
+                <a class="fw-card-link-icon" href="#"><i class="material-icons">edit</i></a>
+              </div>
+            </div>
+          </div>          
+
           <div class="col-xl-4 col-md-6 col-sm-12">
             <div class="card fw-overview-card" style="cursor: pointer; background-color:#DCE4E7;color:#657f8C" onclick="createVoting()"
               onmouseenter="highlightAddVoting('#fw-add-voting-icon')" onmouseleave="resetAddVoting('#fw-add-voting-icon')">
@@ -187,6 +215,7 @@
         </div>
       </div>
     </div>
+    <div class="loader-outer"><div class="loader-inner"></div></div> 
   </main>
 
   <script src="https://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="
@@ -202,8 +231,13 @@
 
   <script>
     $('#fw-user-img-content').hover(
-      function () { highlightImgSelector(); },
-      function () { resetImgSelector(); }
+      function () { highlightImgSelector('user', 'rgba(255, 255, 255, 0.5)'); },
+      function () { resetImgSelector('user', 'rgba(255, 255, 255, 0.5)'); }
+    );
+
+    $('#fw-voting-img-content').hover(
+      function () { highlightImgSelector('voting', 'rgba(101, 127, 140, 0.5)'); },
+      function () { resetImgSelector('voting', 'rgba(101, 127, 140, 0.5)'); }
     );
 
     $('.form-group.date').datepicker({
@@ -211,38 +245,39 @@
     });
 
     $('document').ready(function () {
-      $('#fw-user-img-input').change(function () { alert($(this).val()); previewAndUploadFile(); });
+      $('#fw-user-img-input').change(function () { alert($(this).val()); previewAndUploadFile('user'); });
+      $('#fw-voting-img-input').change(function () { alert($(this).val()); previewAndUploadFile('voting'); });
     });
 
-    function highlightImgSelector() {
-      $("#fw-user-img-selector").css("border", "1px solid rgba(255, 255, 255, 0.5)");
-      $("#fw-user-img-selector").animate({
-        backgroundColor: 'rgb(0,0,0)'
+    function highlightImgSelector(type, color) {
+      $("#fw-" + type + "-img-selector").css("border", "1px solid " + color);
+      $("#fw-" + type + "-img-selector").animate({
+        backgroundColor: 'rgba(0,0,0,.5)'
       });
-      $("#fw-user-img-selector").css("box-shadow", "1px 1px 1px rgba(0, 0, 0, 0.5)");
-      $("#fw-user-img-icon").animate(
+      $("#fw-" + type + "-img-selector").css("box-shadow", "1px 1px 1px rgba(0, 0, 0, 0.5)");
+      $("#fw-" + type + "-img-icon").animate(
         { fontSize: "1.5rem" });
-      $("#fw-user-img-text").animate({
+      $("#fw-" + type + "-img-text").animate({
         opacity: 1
       });
     }
 
-    function resetImgSelector() {
-      $("#fw-user-img-selector").css("border", "0px solid rgba(255, 255, 255, 0.5)");
-      $("#fw-user-img-selector").animate({
+    function resetImgSelector(type, color) {
+      $("#fw-" + type + "-img-selector").css("border", "0px solid " + color);
+      $("#fw-" + type + "-img-selector").animate({
         backgroundColor: 'rgba(0,0,0,0)',
       });
-      $("#fw-user-img-icon").animate(
+      $("#fw-" + type + "-img-icon").animate(
         { fontSize: "2rem" });
-      $("#fw-user-img-text").animate({
+      $("#fw-" + type + "-img-text").animate({
         opacity: 0
       });
-      $("#fw-user-img-selector").css("box-shadow", "0px 0px 0px");
-      $('#fw-user-img-upload').css('display', 'none');
+      $("#fw-" + type + "-img-selector").css("box-shadow", "0px 0px 0px");
+      $('#fw-' + type + '-img-upload').css('display', 'none');
     }
 
-    function showFileSelector() {
-      $("#fw-user-img-upload").css("display", "inline");
+    function showFileSelector(elementId) {
+      $(elementId).css("display", "inline");
     }
 
     function highlightAddVoting(jqueryPath) {
@@ -257,8 +292,8 @@
       $("#newVotingModal").modal();
     }
 
-    function previewAndUploadFile() {
-      var file = $('#fw-user-img-input')[0].files[0];
+    function previewAndUploadFile(type) {
+      var file = $('#fw-' + type + '-img-input')[0].files[0];
       if (!file.type.match(/image.*/)) {
         return; // TODO: inform user to upload actual image
       };
@@ -269,7 +304,7 @@
       }
 
       img.onload = function () {
-        var canvas = document.getElementById('fw-user-img-real');
+        var canvas = document.getElementById('fw-' + type + '-img-real');
         var context = canvas.getContext('2d');
         var MAX_WIDTH = 300;
         var MAX_HEIGHT = 300;
@@ -290,9 +325,10 @@
         canvas.width = width;
         canvas.height = height;
         context.drawImage(img, 0, 0, width, height);
-        $('#fw-user-img-dummy').hide();
-        $('#fw-user-img-real').show();
-        uploadFile();
+        $('#fw-' + type + '-img-dummy').hide();
+        $('#fw-' + type + '-img-real').show();
+        if(type == 'user')
+          uploadFile();
       }
       reader.readAsDataURL(file);
     }

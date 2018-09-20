@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Text;
 using System.Threading.Tasks;
+using FreieWahl.Common;
 using Google.Cloud.Datastore.V1;
 using Google.Protobuf;
 
@@ -22,8 +23,8 @@ namespace FreieWahl.UserData.Store
         
         public Task SaveUserImage(string userId, string imageData)
         {
-            var mimeType = _GetMimeType(imageData);
-            var rawData = _GetRawData(imageData);
+            var mimeType = imageData.GetMimeType();
+            var rawData = imageData.GetImageData();
 
             var entity = new Entity()
             {
@@ -34,32 +35,6 @@ namespace FreieWahl.UserData.Store
             entity["ImageData"].ExcludeFromIndexes = true;
 
             return _db.InsertAsync(entity);
-        }
-
-        private string _GetMimeType(string imageData)
-        {
-            var startIndex = imageData.IndexOf(':');
-            var endIndex = imageData.IndexOf(';');
-            if(startIndex == -1 || endIndex == -1 || endIndex < startIndex)
-                throw new ArgumentException("ImageData is invalid" + _GetImageDataForLogging(imageData));
-            return imageData.Substring(startIndex + 1, endIndex - startIndex - 1);
-        }
-
-        private byte[] _GetRawData(string imageData)
-        {
-            var startIndex = imageData.IndexOf(';') + 8;
-            if (startIndex >= imageData.Length)
-                throw new ArgumentException("ImageData is invalid, data part is invalid" + _GetImageDataForLogging(imageData));
-            return Convert.FromBase64String(imageData.Substring(startIndex));
-        }
-
-        private string _GetImageDataForLogging(string imageData)
-        {
-            if (string.IsNullOrEmpty(imageData))
-                return "---";
-            if (imageData.Length < 50)
-                return imageData;
-            return imageData.Substring(0, 50);
         }
 
         public async Task<string> GetUserImage(string userId)
