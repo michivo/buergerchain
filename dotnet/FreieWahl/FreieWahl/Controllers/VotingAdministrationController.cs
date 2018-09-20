@@ -204,7 +204,8 @@ namespace FreieWahl.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> UpdateVoting(string id, string title, string desc, string imageData)
+        public async Task<IActionResult> UpdateVoting(string id, string title, string desc, string imageData,
+            string startDate, string startTime, string endDate, string endTime)
         {
             var idVal = _GetId(id);
             var operation = idVal == 0 ? Operation.Create : Operation.UpdateVoting;
@@ -213,12 +214,23 @@ namespace FreieWahl.Controllers
             if (user == null)
                 return Unauthorized();
 
+            var startTimeValue = _GetDateTime(startDate, startTime);
+            var endTimeValue = _GetDateTime(endDate, endTime);
+
             if (idVal != 0)
             {
                 return await _UpdateVoting(id, title, desc, imageData);
             }
 
-            return await _InsertVoting(title, desc, user, imageData);
+            return await _InsertVoting(title, desc, user, imageData, startTimeValue, endTimeValue);
+        }
+
+        private DateTime _GetDateTime(string date, string time)
+        {
+            if (!string.IsNullOrEmpty(time) && time.Count(x => x == ':') == 1)
+                time += ":00";
+            var result = DateTime.Parse(date + " " + time);
+            return result;
         }
 
         [HttpPost]
@@ -301,7 +313,8 @@ namespace FreieWahl.Controllers
             return question;
         }
 
-        private async Task<IActionResult> _InsertVoting(string title, string desc, UserInformation user, string imageData)
+        private async Task<IActionResult> _InsertVoting(string title, string desc, UserInformation user, string imageData,
+            DateTime startDate, DateTime endDate)
         {
             if (await _authorizationHandler.CheckAuthorization(null, Operation.Create, Request.Headers["Authorization"]) == false)
                 return Unauthorized();

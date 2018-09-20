@@ -154,8 +154,8 @@
                 </div>
                 <div class="col-xl-4 col-md-6 col-sm-12" id="fw-load-votings-card">
                     <div class="card fw-overview-card">
-                        <div class="card-img-top" style="height: 15rem">
-                            <div class="loader-outer"><div class="loader-inner"></div></div>
+                        <div class="card-img-top" style="height: 15rem; text-align: center; padding-top: 2rem;">
+                            <div class="loader-outer"></div>
                         </div>
                         <div class="card-body">
                             <h5 class="card-title">Lade Abstimmungen...</h5>
@@ -366,7 +366,16 @@
             currentUser.getIdToken(true).then(function (idToken) {
                 $.post({
                     url: 'UpdateVoting',
-                    data: { "title": title, "desc": desc, "id": null, "imageData": imageData },
+                    data: {
+                        "title": title,
+                        "desc": desc,
+                        "id": null,
+                        "imageData": imageData,
+                        "startDate": $("#fwStartDate").val(),
+                        "startTime": $("#fwStartTime").val(),
+                        "endDate": $("#fwEndDate").val(),
+                        "endTime": $("#fwEndTime").val()
+                    },
                     beforeSend: function (xhr) {
                         xhr.setRequestHeader("Authorization", idToken);
                     },
@@ -414,7 +423,7 @@
         for (var i = 0; i < data.length; i++) {
             var voting = data[i];
             var item =
-                '<div class="col-xl-4 col-md-6 col-sm-12"><div class="card fw-overview-card">';
+                '<div class="col-xl-4 col-md-6 col-sm-12 fw-open-voting"><div class="card fw-overview-card">';
             if (voting.imageData) {
                 item += '<img class="card-img-top" src="' + voting.imageData + '">';
             } else {
