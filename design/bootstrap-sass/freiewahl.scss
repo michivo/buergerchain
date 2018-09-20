@@ -1,6 +1,6 @@
 $primary: #657f8C;
 $fw-light: #DCE4E7;
-$fw-medium: #3583A9;
+$secondary: #3583A9;
 $header-height: 4rem;
 
 $font-family-sans-serif: Roboto, -apple-system, system-ui, BlinkMacSystemFont, "Helvetica Neue", "Segoe UI", Arial, sans-serif !default;
@@ -139,7 +139,7 @@ div.fw-overview-card div.card-body{
 
 div.fw-overview-card h5.card-title { 
     font-weight:400;
-    color: $fw-medium;
+    color: $secondary;
 }
 
 div.fw-overview-card p.card-text { 
