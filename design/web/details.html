@@ -17,6 +17,7 @@
             <span id="fw-brand-1">freie</span><span id="fw-brand-2">Wahl</strong></span>
         </a>
         <ul class="navbar-nav ml-auto">
+            <a href="#"><i class="material-icons" style="background-color:#DCE4E7;font-size:2rem;padding:.25rem;border-radius:50%;margin-right:1rem;">home</i></a>
             <a href="#"><span id="fw-account">MF</span></a>
         </ul>
     </nav>
@@ -100,54 +101,215 @@
         </div>
     </div>
 
-    <div class="container-fluid fw-banner" style="padding-top:1rem;">
-        <div class="row">
-            <div class="col col-12 col-lg-8 col-auto mr-auto" style="padding-left:0">
-                <div class="container-fluid" style="height:100%;display:flex;flex-direction: column;min-height:7rem">
-                    <div class="row">
-                        <span class="fw-voting-title" style="background-color:#657f8C;color:white;font-size: 2rem;font-weight: 100;padding:0 3rem">Meine
-                            neue Abstimmung</span>
+    <div class="container-fluid fw-banner" style="padding: 1rem 0;">
+        <div style="display:flex;flex-direction:row;justify-content: space-between;">
+            <div style="display:flex;flex-direction:column;align-self:stetch;">
+                <span class="fw-voting-title" style="background-color:#657f8C;color:white;font-size: 2rem;font-weight: 100;padding:0 3rem">Meine
+                    neue Abstimmung</span>
+                <div style="display:flex;flex-direction:row;justify-content:space-between;margin-top:1rem;flex:1">
+                    <div style="max-width: 30rem;">
+                        <div style="padding: 0;">
+                            <div style="background-color:white;color:#657f8C;font-size:.8rem;font-weight:300;padding-left:1rem; margin-right:2rem;">
+                                Hier steht die Beschreibung zur Abstimmung. Vielleicht folgen dann noch ein paar
+                                allgemeine
+                                Informationen...
+                            </div>
+                        </div>
                     </div>
-                    <div class="row" style="margin-left:-15px;margin-top:1rem;height:4rem;flex:1">
-                        <div class="col-5" style="padding: 0;">
-                            <div style="background-color:white;color:#657f8C;font-size:.8rem;font-weight:300;padding-left:1rem">
-                                Hier steht die Beschreibung zur Abstimmung. Vielleicht folgen dann noch ein paar allgemeine Informationen...
-                            </div>
+                    <div style="display:flex;flex-direction:column;justify-content:space-between;">
+                        <div style="background-color:white; color:#657f8C;font-size:1.5rem;font-weight:100;display: flex;flex-direction: row;align-items: center">
+                            <div><i class="material-icons" style="color:#657f8C;font-size: 3rem;margin:0 1rem">date_range</i></div>
+                            <div>Start: 1.1.2018, 13:00<br>Ende: 1.1.2018, 18:01</div>
                         </div>
-                        <div class="col-2">
+                        <div style="text-align:right;">
+                            <button class="btn btn-secondary" style="text-transform: uppercase;font-size: .9rem">Bearbeiten</button>
                         </div>
-                        <div class="col-5" style="display:flex;flex-direction:column;justify-content:space-between">
-                                <div style="background-color:white; color:#657f8C;font-size:1.5rem;font-weight:100;display: flex;flex-direction: row;align-items: center">
-                                    <div ><i class="material-icons" style="color:#657f8C;font-size: 3rem;margin:0 1rem">date_range</i></div>
-                                    <div>Start: 1.1.2018, 13:00<br>Ende: 1.1.2018, 18:01</div>
-                                </div>
-                                <div style="text-align:right;">
-                                    <button class="btn btn-secondary" style="text-transform: uppercase;font-size: .9rem">Bearbeiten</button>
-                                </div>
-                            </div>
                     </div>
                 </div>
+
             </div>
-            <div class="col col-auto">
+            <div style="margin:auto;">
                 <img src="images/traffic-jam-388924_640.jpg" style="max-height:13rem;">
             </div>
         </div>
     </div>
+    </div>
     <div class="container-fluid" style="border-bottom:2px solid #C0C0C0;font-size: .9rem">
         <div class="row" style="padding:1rem;">
             <div class="col col-auto">
-            <i class="material-icons" style="font-size:2rem;color:#657f8C">link</i>
+                <i class="material-icons" style="font-size:2rem;color:#657f8C">link</i>
+            </div>
+            <div class="col-10 col-lg-8" style="color:#657f8C">
+                <strong>Link zur Registrierung für die Abstimmung</strong><br>
+                <a href="https://www.freiewahl.eu/Voting/Register?votingId=1234">https://www.freiewahl.eu/Voting/Register?votingId=1234</a>
+            </div>
+            <div class="col-3" style="text-align:right"><button class="btn btn-secondary" style="text-transform: uppercase;font-size: .9rem">Link
+                    teilen</button></div>
         </div>
-        <div class="col-10 col-lg-8" style="color:#657f8C">
-            <strong>Link zur Registrierung für die Abstimmung</strong><br>
-            <a href="https://www.freiewahl.eu/Voting/Register?votingId=1234">https://www.freiewahl.eu/Voting/Register?votingId=1234</a>
+    </div>
+    <main role="main" class="container-fluid">
+        <div class="row">
+            <div class="col-12 col-lg-3" style="border-right:2px solid #C0C0C0">
+                <div class="dropdown" style="margin:1rem 0">
+                    <button class="btn btn-light dropdown-toggle" type="button" id="fw-dropdown-registered" data-toggle="dropdown"
+                        aria-haspopup="true" aria-expanded="false" style="border-bottom: 1px solid #657f8C;width:100%;text-align: left">
+                        Offene Registrierungen <span class="badge badge-pill badge-warning">3</span>
+                    </button>
+                    <div class="dropdown-menu" aria-labelledby="fw-dropdown-registered">
+                        <div style="display: flex;margin:0 1rem">
+                            <div style="flex:1;margin-right:1rem;">Michael Peter Faschinger</div>
+                            <div style="align-self: flex-end;cursor:pointer;color:#657f8C"><i class="material-icons">add_circle_outline</i></div>
+                            <div style="align-self: flex-end;cursor:pointer;color:#657f8C"><i class="material-icons">remove_circle_outline</i></div>
+                            <div style="align-self: flex-end;cursor:pointer;color:#657f8C"><i class="material-icons">info</i></div>
+                        </div>
+                        <div style="display: flex;margin:0 1rem">
+                            <div style="flex:1;margin-right:1rem;">Rosi Degen</div>
+                            <div style="align-self: flex-end;cursor:pointer;color:#657f8C"><i class="material-icons">add_circle_outline</i></div>
+                            <div style="align-self: flex-end;cursor:pointer;color:#657f8C"><i class="material-icons">remove_circle_outline</i></div>
+                            <div style="align-self: flex-end;cursor:pointer;color:#657f8C"><i class="material-icons">info</i></div>
+                        </div>
+                        <div style="display: flex;margin:0 1rem">
+                            <div style="flex:1;margin-right:1rem;">Frau Österreicher</div>
+                            <div style="align-self: flex-end;cursor:pointer;color:#657f8C"><i class="material-icons">add_circle_outline</i></div>
+                            <div style="align-self: flex-end;cursor:pointer;color:#657f8C"><i class="material-icons">remove_circle_outline</i></div>
+                            <div style="align-self: flex-end;cursor:pointer;color:#657f8C"><i class="material-icons">info</i></div>
+                        </div>
+                        <div class="dropdown-divider"></div>
+                        <a class="dropdown-item" href="#">Alle freischalten</a>
+                        <a class="dropdown-item" href="#">Alle ablehnen</a>
+                    </div>
+                </div>
+                <div class="dropdown" style="margin:1rem 0">
+                    <button class="btn btn-light dropdown-toggle" type="button" id="fw-dropdown-registered" data-toggle="dropdown"
+                        aria-haspopup="true" aria-expanded="false" style="border-bottom: 1px solid #657f8C;width:100%;text-align: left">
+                        Freigeschaltete WählerInnen <span class="badge badge-pill badge-secondary">3</span>
+                    </button>
+                    <div class="dropdown-menu" aria-labelledby="fw-dropdown-registered">
+                        <div style="margin:0 1rem;border-bottom:1px solid #DCE4E7">Michael Peter Faschinger</div>
+                        <div style="margin:0 1rem;border-bottom:1px solid #DCE4E7">Rosi Degen-Faschinger</div>
+                        <div style="margin:0 1rem;border-bottom:1px solid #DCE4E7">Braver Wähler</div>
+                    </div>
+                </div>
+                <div class="dropdown" style="margin:1rem 0">
+                    <button class="btn btn-light dropdown-toggle" type="button" id="fw-dropdown-registered" data-toggle="dropdown"
+                        aria-haspopup="true" aria-expanded="false" style="border-bottom: 1px solid #657f8C;width:100%;text-align: left">
+                        Abgelehnte Registrierungen <span class="badge badge-pill badge-secondary">2</span>
+                    </button>
+                    <div class="dropdown-menu" aria-labelledby="fw-dropdown-registered">
+                        <div style="margin:0 1rem;border-bottom:1px solid #DCE4E7">Max Mustermann</div>
+                        <div style="margin:0 1rem;border-bottom:1px solid #DCE4E7">Hans Österreicher</div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-12 col-lg-9" style="padding:1rem">
+                <h1 style="font-size:3rem;font-weight:100">Fragen</h1>
+                <div class="card my-4">
+                    <div class="card-header" style="background-color:#657f8C;color:white;font-size:2.5rem;font-weight: 100">
+                        Multiple Choice
+                        <a class="float-right" href="#"><i class="material-icons" style="font-size:2.5rem;color:white">more_vert</i></a><!-- TODO: active link state -->
+                    </div>
+                    <div class="card-body">
+                        <h1 class="card-title" style="border-bottom: 1px solid #657F8C">Themen für die nächste Sitzung</h1>
+                        <p class="card-text" style="border-bottom: 1px solid #C0C0C0">Welche Themen sollen bei der
+                            nächsten Sitzung am 32.12. im behandelt werden?</p>
+                        <div class="container">
+                            <div class="row">
+                                <div class="col-lg-6 col-12">
+                                    <label style="display: block; position: relative; padding-left: 35px; margin-bottom: 12px;"><span
+                                            style="border-bottom:1px solid #657f8C">Erhaltung des Augartens in seiner
+                                            derzeitigen Form</span>
+                                        <input type="checkbox" style="position:absolute;opacity: 0; "><span style="position: absolute; top: 0; left: 0; height: 23px; width: 23px; background-color: #eee;border:3px solid #657f8C"></span>
+                                    </label>
+                                </div>
+                                <div class="col-lg-6 col-12">
+                                    <label style="display: block; position: relative; padding-left: 35px; margin-bottom: 12px; "><span
+                                            style="border-bottom:1px solid #657f8C">Fahrradautobahn nach St. Peter</span>
+                                        <input type="checkbox" style="position:absolute;opacity: 0;"><span style="position: absolute; top: 0; left: 0; height: 23px; width: 23px; background-color: #eee;border:3px solid #657f8C"></span>
+                                    </label>
+                                </div>
+                                <div class="col-lg-6 col-12">
+                                    <label style="display: block; position: relative; padding-left: 35px; margin-bottom: 12px;"><span
+                                            style="border-bottom:1px solid #657f8C">Feinstauboffensive</span>
+                                        <input type="checkbox" style="position:absolute;opacity: 0; "><span style="position: absolute; top: 0; left: 0; height: 23px; width: 23px; background-color: #eee;border:3px solid #657f8C"></span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                        <a href="#" class="btn btn-success float-right" style="margin:0 1rem">Für Wahl freischalten</a>
+                        <a href="#" class="btn btn-light float-right" style="margin:0 1rem">Frage löschen</a>
+                    </div>
+                </div>
+                <div class="card my-4">
+                    <div class="card-header" style="background-color:#657f8C;color:white;font-size:2.5rem;font-weight: 100">
+                        Entscheidungsfrage
+                        <a class="float-right" href="#"><i class="material-icons" style="font-size:2.5rem;color:white">more_vert</i></a><!-- TODO: active link state -->
+                    </div>
+                    <div class="card-body">
+                        <h1 class="card-title" style="border-bottom: 1px solid #657F8C">Rauchen in Gastgärten</h1>
+                        <p class="card-text" style="border-bottom: 1px solid #C0C0C0">Soll in Gastgärten das Rauchen
+                            verboten werden? Oder sollen dort alle pofeln dürfen, soviel sie wollen?</p>
+                        <div class="container">
+                            <div class="row">
+                                <div class="col-lg-6 col-12">
+                                    <label style="display: block; position: relative; padding-left: 35px; margin-bottom: 12px;"><span
+                                            style="border-bottom:1px solid #657f8C">Bin ich ganz dafür!</span>
+                                        <input type="radio" style="position:absolute;opacity: 0;"><span style="position: absolute; top: 0; left: 0; height: 23px; width: 23px; background-color: #eee;border:3px solid #657f8C;border-radius:50%"></span>
+                                    </label>
+                                </div>
+                                <div class="col-lg-6 col-12">
+                                    <label style="display: block; position: relative; padding-left: 35px; margin-bottom: 12px;"><span
+                                            style="border-bottom:1px solid #657f8C">Ich gehe eh nicht fort, ist mir
+                                            daher
+                                            egal.</span>
+                                        <input type="radio" style="position:absolute;opacity: 0; "><span style="position: absolute; top: 0; left: 0; height: 23px; width: 23px; background-color: #eee;border:3px solid #657f8C;border-radius:50%"></span>
+                                    </label>
+                                </div>
+                                <div class="col-lg-6 col-12">
+                                    <label style="display: block; position: relative; padding-left: 35px; margin-bottom: 12px;"><span
+                                            style="border-bottom:1px solid #657f8C">Noch ein Verbot, nein Danke!</span>
+                                        <input type="radio" style="position:absolute;opacity: 0; "><span style="position: absolute; top: 0; left: 0; height: 23px; width: 23px; background-color: #eee;border:3px solid #657f8C;border-radius:50%;"></span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                        <a href="#" class="btn btn-success float-right" style="margin:0 1rem">Für Wahl freischalten</a>
+                        <a href="#" class="btn btn-light float-right" style="margin:0 1rem">Frage löschen</a>
+                    </div>
+                </div>
+                <div class="card my-4">
+                    <div class="card-header" style="background-color:#657f8C;color:white;font-size:2.5rem;font-weight: 100">
+                        Reihungsfrage
+                        <a class="float-right" href="#"><i class="material-icons" style="font-size:2.5rem;color:white">more_vert</i></a><!-- TODO: active link state -->
+                    </div>
+                    <div class="card-body">
+                        <h1 class="card-title" style="border-bottom: 1px solid #657F8C">Wer soll uns bei der nächsten
+                            Gemeinderatswahl vertreten?</h1>
+                        <p class="card-text" style="border-bottom: 1px solid #C0C0C0">Wählt maximal 3 KandidatInnen für
+                            den ersten Listenplatz für die nächste Gemeinderatswahl.</p>
+                        <div class="container">
+                            <div class="row">
+                                <div class="col-lg-6 col-12">
+                                    <div class="my-2" style="border:1px solid #DCE4E7;width:100%">Maria Müller</div>
+                                    <div class="my-2" style="border:1px solid #DCE4E7;width:100%">Max Mustermann</div>
+                                    <div class="my-2" style="border:1px solid #DCE4E7;width:100%">Ömer Österreicher</div>
+                                    <div class="my-2" style="border:1px solid #DCE4E7;width:100%">Stefanie Steirerin</div>
+                                    <div class="my-2" style="border:1px solid #DCE4E7;width:100%">Gerda Grazerin</div>
+                                </div>
+                                <div class="col-lg-6 col-12">
+                                    <div class="my-2 p-2" style="border:1px solid #DCE4E7;width:100%;background-color:#C0C0C0;font-weight:700;color:white">1</div>
+                                    <div class="my-2 p-2" style="border:1px solid #DCE4E7;width:100%;background-color:#C0C0C0;font-weight:700;color:white">2</div>
+                                    <div class="my-2 p-2" style="border:1px solid #DCE4E7;width:100%;background-color:#C0C0C0;font-weight:700;color:white">3</div>
+                                </div>
+                            </div>
+                        </div>
+                        <a href="#" class="btn btn-success float-right" style="margin:0 1rem">Für Wahl freischalten</a>
+                        <a href="#" class="btn btn-light float-right" style="margin:0 1rem">Frage löschen</a>
+                    </div>
+                </div>
+                <div class="float-right">
+                    <i class="material-icons blinkOnScroll" style="font-size: 4rem;color: #3583A9;font-weight: 700;border-radius: 50%;cursor:pointer">add_circle</i></div>
+            </div>
         </div>
-        <div class="col-3" style="text-align:right"><button class="btn btn-secondary" style="text-transform: uppercase;font-size: .9rem">Link teilen</button></div>
-    </div>
-    </div>
-    <main role="main" class="container">
-
-
     </main>
 
     <script src="https://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="
@@ -158,133 +320,40 @@
         crossorigin="anonymous"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js" integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy"
         crossorigin="anonymous"></script>
-
     <script src="./js/bootstrap-datepicker.min.js"></script>
 
     <script>
-        $('#fw-user-img-content').hover(
-            function () { highlightImgSelector('user', 'rgba(255, 255, 255, 0.5)'); },
-            function () { resetImgSelector('user', 'rgba(255, 255, 255, 0.5)'); }
-        );
-
-        $('#fw-voting-img-content').hover(
-            function () { highlightImgSelector('voting', 'rgba(101, 127, 140, 0.5)'); },
-            function () { resetImgSelector('voting', 'rgba(101, 127, 140, 0.5)'); }
-        );
-
-        $('.form-group.date').datepicker({
-            format: "dd.mm.yyyy"
+        $(document).on('click', '.dropdown-menu', function (e) {
+            e.stopPropagation();
         });
 
-        $('document').ready(function () {
-            $('#fw-user-img-input').change(function () { alert($(this).val()); previewAndUploadFile('user'); });
-            $('#fw-voting-img-input').change(function () { alert($(this).val()); previewAndUploadFile('voting'); });
-        });
+        $(window).on('scroll', blinkOnScroll);
+        var win_height_padded = $(window).height() * 1.1
 
-        function highlightImgSelector(type, color) {
-            $("#fw-" + type + "-img-selector").css("border", "1px solid " + color);
-            $("#fw-" + type + "-img-selector").animate({
-                backgroundColor: 'rgba(0,0,0,.5)'
-            });
-            $("#fw-" + type + "-img-selector").css("box-shadow", "1px 1px 1px rgba(0, 0, 0, 0.5)");
-            $("#fw-" + type + "-img-icon").animate(
-                { fontSize: "1.5rem" });
-            $("#fw-" + type + "-img-text").animate({
-                opacity: 1
-            });
-        }
 
-        function resetImgSelector(type, color) {
-            $("#fw-" + type + "-img-selector").css("border", "0px solid " + color);
-            $("#fw-" + type + "-img-selector").animate({
-                backgroundColor: 'rgba(0,0,0,0)',
-            });
-            $("#fw-" + type + "-img-icon").animate(
-                { fontSize: "2rem" });
-            $("#fw-" + type + "-img-text").animate({
-                opacity: 0
-            });
-            $("#fw-" + type + "-img-selector").css("box-shadow", "0px 0px 0px");
-            $('#fw-' + type + '-img-upload').css('display', 'none');
-        }
+        function blinkOnScroll() {
+            var scrolled = $(window).scrollTop();
+            $(".blinkOnScroll:not(.animated)").each(function () {
+                var $this = $(this),
+                    offsetTop = $this.offset().top;
 
-        function showFileSelector(elementId) {
-            $(elementId).css("display", "inline");
-        }
-
-        function highlightAddVoting(jqueryPath) {
-            $(jqueryPath).addClass('shadow-pulse');
-        }
-
-        function resetAddVoting(jqueryPath) {
-            $(jqueryPath).removeClass('shadow-pulse');
-        }
-
-        function createVoting() {
-            $("#newVotingModal").modal();
-        }
-
-        function previewAndUploadFile(type) {
-            var file = $('#fw-' + type + '-img-input')[0].files[0];
-            if (!file.type.match(/image.*/)) {
-                return; // TODO: inform user to upload actual image
-            };
-            var img = new Image();
-            var reader = new FileReader();
-            reader.onload = function (e) {
-                img.src = e.target.result;
-            }
-
-            img.onload = function () {
-                var canvas = document.getElementById('fw-' + type + '-img-real');
-                var context = canvas.getContext('2d');
-                var MAX_WIDTH = 300;
-                var MAX_HEIGHT = 300;
-                var width = img.width;
-                var height = img.height;
-
-                if (width > height) {
-                    if (width > MAX_WIDTH) {
-                        height *= MAX_WIDTH / width;
-                        width = MAX_WIDTH;
-                    }
-                } else {
-                    if (height > MAX_HEIGHT) {
-                        width *= MAX_HEIGHT / height;
-                        height = MAX_HEIGHT;
+                if (scrolled + win_height_padded > offsetTop) {
+                    if ($this.data('timeout')) {
+                        window.setTimeout(function () {
+                            $this.addClass('animated blinky');
+                        }, parseInt($this.data('timeout'), 10));
+                    } else {
+                        $this.addClass('animated blinky');
                     }
                 }
-                canvas.width = width;
-                canvas.height = height;
-                context.drawImage(img, 0, 0, width, height);
-                $('#fw-' + type + '-img-dummy').hide();
-                $('#fw-' + type + '-img-real').show();
-                if (type == 'user')
-                    uploadFile();
-            }
-            reader.readAsDataURL(file);
-        }
-
-        function uploadFile() {
-            var canvas = document.getElementById('fw-user-img-real');
-            var dataURL = canvas.toDataURL();
-            $.ajax({
-                url: 'http://localhost:61878/VotingAdministration/UpdateUserImage',
-                type: 'POST',
-                data: {
-                    imageData: dataURL
-                },
-                success: updateImage,
-                error: function (data) {
-                    // TODO
-                },
-                // beforeSend: function (xhr) {
-                //   xhr.setRequestHeader("Authorization", idToken);
-                // }
             });
-        }
-
-        function updateImage(data) {
+            $(".blinkOnScroll.animated").each(function (index) {
+                var $this = $(this),
+                    offsetTop = $this.offset().top;
+                if (scrolled + win_height_padded < offsetTop) {
+                    $(this).removeClass('animated blinky')
+                }
+            });
         }
     </script>
 </body>

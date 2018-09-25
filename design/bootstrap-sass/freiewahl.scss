@@ -229,3 +229,13 @@ div.fw-finished-vote-card-text h5 {
     0% { transform: rotate(0deg); }
     100% { transform: rotate(360deg); }
 }
+
+@keyframes blinkyAnim {
+    0%   {color: $secondary; transform: rotate(0deg);box-shadow:0 0 0 $secondary;}
+    50%   {color: $fw-light; transform: rotate(45deg);box-shadow:1rem 1rem 1rem $secondary;}
+    100%   {color: $secondary; transform: rotate(90deg);box-shadow:0 0 0;}
+}
+
+.blinky {
+    animation: blinkyAnim 1s ease-in-out;
+}
