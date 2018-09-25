@@ -34,13 +34,22 @@ namespace FreieWahl.Voting.Models
 
         public int QuestionIndex { get; set; }
 
+        public int MinNumAnswers { get; set; }
+
+        public int MaxNumAnswers { get; set; } // TODO extend tests
+
+        public QuestionType QuestionType { get; set; }
+
         public bool Equals(Question other)
         {
             if (other is null) return false;
             if (ReferenceEquals(this, other)) return true;
             return Status.Equals(other.Status) &&
                    QuestionIndex.Equals(other.QuestionIndex) &&
+                   MinNumAnswers.Equals(other.MinNumAnswers) &&
+                   MaxNumAnswers.Equals(other.MaxNumAnswers) &&
                    QuestionText.EqualsDefault(other.QuestionText) && 
+                   QuestionType.Equals(other.QuestionType) &&
                    Details.SequenceEqual(other.Details) && 
                    AnswerOptions.SequenceEqual(other.AnswerOptions);
         }
@@ -59,9 +68,13 @@ namespace FreieWahl.Voting.Models
             {
                 var hashCode = QuestionIndex.GetHashCode();
                 hashCode = (hashCode * 397) ^ Status.GetHashCode();
+                hashCode = (hashCode * 397) ^ QuestionType.GetHashCode();
+                hashCode = (hashCode * 397) ^ MinNumAnswers.GetHashCode();
+                hashCode = (hashCode * 397) ^ MaxNumAnswers.GetHashCode();
                 hashCode = (hashCode * 397) ^ (QuestionText != null ? QuestionText.GetHashCode() : 0);
                 hashCode = (hashCode * 397) ^ (Details != null ? Details.GetHashCode() : 0);
                 hashCode = (hashCode * 397) ^ (AnswerOptions != null ? AnswerOptions.GetHashCode() : 0);
+
                 return hashCode;
             }
         }

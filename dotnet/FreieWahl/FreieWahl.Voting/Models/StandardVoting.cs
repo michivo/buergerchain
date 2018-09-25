@@ -37,6 +37,12 @@ namespace FreieWahl.Voting.Models
         [DataType(DataType.Date)]
         public DateTime DateCreated { get; set; }
 
+        [DataType(DataType.Date)]
+        public DateTime StartDate { get; set; }
+
+        [DataType(DataType.Date)]
+        public DateTime EndDate { get; set; }
+
         public List<Question> Questions
         {
             get => _questions;
@@ -55,6 +61,8 @@ namespace FreieWahl.Voting.Models
                    Visibility == other.Visibility &&
                    State == other.State &&
                    DateCreated.EqualsDefault(other.DateCreated) &&
+                   StartDate.EqualsDefault(other.StartDate) &&
+                   EndDate.EqualsDefault(other.EndDate) &&
                    Questions.SequenceEqual(other.Questions) &&
                    ImageData.Equals(other.ImageData);
         }
@@ -79,6 +87,8 @@ namespace FreieWahl.Voting.Models
                 hashCode = (hashCode * 397) ^ (int)Visibility;
                 hashCode = (hashCode * 397) ^ (int)State;
                 hashCode = (hashCode * 397) ^ DateCreated.GetHashCode();
+                hashCode = (hashCode * 397) ^ StartDate.GetHashCode();
+                hashCode = (hashCode * 397) ^ EndDate.GetHashCode();
                 hashCode = (hashCode * 397) ^ (Questions != null ? Questions.GetHashCode() : 0);
                 hashCode = (hashCode * 397) ^ (ImageData != null ? ImageData.GetHashCode() : 0);
                 return hashCode;

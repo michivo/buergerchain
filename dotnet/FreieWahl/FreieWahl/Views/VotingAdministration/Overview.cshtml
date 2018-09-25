@@ -432,7 +432,7 @@
 
             item += '<div class="card-body"><h5 class="card-title">' + voting.title + '</h5>';
             item += '<p class="card-text">' + voting.description + '</p>';
-            item += '<a class="fw-card-link-icon" href="#"><i class="material-icons">edit</i></a></div></div></div>';
+            item += '<a class="fw-card-link-icon" href="Edit?id=' + voting.id + '"><i class="material-icons">edit</i></a></div></div></div>';
             items.push(item);
         }
         $(items.join("\n")).insertBefore("#fw-add-voting-card");

@@ -48,8 +48,7 @@ namespace FreieWahl.Controllers
 
         public async Task<IActionResult> Overview()
         {
-            var user = await _authorizationHandler.GetAuthorizedUser
-                (null, Operation.List, Request.Cookies["token"]);
+            var user = await _GetUserForGetRequest();
 
             if (user == null)
                 return Unauthorized();
@@ -63,6 +62,13 @@ namespace FreieWahl.Controllers
                 Initials = _GetInitials(user.Name)
             };
             return View(model);
+        }
+
+        private async Task<UserInformation> _GetUserForGetRequest()
+        {
+            var user = await _authorizationHandler.GetAuthorizedUser
+                (null, Operation.List, Request.Cookies["token"]);
+            return user;
         }
 
         private string _GetInitials(string userName)
@@ -94,30 +100,6 @@ namespace FreieWahl.Controllers
                 x.ImageData
             });
             return new JsonResult(resultForSerialization.ToArray());
-        }
-
-        public async Task<IActionResult> GetVotingDetails(string id)
-        {
-            if (await _authorizationHandler.CheckAuthorization(id, Operation.Read, Request.Headers["Authorization"]) == false)
-                return Unauthorized();
-
-            var voting = await _votingStore.GetById(_GetId(id));
-            var result = new
-            {
-                Id = voting.Id.ToString(CultureInfo.InvariantCulture),
-                voting.Title,
-                voting.Description,
-                voting.ImageData,
-                Questions = voting.Questions.Select(x =>
-                    new
-                    {
-                        Text = x.QuestionText,
-                        AnswerOptions = x.AnswerOptions.Select(a => a.AnswerText).ToArray(),
-                        Id = x.QuestionIndex.ToString(CultureInfo.InvariantCulture)
-                    }).ToArray()
-            };
-
-            return new JsonResult(result);
         }
 
         public async Task<IActionResult> GetQuestion(string votingId, string questionId)
@@ -192,9 +174,26 @@ namespace FreieWahl.Controllers
         }
 
         [HttpGet]
-        public IActionResult Edit(string id)
+        public async Task<IActionResult> Edit(string id)
         {
-            return View(new EditVotingModel { VotingId = id });
+            var user = await _GetUserForGetRequest();
+
+            if (user == null)
+                return Unauthorized();
+
+            var voting = await _votingStore.GetById(_GetId(id));
+
+            return View(new EditVotingModel
+            {
+                VotingId = id,
+                Title = voting.Title,
+                Description = voting.Description,
+                ImageData = voting.ImageData,
+                Questions = voting.Questions.Select(q => new QuestionModel(q)).ToList(),
+                UserInitials = _GetInitials(user.Name),
+                StartDate = voting.StartDate.ToString("dd.MM.YYYY HH:mm", CultureInfo.InvariantCulture),
+                EndDate = voting.EndDate.ToString("dd.MM.YYYY HH:mm", CultureInfo.InvariantCulture)
+            });
         }
 
         [HttpGet]
@@ -328,7 +327,9 @@ namespace FreieWahl.Controllers
                 Title = title,
                 Visibility = VotingVisibility.OwnerOnly,
                 State = VotingState.InPreparation,
-                ImageData = imageData
+                ImageData = imageData,
+                StartDate = startDate,
+                EndDate = endDate
             };
 
             await _votingStore.Insert(voting).ConfigureAwait(false);

@@ -2,238 +2,533 @@
 @using Microsoft.Extensions.Localization
 @model FreieWahl.Models.VotingAdministration.EditVotingModel
 
-@inject IStringLocalizer<VotingAdministrationController> Localizer
+<nav class="navbar navbar-dark fixed-top navbar-expand-md">
+    <a class="navbar-brand" href="#">
+        <span id="fw-brand-1">freie</span><span id="fw-brand-2">Wahl</span>
+    </a>
+    <ul class="navbar-nav ml-auto">
+        <a href="#"><i class="material-icons" style="background-color:#DCE4E7;font-size:2rem;padding:.25rem;border-radius:50%;margin-right:1rem;">home</i></a>
+        <a href="#"><span id="fw-account">@Model.UserInitials</span></a>
+    </ul>
+</nav>
 
-@{
-    ViewData["Title"] = "Edit";
-}
-
-<h2>Edit</h2>
-
-<hr />
-<div id="votingLoadProgress">
-    <div class="progress">
-        <div id="fw-load-progress" class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100" style="width: 100%"></div>
-    </div>
-</div>
-<div id="votingEditView" style="display: none">
-    <div class="form-group">
-        <input class="form-control" type="text" id="votingTitle" value="@Localizer["LabelVotingTitle"]">
-        <label for="votingTitle">@Localizer["LabelVotingTitle"]</label>
-    </div>
-    <div class="form-group">
-        <input class="form-control" type="text" id="votingDescription" value="@Localizer["LabelVotingDescription"]">
-        <label for="votingDescription">@Localizer["LabelVotingDescription"]</label>
-    </div>
-    <button class="btn btn-primary" onclick="saveVoting()">
-        <i class="material-icons align-top mr-3">save</i>*** Save
-    </button>
-    <button class="btn btn-warning" onclick="cancelEditing()">
-        <i class="material-icons align-top mr-3">cancel</i>*** Cancel
-    </button>
-    <button class="btn btn-secondary" onclick="invite()">
-        <i class="material-icons align-top mr-3">email</i>*** Invite Voters
-    </button>
-    <div style="float: none" class="mt-4">
-        <h3>@Localizer["QuestionsHeader"]</h3>
-        <div id="votingQuestionsListContent"></div>
-        <div id="addQuestion">
-            <a class="btn btn-primary" href="EditQuestion?qid=0&id=@(Model.VotingId)"><i class="material-icons align-top mr-3">add</i>*** Add Question</a>
+<div class="modal fade" id="newQuestionModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+     aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title" id="exampleModalLabel">Neue Frage</h3>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="container">
+                    <div class="row" style="margin-bottom:1rem;">
+                        <div class="col-12">
+                            <input type="text" class="form-control form-control-lg" aria-label="Large"
+                                   aria-describedby="inputGroup-sizing-sm" placeholder="Fragestellung">
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-12">
+                            <textarea type="textarea" class="form-control form-control-sm" id="newVotingDescription"
+                                      rows="7" placeholder="Erläuterung"></textarea>
+                        </div>
+                    </div>
+                    <div class="row my-3">
+                        <div class="col-12">
+                            <div class="form-group">
+                                <label for="questionType">Art der Fragestellung</label>
+                                <select class="form-control" id="questionType">
+                                    <option value="questionTypeDecision">Entscheidungsfrage</option>
+                                    <option value="questionTypeMultipleChoice">Multiple-Choice-Frage</option>
+                                    <option value="questionTypeOrdering">Reihungsfrage</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-12 col-md-6">
+                            <div class="form-group" style="display: none;">
+                                <label for="minNoAnswers">Mindestanzahl Antworten</label>
+                                <select class="form-control" id="minNoAnswers">
+                                    <option>1</option>
+                                    <option>2</option>
+                                    <option>3</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-12 col-md-6">
+                            <div class="form-group" style="display: none;">
+                                <label for="maxNoAnswers">Höchstanzahl Antworten</label>
+                                <select class="form-control" id="maxNoAnswers">
+                                    <option>1</option>
+                                    <option>2</option>
+                                    <option>3</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row my-3 border-top">
+                        <div class="col-12">
+                            <h3>Antwortoptionen</h3>
+                            <div id="answersTable" class="table-editable">
+                                <table class="table">
+                                    <tr>
+                                        <th>Option</th>
+                                        <th>Erläuterung</th>
+                                        <th><i class="table-add material-icons">add_circle</i></th>
+                                        <th></th>
+                                    </tr>
+                                    <!-- This is our clonable table line -->
+                                    <tr class="hide">
+                                        <td contenteditable="true">...</td>
+                                        <td contenteditable="true">...</td>
+                                        <td>
+                                            <i class="table-remove material-icons">remove_circle</i>
+                                        </td>
+                                        <td>
+                                            <i class="table-up material-icons">keyboard_arrow_up</i>
+                                            <i class="table-down material-icons">keyboard_arrow_down</i>
+                                        </td>
+                                    </tr>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-light" data-dismiss="modal">Abbrechen</button>
+                <button type="button" class="btn btn-primary">OK</button>
+            </div>
         </div>
     </div>
-    <div style="float: none" class="mt-4">
-        <div id="registrationList"></div>
+</div>
+
+<div class="container-fluid fw-banner" style="padding: 1rem 0;">
+    <div style="display:flex;flex-direction:row;justify-content: space-between;">
+        <div style="display:flex;flex-direction:column;align-self:stetch;">
+            <span class="fw-voting-title" style="background-color:#657f8C;color:white;font-size: 2rem;font-weight: 100;padding:0 3rem">
+                @Model.Title
+            </span>
+            <div style="display:flex;flex-direction:row;justify-content:space-between;margin-top:1rem;flex:1">
+                <div style="max-width: 30rem;">
+                    <div style="padding: 0;">
+                        <div style="background-color:white;color:#657f8C;font-size:.8rem;font-weight:300;padding-left:1rem; margin-right:2rem;">
+                            @Model.Description
+                        </div>
+                    </div>
+                </div>
+                <div style="display:flex;flex-direction:column;justify-content:space-between;">
+                    <div style="background-color:white; color:#657f8C;font-size:1.5rem;font-weight:100;display: flex;flex-direction: row;align-items: center">
+                        <div><i class="material-icons" style="color:#657f8C;font-size: 3rem;margin:0 1rem">date_range</i></div>
+                        <div>Start: 1.1.2018, 13:00<br>Ende: 1.1.2018, 18:01</div>
+                    </div>
+                    <div style="text-align:right;">
+                        <button class="btn btn-secondary" style="text-transform: uppercase;font-size: .9rem">Bearbeiten</button>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+        <div style="margin: auto;">
+            @if (!string.IsNullOrEmpty(@Model.ImageData))
+            {
+                <img src="@Model.ImageData" style="max-height: 13rem;">
+            }
+            else
+            {
+                <i class="material-icons fw-voting-img" id="fw-voting-img-dummy">how_to_vote</i>
+            }
+        </div>
     </div>
 </div>
-
-<div>
-    <a asp-action="Overview">Back to Overview</a>
+    </div>
+<div class="container-fluid" style="border-bottom:2px solid #C0C0C0;font-size: .9rem">
+    <div class="row" style="padding:1rem;">
+        <div class="col col-auto">
+            <i class="material-icons" style="font-size:2rem;color:#657f8C">link</i>
+        </div>
+        <div class="col-10 col-lg-8" style="color:#657f8C">
+            <strong>Link zur Registrierung für die Abstimmung</strong><br>
+            <a href="https://www.freiewahl.eu/Voting/Register?votingId=@Model.VotingId">https://www.freiewahl.eu/Voting/Register?votingId=@Model.VotingId</a>
+        </div>
+        <div class="col-3" style="text-align:right">
+            <button class="btn btn-secondary" style="text-transform: uppercase;font-size: .9rem">
+                Link
+                teilen
+            </button>
+        </div>
+    </div>
 </div>
+<main role="main" class="container-fluid">
+    <div class="row">
+        <div class="col-12 col-lg-3" style="border-right:2px solid #C0C0C0">
+            <div class="dropdown" style="margin:1rem 0">
+                <button class="btn btn-light dropdown-toggle" type="button" id="fw-dropdown-registered" data-toggle="dropdown"
+                        aria-haspopup="true" aria-expanded="false" style="border-bottom: 1px solid #657f8C;width:100%;text-align: left">
+                    Offene Registrierungen <span class="badge badge-pill badge-warning">3</span>
+                </button>
+                <div class="dropdown-menu" aria-labelledby="fw-dropdown-registered">
+                    <div style="display: flex; margin: 0 1rem;border-bottom: 1px solid #DCE4E7;">
+                        <div style="flex:1;margin-right:1rem">Michael Peter Faschinger</div>
+                        <div style="align-self: flex-end;cursor:pointer;color:#657f8C"><i class="material-icons">add_circle_outline</i></div>
+                        <div style="align-self: flex-end;cursor:pointer;color:#657f8C"><i class="material-icons">remove_circle_outline</i></div>
+                        <div style="align-self: flex-end;cursor:pointer;color:#657f8C"><i class="material-icons">info</i></div>
+                    </div>
+                    <div style="display: flex; margin: 0 1rem;border-bottom: 1px solid #DCE4E7;">
+                        <div style="flex:1;margin-right:1rem;">Rosi Degen</div>
+                        <div style="align-self: flex-end;cursor:pointer;color:#657f8C"><i class="material-icons">add_circle_outline</i></div>
+                        <div style="align-self: flex-end;cursor:pointer;color:#657f8C"><i class="material-icons">remove_circle_outline</i></div>
+                        <div style="align-self: flex-end;cursor:pointer;color:#657f8C"><i class="material-icons">info</i></div>
+                    </div>
+                    <div style="display: flex;margin:0 1rem;border-bottom: 1px solid #DCE4E7">
+                        <div style="flex:1;margin-right:1rem">Frau Österreicher</div>
+                        <div style="align-self: flex-end;cursor:pointer;color:#657f8C"><i class="material-icons">add_circle_outline</i></div>
+                        <div style="align-self: flex-end;cursor:pointer;color:#657f8C"><i class="material-icons">remove_circle_outline</i></div>
+                        <div style="align-self: flex-end;cursor:pointer;color:#657f8C"><i class="material-icons">info</i></div>
+                    </div>
+                    <div class="dropdown-divider"></div>
+                    <a class="dropdown-item" href="#">Alle freischalten</a>
+                    <a class="dropdown-item" href="#">Alle ablehnen</a>
+                </div>
+            </div>
+            <div class="dropdown" style="margin:1rem 0">
+                <button class="btn btn-light dropdown-toggle" type="button" id="fw-dropdown-registered" data-toggle="dropdown"
+                        aria-haspopup="true" aria-expanded="false" style="border-bottom: 1px solid #657f8C;width:100%;text-align: left">
+                    Freigeschaltete WählerInnen <span class="badge badge-pill badge-secondary">3</span>
+                </button>
+                <div class="dropdown-menu" aria-labelledby="fw-dropdown-registered">
+                    <div style="margin:0 1rem;border-bottom:1px solid #DCE4E7">Michael Peter Faschinger</div>
+                    <div style="margin:0 1rem;border-bottom:1px solid #DCE4E7">Rosi Degen-Faschinger</div>
+                    <div style="margin:0 1rem;border-bottom:1px solid #DCE4E7">Braver Wähler</div>
+                </div>
+            </div>
+            <div class="dropdown" style="margin:1rem 0">
+                <button class="btn btn-light dropdown-toggle" type="button" id="fw-dropdown-registered" data-toggle="dropdown"
+                        aria-haspopup="true" aria-expanded="false" style="border-bottom: 1px solid #657f8C;width:100%;text-align: left">
+                    Abgelehnte Registrierungen <span class="badge badge-pill badge-secondary">2</span>
+                </button>
+                <div class="dropdown-menu" aria-labelledby="fw-dropdown-registered">
+                    <div style="margin:0 1rem;border-bottom:1px solid #DCE4E7">Max Mustermann</div>
+                    <div style="margin:0 1rem;border-bottom:1px solid #DCE4E7">Hans Österreicher</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-12 col-lg-9" style="padding:1rem">
+            <h1 style="font-size:3rem;font-weight:100">Fragen</h1>
+            <div class="card my-4">
+                <div class="card-header" style="background-color:#657f8C;color:white;font-size:2.5rem;font-weight: 100">
+                    Multiple Choice
+                    <a class="float-right" href="#"><i class="material-icons" style="font-size:2.5rem;color:white">more_vert</i></a><!-- TODO: active link state -->
+                </div>
+                <div class="card-body">
+                    <h1 class="card-title" style="border-bottom: 1px solid #657F8C">Themen für die nächste Sitzung</h1>
+                    <p class="card-text" style="border-bottom: 1px solid #C0C0C0">
+                        Welche Themen sollen bei der
+                        nächsten Sitzung am 32.12. im behandelt werden?
+                    </p>
+                    <div class="container">
+                        <div class="row">
+                            <div class="col-lg-6 col-12">
+                                <label style="display: block; position: relative; padding-left: 35px; margin-bottom: 12px;">
+                                    <span style="border-bottom:1px solid #657f8C">
+                                        Erhaltung des Augartens in seiner
+                                        derzeitigen Form
+                                    </span>
+                                    <input type="checkbox" style="position:absolute;opacity: 0; "><span style="position: absolute; top: 0; left: 0; height: 23px; width: 23px; background-color: #eee;border:3px solid #657f8C"></span>
+                                </label>
+                            </div>
+                            <div class="col-lg-6 col-12">
+                                <label style="display: block; position: relative; padding-left: 35px; margin-bottom: 12px; ">
+                                    <span style="border-bottom:1px solid #657f8C">Fahrradautobahn nach St. Peter</span>
+                                    <input type="checkbox" style="position:absolute;opacity: 0;"><span style="position: absolute; top: 0; left: 0; height: 23px; width: 23px; background-color: #eee;border:3px solid #657f8C"></span>
+                                </label>
+                            </div>
+                            <div class="col-lg-6 col-12">
+                                <label style="display: block; position: relative; padding-left: 35px; margin-bottom: 12px;">
+                                    <span style="border-bottom:1px solid #657f8C">Feinstauboffensive</span>
+                                    <input type="checkbox" style="position:absolute;opacity: 0; "><span style="position: absolute; top: 0; left: 0; height: 23px; width: 23px; background-color: #eee;border:3px solid #657f8C"></span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                    <a href="#" class="btn btn-success float-right" style="margin:0 1rem">Für Wahl freischalten</a>
+                    <a href="#" class="btn btn-light float-right" style="margin:0 1rem">Frage löschen</a>
+                </div>
+            </div>
+            <div class="card my-4">
+                <div class="card-header" style="background-color:#657f8C;color:white;font-size:2.5rem;font-weight: 100">
+                    Entscheidungsfrage
+                    <a class="float-right" href="#"><i class="material-icons" style="font-size:2.5rem;color:white">more_vert</i></a><!-- TODO: active link state -->
+                </div>
+                <div class="card-body">
+                    <h1 class="card-title" style="border-bottom: 1px solid #657F8C">Rauchen in Gastgärten</h1>
+                    <p class="card-text" style="border-bottom: 1px solid #C0C0C0">
+                        Soll in Gastgärten das Rauchen
+                        verboten werden? Oder sollen dort alle pofeln dürfen, soviel sie wollen?
+                    </p>
+                    <div class="container">
+                        <div class="row">
+                            <div class="col-lg-6 col-12">
+                                <label style="display: block; position: relative; padding-left: 35px; margin-bottom: 12px;">
+                                    <span style="border-bottom:1px solid #657f8C">Bin ich ganz dafür!</span>
+                                    <input type="radio" style="position:absolute;opacity: 0;"><span style="position: absolute; top: 0; left: 0; height: 23px; width: 23px; background-color: #eee;border:3px solid #657f8C;border-radius:50%"></span>
+                                </label>
+                            </div>
+                            <div class="col-lg-6 col-12">
+                                <label style="display: block; position: relative; padding-left: 35px; margin-bottom: 12px;">
+                                    <span style="border-bottom:1px solid #657f8C">
+                                        Ich gehe eh nicht fort, ist mir
+                                        daher
+                                        egal.
+                                    </span>
+                                    <input type="radio" style="position:absolute;opacity: 0; "><span style="position: absolute; top: 0; left: 0; height: 23px; width: 23px; background-color: #eee;border:3px solid #657f8C;border-radius:50%"></span>
+                                </label>
+                            </div>
+                            <div class="col-lg-6 col-12">
+                                <label style="display: block; position: relative; padding-left: 35px; margin-bottom: 12px;">
+                                    <span style="border-bottom:1px solid #657f8C">Noch ein Verbot, nein Danke!</span>
+                                    <input type="radio" style="position:absolute;opacity: 0; "><span style="position: absolute; top: 0; left: 0; height: 23px; width: 23px; background-color: #eee;border:3px solid #657f8C;border-radius:50%;"></span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                    <a href="#" class="btn btn-success float-right" style="margin:0 1rem">Für Wahl freischalten</a>
+                    <a href="#" class="btn btn-light float-right" style="margin:0 1rem">Frage löschen</a>
+                </div>
+            </div>
+            <div class="card my-4">
+                <div class="card-header" style="background-color:#657f8C;color:white;font-size:2.5rem;font-weight: 100">
+                    Reihungsfrage
+                    <a class="float-right" href="#"><i class="material-icons" style="font-size:2.5rem;color:white">more_vert</i></a><!-- TODO: active link state -->
+                </div>
+                <div class="card-body">
+                    <h1 class="card-title" style="border-bottom: 1px solid #657F8C">
+                        Wer soll uns bei der nächsten
+                        Gemeinderatswahl vertreten?
+                    </h1>
+                    <p class="card-text" style="border-bottom: 1px solid #C0C0C0">
+                        Wählt 1-3 KandidatInnen für
+                        den ersten Listenplatz für die nächste Gemeinderatswahl.
+                    </p>
+                    <div class="container">
+                        <div class="row">
+                            <div class="col-lg-6 col-12">
+                                <div class="my-2" style="border:1px solid #DCE4E7;width:100%">Maria Müller</div>
+                                <div class="my-2" style="border:1px solid #DCE4E7;width:100%">Max Mustermann</div>
+                                <div class="my-2" style="border:1px solid #DCE4E7;width:100%">Ömer Österreicher</div>
+                                <div class="my-2" style="border:1px solid #DCE4E7;width:100%">Stefanie Steirerin</div>
+                                <div class="my-2" style="border:1px solid #DCE4E7;width:100%">Gerda Grazerin</div>
+                            </div>
+                            <div class="col-lg-6 col-12">
+                                <div class="my-2 p-2" style="border:1px solid #DCE4E7;width:100%;background-color:#99A;font-weight:700;color:white">1</div>
+                                <div class="my-2 p-2" style="border:1px solid #DCE4E7;width:100%;background-color:#C0C0C0;font-weight:700;color:white">2</div>
+                                <div class="my-2 p-2" style="border:1px solid #DCE4E7;width:100%;background-color:#C0C0C0;font-weight:700;color:white">3</div>
+                            </div>
+                        </div>
+                    </div>
+                    <a href="#" class="btn btn-success float-right" style="margin:0 1rem">Für Wahl freischalten</a>
+                    <a href="#" class="btn btn-light float-right" style="margin:0 1rem">Frage löschen</a>
+                </div>
+            </div>
+            <div class="float-right">
+                <i class="material-icons blinkOnScroll" style="font-size: 4rem;color: #3583A9;font-weight: 700;border-radius: 50%;cursor:pointer"
+                   onclick="createQuestion()">add_circle</i>
+            </div>
+        </div>
+    </div>
+</main>
 
-<script>
-    var idToken;
-    firebase.auth().onAuthStateChanged(function (currentUser) { currentUser.getIdToken().then(function(token) {
-        idToken = token;
-    }) });
+@section scripts {
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js" integrity="sha256-VazP97ZCwtekAsvgPBSUwPFKdrwD3unUfSGVYrahUqU="
+            crossorigin="anonymous"></script>
+    <script src="~/js/bootstrap-datepicker.min.js"></script>
 
-    function isEmpty(str) {
-        return (!str || 0 === str.length || str === '0');
-    }
+    <script>
+        $(document).on('click',
+            '.dropdown-menu',
+            function(e) {
+                e.stopPropagation();
+            });
 
-    function cancelEditing() {
-        window.location.assign("Overview");
-    }
+        $(window).on('scroll', blinkOnScroll);
+        var win_height_padded = $(window).height() * 1.1;
 
-    function editVoting(currentUser) {
-        if (isEmpty('@(Model.VotingId)'))
-        {
-            $("#votingLoadProgress").hide("fast");
-            $("#votingEditView").show("fast");
-            return;
-        }
+        $('#questionType').change(function() {
+            if ($('#questionType').val() === 'questionTypeDecision') {
+                $('#minNoAnswers').parent().hide();
+                $('#maxNoAnswers').parent().hide();
+            } else {
+                $('#minNoAnswers').parent().show();
+                $('#maxNoAnswers').parent().show();
+            }
+        });
 
-        if (currentUser) {
-            currentUser.getIdToken(true).then(function(idToken) {
-                $.ajax({
-                    url: 'GetVotingDetails',
-                    data: { "id": @Model.VotingId },
-                    type: 'GET',
-                    datatype: 'json',
-                    beforeSend: function(xhr) {
-                        xhr.setRequestHeader("Authorization", idToken);
-                    },
-                    success: function(data) {
-                        showVotingDetails(data);
+
+        function blinkOnScroll() {
+            var scrolled = $(window).scrollTop();
+            $(".blinkOnScroll:not(.animated)").each(function() {
+                var $this = $(this),
+                    offsetTop = $this.offset().top;
+
+                if (scrolled + win_height_padded > offsetTop) {
+                    if ($this.data('timeout')) {
+                        window.setTimeout(function() {
+                                $this.addClass('animated blinky');
+                            },
+                            parseInt($this.data('timeout'), 10));
+                    } else {
+                        $this.addClass('animated blinky');
                     }
-                    // error: todo
-                });
-
-                $.ajax({
-                    url: '../Registration/GetRegistrations',
-                    data: { "votingId": @Model.VotingId },
-                    type: 'GET',
-                    datatype: 'json',
-                    beforeSend: function(xhr) {
-                        xhr.setRequestHeader("Authorization", idToken);
-                    },
-                    success: function(data) {
-                        showRegistrations(data);
-                    }
-                    // error: todo
-                });
+                }
+            });
+            $(".blinkOnScroll.animated").each(function(index) {
+                var $this = $(this),
+                    offsetTop = $this.offset().top;
+                if (scrolled + win_height_padded < offsetTop) {
+                    $(this).removeClass('animated blinky')
+                }
             });
         }
-    }
 
-    function showRegistrations(registrations) {
-        var items = [];
-        for (var i = 0; i < registrations.length; i++) {
-            var registration = registrations[i];
-            var item = '<div class="card"><div class="card-body">' +
-                ' <p class="card-text">' +
-                '  <i class="material-icons">check_circle</i>' +
-                registration.voterName +
-                '</p>';
-            item +=
-                ' <a class="btn btn-primary text-light mr-5" onclick="grantRegistration(' +
-                registration.registrationId + ')"><i class="material-icons align-top mr-3">edit</i>*** Grant</a>';
-            item += '<a class="btn btn-primary text-light" onclick="deleteQuestion(\''
-                + registration.registrationId + '\')"><i class="material-icons align-top mr-3">delete</i>*** Deny</a></div>';
-            items.push(item);
+        function createQuestion() {
+            $('#newQuestionModal').modal();
         }
 
-        $("#registrationList").empty();
-        $("<div/>",
-            {
-                "class": "d-flex flex-column my-2",
-                html: items.join("\n")
-            }).appendTo("#registrationList");
+        $('.table-add').click(function() {
+            var $clone = $('#answersTable').find('tr.hide').clone(true).removeClass('hide table-line');
+            $clone.addClass('answer-line');
+            $('#answersTable').find('table').append($clone);
+        });
 
-    }
+        $('.table-remove').click(function() {
+            $(this).parents('tr.answer-line').detach();
+        });
 
-    function showVotingDetails(voting) {
+        $('.table-up').click(function() {
+            var $row = $(this).parents('tr');
+            if ($row.index() === 1) return; // Don't go above the header
+            $row.prev().before($row.get(0));
+        });
 
-        $("#votingTitle").attr('value', voting.title);
-        $("#votingDescription").attr('value', voting.description);
-        var items = [];
-        for (var i = 0; i < voting.questions.length; i++) {
-            var question = voting.questions[i];
-            var item = '<div class="card"><div class="card-body">' +
-                ' <p class="card-text">' +
-                '  <i class="material-icons">check_circle</i>' +
-                question.text +
-                '</p>';
-            item +=
-                ' <a class="btn btn-primary text-light mr-5" href="EditQuestion?qid=' +
-                question.id + '&id=@(Model.VotingId)"><i class="material-icons align-top mr-3">edit</i>*** Edit</a>';
-            item += '<a class="btn btn-primary text-light" onclick="deleteQuestion(\''
-                + question.id + '\')"><i class="material-icons align-top mr-3">delete</i>*** Delete</a></div>';
-            items.push(item);
+        $('.table-down').click(function() {
+            var $row = $(this).parents('tr');
+            $row.next().after($row.get(0));
+        });
+
+        var idToken;
+        firebase.auth().onAuthStateChanged(function(currentUser) {
+            currentUser.getIdToken().then(function(token) {
+                idToken = token;
+            })
+        });
+
+        function isEmpty(str) {
+            return (!str || 0 === str.length || str === '0');
+        }
+
+
+        function showRegistrations(registrations) {
+            var items = [];
+            for (var i = 0; i < registrations.length; i++) {
+                var registration = registrations[i];
+                var item = '<div class="card"><div class="card-body">' +
+                    ' <p class="card-text">' +
+                    '  <i class="material-icons">check_circle</i>' +
+                    registration.voterName +
+                    '</p>';
+                item +=
+                    ' <a class="btn btn-primary text-light mr-5" onclick="grantRegistration(' +
+                    registration.registrationId +
+                    ')"><i class="material-icons align-top mr-3">edit</i>*** Grant</a>';
+                item += '<a class="btn btn-primary text-light" onclick="deleteQuestion(\'' +
+                    registration.registrationId +
+                    '\')"><i class="material-icons align-top mr-3">delete</i>*** Deny</a></div>';
+                items.push(item);
+            }
+
+            $("#registrationList").empty();
+            $("<div/>",
+                {
+                    "class": "d-flex flex-column my-2",
+                    html: items.join("\n")
+                }).appendTo("#registrationList");
 
         }
 
-        $("#votingQuestionsListContent").empty();
-        $("<div/>",
-            {
-                "class": "d-flex flex-column my-2",
-                html: items.join("\n")
-            }).appendTo("#votingQuestionsListContent");
 
-
-        $("#votingLoadProgress").hide("fast");
-        $("#votingEditView").show("fast");
-    }
-
-    function deleteQuestion(qid) {
-        var currentUser = firebase.auth().currentUser;
-        if (currentUser) {
-            currentUser.getIdToken(true).then(function (idToken) {
-                $.post({
-                    url: 'DeleteVotingQuestion',
-                    data: { "qid": qid, "id": @Model.VotingId },
-                    beforeSend: function (xhr) {
-                        xhr.setRequestHeader("Authorization", idToken);
-                    },
-                    success: function (data) { ref }
-                    // error: todo
+        function deleteQuestion(qid) {
+            var currentUser = firebase.auth().currentUser;
+            if (currentUser) {
+                currentUser.getIdToken(true).then(function(idToken) {
+                    $.post({
+                        url: 'DeleteVotingQuestion',
+                        data: { "qid": qid, "id": @Model.VotingId },
+                        beforeSend: function(xhr) {
+                            xhr.setRequestHeader("Authorization", idToken);
+                        },
+                        success: function(data) { ref }
+                        // error: todo
+                    });
                 });
-            });
+            }
         }
-    }
 
-    function invite() {
-        var currentUser = firebase.auth().currentUser;
-        if (currentUser) {
-            var mails = ["michfasch@gmx.at"]
-            currentUser.getIdToken(true).then(function (idToken) {
-                $.post({
-                    url: 'SendInvitationMail',
-                    data: { "votingId": @Model.VotingId, "addresses": mails },
-                    beforeSend: function (xhr) {
-                        xhr.setRequestHeader("Authorization", idToken);
-                    },
-                    success: function (data) { }
-                    // error: todo
+        function invite() {
+            var currentUser = firebase.auth().currentUser;
+            if (currentUser) {
+                var mails = ["michfasch@gmx.at"]
+                currentUser.getIdToken(true).then(function(idToken) {
+                    $.post({
+                        url: 'SendInvitationMail',
+                        data: { "votingId": @Model.VotingId, "addresses": mails },
+                        beforeSend: function(xhr) {
+                            xhr.setRequestHeader("Authorization", idToken);
+                        },
+                        success: function(data) {}
+                        // error: todo
+                    });
                 });
-            });
+            }
         }
-    }
 
-    function saveVoting() {
-        var title = $("#votingTitle").val();
-        var desc = $("#votingDescription").val();
-        var currentUser = firebase.auth().currentUser;
-        if (currentUser) {
-            currentUser.getIdToken(true).then(function (idToken) {
-                $.post({
-                    url: 'UpdateVoting',
-                    data: { "title": title, "desc": desc, "id": @Model.VotingId },
-                    beforeSend: function (xhr) {
-                        xhr.setRequestHeader("Authorization", idToken);
-                    },
-                    success: function (data) { window.location.assign("Overview"); }
-                    // error: todo
+        function saveVoting() {
+            var title = $("#votingTitle").val();
+            var desc = $("#votingDescription").val();
+            var currentUser = firebase.auth().currentUser;
+            if (currentUser) {
+                currentUser.getIdToken(true).then(function(idToken) {
+                    $.post({
+                        url: 'UpdateVoting',
+                        data: { "title": title, "desc": desc, "id": @Model.VotingId },
+                        beforeSend: function(xhr) {
+                            xhr.setRequestHeader("Authorization", idToken);
+                        },
+                        success: function(data) { window.location.assign("Overview"); }
+                        // error: todo
+                    });
                 });
-            });
+            }
         }
-    }
 
-    function grantRegistration(regId) {
-        var currentUser = firebase.auth().currentUser;
-        if (currentUser) {
-            currentUser.getIdToken(true).then(function (idToken) {
-                $.post({
-                    url: '../Registration/GrantRegistration',
-                    data: { "rid": regId },
-                    beforeSend: function (xhr) {
-                        xhr.setRequestHeader("Authorization", idToken);
-                    },
-                    success: function (data) { // todo 
-                    }
-                    // error: todo
+        function grantRegistration(regId) {
+            var currentUser = firebase.auth().currentUser;
+            if (currentUser) {
+                currentUser.getIdToken(true).then(function(idToken) {
+                    $.post({
+                        url: '../Registration/GrantRegistration',
+                        data: { "rid": regId },
+                        beforeSend: function(xhr) {
+                            xhr.setRequestHeader("Authorization", idToken);
+                        },
+                        success: function(data) { // todo
+                        }
+                        // error: todo
+                    });
                 });
-            });
+            }
         }
-    }
-</script>
+    </script>
 
+}

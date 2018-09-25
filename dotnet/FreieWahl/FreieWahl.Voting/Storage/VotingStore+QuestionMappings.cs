@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using FreieWahl.Voting.Common;
 using FreieWahl.Voting.Models;
 using Google.Cloud.Datastore.V1;
 
@@ -26,6 +25,9 @@ namespace FreieWahl.Voting.Storage
                 ["QuestionIndex"] = question.QuestionIndex,
                 ["Status"] = (int)question.Status,
                 ["QuestionText"] = question.QuestionText,
+                ["QuestionType"] = (int)question.QuestionType,
+                ["MinNumAnswers"] = question.MinNumAnswers,
+                ["MaxNumAnswers"] = question.MaxNumAnswers,
                 ["Details"] = ToEntities(question.Details),
                 ["AnswerOptions"] = ToEntities(question.AnswerOptions)
             };
@@ -61,16 +63,34 @@ namespace FreieWahl.Voting.Storage
             return array.Values.Select(value =>
             {
                 Entity e = value.EntityValue;
+                var questionType = e["QuestionType"];
+                var questionTypeVal = QuestionType.Decision;
+                if (questionType != null)
+                {
+                    questionTypeVal = (QuestionType)questionType.IntegerValue;
+                }
+
                 var result = new Question
                 {
-                    QuestionIndex = (int?)e["QuestionIndex"] ?? 0,
+                    QuestionIndex = _SafeGetInt(e, "QuestionIndex", 0),
                     Status = e.Properties.ContainsKey("Status") ? (QuestionStatus)e["Status"].IntegerValue : QuestionStatus.InPreparation,
                     QuestionText = e["QuestionText"].StringValue,
                     AnswerOptions = FromAnswerOptionEntity(e["AnswerOptions"]),
-                    Details = FromQuestionDetailEntity(e["Details"])
+                    Details = FromQuestionDetailEntity(e["Details"]),
+                    QuestionType = questionTypeVal,
+                    MinNumAnswers = _SafeGetInt(e, "MinNumAnswers", 1),
+                    MaxNumAnswers = _SafeGetInt(e, "MaxNumAnswers", 1)
                 };
                 return result;
             }).ToList();
+        }
+
+        private static int _SafeGetInt(Entity e, string key, int defaultValue)
+        {
+            var value = e[key];
+            if (value != null)
+                return (int)value.IntegerValue;
+            return defaultValue;
         }
 
         private static List<QuestionDetail> FromQuestionDetailEntity(Value value)

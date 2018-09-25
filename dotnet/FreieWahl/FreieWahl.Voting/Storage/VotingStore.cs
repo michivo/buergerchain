@@ -190,7 +190,6 @@ namespace FreieWahl.Voting.Storage
                 imageData = "data:" + mimeType + ";base64," + rawImageData.ToBase64();
             }
 
-
             return new StandardVoting()
             {
                 Id = entity.Key.Path.First().Id,
@@ -198,12 +197,22 @@ namespace FreieWahl.Voting.Storage
                 Creator = entity["Creator"].StringValue,
                 Description = entity["Description"].StringValue,
                 DateCreated = (DateTime)entity["DateCreated"],
+                StartDate = _SafeGetDate(entity, "StartDate", DateTime.Now),
+                EndDate = _SafeGetDate(entity, "EndDate", DateTime.Now.AddDays(1)),
                 Visibility = visibilityValue,
                 State = stateValue,
                 Questions = FromQuestionsEntity(entity["Questions"]),
                 CurrentQuestionIndex = (int?)entity["CurrentQuestionIndex"] ?? 0,
                 ImageData = imageData
             };
+        }
+
+        private static DateTime _SafeGetDate(Entity e, string key, DateTime defaultValue)
+        {
+            var value = e[key];
+            if (value != null)
+                return (DateTime)value;
+            return defaultValue;
         }
 
         private Entity ToEntity(StandardVoting standardVoting)
@@ -223,7 +232,9 @@ namespace FreieWahl.Voting.Storage
                 ["Questions"] = ToEntities(standardVoting.Questions),
                 ["CurrentQuestionIndex"] = standardVoting.CurrentQuestionIndex,
                 ["ImageData"] = rawData,
-                ["ImageType"] = mimeType
+                ["ImageType"] = mimeType,
+                ["StartDate"] = standardVoting.StartDate.ToUniversalTime(),
+                ["EndDate"] = standardVoting.EndDate.ToUniversalTime()
             };
             result["ImageData"].ExcludeFromIndexes = true;
             return result;
