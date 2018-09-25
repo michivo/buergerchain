@@ -239,3 +239,39 @@ div.fw-finished-vote-card-text h5 {
 .blinky {
     animation: blinkyAnim 1s ease-in-out;
 }
+
+.table-editable {
+    position: relative;
+}
+
+tr.hide {
+    display:none;
+}
+  
+.table-remove {
+    color: #700;
+    cursor: pointer;
+    
+    &:hover {
+      color: #f00;
+    }
+}
+  
+.table-up, .table-down {
+    color: $primary;
+    cursor: pointer;
+    
+    &:hover {
+      color: white;
+      background-color: $fw-light;
+    }
+}
+  
+.table-add {
+    color: #070;
+    cursor: pointer;
+    
+    &:hover {
+      color: #0b0;
+    }
+}

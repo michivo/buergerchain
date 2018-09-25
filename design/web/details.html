@@ -51,15 +51,15 @@
                                 <div class="form-group">
                                     <label for="questionType">Art der Fragestellung</label>
                                     <select class="form-control" id="questionType">
-                                        <option>Entscheidungsfrage</option>
-                                        <option>Multiple-Choice-Frage</option>
-                                        <option>Reihungsfrage</option>
+                                        <option value="questionTypeDecision">Entscheidungsfrage</option>
+                                        <option value="questionTypeMultipleChoice">Multiple-Choice-Frage</option>
+                                        <option value="questionTypeOrdering">Reihungsfrage</option>
                                     </select>
                                 </div>
                             </div>
                             <div class="col-12 col-md-6">
-                                <div class="form-group">
-                                    <label for="maxNoAnswers">Mindestanzahl Antworten</label>
+                                <div class="form-group" style="display: none;">
+                                    <label for="minNoAnswers">Mindestanzahl Antworten</label>
                                     <select class="form-control" id="minNoAnswers">
                                         <option>1</option>
                                         <option>2</option>
@@ -68,13 +68,40 @@
                                 </div>
                             </div>
                             <div class="col-12 col-md-6">
-                                <div class="form-group">
+                                <div class="form-group" style="display: none;">
                                     <label for="maxNoAnswers">Höchstanzahl Antworten</label>
                                     <select class="form-control" id="maxNoAnswers">
                                         <option>1</option>
                                         <option>2</option>
                                         <option>3</option>
                                     </select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row my-3 border-top">
+                            <div class="col-12">
+                                <h3>Antwortoptionen</h3>
+                                <div id="answersTable" class="table-editable">
+                                    <table class="table">
+                                        <tr>
+                                            <th>Option</th>
+                                            <th>Erläuterung</th>
+                                            <th><i class="table-add material-icons">add_circle</i></th>
+                                            <th></th>
+                                        </tr>
+                                        <!-- This is our clonable table line -->
+                                        <tr class="hide">
+                                            <td contenteditable="true">...</td>
+                                            <td contenteditable="true">...</td>
+                                            <td>
+                                                <i class="table-remove material-icons">remove_circle</i>
+                                            </td>
+                                            <td>
+                                                <i class="table-up material-icons">keyboard_arrow_up</i>
+                                                <i class="table-down material-icons">keyboard_arrow_down</i>
+                                            </td>
+                                        </tr>
+                                    </table>
                                 </div>
                             </div>
                         </div>
@@ -271,7 +298,7 @@
                     <div class="card-body">
                         <h1 class="card-title" style="border-bottom: 1px solid #657F8C">Wer soll uns bei der nächsten
                             Gemeinderatswahl vertreten?</h1>
-                        <p class="card-text" style="border-bottom: 1px solid #C0C0C0">Wählt maximal 3 KandidatInnen für
+                        <p class="card-text" style="border-bottom: 1px solid #C0C0C0">Wählt 1-3 KandidatInnen für
                             den ersten Listenplatz für die nächste Gemeinderatswahl.</p>
                         <div class="container">
                             <div class="row">
@@ -283,7 +310,7 @@
                                     <div class="my-2" style="border:1px solid #DCE4E7;width:100%">Gerda Grazerin</div>
                                 </div>
                                 <div class="col-lg-6 col-12">
-                                    <div class="my-2 p-2" style="border:1px solid #DCE4E7;width:100%;background-color:#C0C0C0;font-weight:700;color:white">1</div>
+                                    <div class="my-2 p-2" style="border:1px solid #DCE4E7;width:100%;background-color:#99A;font-weight:700;color:white">1</div>
                                     <div class="my-2 p-2" style="border:1px solid #DCE4E7;width:100%;background-color:#C0C0C0;font-weight:700;color:white">2</div>
                                     <div class="my-2 p-2" style="border:1px solid #DCE4E7;width:100%;background-color:#C0C0C0;font-weight:700;color:white">3</div>
                                 </div>
@@ -316,7 +343,18 @@
         });
 
         $(window).on('scroll', blinkOnScroll);
-        var win_height_padded = $(window).height() * 1.1
+        var win_height_padded = $(window).height() * 1.1;
+
+        $('#questionType').change(function () {
+            if ($('#questionType').val() === 'questionTypeDecision') {
+                $('#minNoAnswers').parent().hide();
+                $('#maxNoAnswers').parent().hide();
+            }
+            else {
+                $('#minNoAnswers').parent().show();
+                $('#maxNoAnswers').parent().show();
+            }
+        });
 
 
         function blinkOnScroll() {
@@ -347,6 +385,28 @@
         function createQuestion() {
             $('#newQuestionModal').modal();
         }
+
+        $('.table-add').click(function () {
+            var $clone = $('#answersTable').find('tr.hide').clone(true).removeClass('hide table-line');
+            $clone.addClass('answer-line');
+            $('#answersTable').find('table').append($clone);
+        });
+
+        $('.table-remove').click(function () {
+            $(this).parents('tr.answer-line').detach();
+        });
+
+        $('.table-up').click(function () {
+            var $row = $(this).parents('tr');
+            if ($row.index() === 1) return; // Don't go above the header
+            $row.prev().before($row.get(0));
+        });
+
+        $('.table-down').click(function () {
+            var $row = $(this).parents('tr');
+            $row.next().after($row.get(0));
+        });
+
     </script>
 </body>
 
