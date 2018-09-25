@@ -22,12 +22,12 @@
         </ul>
     </nav>
 
-    <div class="modal fade" id="newVotingModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+    <div class="modal fade" id="newQuestionModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
         aria-hidden="true">
-        <div class="modal-dialog" role="document">
+        <div class="modal-dialog modal-lg" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h3 class="modal-title" id="exampleModalLabel">Neue Abstimmung</h3>
+                    <h3 class="modal-title" id="exampleModalLabel">Neue Frage</h3>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                     </button>
@@ -37,57 +37,44 @@
                         <div class="row" style="margin-bottom:1rem;">
                             <div class="col-12">
                                 <input type="text" class="form-control form-control-lg" aria-label="Large"
-                                    aria-describedby="inputGroup-sizing-sm" placeholder="Name">
+                                    aria-describedby="inputGroup-sizing-sm" placeholder="Fragestellung">
                             </div>
                         </div>
                         <div class="row">
-                            <div class="col-6">
+                            <div class="col-12">
                                 <textarea type="textarea" class="form-control form-control-sm" id="newVotingDescription"
-                                    rows="7" placeholder="Beschreibung"></textarea>
-
-                                <div id="fw-voting-img-content" class="fw-voting-img" style="cursor: pointer; position: relative;"
-                                    onclick="showFileSelector('#fw-voting-img-upload')">
-                                    <i class="material-icons fw-voting-img" id="fw-voting-img-dummy">how_to_vote</i>
-                                    <canvas id="fw-voting-img-real" style="display:none;" with="300" height="300"></canvas>
-                                    <div id="fw-voting-img-selector" style="position:absolute;top:0rem;left:0rem;color:#DCE4E7;display:flex;align-content: center;padding:.1rem;border:1px solid #FFFFFF00;height:2rem">
-                                        <i id="fw-voting-img-icon" class="material-icons" style="font-size:2rem;text-shadow:0px 1px 1px white;">
-                                            photo_camera
-                                        </i>
-                                        <span id="fw-voting-img-text" style="opacity: 0;margin:0.1rem .5rem;font-size: .9rem;font-weight: 400">
-                                            Bild &auml;ndern
-                                        </span>
-                                    </div>
-                                    <div id="fw-voting-img-upload" style="display:none;position:absolute;top:2rem;left:0;background-color:white;border:1px solid #657f8c;padding:.5rem;border-radius: .5rem;">
-                                        <form>
-                                            <p style="font-size: .8rem;">Wählen Sie ein Bild für Ihre Abstimmung.</p>
-                                            <div class="custom-file">
-                                                <input type="file" class="custom-file-input" id="fw-voting-img-input"
-                                                    required>
-                                                <label class="custom-file-label" for="validatedCustomFile">...</label>
-                                                <div class="invalid-feedback">Yadda TODO</div>
-                                            </div>
-                                        </form>
-                                    </div>
+                                    rows="7" placeholder="Erläuterung"></textarea>
+                            </div>
+                        </div>
+                        <div class="row my-3">
+                            <div class="col-12">
+                                <div class="form-group">
+                                    <label for="questionType">Art der Fragestellung</label>
+                                    <select class="form-control" id="questionType">
+                                        <option>Entscheidungsfrage</option>
+                                        <option>Multiple-Choice-Frage</option>
+                                        <option>Reihungsfrage</option>
+                                    </select>
                                 </div>
                             </div>
-                            <div class="col-6">
-                                <div class="form-group form-group-sm date">
-                                    <label for="fwStartDate">Startdatum/-zeit</label>
-                                    <input type="text" class="form-control form-control-sm" id="fwStartDate"
-                                        placeholder="dd.mm.yyyy"><span class="input-group-addon"></span>
-                                </div>
+                            <div class="col-12 col-md-6">
                                 <div class="form-group">
-                                    <input type="text" class="form-control form-control-sm" id="fwStartTime"
-                                        aria-describedby="emailHelp" placeholder="hh:mm">
+                                    <label for="maxNoAnswers">Mindestanzahl Antworten</label>
+                                    <select class="form-control" id="minNoAnswers">
+                                        <option>1</option>
+                                        <option>2</option>
+                                        <option>3</option>
+                                    </select>
                                 </div>
-                                <div class="form-group date">
-                                    <label for="exampleInputEmail1">Enddatum/-zeit</label>
-                                    <input type="text" class="form-control form-control-sm"><span class="input-group-addon"
-                                        placeholder="dd.mm.yyyy"></span>
-                                </div>
+                            </div>
+                            <div class="col-12 col-md-6">
                                 <div class="form-group">
-                                    <input type="text" class="form-control form-control-sm" id="fwEndTime"
-                                        aria-describedby="emailHelp" placeholder="hh:mm">
+                                    <label for="maxNoAnswers">Höchstanzahl Antworten</label>
+                                    <select class="form-control" id="maxNoAnswers">
+                                        <option>1</option>
+                                        <option>2</option>
+                                        <option>3</option>
+                                    </select>
                                 </div>
                             </div>
                         </div>
@@ -307,7 +294,8 @@
                     </div>
                 </div>
                 <div class="float-right">
-                    <i class="material-icons blinkOnScroll" style="font-size: 4rem;color: #3583A9;font-weight: 700;border-radius: 50%;cursor:pointer">add_circle</i></div>
+                    <i class="material-icons blinkOnScroll" style="font-size: 4rem;color: #3583A9;font-weight: 700;border-radius: 50%;cursor:pointer"
+                        onclick="createQuestion()">add_circle</i></div>
             </div>
         </div>
     </main>
@@ -354,6 +342,10 @@
                     $(this).removeClass('animated blinky')
                 }
             });
+        }
+
+        function createQuestion() {
+            $('#newQuestionModal').modal();
         }
     </script>
 </body>
