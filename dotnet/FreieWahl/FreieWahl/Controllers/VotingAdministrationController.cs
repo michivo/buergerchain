@@ -192,7 +192,8 @@ namespace FreieWahl.Controllers
                 Questions = voting.Questions.Select(q => new QuestionModel(q)).ToList(),
                 UserInitials = _GetInitials(user.Name),
                 StartDate = voting.StartDate.ToString("dd.MM.yyyy HH:mm", CultureInfo.InvariantCulture),
-                EndDate = voting.EndDate.ToString("dd.MM.yyyy HH:mm", CultureInfo.InvariantCulture)
+                EndDate = voting.EndDate.ToString("dd.MM.yyyy HH:mm", CultureInfo.InvariantCulture),
+                RegistrationUrl = _GetRegistrationUrl(id)
             });
         }
 

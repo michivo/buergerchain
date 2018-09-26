@@ -13,5 +13,6 @@ namespace FreieWahl.Models.VotingAdministration
         public string UserInitials { get; set; }
         public string StartDate { get; set; }
         public string EndDate { get; set; }
+        public string RegistrationUrl { get; set; }
     }
 }
