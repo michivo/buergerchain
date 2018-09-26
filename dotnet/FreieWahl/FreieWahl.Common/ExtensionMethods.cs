@@ -11,6 +11,9 @@ namespace FreieWahl.Common
 
         public static string GetMimeType(this string imageData)
         {
+            if (string.IsNullOrEmpty(imageData))
+                return string.Empty;
+
             var startIndex = imageData.IndexOf(':');
             var endIndex = imageData.IndexOf(';');
             if (startIndex == -1 || endIndex == -1 || endIndex < startIndex)
@@ -20,6 +23,9 @@ namespace FreieWahl.Common
 
         public static byte[] GetImageData(this string imageData)
         {
+            if (string.IsNullOrEmpty(imageData))
+                return new byte[0];
+
             var startIndex = imageData.IndexOf(';') + 8;
             if (startIndex >= imageData.Length)
                 throw new ArgumentException("ImageData is invalid, data part is invalid" + _GetImageDataForException(imageData));

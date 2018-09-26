@@ -130,18 +130,41 @@ namespace FreieWahl.Controllers
             return Ok();
         }
 
-        public async Task<IActionResult> GetRegistrations(string votingId)
+        [HttpPost]
+        public async Task<IActionResult> DenyRegistration(string rid)
         {
-            if (await _authHandler.CheckAuthorization(votingId,
-                    Operation.GrantRegistration, Request.Headers["Authorization"]) == false)
+            var regId = rid.ToId();
+            if (regId == null)
+            {
+                return BadRequest();
+            }
+
+            var registration = await _registrationStore.GetOpenRegistration(regId.Value);
+            string vid = registration.VotingId.ToString(CultureInfo.InvariantCulture);
+            var user = await _authHandler.GetAuthorizedUser(vid,
+                Operation.GrantRegistration, Request.Headers["Authorization"]);
+            if (user == null)
             {
                 return Unauthorized();
             }
 
+
+            await _registrationHandler.DenyRegistration(regId.Value, user.UserId);
+            return Ok();
+        }
+
+        public async Task<IActionResult> GetRegistrations(string votingId)
+        {
             var votingIdVal = votingId.ToId();
             if (votingIdVal == null)
             {
                 return BadRequest("Invalid voting id");
+            }
+
+            if (await _authHandler.CheckAuthorization(votingId,
+                    Operation.GrantRegistration, Request.Headers["Authorization"]) == false)
+            {
+                return Unauthorized();
             }
 
             var registrations = await _registrationStore.GetOpenRegistrationsForVoting(votingIdVal.Value);
@@ -151,6 +174,34 @@ namespace FreieWahl.Controllers
                     x.VoterName,
                     x.VoterIdentity,
                     RegistrationId = x.RegistrationId.ToString(CultureInfo.InvariantCulture)
+                }
+            ).ToArray();
+
+            return new JsonResult(result);
+        }
+
+        public async Task<IActionResult> GetCompletedRegistrations(string votingId)
+        {
+            var votingIdVal = votingId.ToId();
+            if (votingIdVal == null)
+            {
+                return BadRequest("Invalid voting id");
+            }
+
+            if (await _authHandler.CheckAuthorization(votingId,
+                    Operation.GrantRegistration, Request.Headers["Authorization"]) == false)
+            {
+                return Unauthorized();
+            }
+
+            var completedRegistrations = await _registrationStore.GetCompletedRegistrations(votingIdVal.Value);
+
+            var result = completedRegistrations.Select(x =>
+                new
+                {
+                    x.VoterName,
+                    x.VoterIdentity,
+                    Decision = (int)x.Decision
                 }
             ).ToArray();
 
