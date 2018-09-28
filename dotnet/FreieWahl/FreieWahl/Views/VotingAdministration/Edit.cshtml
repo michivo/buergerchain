@@ -100,7 +100,7 @@
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-light" data-dismiss="modal">Abbrechen</button>
-                <button type="button" class="btn btn-primary"  onclick="saveQuestion();">OK</button>
+                <button type="button" class="btn btn-primary"  onclick="saveQuestion();" id="modalQuestionOk">OK</button>
             </div>
         </div>
     </div>
@@ -231,8 +231,18 @@
                 e.stopPropagation();
             });
 
-        $(document).ready(function () {
+        $(document).ready(function() {
             updateRegistrations();
+            $('.answerOptionText').click(function() {
+                if ($(this).text() === '...') {
+                    document.execCommand('selectAll', false, null);
+                }
+            });
+            $('.answerOptionDescription').click(function() {
+                if ($(this).text() === '...') {
+                    document.execCommand('selectAll', false, null);
+                }
+            });
         });
 
         function updateRegistrations() {
@@ -346,14 +356,15 @@
                 var item =
                     '<div style="display: flex; margin: 0 1rem;border-bottom: 1px solid #DCE4E7;" class="openRegistrationItem"><div style="flex:1;margin-right:1rem">' +
                         registration.voterName +
-                    '</div>';
+                        '</div>';
                 item += '<div style="align-self: flex-end;cursor:pointer;color:#657f8C" onclick="grantRegistration(\'' +
                     registration.registrationId +
                     '\')"><i class="material-icons">add_circle_outline</i></div>';
                 item += '<div style="align-self: flex-end;cursor:pointer;color:#657f8C" onclick="denyRegistration(\'' +
                     registration.registrationId +
                     '\')"><i class="material-icons mx-1">remove_circle_outline</i></div>';
-                item += '<div style="align-self: flex-end;cursor:pointer;color:#657f8C"><i class="material-icons">info</i></div></div>'; // TODO
+                item +=
+                    '<div style="align-self: flex-end;cursor:pointer;color:#657f8C"><i class="material-icons">info</i></div></div>'; // TODO
                 $(item).insertBefore('#openRegistrationsDivider');
             }
 
@@ -370,7 +381,9 @@
             for (var i = 0; i < registrations.length; i++) {
                 // <div style="margin:0 1rem;border-bottom:1px solid #DCE4E7">Michael Peter Faschinger</div>
                 var registration = registrations[i];
-                var item = '<div style="margin:0 1rem;border-bottom:1px solid #DCE4E7">' + registration.voterName + '</div>';
+                var item = '<div style="margin:0 1rem;border-bottom:1px solid #DCE4E7">' +
+                    registration.voterName +
+                    '</div>';
                 if (registration.decision === 1) {
                     grantedList.append(item);
                     grantedCount++;
@@ -449,7 +462,7 @@
                         beforeSend: function(xhr) {
                             xhr.setRequestHeader("Authorization", idToken);
                         },
-                        success: function (data) { // todo
+                        success: function(data) { // todo
                             updateRegistrations();
                         }
                         // error: todo
@@ -461,14 +474,14 @@
         function denyRegistration(regId) {
             var currentUser = firebase.auth().currentUser;
             if (currentUser) {
-                currentUser.getIdToken(true).then(function (idToken) {
+                currentUser.getIdToken(true).then(function(idToken) {
                     $.post({
                         url: '../Registration/DenyRegistration',
                         data: { "rid": regId },
-                        beforeSend: function (xhr) {
+                        beforeSend: function(xhr) {
                             xhr.setRequestHeader("Authorization", idToken);
                         },
-                        success: function (data) { // todo
+                        success: function(data) { // todo
                             updateRegistrations();
                         }
                         // error: todo
@@ -482,13 +495,15 @@
         }
 
         function saveQuestion() {
+            $('#modalQuestionOk').text('Speichere...');
+            $('#modalQuestionOk').addClass('disabled');
             var description = $('#newQuestionDescription').val();
             var title = $('#newQuestionTitle').val();
             var type = parseInt($('#questionType').val());
             var currentUser = firebase.auth().currentUser;
             var answers = [];
             var answerDescriptions = [];
-            $("#answersTable .answerOption").not('.hide').each(function () {
+            $("#answersTable .answerOption").not('.hide').each(function() {
                 answers.push($(this).find('td.answerOptionText').text());
                 answerDescriptions.push($(this).find('td.answerOptionDescription').text());
             });
@@ -496,7 +511,7 @@
             var maxNumAnswers = parseInt($('#maxNoAnswers').val());
 
             if (currentUser) {
-                currentUser.getIdToken(true).then(function (idToken) {
+                currentUser.getIdToken(true).then(function(idToken) {
                     $.post({
                         url: 'UpdateVotingQuestion',
                         data: {
@@ -510,10 +525,10 @@
                             "minNumAnswers": minNumAnswers,
                             "maxNumAnswers": maxNumAnswers
                         },
-                        beforeSend: function (xhr) {
+                        beforeSend: function(xhr) {
                             xhr.setRequestHeader("Authorization", idToken);
                         },
-                        success: function (data) { // todo
+                        success: function(data) { // todo
                             $('#newQuestionModal').modal('hide');
                         }
                         // error: todo
