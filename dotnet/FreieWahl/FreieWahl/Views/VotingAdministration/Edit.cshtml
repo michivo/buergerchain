@@ -1,4 +1,5 @@
 ﻿@using FreieWahl.Controllers
+@using FreieWahl.Voting.Models
 @using Microsoft.Extensions.Localization
 @model FreieWahl.Models.VotingAdministration.EditVotingModel
 
@@ -27,12 +28,12 @@
                     <div class="row" style="margin-bottom:1rem;">
                         <div class="col-12">
                             <input type="text" class="form-control form-control-lg" aria-label="Large"
-                                   aria-describedby="inputGroup-sizing-sm" placeholder="Fragestellung">
+                                   aria-describedby="inputGroup-sizing-sm" placeholder="Fragestellung" id="newQuestionTitle">
                         </div>
                     </div>
                     <div class="row">
                         <div class="col-12">
-                            <textarea type="textarea" class="form-control form-control-sm" id="newVotingDescription"
+                            <textarea type="textarea" class="form-control form-control-sm" id="newQuestionDescription"
                                       rows="7" placeholder="Erläuterung"></textarea>
                         </div>
                     </div>
@@ -41,9 +42,9 @@
                             <div class="form-group">
                                 <label for="questionType">Art der Fragestellung</label>
                                 <select class="form-control" id="questionType">
-                                    <option value="questionTypeDecision">Entscheidungsfrage</option>
-                                    <option value="questionTypeMultipleChoice">Multiple-Choice-Frage</option>
-                                    <option value="questionTypeOrdering">Reihungsfrage</option>
+                                    <option value="1">Entscheidungsfrage</option>
+                                    <option value="2">Multiple-Choice-Frage</option>
+                                    <option value="3">Reihungsfrage</option>
                                 </select>
                             </div>
                         </div>
@@ -80,9 +81,9 @@
                                         <th></th>
                                     </tr>
                                     <!-- This is our clonable table line -->
-                                    <tr class="hide">
-                                        <td contenteditable="true">...</td>
-                                        <td contenteditable="true">...</td>
+                                    <tr class="answerOption hide">
+                                        <td class="answerOptionText" contenteditable="true">...</td>
+                                        <td class="answerOptionDescription" contenteditable="true">...</td>
                                         <td>
                                             <i class="table-remove material-icons">remove_circle</i>
                                         </td>
@@ -99,7 +100,7 @@
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-light" data-dismiss="modal">Abbrechen</button>
-                <button type="button" class="btn btn-primary">OK</button>
+                <button type="button" class="btn btn-primary"  onclick="saveQuestion();">OK</button>
             </div>
         </div>
     </div>
@@ -195,121 +196,21 @@
         </div>
         <div class="col-12 col-lg-8" style="padding:1rem">
             <h1 style="font-size:3rem;font-weight:100">Fragen</h1>
-            <div class="card my-4">
-                <div class="card-header" style="background-color:#657f8C;color:white;font-size:2.5rem;font-weight: 100">
-                    Multiple Choice
-                    <a class="float-right" href="#"><i class="material-icons" style="font-size:2.5rem;color:white">more_vert</i></a><!-- TODO: active link state -->
-                </div>
-                <div class="card-body">
-                    <h1 class="card-title" style="border-bottom: 1px solid #657F8C">Themen für die nächste Sitzung</h1>
-                    <p class="card-text" style="border-bottom: 1px solid #C0C0C0">
-                        Welche Themen sollen bei der
-                        nächsten Sitzung am 32.12. im behandelt werden?
-                    </p>
-                    <div class="container">
-                        <div class="row">
-                            <div class="col-lg-6 col-12">
-                                <label style="display: block; position: relative; padding-left: 35px; margin-bottom: 12px;">
-                                    <span style="border-bottom:1px solid #657f8C">
-                                        Erhaltung des Augartens in seiner
-                                        derzeitigen Form
-                                    </span>
-                                    <input type="checkbox" style="position:absolute;opacity: 0; "><span style="position: absolute; top: 0; left: 0; height: 23px; width: 23px; background-color: #eee;border:3px solid #657f8C"></span>
-                                </label>
-                            </div>
-                            <div class="col-lg-6 col-12">
-                                <label style="display: block; position: relative; padding-left: 35px; margin-bottom: 12px; ">
-                                    <span style="border-bottom:1px solid #657f8C">Fahrradautobahn nach St. Peter</span>
-                                    <input type="checkbox" style="position:absolute;opacity: 0;"><span style="position: absolute; top: 0; left: 0; height: 23px; width: 23px; background-color: #eee;border:3px solid #657f8C"></span>
-                                </label>
-                            </div>
-                            <div class="col-lg-6 col-12">
-                                <label style="display: block; position: relative; padding-left: 35px; margin-bottom: 12px;">
-                                    <span style="border-bottom:1px solid #657f8C">Feinstauboffensive</span>
-                                    <input type="checkbox" style="position:absolute;opacity: 0; "><span style="position: absolute; top: 0; left: 0; height: 23px; width: 23px; background-color: #eee;border:3px solid #657f8C"></span>
-                                </label>
-                            </div>
-                        </div>
-                    </div>
-                    <a href="#" class="btn btn-success float-right mx-3">Für Wahl freischalten</a>
-                    <a href="#" class="btn btn-light float-right mx-3">Frage löschen</a>
-                </div>
-            </div>
-            <div class="card my-4">
-                <div class="card-header" style="background-color:#657f8C;color:white;font-size:2.5rem;font-weight: 100">
-                    Entscheidungsfrage
-                    <a class="float-right" href="#"><i class="material-icons" style="font-size:2.5rem;color:white">more_vert</i></a><!-- TODO: active link state -->
-                </div>
-                <div class="card-body">
-                    <h1 class="card-title" style="border-bottom: 1px solid #657F8C">Rauchen in Gastgärten</h1>
-                    <p class="card-text" style="border-bottom: 1px solid #C0C0C0">
-                        Soll in Gastgärten das Rauchen
-                        verboten werden? Oder sollen dort alle pofeln dürfen, soviel sie wollen?
-                    </p>
-                    <div class="container">
-                        <div class="row">
-                            <div class="col-lg-6 col-12">
-                                <label style="display: block; position: relative; padding-left: 35px; margin-bottom: 12px;">
-                                    <span style="border-bottom:1px solid #657f8C">Bin ich ganz dafür!</span>
-                                    <input type="radio" style="position:absolute;opacity: 0;"><span style="position: absolute; top: 0; left: 0; height: 23px; width: 23px; background-color: #eee;border:3px solid #657f8C;border-radius:50%"></span>
-                                </label>
-                            </div>
-                            <div class="col-lg-6 col-12">
-                                <label style="display: block; position: relative; padding-left: 35px; margin-bottom: 12px;">
-                                    <span style="border-bottom:1px solid #657f8C">
-                                        Ich gehe eh nicht fort, ist mir
-                                        daher
-                                        egal.
-                                    </span>
-                                    <input type="radio" style="position:absolute;opacity: 0; "><span style="position: absolute; top: 0; left: 0; height: 23px; width: 23px; background-color: #eee;border:3px solid #657f8C;border-radius:50%"></span>
-                                </label>
-                            </div>
-                            <div class="col-lg-6 col-12">
-                                <label style="display: block; position: relative; padding-left: 35px; margin-bottom: 12px;">
-                                    <span style="border-bottom:1px solid #657f8C">Noch ein Verbot, nein Danke!</span>
-                                    <input type="radio" style="position:absolute;opacity: 0; "><span style="position: absolute; top: 0; left: 0; height: 23px; width: 23px; background-color: #eee;border:3px solid #657f8C;border-radius:50%;"></span>
-                                </label>
-                            </div>
-                        </div>
-                    </div>
-                    <a href="#" class="btn btn-success float-right mx-3">Für Wahl freischalten</a>
-                    <a href="#" class="btn btn-light float-right mx-3">Frage löschen</a>
-                </div>
-            </div>
-            <div class="card my-4">
-                <div class="card-header" style="background-color:#657f8C;color:white;font-size:2.5rem;font-weight: 100">
-                    Reihungsfrage
-                    <a class="float-right" href="#"><i class="material-icons" style="font-size:2.5rem;color:white">more_vert</i></a><!-- TODO: active link state -->
-                </div>
-                <div class="card-body">
-                    <h1 class="card-title" style="border-bottom: 1px solid #657F8C">
-                        Wer soll uns bei der nächsten
-                        Gemeinderatswahl vertreten?
-                    </h1>
-                    <p class="card-text" style="border-bottom: 1px solid #C0C0C0">
-                        Wählt 1-3 KandidatInnen für
-                        den ersten Listenplatz für die nächste Gemeinderatswahl.
-                    </p>
-                    <div class="container">
-                        <div class="row">
-                            <div class="col-lg-6 col-12">
-                                <div class="my-2" style="border:1px solid #DCE4E7;width:100%">Maria Müller</div>
-                                <div class="my-2" style="border:1px solid #DCE4E7;width:100%">Max Mustermann</div>
-                                <div class="my-2" style="border:1px solid #DCE4E7;width:100%">Ömer Österreicher</div>
-                                <div class="my-2" style="border:1px solid #DCE4E7;width:100%">Stefanie Steirerin</div>
-                                <div class="my-2" style="border:1px solid #DCE4E7;width:100%">Gerda Grazerin</div>
-                            </div>
-                            <div class="col-lg-6 col-12">
-                                <div class="my-2 p-2" style="border:1px solid #DCE4E7;width:100%;background-color:#99A;font-weight:700;color:white">1</div>
-                                <div class="my-2 p-2" style="border:1px solid #DCE4E7;width:100%;background-color:#C0C0C0;font-weight:700;color:white">2</div>
-                                <div class="my-2 p-2" style="border:1px solid #DCE4E7;width:100%;background-color:#C0C0C0;font-weight:700;color:white">3</div>
-                            </div>
-                        </div>
-                    </div>
-                    <a href="#" class="btn btn-success float-right mx-3">Für Wahl freischalten</a>
-                    <a href="#" class="btn btn-light float-right mx-3">Frage löschen</a>
-                </div>
-            </div>
+            @foreach (var question in Model.Questions)
+            {
+                if (question.Type == QuestionType.Decision)
+                {
+                    @await Html.PartialAsync("_DecisionQuestion", question);
+                }
+                else if (question.Type == QuestionType.MultipleChoice)
+                {
+                    @await Html.PartialAsync("_MultipleChoiceQuestion", question);
+                }
+                else if (question.Type == QuestionType.Ordering)
+                {
+                    @await Html.PartialAsync("_OrderingQuestion", question);
+                }
+            }
             <div class="float-right">
                 <i class="material-icons blinkOnScroll" style="font-size: 4rem;color: #3583A9;font-weight: 700;border-radius: 50%;cursor:pointer"
                    onclick="createQuestion()">add_circle</i>
@@ -365,7 +266,7 @@
         var win_height_padded = $(window).height() * 1.1;
 
         $('#questionType').change(function() {
-            if ($('#questionType').val() === 'questionTypeDecision') {
+            if ($('#questionType').val() === '1') {
                 $('#minNoAnswers').parent().hide();
                 $('#maxNoAnswers').parent().hide();
             } else {
@@ -569,6 +470,51 @@
                         },
                         success: function (data) { // todo
                             updateRegistrations();
+                        }
+                        // error: todo
+                    });
+                });
+            }
+        }
+
+        function showQuestions(questions) {
+
+        }
+
+        function saveQuestion() {
+            var description = $('#newQuestionDescription').val();
+            var title = $('#newQuestionTitle').val();
+            var type = parseInt($('#questionType').val());
+            var currentUser = firebase.auth().currentUser;
+            var answers = [];
+            var answerDescriptions = [];
+            $("#answersTable .answerOption").not('.hide').each(function () {
+                answers.push($(this).find('td.answerOptionText').text());
+                answerDescriptions.push($(this).find('td.answerOptionDescription').text());
+            });
+            var minNumAnswers = parseInt($('#minNoAnswers').val());
+            var maxNumAnswers = parseInt($('#maxNoAnswers').val());
+
+            if (currentUser) {
+                currentUser.getIdToken(true).then(function (idToken) {
+                    $.post({
+                        url: 'UpdateVotingQuestion',
+                        data: {
+                            "id": "@Model.VotingId",
+                            "qid": '0',
+                            "title": title,
+                            "desc": description,
+                            "type": type,
+                            "answers": answers,
+                            "answerDescriptions": answerDescriptions,
+                            "minNumAnswers": minNumAnswers,
+                            "maxNumAnswers": maxNumAnswers
+                        },
+                        beforeSend: function (xhr) {
+                            xhr.setRequestHeader("Authorization", idToken);
+                        },
+                        success: function (data) { // todo
+                            $('#newQuestionModal').modal('hide');
                         }
                         // error: todo
                     });

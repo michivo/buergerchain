@@ -1,0 +1,41 @@
+﻿@model FreieWahl.Models.VotingAdministration.QuestionModel
+
+<div class="card my-4">
+    <div class="card-header bg-primary text-white" style="font-size:2.5rem;font-weight: 100">
+        Reihungsfrage
+        <a class="float-right" href="#"><i class="material-icons text-white" style="font-size:2.5rem">more_vert</i></a><!-- TODO: active link state -->
+    </div>
+    <div class="card-body">
+        <h1 class="card-title" style="border-bottom: 1px solid #657F8C">
+            @Model.Text
+        </h1>
+        <p class="card-text border-bottom">
+            @Model.Description
+        </p>
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-6 col-12">
+                    @foreach (var answer in Model.AnswerOptions)
+                    {
+                    <div class="my-2 border w-100">@answer.Answer @if(!string.IsNullOrEmpty(answer.Description))
+                        {
+                            <br/><span class="small text-primary">@answer.Description</span>
+                        }</div>
+                    }
+                </div>
+                <div class="col-lg-6 col-12">
+                    @for (int i = 0; i < Model.MinNumAnswers; i++)
+                    {
+                        <div class="my-2 p-2 border w-100 bg-dark text-light">@(i + 1)</div>
+                    }
+                    @for (int j = Model.MinNumAnswers; j < Model.MaxNumAnswers; j++)
+                    {
+                        <div class="my-2 p-2 border w-100 text-white" style="background-color: gray">@(j + 1)</div>
+                    }
+                </div>
+            </div>
+        </div>
+        <a href="#" class="btn btn-success float-right mx-3">Für Wahl freischalten</a>
+        <a href="#" class="btn btn-light float-right mx-3">Frage löschen</a>
+    </div>
+</div>

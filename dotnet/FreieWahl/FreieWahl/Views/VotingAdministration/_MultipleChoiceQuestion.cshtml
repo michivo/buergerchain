@@ -1,0 +1,37 @@
+﻿@model FreieWahl.Models.VotingAdministration.QuestionModel
+
+<div class="card my-4">
+    <div class="card-header bg-primary text-light" style="font-size:2.5rem;font-weight: 100">
+        Multiple Choice
+        <a class="float-right" href="#"><i class="material-icons" style="font-size:2.5rem;color:white">more_vert</i></a><!-- TODO: active link state -->
+    </div>
+    <div class="card-body">
+        <h1 class="card-title" style="border-bottom: 1px solid #657F8C">@Model.Text</h1>
+        <p class="card-text border-bottom">
+            @Model.Description
+        </p>
+        <div class="container">
+            <div class="row">
+                @foreach (var option in @Model.AnswerOptions)
+                {
+                    <div class="col-lg-6 col-12">
+                        <label style="display: block; position: relative; padding-left: 35px; margin-bottom: 12px;">
+                            <span>
+                                @option.Answer
+                            </span>
+                            @if (!string.IsNullOrEmpty(@option.Description))
+                            {<br/>
+                                <span class="small text-primary border-bottom">
+                                    @option.Description
+                                </span>
+                            }
+                            <input type="checkbox" style="position: absolute; opacity: 0;"><span style="position: absolute; top: 0; left: 0; height: 23px; width: 23px; background-color: #eee; border: 3px solid #657f8C"></span>
+                        </label>
+                    </div>
+                }
+            </div>
+        </div>
+        <a href="#" class="btn btn-success float-right mx-3">Für Wahl freischalten</a>
+        <a href="#" class="btn btn-light float-right mx-3">Frage löschen</a>
+    </div>
+</div>

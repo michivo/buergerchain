@@ -72,7 +72,7 @@ namespace FreieWahl.Voting.Storage
 
             return array.Values.Select(x => new AnswerDetail
             {
-                DetailValue = x.EntityValue["DetailValue"].StringValue,
+                DetailValue = x.EntityValue["DetailValue"]?.StringValue ?? string.Empty,
                 DetailType = (AnswerDetailType)x.EntityValue["DetailType"].IntegerValue
             }).ToList();
         }

@@ -12,7 +12,7 @@ namespace FreieWahl.Models.VotingAdministration
             Description = _GetDescription(q.Details);
             Index = q.QuestionIndex;
             AnswerOptions = q.AnswerOptions.Select(x => new AnswerModel(x)).ToList();
-            Type = (int) q.QuestionType;
+            Type = q.QuestionType;
             MinNumAnswers = q.MinNumAnswers;
             MaxNumAnswers = q.MaxNumAnswers;
         }
@@ -29,7 +29,7 @@ namespace FreieWahl.Models.VotingAdministration
 
         public string Text { get; set; }
         public string Description { get; set; }
-        public int Type { get; set; }
+        public QuestionType Type { get; set; }
         public int MinNumAnswers { get; set; }
         public int MaxNumAnswers { get; set; }
         public List<AnswerModel> AnswerOptions { get; set; }

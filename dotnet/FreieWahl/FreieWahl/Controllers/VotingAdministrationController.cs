@@ -197,12 +197,6 @@ namespace FreieWahl.Controllers
             });
         }
 
-        [HttpGet]
-        public IActionResult EditQuestion(string id, string qid)
-        {
-            return View(new EditVotingQuestionModel { VotingId = id, QuestionId = qid });
-        }
-
         [HttpPost]
         public async Task<IActionResult> UpdateVoting(string id, string title, string desc, string imageData,
             string startDate, string startTime, string endDate, string endTime)
@@ -234,14 +228,27 @@ namespace FreieWahl.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> UpdateVotingQuestion(string id, string qid, string title, string desc, string[] answers)
+        public async Task<IActionResult> UpdateVotingQuestion(string id, string qid, string title, string desc, int type, string[] answers, string[] answerDescriptions,
+            int minNumAnswers, int maxNumAnswers)
         {
+            if (answers.Length != answerDescriptions.Length)
+                return BadRequest("Number of Answers and Descriptions do not match");
+            if (type < 1 || type > 3)
+                return BadRequest("Invalid Question type, only decision, multiple choice and ordering are supported");
+            if ((QuestionType) type != QuestionType.Decision && minNumAnswers > maxNumAnswers || maxNumAnswers > answers.Length ||
+                minNumAnswers < 0)
+                return BadRequest("Invalid numer of min/max number of answers");
+
+
             if (await _authorizationHandler.CheckAuthorization(id, Operation.UpdateQuestion, Request.Headers["Authorization"]) == false)
                 return Unauthorized();
 
             var voting = await _votingStore.GetById(_GetId(id)); // TODO - handle missing voting
-            var question = _GetQuestion(title, desc, answers);
+            var question = _GetQuestion(title, desc, answers, answerDescriptions);
             question.QuestionIndex = (int)_GetId(qid); // TODO: is cast ok here?
+            question.QuestionType = (QuestionType) type;
+            question.MinNumAnswers = question.QuestionType == QuestionType.Decision ? 1 : minNumAnswers;
+            question.MaxNumAnswers = question.QuestionType == QuestionType.Decision ? 1 : maxNumAnswers;
             if (question.QuestionIndex == 0)
             {
                 await _votingStore.AddQuestion(voting.Id, question);
@@ -281,7 +288,7 @@ namespace FreieWahl.Controllers
             return registrationUrl;
         }
 
-        private static Question _GetQuestion(string title, string desc, string[] answers)
+        private static Question _GetQuestion(string title, string desc, string[] answers, string[] answerDescriptions)
         {
             var details = new List<QuestionDetail>();
             if (!string.IsNullOrEmpty(desc))
@@ -294,19 +301,22 @@ namespace FreieWahl.Controllers
             }
 
             List<AnswerOption> answerOptions = new List<AnswerOption>();
-            foreach (var answer in answers)
+            for(int i = 0; i < answers.Length; i++)
             {
                 answerOptions.Add(new AnswerOption
                 {
-                    AnswerText = answer,
-                    Details = new List<AnswerDetail>()
+                    AnswerText = answers[i],
+                    Details = new List<AnswerDetail>
+                    {
+                        new AnswerDetail { DetailType = AnswerDetailType.AdditionalInfo, DetailValue = answerDescriptions[i] }
+                    }
                 });
             }
 
             var question = new Question
             {
                 AnswerOptions = answerOptions,
-                QuestionText = title ?? "***---",
+                QuestionText = title ?? "---",
                 Status = QuestionStatus.InPreparation,
                 Details = details
             };
