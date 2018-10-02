@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - FreieWahl</title>
+    <title>@ViewData["Title"] FreieWahl</title>
 
     <environment names="Development">
         <link rel="stylesheet" href="~/css/freiewahl.css" asp-append-version="true" />
@@ -37,7 +37,7 @@
         <link rel="stylesheet" type="text/css" href="~/lib/bootstrap-datepicker/dist/css/bootstrap-datepicker3.standalone.min.css">
 
     </environment>
-
+    @RenderSection("stylesheets", required: false)
     <script>
         window.addEventListener('load', initApp);
     </script>

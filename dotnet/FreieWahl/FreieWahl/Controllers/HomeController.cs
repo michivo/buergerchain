@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using System.Threading.Tasks;
+using FreieWahl.Application.Authentication;
 using FreieWahl.Models;
 using FreieWahl.Security.Authentication;
 using FreieWahl.Security.TimeStamps;
@@ -16,46 +17,27 @@ namespace FreieWahl.Controllers
     public class HomeController : Controller
     {
         private readonly ILogger _logger;
-        private readonly IJwtAuthentication _authentication;
-        private readonly ITimestampService _timestampService;
-        private readonly IVotingStore _votingStore;
-        private readonly IUserHandler _userHandler;
+        
+        private readonly IAuthorizationHandler _authorizationHandler;
 
         public HomeController(ILogger<HomeController> logger,
-            IJwtAuthentication authentication,
-            ITimestampService timestampService,
-            IVotingStore votingStore,
-            IUserHandler userHandler)
+            IAuthorizationHandler authorizationHandler)
         {
             _logger = logger;
-            _authentication = authentication;
-            _timestampService = timestampService;
-            _votingStore = votingStore;
-            _userHandler = userHandler;
+            _authorizationHandler = authorizationHandler;
         }
 
-        public async Task<IActionResult> FooBar()
+        public async Task<IActionResult> Index()
         {
-            var headers = Request.Headers;
-            string username = "unknown";
-            if (HttpContext.User.Identity.IsAuthenticated)
+            _logger.LogInformation("Home page hit!");
+            var user = await _authorizationHandler.GetAuthorizedUser
+                (null, Operation.List, Request.Cookies["token"]);
+
+            if (user != null)
             {
-                username = HttpContext.User.Identity.Name;
+                Response.Redirect("~/VotingAdministration/Overview");
             }
 
-            var allVotes = await _votingStore.GetAll();
-
-            var model = new FooBarModel(username + headers.Count + allVotes.Count());
-
-            return View(model);
-        }
-
-        public IActionResult Index()
-        {
-            // Sends a message to configured loggers, including the Stackdriver logger.
-            // The Microsoft.AspNetCore.Mvc.Internal.ControllerActionInvoker logger will log all controller actions with
-            // log level information. This log is for additional information.
-            _logger.LogInformation("Home page hit!");
             return View();
         }
 

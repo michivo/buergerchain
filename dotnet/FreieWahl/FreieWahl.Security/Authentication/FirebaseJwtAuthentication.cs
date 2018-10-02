@@ -1,4 +1,5 @@
-﻿using System.IdentityModel.Tokens.Jwt;
+﻿using System;
+using System.IdentityModel.Tokens.Jwt;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.IdentityModel.Protocols;
@@ -45,10 +46,17 @@ namespace FreieWahl.Security.Authentication
                 return new JwtAuthenticationResult("Missing authentication header");
 
             JwtSecurityTokenHandler handler = new JwtSecurityTokenHandler();
-            var user = handler.ValidateToken(token, _validationParameters, out _);
-            
-            if(user != null)
-                return new JwtAuthenticationResult(user);
+            try
+            {
+                var user = handler.ValidateToken(token, _validationParameters, out _);
+                if (user != null)
+                    return new JwtAuthenticationResult(user);
+            }
+            catch (Exception ex)
+            {
+                // TODO logging
+                return new JwtAuthenticationResult("Verification failed with exception!");
+            }
 
             return new JwtAuthenticationResult("Verification failed");
         }
