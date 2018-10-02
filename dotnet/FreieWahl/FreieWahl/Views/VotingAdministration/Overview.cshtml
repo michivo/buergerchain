@@ -7,7 +7,14 @@
         <span id="fw-brand-1">freie</span><span id="fw-brand-2">Wahl</span>
     </a>
     <ul class="navbar-nav ml-auto">
-        <a href="#"><span id="fw-account">@Model.Initials</span></a>
+        <li class="nav-item dropleft">
+            <a class="nav-link" href="#" id="fw-account" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                @Model.Initials
+            </a>
+            <div class="dropdown-menu" aria-labelledby="fw-account">
+                <button class="dropdown-item" type="button" onclick="logout()">Ausloggen</button>
+            </div>
+        </li>
     </ul>
 </nav>
 
@@ -202,13 +209,7 @@
     </div>
 </main>
 
-<script src="https://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="
-        crossorigin="anonymous"></script>
 <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js" integrity="sha256-VazP97ZCwtekAsvgPBSUwPFKdrwD3unUfSGVYrahUqU="
-        crossorigin="anonymous"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49"
-        crossorigin="anonymous"></script>
-<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js" integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy"
         crossorigin="anonymous"></script>
 
 <script src="~/lib/bootstrap-datepicker/dist/js/bootstrap-datepicker.min.js"></script>
@@ -218,11 +219,15 @@
     var idToken;
     firebase.auth().onAuthStateChanged(
         function (currentUser) {
-            currentUser.getIdToken(true).then(
-                function (token) {
-                    idToken = token;
-                    showOverview(currentUser);
-                });
+            if (currentUser) {
+                currentUser.getIdToken(true).then(
+                    function(token) {
+                        idToken = token;
+                        showOverview(currentUser);
+                    });
+            } else {
+                onLogout();
+            }
             
         });
 
@@ -439,5 +444,18 @@
         $("#fw-add-voting-card").show();
         $("#fw-load-votings-card").hide();
         componentHandler.upgradeDom();
+    }
+
+    function logout() {
+        firebase.auth().signOut().then(function () {
+            onLogout();
+        }, function (error) {
+            onLogout();
+        });
+    }
+
+    function onLogout() {
+        document.cookie = 'token=;path=/;expires=Thu, 01 Jan 1970 00:00:01 GMT;';
+        window.location.href = '../../?source=redirect';
     }
 </script>

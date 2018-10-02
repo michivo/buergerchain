@@ -11,36 +11,6 @@ var config = {
 var app = firebase.apps.length === 0 ? firebase.initializeApp(config) : firebase.app();
 var currentUser = null;
 
-// Firebase log-in widget
-function configureFirebaseLoginWidget() {
-    var user = firebase.auth().currentUser;
-    if (user) {
-        firebase.auth().signOut();
-        return;
-    }
-
-    var uiConfig = {
-        'provider': firebase.auth.EmailAuthProvider.PROVIDER_ID,
-        'signInOptions': [
-            {
-                provider: firebase.auth.EmailAuthProvider.PROVIDER_ID,
-                requireDisplayName: true
-            }
-        ],
-        'callbacks': {
-            signInSuccess: function (currentUser, credential, redirectUrl) {
-                document.getElementById('firebaseui-auth-container').style.display = 'none';
-                return false;
-            }
-        },
-        'credentialHelper': firebaseui.auth.CredentialHelper.NONE,
-        'tosUrl': 'http://www.orf.at', // TODO!
-    };
-
-    var ui = new firebaseui.auth.AuthUI(firebase.auth());
-    ui.start('#firebaseui-auth-container', uiConfig);
-}
-
 function getCurrentUser() {
     return currentUser;
 }
@@ -65,22 +35,3 @@ function initApp() {
         console.log(error);
     });
 };
-
-function getStuff() {
-    var currentUser = firebase.auth().currentUser;
-
-    if (currentUser) {
-        currentUser.getIdToken(true).then(function (idToken) {
-            var http = new XMLHttpRequest();
-            http.onreadystatechange = function () {
-                if (http.readyState == XMLHttpRequest.DONE) {
-                    document.getElementById('my-stuff').textContent = http.responseText;
-                }
-            }
-
-            http.open("GET", "GetStuff");
-            http.setRequestHeader("Authorization", idToken);
-            http.send();
-        });
-    }
-}

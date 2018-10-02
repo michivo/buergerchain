@@ -27,15 +27,15 @@ namespace FreieWahl.Controllers
             _authorizationHandler = authorizationHandler;
         }
 
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(string source)
         {
             _logger.LogInformation("Home page hit!");
             var user = await _authorizationHandler.GetAuthorizedUser
                 (null, Operation.List, Request.Cookies["token"]);
 
-            if (user != null)
+            if (user != null && source != "redirect")
             {
-                Response.Redirect("~/VotingAdministration/Overview");
+                Response.Redirect("VotingAdministration/Overview");
             }
 
             return View();

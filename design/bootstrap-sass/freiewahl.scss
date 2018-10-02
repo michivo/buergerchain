@@ -70,6 +70,8 @@ a.navbar-brand {
     font-size: 1.3rem;
     text-align: center;
     padding-top:.25rem;
+    padding-left:0rem;
+    padding-right:0rem;
 }
 
 div.fw-banner {
@@ -428,5 +430,5 @@ div.fw-titlepage-boxtext {
 
 .slick-prev:before,
 .slick-next:before {
-  color: #3582AC;
+  color: #3582AC !important;
 }
