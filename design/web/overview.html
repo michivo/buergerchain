@@ -44,9 +44,10 @@
                 <textarea type="textarea" class="form-control form-control-sm" id="newVotingDescription" rows="7"
                   placeholder="Beschreibung"></textarea>
 
-                <div id="fw-voting-img-content" class="fw-voting-img" style="cursor: pointer; position: relative;" onclick="showFileSelector('#fw-voting-img-upload')">
+                <div id="fw-voting-img-content" class="fw-voting-img" style="cursor: pointer; position: relative;"
+                  onclick="showFileSelector('#fw-voting-img-upload')">
                   <i class="material-icons fw-voting-img" id="fw-voting-img-dummy">how_to_vote</i>
-                  <canvas id="fw-voting-img-real" style="display:none;" with="300" height="300"></canvas>                  
+                  <canvas id="fw-voting-img-real" style="display:none;" with="300" height="300"></canvas>
                   <div id="fw-voting-img-selector" style="position:absolute;top:0rem;left:0rem;color:#DCE4E7;display:flex;align-content: center;padding:.1rem;border:1px solid #FFFFFF00;height:2rem">
                     <i id="fw-voting-img-icon" class="material-icons" style="font-size:2rem;text-shadow:0px 1px 1px white;">
                       photo_camera
@@ -103,7 +104,7 @@
         <div class="col-12 col-lg-8 fw-userheader-container">
           <div id="fw-user-img-content" class="fw-user-img" style="cursor: pointer" onclick="showFileSelector('#fw-user-img-upload')">
             <i class="material-icons fw-user-img" id="fw-user-img-dummy">account_circle</i>
-            <canvas id="fw-user-img-real" style="display:none;" with="300" height="300"></canvas>            
+            <canvas id="fw-user-img-real" style="display:none;" with="300" height="300"></canvas>
             <div id="fw-user-img-selector" style="position:absolute;top:0;left:0;color:white;display:flex;align-content: center;padding:.1rem;border:1px solid #FFFFFF00;height:2rem">
               <i id="fw-user-img-icon" class="material-icons" style="font-size:2rem;text-shadow:0px 1px 1px #657f8C">
                 photo_camera
@@ -163,10 +164,10 @@
               <div class="card-body">
                 <h5 class="card-title">Rauchverbot</h5>
                 <p class="card-text">Abstimmung zum Rauchverbot in Gastronomie und auf öffentlichen Plätzen.</p>
-                <a class="fw-card-link-icon" href="#"><i class="material-icons">edit</i></a>
+                  <a class="fw-card-link-icon bg-primary float-right p-2" href="#"><i class="material-icons text-white">edit</i></a>
               </div>
             </div>
-          </div>          
+          </div>
 
           <div class="col-xl-4 col-md-6 col-sm-12">
             <div class="card fw-overview-card" style="cursor: pointer; background-color:#DCE4E7;color:#657f8C" onclick="createVoting()"
@@ -215,7 +216,7 @@
         </div>
       </div>
     </div>
-    <div class="loader-outer"></div> 
+    <div class="loader-outer"></div>
   </main>
 
   <script src="https://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="
@@ -327,7 +328,7 @@
         context.drawImage(img, 0, 0, width, height);
         $('#fw-' + type + '-img-dummy').hide();
         $('#fw-' + type + '-img-real').show();
-        if(type == 'user')
+        if (type == 'user')
           uploadFile();
       }
       reader.readAsDataURL(file);

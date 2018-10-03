@@ -27,5 +27,7 @@ namespace FreieWahl.Voting.Storage
         Task UpdateQuestion(long votingId, Question question);
 
         Task UpdateState(long votingId, VotingState state);
+
+        Task Delete(long votingId);
     }
 }

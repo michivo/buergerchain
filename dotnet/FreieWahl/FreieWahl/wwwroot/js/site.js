@@ -10,28 +10,65 @@ var config = {
 
 var app = firebase.apps.length === 0 ? firebase.initializeApp(config) : firebase.app();
 var currentUser = null;
+var idToken = null;
+var isInitialized = false;
 
 function getCurrentUser() {
     return currentUser;
 }
 
 function initApp() {
+    if (isInitialized)
+        return;
+
     firebase.auth().onAuthStateChanged(function (user) {
         if (user) {
-
             // User is signed in.
-            var displayName = user.displayName;
             user.getIdToken().then(function (accessToken) {
-                //document.getElementById('sign-in-status').textContent = 'Signed in as ' + displayName;
+                idToken = accessToken;
             });
             currentUser = user;
         } else {
-            // User is signed out.
-            //document.getElementById('sign-in-status').textContent = 'Signed out';
+            logout();
+            idToken = null;
             currentUser = null;
         }
+        isInitialized = true;
+
     }, function (error) {
         currentUser = null;
         console.log(error);
     });
 };
+
+function logout() {
+    firebase.auth().signOut().then(function () {
+        onLogout();
+    }, function (error) {
+        onLogout();
+    });
+}
+
+function onLogout() {
+    document.cookie = 'token=;path=/;expires=Thu, 01 Jan 1970 00:00:01 GMT;';
+    window.location.href = window.location.origin;
+}
+
+function deleteQuestion(votingId, questionNumber) {
+    $.ajax({
+        url: 'DeleteVotingQuestion',
+        data: { "id": votingId, "qid": questionNumber },
+        type: 'POST',
+        datatype: 'json',
+        beforeSend: function (xhr) {
+            xhr.setRequestHeader("Authorization", idToken);
+        },
+        success: function (data) {
+            location.reload();
+        } // TODO error
+    });
+}
+
+function editQuestion(votingId, questionNumber) {
+    alert('not implemented yet');
+}

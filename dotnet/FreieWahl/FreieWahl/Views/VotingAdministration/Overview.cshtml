@@ -1,22 +1,6 @@
-﻿@using FreieWahl.Controllers
-@using Microsoft.Extensions.Localization
-@model FreieWahl.Models.VotingAdministration.VotingOverviewModel
+﻿@model FreieWahl.Models.VotingAdministration.VotingOverviewModel
 
-<nav class="navbar navbar-dark fixed-top navbar-expand-md">
-    <a class="navbar-brand" href="#">
-        <span id="fw-brand-1">freie</span><span id="fw-brand-2">Wahl</span>
-    </a>
-    <ul class="navbar-nav ml-auto">
-        <li class="nav-item dropleft">
-            <a class="nav-link" href="#" id="fw-account" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                @Model.Initials
-            </a>
-            <div class="dropdown-menu" aria-labelledby="fw-account">
-                <button class="dropdown-item" type="button" onclick="logout()">Ausloggen</button>
-            </div>
-        </li>
-    </ul>
-</nav>
+@await Html.PartialAsync("_Header", new ViewDataDictionary(ViewData) { { "Initials", Model.Initials }, { "IsOverview", true } })
 
 <div class="modal fade" id="newVotingModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
      aria-hidden="true">
@@ -43,7 +27,7 @@
 
                             <div id="fw-voting-img-content" class="fw-voting-img" style="cursor: pointer; position: relative; background-color: #dce4e7; margin-top: 1rem; text-align: center" onclick="showFileSelector('#fw-voting-img-upload')">
                                 <i class="material-icons fw-voting-img" id="fw-voting-img-dummy">how_to_vote</i>
-                                <canvas id="fw-voting-img-real" style="display:none;" with="300" height="300"></canvas>                  
+                                <canvas id="fw-voting-img-real" style="display:none;" with="300" height="300"></canvas>
                                 <div id="fw-voting-img-selector" style="position:absolute;top:0rem;left:0rem;color:white;display:flex;align-content: center;padding:.1rem;border:1px solid #FFFFFF00;height:2rem">
                                     <i id="fw-voting-img-icon" class="material-icons" style="font-size:2rem;text-shadow:0px 1px 1px #657f8C;">
                                         photo_camera
@@ -216,20 +200,7 @@
 <script src="~/lib/bootstrap-datepicker/js/locales/bootstrap-datepicker.de.js"></script>
 
 <script>
-    var idToken;
-    firebase.auth().onAuthStateChanged(
-        function (currentUser) {
-            if (currentUser) {
-                currentUser.getIdToken(true).then(
-                    function(token) {
-                        idToken = token;
-                        showOverview(currentUser);
-                    });
-            } else {
-                onLogout();
-            }
-            
-        });
+    initApp();
 
     $('#fw-user-img-content').hover(
         function () { highlightImgSelector('user', 'rgba(255, 255, 255, 0.5)'); },
@@ -248,6 +219,7 @@
     $('document').ready(function () {
         $('#fw-user-img-input').change(function () { previewAndUploadFile('user'); });
         $('#fw-voting-img-input').change(function () { previewAndUploadFile('voting'); });
+        showOverview();
     });
 
 
@@ -329,7 +301,7 @@
             context.drawImage(img, 0, 0, width, height);
             $('#fw-' + type + '-img-dummy').hide();
             $('#fw-' + type + '-img-real').show();
-            if(type === 'user')
+            if (type === 'user')
                 uploadFile();
         }
         reader.readAsDataURL(file);
@@ -366,7 +338,7 @@
             var canvas = document.getElementById('fw-voting-img-real');
             imageData = canvas.toDataURL();
         }
-        
+
         if (currentUser) {
             currentUser.getIdToken(true).then(function (idToken) {
                 $.post({
@@ -384,9 +356,9 @@
                     beforeSend: function (xhr) {
                         xhr.setRequestHeader("Authorization", idToken);
                     },
-                    success: function(data) {
+                    success: function (data) {
                         $('#newVotingModal').modal('hide');
-                        showOverview(currentUser);
+                        window.location.replace('Edit?id=' + data);
                     }
                     // error: todo
                 });
@@ -395,7 +367,7 @@
 
     }
 
-    function showOverview(currentUser) {
+    function showOverview() {
         $(".fw-open-voting").remove();
         $("#fw-add-voting-card").hide();
         $("#fw-load-votings-card").show();
@@ -436,8 +408,9 @@
             }
 
             item += '<div class="card-body"><h5 class="card-title">' + voting.title + '</h5>';
-            item += '<p class="card-text">' + voting.description + '</p>';
-            item += '<a class="fw-card-link-icon" href="Edit?id=' + voting.id + '"><i class="material-icons">edit</i></a></div></div></div>';
+            item += '<p class="card-text">' + truncate(voting.description, 150) + '</p>\r\n';
+            item += '<a class="fw-card-link-icon float-left p-2 border" href="javascript:void(0);" onclick="deleteVoting(\'' + voting.id + '\')"><i class="material-icons">delete</i></a>\r\n';
+            item += '<a class="fw-card-link-icon bg-primary float-right p-2" href="Edit?id=' + voting.id + '"><i class="material-icons text-white">edit</i></a></div></div></div>';
             items.push(item);
         }
         $(items.join("\n")).insertBefore("#fw-add-voting-card");
@@ -446,16 +419,35 @@
         componentHandler.upgradeDom();
     }
 
-    function logout() {
-        firebase.auth().signOut().then(function () {
-            onLogout();
-        }, function (error) {
-            onLogout();
-        });
+
+    function truncate(val, maxLength) {
+        if (val.length < maxLength)
+            return val;
+
+        return val.substr(0, maxLength) + '...';
     }
 
-    function onLogout() {
-        document.cookie = 'token=;path=/;expires=Thu, 01 Jan 1970 00:00:01 GMT;';
-        window.location.href = '../../?source=redirect';
+    function deleteVoting(id) {
+        if (confirm("Sind Sie sicher, dass Sie diese Abstimmung unwiderruflich löschen wollen?")) {
+            var currentUser = firebase.auth().currentUser;
+
+            if (currentUser) {
+                currentUser.getIdToken(true).then(function (idToken) {
+                    $.post({
+                        url: 'DeleteVoting',
+                        data: {
+                            "id": id,
+                        },
+                        beforeSend: function (xhr) {
+                            xhr.setRequestHeader("Authorization", idToken);
+                        },
+                        success: function (data) {
+                            showOverview(currentUser);
+                        }
+                        // error: todo
+                    });
+                });
+            }
+        }
     }
 </script>

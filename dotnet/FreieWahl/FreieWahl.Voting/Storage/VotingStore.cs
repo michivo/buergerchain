@@ -89,6 +89,12 @@ namespace FreieWahl.Voting.Storage
             await _db.UpdateAsync(ToEntity(voting));
         }
 
+        public Task Delete(long votingId)
+        {
+            var key = _keyFactory.CreateKey(votingId);
+            return _db.DeleteAsync(key);
+        }
+
         public async Task Update(StandardVoting voting)
         {
             var readVoting = await _GetVoting(voting.Id);

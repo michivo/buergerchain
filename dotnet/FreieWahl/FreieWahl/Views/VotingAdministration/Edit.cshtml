@@ -3,15 +3,7 @@
 @using Microsoft.Extensions.Localization
 @model FreieWahl.Models.VotingAdministration.EditVotingModel
 
-<nav class="navbar navbar-dark fixed-top navbar-expand-md">
-    <a class="navbar-brand" href="Overview">
-        <span id="fw-brand-1">freie</span><span id="fw-brand-2">Wahl</span>
-    </a>
-    <ul class="navbar-nav ml-auto">
-        <a href="Overview"><i class="material-icons" style="background-color:#DCE4E7;font-size:2rem;padding:.25rem;border-radius:50%;margin-right:1rem;">home</i></a>
-        <a href="#"><span id="fw-account">@Model.UserInitials</span></a>
-    </ul>
-</nav>
+@await Html.PartialAsync("_Header", new ViewDataDictionary(ViewData) { { "Initials", Model.UserInitials }, { "IsOverview", false } })
 
 <div class="modal fade" id="newQuestionModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
      aria-hidden="true">
@@ -100,7 +92,7 @@
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-light" data-dismiss="modal">Abbrechen</button>
-                <button type="button" class="btn btn-primary"  onclick="saveQuestion();" id="modalQuestionOk">OK</button>
+                <button type="button" class="btn btn-primary" onclick="saveQuestion();" id="modalQuestionOk">OK</button>
             </div>
         </div>
     </div>
@@ -144,7 +136,7 @@
         </div>
     </div>
 </div>
-    
+
 <div class="container-fluid" style="border-bottom:2px solid #C0C0C0;font-size: .9rem">
     <div class="row" style="padding:1rem;">
         <div class="col col-auto">
@@ -225,6 +217,8 @@
     <script src="~/js/bootstrap-datepicker.min.js"></script>
 
     <script>
+        initApp();
+
         $(document).on('click',
             '.dropdown-menu',
             function(e) {
@@ -336,19 +330,11 @@
             var $row = $(this).parents('tr');
             $row.next().after($row.get(0));
         });
-
-        var idToken;
-        firebase.auth().onAuthStateChanged(function(currentUser) {
-            currentUser.getIdToken().then(function(token) {
-                idToken = token;
-            })
-        });
-
+        
         function isEmpty(str) {
             return (!str || 0 === str.length || str === '0');
         }
-
-
+        
         function showRegistrations(registrations) {
             $("#openRegistrationsList").removeClass('openRegistrationItem');
             for (var i = 0; i < registrations.length; i++) {
@@ -395,24 +381,6 @@
 
             $('#grantedRegistrationsBadge').text(grantedCount);
             $('#deniedRegistrationsBadge').text(deniedCount);
-        }
-
-
-        function deleteQuestion(qid) {
-            var currentUser = firebase.auth().currentUser;
-            if (currentUser) {
-                currentUser.getIdToken(true).then(function(idToken) {
-                    $.post({
-                        url: 'DeleteVotingQuestion',
-                        data: { "qid": qid, "id": @Model.VotingId },
-                        beforeSend: function(xhr) {
-                            xhr.setRequestHeader("Authorization", idToken);
-                        },
-                        success: function(data) { ref }
-                        // error: todo
-                    });
-                });
-            }
         }
 
         function invite() {

@@ -1,0 +1,19 @@
+﻿<nav class="navbar navbar-dark fixed-top navbar-expand-md">
+    <a class="navbar-brand" href="#">
+        <span id="fw-brand-1">freie</span><span id="fw-brand-2">Wahl</span>
+    </a>
+    <ul class="navbar-nav ml-auto">
+        @if ((bool)ViewData["IsOverview"] == false)
+        {
+            <a href="Overview"><i class="material-icons" style="background-color: #DCE4E7; font-size: 2rem; padding: .25rem; border-radius: 50%; margin-right: 1rem;">home</i></a>
+        }
+        <li class="nav-item dropleft">
+            <a class="nav-link" href="#" id="fw-account" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                @ViewData["Initials"]
+            </a>
+            <div class="dropdown-menu" aria-labelledby="fw-account">
+                <button class="dropdown-item" type="button" onclick="logout()">Ausloggen</button>
+            </div>
+        </li>
+    </ul>
+</nav>

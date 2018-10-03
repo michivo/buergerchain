@@ -6,8 +6,9 @@ namespace FreieWahl.Models.VotingAdministration
 {
     public class QuestionModel
     {
-        public QuestionModel(Question q)
+        public QuestionModel(Question q, string id)
         {
+            VotingId = id;
             Text = q.QuestionText;
             Description = _GetDescription(q.Details);
             Index = q.QuestionIndex;
@@ -27,6 +28,7 @@ namespace FreieWahl.Models.VotingAdministration
         {
         }
 
+        public string VotingId { get; set; }
         public string Text { get; set; }
         public string Description { get; set; }
         public QuestionType Type { get; set; }

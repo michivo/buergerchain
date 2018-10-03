@@ -150,17 +150,13 @@ div.fw-overview-card p.card-text {
 }
 
 a.fw-card-link-icon {
-    float:right;
-    background-color:$primary;
     height:3rem;
     width:3rem;
-    border-radius: 1.5rem;
-    padding:0.5rem;
+    border-radius: 50%;
 }
 
 a.fw-card-link-icon i {
     font-size: 2rem;
-    color:white
 }
 
 @keyframes shadowPulse {

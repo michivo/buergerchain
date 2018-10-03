@@ -3,7 +3,15 @@
 <div class="card my-4">
     <div class="card-header bg-primary text-light" style="font-size:2.5rem;font-weight: 100">
         Multiple Choice
-        <a class="float-right" href="#"><i class="material-icons" style="font-size:2.5rem;color:white">more_vert</i></a><!-- TODO: active link state -->
+        <div class="btn-group dropleft float-right">
+            <a class="nav-link" href="#" id="question-@Model.Index-menu" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                <i class="material-icons text-white" style="font-size:2.5rem">more_vert</i>
+            </a>
+            <div class="dropdown-menu" aria-labelledby="question-@Model.Index-menu">
+                <button class="dropdown-item" type="button" onclick="editQuestion('@Model.VotingId', @Model.Index)">Bearbeiten</button>
+                <button class="dropdown-item" type="button" onclick="deleteQuestion('@Model.VotingId', @Model.Index)">Frage löschen</button>
+            </div>
+        </div>
     </div>
     <div class="card-body">
         <h1 class="card-title" style="border-bottom: 1px solid #657F8C">@Model.Text</h1>

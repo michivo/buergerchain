@@ -189,7 +189,7 @@ namespace FreieWahl.Controllers
                 Title = voting.Title,
                 Description = voting.Description,
                 ImageData = voting.ImageData,
-                Questions = voting.Questions.Select(q => new QuestionModel(q)).ToList(),
+                Questions = voting.Questions.Select(q => new QuestionModel(q, id)).ToList(),
                 UserInitials = _GetInitials(user.Name),
                 StartDate = voting.StartDate.ToString("dd.MM.yyyy HH:mm", CultureInfo.InvariantCulture),
                 EndDate = voting.EndDate.ToString("dd.MM.yyyy HH:mm", CultureInfo.InvariantCulture),
@@ -267,6 +267,17 @@ namespace FreieWahl.Controllers
 
             await _votingStore.DeleteQuestion(_GetId(id), (int)_GetId(qid));// TODO: is cast ok here?
             return Ok(); // TODO err handling
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> DeleteVoting(string id)
+        {
+            if (await _authorizationHandler.CheckAuthorization(id, Operation.DeleteVoting, Request.Headers["Authorization"]) == false)
+                return Unauthorized();
+
+            await _votingStore.Delete(_GetId(id));
+            // TODO error handling
+            return Ok();
         }
 
         [HttpPost]
@@ -357,7 +368,7 @@ namespace FreieWahl.Controllers
                 });
 #pragma warning restore 4014
 
-            return Ok();
+            return Ok(voting.Id.ToString(CultureInfo.InvariantCulture));
         }
 
         private async Task<IActionResult> _UpdateVoting(string id, string title, string desc, string imageData)
