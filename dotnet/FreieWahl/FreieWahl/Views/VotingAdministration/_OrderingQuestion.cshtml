@@ -8,29 +8,30 @@
                 <i class="material-icons text-white" style="font-size:2.5rem">more_vert</i>
             </a>
             <div class="dropdown-menu" aria-labelledby="question-@Model.Index-menu">
-                <button class="dropdown-item" type="button" onclick="editQuestion('@Model.VotingId', @Model.Index)">Bearbeiten</button>
+                <button class="dropdown-item" type="button" onclick="editQuestion('@Model.VotingId', @Model.Index, '@((int)Model.Type)', @Model.MinNumAnswers, @Model.MaxNumAnswers, @Model.AnswerOptions.Count)">Bearbeiten</button>
                 <button class="dropdown-item" type="button" onclick="deleteQuestion('@Model.VotingId', @Model.Index)">Frage löschen</button>
             </div>
         </div>
     </div>
     <div class="card-body">
-        <h1 class="card-title" style="border-bottom: 1px solid #657F8C">
-            @Model.Text
-        </h1>
-        <p class="card-text border-bottom">
-            @Model.Description
-        </p>
+        <h1 class="card-title" style="border-bottom: 1px solid #657F8C"  id="question-@Model.Index-title">@Model.Text</h1>
+        <p class="card-text border-bottom"  id="question-@Model.Index-description">@Model.Description</p>
         <div class="container">
-            <div class="row">
+            <div class="row" id="question-@Model.Index-answers">
                 <div class="col-lg-6 col-12">
+                    @{ int answerCount = 0; }
                     @foreach (var answer in Model.AnswerOptions)
                     {
-                        <div class="my-2 border w-100">
-                            @answer.Answer @if (!string.IsNullOrEmpty(answer.Description))
+                        <div class="my-2 border w-100 fw-answer-title">
+                            <span id="fw-answer-title-@Model.Index-@answerCount">
+                                @answer.Answer
+                            </span>
+                            @if (!string.IsNullOrEmpty(answer.Description))
                             {
-                                <br /><span class="small text-primary">@answer.Description</span>
+                                <br /><span class="small text-primary fw-answer-description" id="fw-answer-description-@Model.Index-@answerCount">@answer.Description</span>
                             }
                         </div>
+                        answerCount++;
                     }
                 </div>
                 <div class="col-lg-6 col-12">

@@ -43,21 +43,13 @@
                         <div class="col-12 col-md-6">
                             <div class="form-group" style="display: none;">
                                 <label for="minNoAnswers">Mindestanzahl Antworten</label>
-                                <select class="form-control" id="minNoAnswers">
-                                    <option>1</option>
-                                    <option>2</option>
-                                    <option>3</option>
-                                </select>
+                                <input type="number" class="form-control" id="minNoAnswers" placeholder="1">
                             </div>
                         </div>
                         <div class="col-12 col-md-6">
                             <div class="form-group" style="display: none;">
                                 <label for="maxNoAnswers">Höchstanzahl Antworten</label>
-                                <select class="form-control" id="maxNoAnswers">
-                                    <option>1</option>
-                                    <option>2</option>
-                                    <option>3</option>
-                                </select>
+                                <input type="number" class="form-control" id="maxNoAnswers" placeholder="1">
                             </div>
                         </div>
                     </div>
@@ -307,6 +299,8 @@
         }
 
         function createQuestion() {
+            $('#newQuestionTitle').val('');
+            $('#newQuestionDescription').val('');
             $('#newQuestionModal').modal();
         }
 

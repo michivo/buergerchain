@@ -8,32 +8,32 @@
                 <i class="material-icons text-white" style="font-size:2.5rem">more_vert</i> <!-- TODO: hover -->
             </a>
             <div class="dropdown-menu" aria-labelledby="question-@Model.Index-menu">
-                <button class="dropdown-item" type="button" onclick="editQuestion('@Model.VotingId', @Model.Index)">Bearbeiten</button>
+                <button class="dropdown-item" type="button" onclick="editQuestion('@Model.VotingId', @Model.Index, '@((int)Model.Type)', 1, 1, @Model.AnswerOptions.Count)">Bearbeiten</button>
                 <button class="dropdown-item" type="button" onclick="deleteQuestion('@Model.VotingId', @Model.Index)">Frage löschen</button>
             </div>
         </div>
     </div>
     <div class="card-body">
-        <h1 class="card-title" style="border-bottom: 1px solid #657F8C">@Model.Text</h1>
-        <p class="card-text" style="border-bottom: 1px solid #C0C0C0">
-            @Model.Description
-        </p>
+        <h1 class="card-title" style="border-bottom: 1px solid #657F8C" id="question-@Model.Index-title">@Model.Text</h1>
+        <p class="card-text" style="border-bottom: 1px solid #C0C0C0" id="question-@Model.Index-description">@Model.Description</p>
         <div class="container">
-            <div class="row">
-            @foreach (var answer in Model.AnswerOptions)
-            {
-                <div class="col-lg-6 col-12">
-                    <label style="display: block; position: relative; padding-left: 35px; margin-bottom: 12px;">
-                        <span>
-                            @answer.Answer
-                        </span><br/>
-                        <span class="small text-primary border-bottom">
-                            @answer.Description
-                        </span>
-                        <input type="radio" style="position: absolute; opacity: 0;"><span style="position: absolute; top: 0; left: 0; height: 23px; width: 23px; background-color: #eee; border: 3px solid #657f8C; border-radius: 50%"></span>
-                    </label>
-                </div>
-            }
+            <div class="row" id="question-@Model.Index-answers">
+                @{ int answerCount = 0; }
+                @foreach (var answer in Model.AnswerOptions)
+                {
+                    <div class="col-lg-6 col-12">
+                        <label style="display: block; position: relative; padding-left: 35px; margin-bottom: 12px;">
+                            <span id="fw-answer-title-@Model.Index-@answerCount">
+                                @answer.Answer
+                            </span><br />
+                            <span class="small text-primary border-bottom" id="fw-answer-description-@Model.Index-@answerCount">
+                                @answer.Description
+                            </span>
+                            <input type="radio" style="position: absolute; opacity: 0;"><span style="position: absolute; top: 0; left: 0; height: 23px; width: 23px; background-color: #eee; border: 3px solid #657f8C; border-radius: 50%"></span>
+                        </label>
+                    </div>
+                    answerCount++;
+                }
             </div>
         </div>
         <a href="#" class="btn btn-success float-right mx-3">Für Wahl freischalten</a>

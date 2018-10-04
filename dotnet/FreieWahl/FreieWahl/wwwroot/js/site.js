@@ -51,7 +51,15 @@ function logout() {
 
 function onLogout() {
     document.cookie = 'token=;path=/;expires=Thu, 01 Jan 1970 00:00:01 GMT;';
-    window.location.href = window.location.origin;
+    var currentLocation = trimSlashes(window.location.href.split(/[?#]/)[0]);
+    var homeLocation = trimSlashes(window.location.origin);
+    if (currentLocation === homeLocation)
+        return;
+    window.location.href = homeLocation;
+}
+
+function trimSlashes(x) {
+    return x.replace(/\/+$/g, '');
 }
 
 function deleteQuestion(votingId, questionNumber) {
@@ -69,6 +77,17 @@ function deleteQuestion(votingId, questionNumber) {
     });
 }
 
-function editQuestion(votingId, questionNumber) {
-    alert('not implemented yet');
+function editQuestion(votingId, questionNumber, type, minNoAnswers, maxNoAnswers, noAnswers) {
+    $('#newQuestionTitle').val($('#question-' + questionNumber + '-title').text());
+    $('#newQuestionDescription').val($('#question-' + questionNumber + '-description').text());
+    $('#questionType').val(type);
+    if (type !== '1') {
+        $('#minNoAnswers').val(minNoAnswers);
+        $('#maxNoAnswers').val(maxNoAnswers);
+        $('#minNoAnswers').parent().show();
+        $('#maxNoAnswers').parent().show();
+    }
+    var answers = $('#question-' + questionNumber + '-answers');
+
+    $('#newQuestionModal').modal();
 }

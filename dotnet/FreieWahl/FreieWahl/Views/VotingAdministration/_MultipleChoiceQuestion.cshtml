@@ -2,40 +2,39 @@
 
 <div class="card my-4">
     <div class="card-header bg-primary text-light" style="font-size:2.5rem;font-weight: 100">
-        Multiple Choice
-        <div class="btn-group dropleft float-right">
+        Multiple Choice<div class="btn-group dropleft float-right">
             <a class="nav-link" href="#" id="question-@Model.Index-menu" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                 <i class="material-icons text-white" style="font-size:2.5rem">more_vert</i>
             </a>
             <div class="dropdown-menu" aria-labelledby="question-@Model.Index-menu">
-                <button class="dropdown-item" type="button" onclick="editQuestion('@Model.VotingId', @Model.Index)">Bearbeiten</button>
+                <button class="dropdown-item" type="button" onclick="editQuestion(@Json.Serialize(Model))">Bearbeiten</button>
                 <button class="dropdown-item" type="button" onclick="deleteQuestion('@Model.VotingId', @Model.Index)">Frage löschen</button>
             </div>
         </div>
     </div>
     <div class="card-body">
-        <h1 class="card-title" style="border-bottom: 1px solid #657F8C">@Model.Text</h1>
-        <p class="card-text border-bottom">
-            @Model.Description
-        </p>
+        <h1 class="card-title" style="border-bottom: 1px solid #657F8C" id="question-@Model.Index-title">@Model.Text</h1>
+        <p class="card-text border-bottom" id="question-@Model.Index-description">@Model.Description</p>
         <div class="container">
-            <div class="row">
+            <div class="row" id="question-@Model.Index-answers">
+                @{ int answerCount = 0; }
                 @foreach (var option in @Model.AnswerOptions)
                 {
                     <div class="col-lg-6 col-12">
                         <label style="display: block; position: relative; padding-left: 35px; margin-bottom: 12px;">
-                            <span>
+                            <span id="fw-answer-title-@Model.Index-@answerCount">
                                 @option.Answer
                             </span>
                             @if (!string.IsNullOrEmpty(@option.Description))
-                            {<br/>
-                                <span class="small text-primary border-bottom">
+                            {<br />
+                                <span class="small text-primary border-bottom" id="fw-answer-description-@Model.Index-@answerCount">
                                     @option.Description
                                 </span>
                             }
                             <input type="checkbox" style="position: absolute; opacity: 0;"><span style="position: absolute; top: 0; left: 0; height: 23px; width: 23px; background-color: #eee; border: 3px solid #657f8C"></span>
                         </label>
                     </div>
+                    answerCount++;
                 }
             </div>
         </div>
