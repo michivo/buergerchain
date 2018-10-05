@@ -8,7 +8,7 @@
                 <i class="material-icons text-white" style="font-size:2.5rem">more_vert</i>
             </a>
             <div class="dropdown-menu" aria-labelledby="question-@Model.Index-menu">
-                <button class="dropdown-item" type="button" onclick="editQuestion('@Model.VotingId', @Model.Index, '@((int)Model.Type)', @Model.MinNumAnswers, @Model.MaxNumAnswers, @Model.AnswerOptions.Count)">Bearbeiten</button>
+                <button class="dropdown-item" type="button" onclick='editQuestion(@Json.Serialize(Model))'>Bearbeiten</button>
                 <button class="dropdown-item" type="button" onclick="deleteQuestion('@Model.VotingId', @Model.Index)">Frage löschen</button>
             </div>
         </div>
@@ -47,6 +47,5 @@
             </div>
         </div>
         <a href="#" class="btn btn-success float-right mx-3">Für Wahl freischalten</a>
-        <a href="#" class="btn btn-light float-right mx-3">Frage löschen</a>
     </div>
 </div>

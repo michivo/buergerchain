@@ -228,7 +228,7 @@ namespace FreieWahl.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> UpdateVotingQuestion(string id, string qid, string title, string desc, int type, string[] answers, string[] answerDescriptions,
+        public async Task<IActionResult> UpdateVotingQuestion(string id, int qid, string title, string desc, int type, string[] answers, string[] answerDescriptions,
             int minNumAnswers, int maxNumAnswers)
         {
             if (answers.Length != answerDescriptions.Length)
@@ -245,7 +245,7 @@ namespace FreieWahl.Controllers
 
             var voting = await _votingStore.GetById(_GetId(id)); // TODO - handle missing voting
             var question = _GetQuestion(title, desc, answers, answerDescriptions);
-            question.QuestionIndex = (int)_GetId(qid); // TODO: is cast ok here?
+            question.QuestionIndex = qid;
             question.QuestionType = (QuestionType) type;
             question.MinNumAnswers = question.QuestionType == QuestionType.Decision ? 1 : minNumAnswers;
             question.MaxNumAnswers = question.QuestionType == QuestionType.Decision ? 1 : maxNumAnswers;

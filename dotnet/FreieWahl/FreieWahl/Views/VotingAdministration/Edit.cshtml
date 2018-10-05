@@ -1,102 +1,17 @@
-﻿@using FreieWahl.Controllers
-@using FreieWahl.Voting.Models
-@using Microsoft.Extensions.Localization
+﻿@using FreieWahl.Voting.Models
 @model FreieWahl.Models.VotingAdministration.EditVotingModel
 
 @await Html.PartialAsync("_Header", new ViewDataDictionary(ViewData) { { "Initials", Model.UserInitials }, { "IsOverview", false } })
 
-<div class="modal fade" id="newQuestionModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
-     aria-hidden="true">
-    <div class="modal-dialog modal-lg" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3 class="modal-title" id="exampleModalLabel">Neue Frage</h3>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-            <div class="modal-body">
-                <div class="container">
-                    <div class="row" style="margin-bottom:1rem;">
-                        <div class="col-12">
-                            <input type="text" class="form-control form-control-lg" aria-label="Large"
-                                   aria-describedby="inputGroup-sizing-sm" placeholder="Fragestellung" id="newQuestionTitle">
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="col-12">
-                            <textarea type="textarea" class="form-control form-control-sm" id="newQuestionDescription"
-                                      rows="7" placeholder="Erläuterung"></textarea>
-                        </div>
-                    </div>
-                    <div class="row my-3">
-                        <div class="col-12">
-                            <div class="form-group">
-                                <label for="questionType">Art der Fragestellung</label>
-                                <select class="form-control" id="questionType">
-                                    <option value="1">Entscheidungsfrage</option>
-                                    <option value="2">Multiple-Choice-Frage</option>
-                                    <option value="3">Reihungsfrage</option>
-                                </select>
-                            </div>
-                        </div>
-                        <div class="col-12 col-md-6">
-                            <div class="form-group" style="display: none;">
-                                <label for="minNoAnswers">Mindestanzahl Antworten</label>
-                                <input type="number" class="form-control" id="minNoAnswers" placeholder="1">
-                            </div>
-                        </div>
-                        <div class="col-12 col-md-6">
-                            <div class="form-group" style="display: none;">
-                                <label for="maxNoAnswers">Höchstanzahl Antworten</label>
-                                <input type="number" class="form-control" id="maxNoAnswers" placeholder="1">
-                            </div>
-                        </div>
-                    </div>
-                    <div class="row my-3 border-top">
-                        <div class="col-12">
-                            <h3>Antwortoptionen</h3>
-                            <div id="answersTable" class="table-editable">
-                                <table class="table">
-                                    <tr>
-                                        <th>Option</th>
-                                        <th>Erläuterung</th>
-                                        <th><i class="table-add material-icons">add_circle</i></th>
-                                        <th></th>
-                                    </tr>
-                                    <!-- This is our clonable table line -->
-                                    <tr class="answerOption hide">
-                                        <td class="answerOptionText" contenteditable="true">...</td>
-                                        <td class="answerOptionDescription" contenteditable="true">...</td>
-                                        <td>
-                                            <i class="table-remove material-icons">remove_circle</i>
-                                        </td>
-                                        <td>
-                                            <i class="table-up material-icons">keyboard_arrow_up</i>
-                                            <i class="table-down material-icons">keyboard_arrow_down</i>
-                                        </td>
-                                    </tr>
-                                </table>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-light" data-dismiss="modal">Abbrechen</button>
-                <button type="button" class="btn btn-primary" onclick="saveQuestion();" id="modalQuestionOk">OK</button>
-            </div>
-        </div>
-    </div>
-</div>
+@Html.Partial("_NewQuestionModal")
 
 <div class="container-fluid fw-banner py-3">
-    <div style="display:flex;flex-direction:row;justify-content: space-between;">
-        <div style="display:flex;flex-direction:column;align-self:stetch;">
-            <span class="fw-voting-title bg-primary px-5 text-light" style="font-size: 2rem;font-weight: 100">
+    <div class="d-flex flex-row justify-content-between">
+        <div class="d-flex flex-column align-self-stretch">
+            <span class="bg-primary px-5 text-light display-4">
                 @Model.Title
             </span>
-            <div class="mt-3" style="display:flex;flex-direction:row;justify-content:space-between;flex:1">
+            <div class="mt-3 d-flex flex-row justify-content-between">
                 <div style="max-width: 30rem;">
                     <div class="p-0">
                         <div class="bg-light text-primary px-3 mr-4 small">
@@ -104,19 +19,19 @@
                         </div>
                     </div>
                 </div>
-                <div style="display:flex;flex-direction:column;justify-content:space-between;">
-                    <div class="bg-light text-primary" style="font-size:1.5rem;font-weight:100;display: flex;flex-direction: row;align-items: center">
+                <div class="d-flex flex-column justify-content-between">
+                    <div class="bg-light text-primary d-flex flex-row align-items-center" style="font-size:1.5rem;font-weight:100">
                         <div><i class="material-icons text-primary mx-2" style="font-size: 3rem;">date_range</i></div>
                         <div class="px-2">Start: @Model.StartDate<br>Ende: @Model.EndDate</div>
                     </div>
-                    <div style="text-align:right;">
-                        <button class="btn btn-secondary" style="text-transform: uppercase;font-size: .9rem">Bearbeiten</button>
+                    <div class="float-right mt-2">
+                        <button class="btn btn-secondary float-right text-uppercase">Bearbeiten</button>
                     </div>
                 </div>
             </div>
 
         </div>
-        <div style="margin: auto;">
+        <div class="m-auto">
             @if (!string.IsNullOrEmpty(@Model.ImageData))
             {
                 <img src="@Model.ImageData" style="max-height: 13rem;">
@@ -129,8 +44,8 @@
     </div>
 </div>
 
-<div class="container-fluid" style="border-bottom:2px solid #C0C0C0;font-size: .9rem">
-    <div class="row" style="padding:1rem;">
+<div class="container-fluid" style="border-bottom:2px solid #C0C0C0;">
+    <div class="row p-3">
         <div class="col col-auto">
             <i class="material-icons text-primary" style="font-size:2rem">link</i>
         </div>
@@ -138,11 +53,8 @@
             <strong>Link zur Registrierung für die Abstimmung</strong><br>
             <a href="@Model.RegistrationUrl">@Model.RegistrationUrl</a>
         </div>
-        <div class="col-3" style="text-align:right">
-            <button class="btn btn-secondary" style="text-transform: uppercase;font-size: .9rem">
-                Link
-                teilen
-            </button>
+        <div class="col-3">
+            <button class="btn btn-secondary text-uppercase float-lg-right mt-lg-0 mt-2">Link teilen</button>
         </div>
     </div>
 </div>
@@ -150,8 +62,8 @@
     <div class="row">
         <div class="col-12 col-lg-4" style="border-right:2px solid #C0C0C0">
             <div class="dropdown my-3">
-                <button class="btn btn-light dropdown-toggle" type="button" id="fw-dropdown-registered" data-toggle="dropdown"
-                        aria-haspopup="true" aria-expanded="false" style="border-bottom: 1px solid #657f8C;width:100%;text-align: left">
+                <button class="btn btn-light dropdown-toggle border-bottom text-left w-100" type="button" id="fw-dropdown-registered" data-toggle="dropdown"
+                        aria-haspopup="true" aria-expanded="false">
                     Offene Registrierungen <span class="badge badge-pill badge-warning" id="openRegistrationsBadge">.</span>
                 </button>
                 <div class="dropdown-menu" aria-labelledby="fw-dropdown-registered" id="openRegistrationsList">
@@ -162,24 +74,24 @@
                 </div>
             </div>
             <div class="dropdown" style="margin:1rem 0">
-                <button class="btn btn-light dropdown-toggle" type="button" id="fw-dropdown-granted" data-toggle="dropdown"
-                        aria-haspopup="true" aria-expanded="false" style="border-bottom: 1px solid #657f8C;width:100%;text-align: left">
+                <button class="btn btn-light dropdown-toggle border-bottom text-left w-100" type="button" id="fw-dropdown-granted" data-toggle="dropdown"
+                        aria-haspopup="true" aria-expanded="false">
                     Freigeschaltete WählerInnen <span class="badge badge-pill badge-secondary" id="grantedRegistrationsBadge">.</span>
                 </button>
                 <div class="dropdown-menu" aria-labelledby="fw-dropdown-granted" id="grantedRegistrationsList">
                 </div>
             </div>
             <div class="dropdown" style="margin:1rem 0">
-                <button class="btn btn-light dropdown-toggle" type="button" id="fw-dropdown-denied" data-toggle="dropdown"
-                        aria-haspopup="true" aria-expanded="false" style="border-bottom: 1px solid #657f8C;width:100%;text-align: left">
+                <button class="btn btn-light dropdown-toggle border-bottom text-left w-100" type="button" id="fw-dropdown-denied" data-toggle="dropdown"
+                        aria-haspopup="true" aria-expanded="false">
                     Abgelehnte Registrierungen <span class="badge badge-pill badge-secondary" id="deniedRegistrationsBadge">.</span>
                 </button>
                 <div class="dropdown-menu" aria-labelledby="fw-dropdown-denied" id="deniedRegistrationsList">
                 </div>
             </div>
         </div>
-        <div class="col-12 col-lg-8" style="padding:1rem">
-            <h1 style="font-size:3rem;font-weight:100">Fragen</h1>
+        <div class="col-12 col-lg-8 p-3">
+            <h1 class="display-4">Fragen</h1>
             @foreach (var question in Model.Questions)
             {
                 if (question.Type == QuestionType.Decision)
@@ -197,7 +109,7 @@
             }
             <div class="float-right">
                 <i class="material-icons blinkOnScroll" style="font-size: 4rem;color: #3583A9;font-weight: 700;border-radius: 50%;cursor:pointer"
-                   onclick="createQuestion()">add_circle</i>
+                   onclick="createQuestion('@Model.VotingId')">add_circle</i>
             </div>
         </div>
     </div>
@@ -211,293 +123,9 @@
     <script>
         initApp();
 
-        $(document).on('click',
-            '.dropdown-menu',
-            function(e) {
-                e.stopPropagation();
-            });
-
         $(document).ready(function() {
-            updateRegistrations();
-            $('.answerOptionText').click(function() {
-                if ($(this).text() === '...') {
-                    document.execCommand('selectAll', false, null);
-                }
-            });
-            $('.answerOptionDescription').click(function() {
-                if ($(this).text() === '...') {
-                    document.execCommand('selectAll', false, null);
-                }
-            });
+            setupOverview('@Model.VotingId');
         });
-
-        function updateRegistrations() {
-            $.ajax({
-                url: '../Registration/GetRegistrations',
-                data: { "votingId": @Model.VotingId },
-                type: 'GET',
-                datatype: 'json',
-                beforeSend: function(xhr) {
-                    xhr.setRequestHeader("Authorization", idToken);
-                },
-                success: function(data) {
-                    showRegistrations(data);
-                } // TODO error
-            });
-            $.ajax({
-                url: '../Registration/GetCompletedRegistrations',
-                data: { "votingId": @Model.VotingId },
-                type: 'GET',
-                datatype: 'json',
-                beforeSend: function(xhr) {
-                    xhr.setRequestHeader("Authorization", idToken);
-                },
-                success: function(data) {
-                    showCompletedRegistrations(data);
-                } // TODO error
-            });
-        }
-
-        $(window).on('scroll', blinkOnScroll);
-        var win_height_padded = $(window).height() * 1.1;
-
-        $('#questionType').change(function() {
-            if ($('#questionType').val() === '1') {
-                $('#minNoAnswers').parent().hide();
-                $('#maxNoAnswers').parent().hide();
-            } else {
-                $('#minNoAnswers').parent().show();
-                $('#maxNoAnswers').parent().show();
-            }
-        });
-
-
-        function blinkOnScroll() {
-            var scrolled = $(window).scrollTop();
-            $(".blinkOnScroll:not(.animated)").each(function() {
-                var $this = $(this),
-                    offsetTop = $this.offset().top;
-
-                if (scrolled + win_height_padded > offsetTop) {
-                    if ($this.data('timeout')) {
-                        window.setTimeout(function() {
-                                $this.addClass('animated blinky');
-                            },
-                            parseInt($this.data('timeout'), 10));
-                    } else {
-                        $this.addClass('animated blinky');
-                    }
-                }
-            });
-            $(".blinkOnScroll.animated").each(function(index) {
-                var $this = $(this),
-                    offsetTop = $this.offset().top;
-                if (scrolled + win_height_padded < offsetTop) {
-                    $(this).removeClass('animated blinky')
-                }
-            });
-        }
-
-        function createQuestion() {
-            $('#newQuestionTitle').val('');
-            $('#newQuestionDescription').val('');
-            $('#newQuestionModal').modal();
-        }
-
-        $('.table-add').click(function() {
-            var $clone = $('#answersTable').find('tr.hide').clone(true).removeClass('hide table-line');
-            $clone.addClass('answer-line');
-            $('#answersTable').find('table').append($clone);
-        });
-
-        $('.table-remove').click(function() {
-            $(this).parents('tr.answer-line').detach();
-        });
-
-        $('.table-up').click(function() {
-            var $row = $(this).parents('tr');
-            if ($row.index() === 1) return; // Don't go above the header
-            $row.prev().before($row.get(0));
-        });
-
-        $('.table-down').click(function() {
-            var $row = $(this).parents('tr');
-            $row.next().after($row.get(0));
-        });
-        
-        function isEmpty(str) {
-            return (!str || 0 === str.length || str === '0');
-        }
-        
-        function showRegistrations(registrations) {
-            $("#openRegistrationsList").removeClass('openRegistrationItem');
-            for (var i = 0; i < registrations.length; i++) {
-                var registration = registrations[i];
-                var item =
-                    '<div style="display: flex; margin: 0 1rem;border-bottom: 1px solid #DCE4E7;" class="openRegistrationItem"><div style="flex:1;margin-right:1rem">' +
-                        registration.voterName +
-                        '</div>';
-                item += '<div style="align-self: flex-end;cursor:pointer;color:#657f8C" onclick="grantRegistration(\'' +
-                    registration.registrationId +
-                    '\')"><i class="material-icons">add_circle_outline</i></div>';
-                item += '<div style="align-self: flex-end;cursor:pointer;color:#657f8C" onclick="denyRegistration(\'' +
-                    registration.registrationId +
-                    '\')"><i class="material-icons mx-1">remove_circle_outline</i></div>';
-                item +=
-                    '<div style="align-self: flex-end;cursor:pointer;color:#657f8C"><i class="material-icons">info</i></div></div>'; // TODO
-                $(item).insertBefore('#openRegistrationsDivider');
-            }
-
-            $('#openRegistrationsBadge').text(registrations.length);
-        }
-
-        function showCompletedRegistrations(registrations) {
-            var grantedList = $("#grantedRegistrationsList");
-            grantedList.empty();
-            var deniedList = $("#deniedRegistrationsList");
-            deniedList.empty();
-            var grantedCount = 0;
-            var deniedCount = 0;
-            for (var i = 0; i < registrations.length; i++) {
-                // <div style="margin:0 1rem;border-bottom:1px solid #DCE4E7">Michael Peter Faschinger</div>
-                var registration = registrations[i];
-                var item = '<div style="margin:0 1rem;border-bottom:1px solid #DCE4E7">' +
-                    registration.voterName +
-                    '</div>';
-                if (registration.decision === 1) {
-                    grantedList.append(item);
-                    grantedCount++;
-                } else {
-                    deniedList.append(item);
-                    deniedCount++;
-                }
-            }
-
-            $('#grantedRegistrationsBadge').text(grantedCount);
-            $('#deniedRegistrationsBadge').text(deniedCount);
-        }
-
-        function invite() {
-            var currentUser = firebase.auth().currentUser;
-            if (currentUser) {
-                var mails = ["michfasch@gmx.at"]
-                currentUser.getIdToken(true).then(function(idToken) {
-                    $.post({
-                        url: 'SendInvitationMail',
-                        data: { "votingId": @Model.VotingId, "addresses": mails },
-                        beforeSend: function(xhr) {
-                            xhr.setRequestHeader("Authorization", idToken);
-                        },
-                        success: function(data) {}
-                        // error: todo
-                    });
-                });
-            }
-        }
-
-        function saveVoting() {
-            var title = $("#votingTitle").val();
-            var desc = $("#votingDescription").val();
-            var currentUser = firebase.auth().currentUser;
-            if (currentUser) {
-                currentUser.getIdToken(true).then(function(idToken) {
-                    $.post({
-                        url: 'UpdateVoting',
-                        data: { "title": title, "desc": desc, "id": @Model.VotingId },
-                        beforeSend: function(xhr) {
-                            xhr.setRequestHeader("Authorization", idToken);
-                        },
-                        success: function(data) { window.location.assign("Overview"); }
-                        // error: todo
-                    });
-                });
-            }
-        }
-
-        function grantRegistration(regId) {
-            var currentUser = firebase.auth().currentUser;
-            if (currentUser) {
-                currentUser.getIdToken(true).then(function(idToken) {
-                    $.post({
-                        url: '../Registration/GrantRegistration',
-                        data: { "rid": regId },
-                        beforeSend: function(xhr) {
-                            xhr.setRequestHeader("Authorization", idToken);
-                        },
-                        success: function(data) { // todo
-                            updateRegistrations();
-                        }
-                        // error: todo
-                    });
-                });
-            }
-        }
-
-        function denyRegistration(regId) {
-            var currentUser = firebase.auth().currentUser;
-            if (currentUser) {
-                currentUser.getIdToken(true).then(function(idToken) {
-                    $.post({
-                        url: '../Registration/DenyRegistration',
-                        data: { "rid": regId },
-                        beforeSend: function(xhr) {
-                            xhr.setRequestHeader("Authorization", idToken);
-                        },
-                        success: function(data) { // todo
-                            updateRegistrations();
-                        }
-                        // error: todo
-                    });
-                });
-            }
-        }
-
-        function showQuestions(questions) {
-
-        }
-
-        function saveQuestion() {
-            $('#modalQuestionOk').text('Speichere...');
-            $('#modalQuestionOk').addClass('disabled');
-            var description = $('#newQuestionDescription').val();
-            var title = $('#newQuestionTitle').val();
-            var type = parseInt($('#questionType').val());
-            var currentUser = firebase.auth().currentUser;
-            var answers = [];
-            var answerDescriptions = [];
-            $("#answersTable .answerOption").not('.hide').each(function() {
-                answers.push($(this).find('td.answerOptionText').text());
-                answerDescriptions.push($(this).find('td.answerOptionDescription').text());
-            });
-            var minNumAnswers = parseInt($('#minNoAnswers').val());
-            var maxNumAnswers = parseInt($('#maxNoAnswers').val());
-
-            if (currentUser) {
-                currentUser.getIdToken(true).then(function(idToken) {
-                    $.post({
-                        url: 'UpdateVotingQuestion',
-                        data: {
-                            "id": "@Model.VotingId",
-                            "qid": '0',
-                            "title": title,
-                            "desc": description,
-                            "type": type,
-                            "answers": answers,
-                            "answerDescriptions": answerDescriptions,
-                            "minNumAnswers": minNumAnswers,
-                            "maxNumAnswers": maxNumAnswers
-                        },
-                        beforeSend: function(xhr) {
-                            xhr.setRequestHeader("Authorization", idToken);
-                        },
-                        success: function(data) { // todo
-                            $('#newQuestionModal').modal('hide');
-                        }
-                        // error: todo
-                    });
-                });
-            }
-        }
     </script>
 
 }

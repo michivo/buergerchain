@@ -1,0 +1,84 @@
+﻿<div class="modal fade" id="newQuestionModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+     aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title" id="exampleModalLabel">Neue Frage</h3>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="container">
+                    <div class="row" style="margin-bottom:1rem;">
+                        <div class="col-12">
+                            <input type="text" class="form-control form-control-lg" aria-label="Large"
+                                   aria-describedby="inputGroup-sizing-sm" placeholder="Fragestellung" id="newQuestionTitle">
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-12">
+                            <textarea type="textarea" class="form-control form-control-sm" id="newQuestionDescription"
+                                      rows="7" placeholder="Erläuterung"></textarea>
+                        </div>
+                    </div>
+                    <div class="row my-3">
+                        <div class="col-12">
+                            <div class="form-group">
+                                <label for="questionType">Art der Fragestellung</label>
+                                <select class="form-control" id="questionType">
+                                    <option value="1">Entscheidungsfrage</option>
+                                    <option value="2">Multiple-Choice-Frage</option>
+                                    <option value="3">Reihungsfrage</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-12 col-md-6">
+                            <div class="form-group" style="display: none;">
+                                <label for="minNoAnswers">Mindestanzahl Antworten</label>
+                                <input type="number" class="form-control" id="minNoAnswers" placeholder="1">
+                            </div>
+                        </div>
+                        <div class="col-12 col-md-6">
+                            <div class="form-group" style="display: none;">
+                                <label for="maxNoAnswers">Höchstanzahl Antworten</label>
+                                <input type="number" class="form-control" id="maxNoAnswers" placeholder="1">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row my-3 border-top">
+                        <div class="col-12">
+                            <h3>Antwortoptionen</h3>
+                            <div id="answersTable" class="table-editable">
+                                <table class="table">
+                                    <tr>
+                                        <th>Option</th>
+                                        <th>Erläuterung</th>
+                                        <th><i class="table-add material-icons">add_circle</i></th>
+                                        <th></th>
+                                    </tr>
+                                    <!-- This is our clonable table line -->
+                                    <tr class="answerOption hide">
+                                        <td class="answerOptionText" contenteditable="true">...</td>
+                                        <td class="answerOptionDescription" contenteditable="true">...</td>
+                                        <td>
+                                            <i class="table-remove material-icons">remove_circle</i>
+                                        </td>
+                                        <td>
+                                            <i class="table-up material-icons">keyboard_arrow_up</i>
+                                            <i class="table-down material-icons">keyboard_arrow_down</i>
+                                        </td>
+                                    </tr>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-light" data-dismiss="modal">Abbrechen</button>
+                <button type="button" class="btn btn-primary" id="modalQuestionOk">OK</button>
+            </div>
+        </div>
+    </div>
+</div>
