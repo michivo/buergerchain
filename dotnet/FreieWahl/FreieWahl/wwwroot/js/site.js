@@ -170,12 +170,19 @@ function showRegistrations(registrations, votingId) {
 }
 
 
-function invite(votingId) {
-    const mails = ["michfasch@gmx.at"];
+function sendInvitations(votingId) {
+    const recipients = $('#mailRecipients').val().split(/[\s,;]+/);
+    const mailText = $('#mailText').val();
+    if (!mailText.includes('%link%')) {
+        alert('Der Mailtext muss den Platzhalter %link% für die Registrierung beinhalten!');
+        return;
+    }
     $.post({
         url: 'SendInvitationMail',
-        data: { "votingId": votingId, "addresses": mails },
-        success: function (data) { }
+        data: { "votingId": votingId, "addresses": recipients, "mailText": mailText, "mailSubject": $('#mailSubject').val() },
+        success: function(data) {
+            $('#inviteVotersModal').modal('hide');
+        }
         // error: todo
     });
 }

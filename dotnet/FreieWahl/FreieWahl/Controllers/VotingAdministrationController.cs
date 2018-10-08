@@ -269,13 +269,16 @@ namespace FreieWahl.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> SendInvitationMail(string votingId, string[] addresses)
+        public async Task<IActionResult> SendInvitationMail(string votingId, string[] addresses, string mailText, string mailSubject)
         {
             if (await _authorizationHandler.CheckAuthorization(votingId, Operation.Invite, Request.Cookies["session"]) == false)
                 return Unauthorized();
 
-            await _mailProvider.SendMail("Michael Faschinger", addresses[0], "Hello World", "This is just a -test-. Feel free to register for a voting <a href=\"-votingUrl-\">here</a> or copy the url to your browser: -votingUrl-.", 
-                new Dictionary<string, string> {{"-test-", "surprise"}, {"-votingUrl-", _GetRegistrationUrl(votingId)}});
+            mailText = mailText.Replace("\n", "<br>");
+            var registrationUrl = _GetRegistrationUrl(votingId);
+            var registrationUrlLink = "<a href=\"" + registrationUrl + "\">" + registrationUrl + "</a>";
+            await _mailProvider.SendMail(new List<string>(addresses), mailSubject, mailText,
+                new Dictionary<string, string> {{"%link%", registrationUrlLink } });
             return Ok();
         }
 

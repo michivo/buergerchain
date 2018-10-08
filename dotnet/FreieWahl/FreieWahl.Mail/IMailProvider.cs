@@ -5,7 +5,7 @@ namespace FreieWahl.Mail
 {
     public interface IMailProvider
     {
-        Task<SendResult> SendMail(string recipientName, string recipientAddress, string subject, string content,
+        Task<SendResult> SendMail(List<string> recipientAddresses, string subject, string content,
             Dictionary<string, string> args);
     }
 }

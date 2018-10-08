@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using SendGrid;
 using SendGrid.Helpers.Mail;
@@ -17,22 +18,25 @@ namespace FreieWahl.Mail.SendGrid
             _client = new SendGridClient(apiKey);
         }
 
-        public async Task<SendResult> SendMail(string recipientName, string recipientAddress, string subject, string content,
+        public async Task<SendResult> SendMail(List<string> recipientAddresses, string subject, string content,
             Dictionary<string, string> args)
         {
-            var message = new SendGridMessage();
-            message.AddTo(recipientAddress, recipientName);
-            message.HtmlContent = content;
-            message.Subject = subject;
-            message.From = _fromAddress;
-            message.AddSubstitutions(args);
-            try
+            foreach (var recipientAddress in recipientAddresses)
             {
-                await _client.SendEmailAsync(message);
-            }
-            catch (Exception ex)
-            {
-                return new SendResult(false, ex.Message);
+                var message = new SendGridMessage();
+                message.AddTo(recipientAddress);
+                message.HtmlContent = content;
+                message.Subject = subject;
+                message.From = _fromAddress;
+                message.AddSubstitutions(args);
+                try
+                {
+                    await _client.SendEmailAsync(message).ConfigureAwait(false);
+                }
+                catch (Exception ex)
+                {
+                    return new SendResult(false, ex.Message);
+                }
             }
 
             return SendResult.SuccessResult;

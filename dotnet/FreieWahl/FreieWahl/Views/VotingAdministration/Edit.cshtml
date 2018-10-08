@@ -3,7 +3,12 @@
 
 @await Html.PartialAsync("_Header", new ViewDataDictionary(ViewData) { { "Initials", Model.UserInitials }, { "IsOverview", false } })
 
+@await Html.PartialAsync("_InviteVoters", new ViewDataDictionary(ViewData) { { "Title", Model.Title }, { "VotingId", Model.VotingId } })
+
+
 @Html.Partial("_NewQuestionModal")
+
+@await Html.PartialAsync("_InviteVoters", Model.Title)
 
 <div class="container-fluid fw-banner py-3">
     <div class="d-flex flex-row justify-content-between">
@@ -54,7 +59,7 @@
             <a href="@Model.RegistrationUrl">@Model.RegistrationUrl</a>
         </div>
         <div class="col-3">
-            <button class="btn btn-secondary text-uppercase float-lg-right mt-lg-0 mt-2">Link teilen</button>
+            <button class="btn btn-secondary text-uppercase float-lg-right mt-lg-0 mt-2" onclick="$('#inviteVotersModal').modal();">Link teilen</button>
         </div>
     </div>
 </div>
