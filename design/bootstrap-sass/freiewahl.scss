@@ -312,55 +312,12 @@ div.fw-overview-header {
   background-color: #C9D6DC;
 }
 
-nav.navbar-dark {
-  background-color: #657F8C;
+rounded-edges {
+    border-radius:1rem;
 }
 
-div.fw-titlepage-bannercontent {
-  padding: 2rem;
-  display: flex;
-  justify-content: space-between;
-}
-
-div.fw-titlepage-bannercontent div {
-  margin-right: 1rem;
-  margin-left: 1rem;
-}
-
-@media only screen and (max-width: 1024px) {
-  div.fw-titlepage-bannercontent {
-    margin: auto;
-    flex-direction: column;
-    width: 100%;
-  }
-
-    #fw-navtitle span {
-      display: none;
-    }
-}
-
-@media only screen and (min-width: 1706px) {
-  div.fw-titlepage-bannercontent {
-      width: 60%;
-  }
-
-  div.fw-titlepage-bannertext {
-    flex-basis: 40%;
-  }
-}
-
-@media only screen and (min-width: 1024px) and (max-width: 1706px) {
-  div.fw-titlepage-bannertext {
-    flex-basis: 40%;
-  }
-
-  div.fw-titlepage-bannercontent {
-      width: 1024;
-  }
-}
-
-div.fw-titlepage-info, div.fw-overview-list {
-  color: #657F8E;
+round-border {
+    border-radius:50%;
 }
 
 .clearfix::after {
@@ -397,14 +354,6 @@ div.fw-titlepage-boxcontent p {
 
 div.fw-titlepage-boxtext {
   color: black;
-}
-
-@media only screen and (min-width: 1024px) {
-  div.fw-titlepage-info, div.fw-overview-list {
-    width: 80%;
-    margin: 0 auto;
-    padding: 2rem 0;
-  }
 }
 
 .slick-prev:before,

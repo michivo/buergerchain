@@ -2,85 +2,12 @@
 
 @await Html.PartialAsync("_Header", new ViewDataDictionary(ViewData) { { "Initials", Model.Initials }, { "IsOverview", true } })
 
-<div class="modal fade" id="newVotingModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
-     aria-hidden="true">
-    <div class="modal-dialog modal-lg" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3 class="modal-title" id="exampleModalLabel">Neue Abstimmung</h3>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-            <div class="modal-body">
-                <div class="container">
-                    <div class="row" style="margin-bottom:1rem;">
-                        <div class="col-12">
-                            <input type="text" class="form-control form-control-lg" aria-label="Large" aria-describedby="inputGroup-sizing-sm"
-                                   placeholder="Name" id="fwNewVotingName">
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="col-12 col-md-6">
-                            <textarea type="textarea" class="form-control form-control-sm" id="fwNewVotingDescription" rows="7"
-                                      placeholder="Beschreibung"></textarea>
-
-                            <div id="fw-voting-img-content" class="fw-voting-img" style="cursor: pointer; position: relative; background-color: #dce4e7; margin-top: 1rem; text-align: center" onclick="showFileSelector('#fw-voting-img-upload')">
-                                <i class="material-icons fw-voting-img" id="fw-voting-img-dummy">how_to_vote</i>
-                                <canvas id="fw-voting-img-real" style="display:none;" with="300" height="300"></canvas>
-                                <div id="fw-voting-img-selector" style="position:absolute;top:0rem;left:0rem;color:white;display:flex;align-content: center;padding:.1rem;border:1px solid #FFFFFF00;height:2rem">
-                                    <i id="fw-voting-img-icon" class="material-icons" style="font-size:2rem;text-shadow:0px 1px 1px #657f8C;">
-                                        photo_camera
-                                    </i>
-                                    <span id="fw-voting-img-text" style="opacity: 0;margin:0.1rem .5rem;font-size: .9rem;font-weight: 400">
-                                        Bild &auml;ndern
-                                    </span>
-                                </div>
-                                <div id="fw-voting-img-upload" style="display:none;position:absolute;top:2rem;left:0;background-color:white;border:1px solid #657f8c;padding:.5rem;border-radius: .5rem;">
-                                    <form>
-                                        <p style="font-size: .8rem;">Wählen Sie ein Bild für Ihre Abstimmung.</p>
-                                        <div class="custom-file">
-                                            <input type="file" class="custom-file-input" id="fw-voting-img-input" required>
-                                            <label class="custom-file-label" for="fw-voting-img-input">....</label>
-                                            <div class="invalid-feedback">Yadda TODO</div>
-                                        </div>
-                                    </form>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-12 col-md-6">
-                            <div class="form-group form-group-sm date">
-                                <label for="fwStartDate">Startdatum/-zeit</label>
-                                <input type="text" class="form-control form-control-sm" id="fwStartDate" placeholder="dd.mm.yyyy"><span class="input-group-addon"></span>
-                            </div>
-                            <div class="form-group">
-                                <input type="text" class="form-control form-control-sm" id="fwStartTime" aria-describedby="emailHelp"
-                                       placeholder="hh:mm">
-                            </div>
-                            <div class="form-group date">
-                                <label for="exampleInputEmail1">Enddatum/-zeit</label>
-                                <input type="text" class="form-control form-control-sm"><span class="input-group-addon" placeholder="dd.mm.yyyy"></span>
-                            </div>
-                            <div class="form-group">
-                                <input type="text" class="form-control form-control-sm" id="fwEndTime" aria-describedby="emailHelp"
-                                       placeholder="hh:mm">
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-light" data-dismiss="modal">Abbrechen</button>
-                <button type="button" class="btn btn-primary" onclick="saveVoting();">OK</button>
-            </div>
-        </div>
-    </div>
-</div>
+@await Html.PartialAsync("_NewVotingModal")
 
 <div class="container-fluid fw-banner">
     <div class="container">
         <div class="row align-items-end">
-            <div class="col-12 col-lg-8 fw-userheader-container">
+            <div class="col-12 col-md-6 col-lg-auto fw-userheader-container">
                 <div id="fw-user-img-content" class="fw-user-img" style="cursor: pointer" onclick="showFileSelector('#fw-user-img-upload')">
                     @if (!string.IsNullOrEmpty(Model.Image))
                     {
@@ -110,9 +37,11 @@
                         </form>
                     </div>
                 </div>
+            </div>
+            <div class="fw-userheader col-lg-4 col-md-6 col-12">
                 <span class="fw-userheader">@Model.FullName</span>
             </div>
-            <div class="col">
+            <div class="col-lg-4 col-12">
                 <div class="fw-userinfo">
                     <span class="fw-userinfo-block" id="fw-active-voting-count">...</span>
                     <span class="fw-userinfo-block fw-userinfo-important">aktive</span>
@@ -129,62 +58,57 @@
 </div>
 <main role="main" class="container">
 
-
-    <div class="fw-overview-list">
-        <h1>Aktive Abstimmungen</h1>
-        <div class="container">
-            <div class="row">
-                <div class="col-xl-4 col-md-6 col-sm-12" id="fw-add-voting-card" style="display: none">
-                    <div class="card fw-overview-card" style="cursor: pointer; background-color:#DCE4E7;color:#657f8C" onclick="createVoting()"
-                         onmouseenter="highlightAddVoting('#fw-add-voting-icon')" onmouseleave="resetAddVoting('#fw-add-voting-icon')">
-                        <i class="card-img-top material-icons" style="width:100%;text-align:center;font-size:15rem" id="fw-add-voting-icon">add_circle_outline</i>
-                        <div class="card-body">
-                            <h5 class="card-title">Neue Abstimmung</h5>
-                        </div>
+    <h1 class="display-4 w-100 text-primary border-bottom text-uppercase my-3">Aktive Abstimmungen</h1>
+    <div class="container mb-4">
+        <div class="row">
+            <div class="col-xl-4 col-md-6 col-sm-12" id="fw-add-voting-card" style="display: none">
+                <div class="card fw-overview-card" style="cursor: pointer; background-color:#DCE4E7;color:#657f8C" onclick="createVoting()"
+                     onmouseenter="highlightAddVoting('#fw-add-voting-icon')" onmouseleave="resetAddVoting('#fw-add-voting-icon')">
+                    <i class="card-img-top material-icons" style="width:100%;text-align:center;font-size:15rem" id="fw-add-voting-icon">add_circle_outline</i>
+                    <div class="card-body">
+                        <h5 class="card-title">Neue Abstimmung</h5>
                     </div>
                 </div>
-                <div class="col-xl-4 col-md-6 col-sm-12" id="fw-load-votings-card">
-                    <div class="card fw-overview-card">
-                        <div class="card-img-top" style="height: 15rem; text-align: center; padding-top: 2rem;">
-                            <div class="loader-outer"></div>
-                        </div>
-                        <div class="card-body">
-                            <h5 class="card-title">Lade Abstimmungen...</h5>
-                        </div>
+            </div>
+            <div class="col-xl-4 col-md-6 col-sm-12" id="fw-load-votings-card">
+                <div class="card fw-overview-card">
+                    <div class="card-img-top" style="height: 15rem; text-align: center; padding-top: 2rem;">
+                        <div class="loader-outer"></div>
+                    </div>
+                    <div class="card-body">
+                        <h5 class="card-title">Lade Abstimmungen...</h5>
                     </div>
                 </div>
             </div>
         </div>
-        <!-- <div class="d-flex justify-content-end" style="width:100%">
-          <div style="background-color:#3481AB;height:3.5rem;width:3.5rem;border-radius: 2rem;box-shadow: 0px 3px 5px gray;padding:.5rem">
-            <a href="#">
-              <i class="material-icons" style="font-size: 2.5rem;font-weight: 900;color:white">add</i></a>
-          </div>
-        </div> -->
     </div>
-    <div class="fw-overview-list" style="margin:2rem 0rem;">
-        <h1>Abgeschlossene Abstimmungen</h1>
-        <div class="container">
-            <div class="row">
-                <div class="col-xl-4 col-md-6 col-sm-12">
-                    <div class="fw-finished-vote-card">
-                        <img src="~/images/traffic-jam-388924_640.jpg" class="fw-finished-vote" alt="Card image cap">
-                        <div class="fw-finished-vote-card-content">
-                            <div class="fw-finished-vote-card-text">
-                                <h5>Citymaut in Graz</h5>
-                                <p>Welche Linie soll die Partei bei der Citymaut verfolgen?</p>
-                            </div>
+    <!-- <div class="d-flex justify-content-end" style="width:100%">
+      <div style="background-color:#3481AB;height:3.5rem;width:3.5rem;border-radius: 2rem;box-shadow: 0px 3px 5px gray;padding:.5rem">
+        <a href="#">
+          <i class="material-icons" style="font-size: 2.5rem;font-weight: 900;color:white">add</i></a>
+      </div>
+    </div> -->
+    <h1 class="display-4 w-100 text-primary border-bottom text-uppercase my-3">Abgeschlossene Abstimmungen</h1>
+    <div class="container">
+        <div class="row">
+            <div class="col-xl-4 col-md-6 col-sm-12">
+                <div class="fw-finished-vote-card">
+                    <img src="~/images/traffic-jam-388924_640.jpg" class="fw-finished-vote" alt="Card image cap">
+                    <div class="fw-finished-vote-card-content">
+                        <div class="fw-finished-vote-card-text">
+                            <h5>Citymaut in Graz</h5>
+                            <p>Welche Linie soll die Partei bei der Citymaut verfolgen?</p>
                         </div>
                     </div>
                 </div>
-                <div class="col-xl-4 col-md-6 col-sm-12">
-                    <div class="fw-finished-vote-card">
-                        <img src="~/images/rings-1287753_640.jpg" class="fw-finished-vote" alt="Card image cap">
-                        <div class="fw-finished-vote-card-content">
-                            <div class="fw-finished-vote-card-text">
-                                <h5>Olympiabewerbung</h5>
-                                <p>Soll Graz sich für die Austragung der Olympischen Winterspiele 2026 bewerben?</p>
-                            </div>
+            </div>
+            <div class="col-xl-4 col-md-6 col-sm-12">
+                <div class="fw-finished-vote-card">
+                    <img src="~/images/rings-1287753_640.jpg" class="fw-finished-vote" alt="Card image cap">
+                    <div class="fw-finished-vote-card-content">
+                        <div class="fw-finished-vote-card-text">
+                            <h5>Olympiabewerbung</h5>
+                            <p>Soll Graz sich für die Austragung der Olympischen Winterspiele 2026 bewerben?</p>
                         </div>
                     </div>
                 </div>

@@ -1,0 +1,74 @@
+﻿<div class="modal fade" id="newVotingModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+     aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title" id="exampleModalLabel">Neue Abstimmung</h3>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="container">
+                    <div class="row" style="margin-bottom:1rem;">
+                        <div class="col-12">
+                            <input type="text" class="form-control form-control-lg" aria-label="Large" aria-describedby="inputGroup-sizing-sm"
+                                   placeholder="Name" id="fwNewVotingName">
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-12 col-md-6">
+                            <textarea type="textarea" class="form-control form-control-sm" id="fwNewVotingDescription" rows="7"
+                                      placeholder="Beschreibung"></textarea>
+
+                            <div id="fw-voting-img-content" class="fw-voting-img" style="cursor: pointer; position: relative; background-color: #dce4e7; margin-top: 1rem; text-align: center" onclick="showFileSelector('#fw-voting-img-upload')">
+                                <i class="material-icons fw-voting-img" id="fw-voting-img-dummy">how_to_vote</i>
+                                <canvas id="fw-voting-img-real" style="display:none;" with="300" height="300"></canvas>
+                                <div id="fw-voting-img-selector" style="position:absolute;top:0rem;left:0rem;color:white;display:flex;align-content: center;padding:.1rem;border:1px solid #FFFFFF00;height:2rem">
+                                    <i id="fw-voting-img-icon" class="material-icons" style="font-size:2rem;text-shadow:0px 1px 1px #657f8C;">
+                                        photo_camera
+                                    </i>
+                                    <span id="fw-voting-img-text" style="opacity: 0;margin:0.1rem .5rem;font-size: .9rem;font-weight: 400">
+                                        Bild &auml;ndern
+                                    </span>
+                                </div>
+                                <div id="fw-voting-img-upload" style="display:none;position:absolute;top:2rem;left:0;background-color:white;border:1px solid #657f8c;padding:.5rem;border-radius: .5rem;">
+                                    <form>
+                                        <p style="font-size: .8rem;">Wählen Sie ein Bild für Ihre Abstimmung.</p>
+                                        <div class="custom-file">
+                                            <input type="file" class="custom-file-input" id="fw-voting-img-input" required>
+                                            <label class="custom-file-label" for="fw-voting-img-input">....</label>
+                                            <div class="invalid-feedback">Yadda TODO</div>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12 col-md-6">
+                            <div class="form-group form-group-sm date">
+                                <label for="fwStartDate">Startdatum/-zeit</label>
+                                <input type="text" class="form-control form-control-sm" id="fwStartDate" placeholder="dd.mm.yyyy"><span class="input-group-addon"></span>
+                            </div>
+                            <div class="form-group">
+                                <input type="text" class="form-control form-control-sm" id="fwStartTime" aria-describedby="emailHelp"
+                                       placeholder="hh:mm">
+                            </div>
+                            <div class="form-group date">
+                                <label for="fwEndDate">Enddatum/-zeit</label>
+                                <input type="text" class="form-control form-control-sm" id="fwEndDate" placeholder="dd.mm.yyyy"><span class="input-group-addon"></span>
+                            </div>
+                            <div class="form-group">
+                                <input type="text" class="form-control form-control-sm" id="fwEndTime" aria-describedby="emailHelp"
+                                       placeholder="hh:mm">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-light" data-dismiss="modal">Abbrechen</button>
+                <button type="button" class="btn btn-primary" onclick="saveVoting();">OK</button>
+            </div>
+        </div>
+    </div>
+</div>
