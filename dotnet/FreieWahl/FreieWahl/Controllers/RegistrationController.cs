@@ -119,7 +119,7 @@ namespace FreieWahl.Controllers
             var registration = await _registrationStore.GetOpenRegistration(regId.Value);
             string vid = registration.VotingId.ToString(CultureInfo.InvariantCulture);
             var user = await _authHandler.GetAuthorizedUser(vid,
-                Operation.GrantRegistration, Request.Headers["Authorization"]);
+                Operation.GrantRegistration, Request.Cookies["session"]);
             if (user == null)
             {
                 return Unauthorized();
@@ -142,7 +142,7 @@ namespace FreieWahl.Controllers
             var registration = await _registrationStore.GetOpenRegistration(regId.Value);
             string vid = registration.VotingId.ToString(CultureInfo.InvariantCulture);
             var user = await _authHandler.GetAuthorizedUser(vid,
-                Operation.GrantRegistration, Request.Headers["Authorization"]);
+                Operation.GrantRegistration, Request.Cookies["session"]);
             if (user == null)
             {
                 return Unauthorized();
@@ -153,6 +153,7 @@ namespace FreieWahl.Controllers
             return Ok();
         }
 
+        [HttpPost]
         public async Task<IActionResult> GetRegistrations(string votingId)
         {
             var votingIdVal = votingId.ToId();
@@ -162,7 +163,7 @@ namespace FreieWahl.Controllers
             }
 
             if (await _authHandler.CheckAuthorization(votingId,
-                    Operation.GrantRegistration, Request.Headers["Authorization"]) == false)
+                    Operation.GrantRegistration, Request.Cookies["session"]) == false)
             {
                 return Unauthorized();
             }
@@ -180,6 +181,7 @@ namespace FreieWahl.Controllers
             return new JsonResult(result);
         }
 
+        [HttpPost]
         public async Task<IActionResult> GetCompletedRegistrations(string votingId)
         {
             var votingIdVal = votingId.ToId();
@@ -189,7 +191,7 @@ namespace FreieWahl.Controllers
             }
 
             if (await _authHandler.CheckAuthorization(votingId,
-                    Operation.GrantRegistration, Request.Headers["Authorization"]) == false)
+                    Operation.GrantRegistration, Request.Cookies["session"]) == false)
             {
                 return Unauthorized();
             }

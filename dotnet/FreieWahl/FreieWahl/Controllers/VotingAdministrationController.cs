@@ -4,7 +4,6 @@ using FreieWahl.Security.UserHandling;
 using FreieWahl.Voting.Models;
 using FreieWahl.Voting.Storage;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Localization;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -12,33 +11,32 @@ using System.Linq;
 using System.Threading.Tasks;
 using FreieWahl.Application.Registrations;
 using FreieWahl.Mail;
-using FreieWahl.Security.Authentication;
 using FreieWahl.Security.Signing.VotingTokens;
 using FreieWahl.UserData.Store;
 using Microsoft.ApplicationInsights.AspNetCore.Extensions;
+using Microsoft.AspNetCore.Hosting;
 
 namespace FreieWahl.Controllers
 {
     public class VotingAdministrationController : Controller
     {
         private readonly IVotingStore _votingStore;
-        private readonly IStringLocalizer<VotingAdministrationController> _localizer;
         private readonly IMailProvider _mailProvider;
         private readonly IVotingTokenHandler _tokenHandler;
         private readonly IAuthorizationHandler _authorizationHandler;
         private readonly IRemoteTokenStore _remoteTokenStore;
         private readonly IUserDataStore _userDataStore;
 
+
         public VotingAdministrationController(
             IVotingStore votingStore,
-            IStringLocalizer<VotingAdministrationController> localizer,
             IMailProvider mailProvider,
             IVotingTokenHandler tokenHandler, 
             IAuthorizationHandler authorizationHandler,
-            IRemoteTokenStore remoteTokenStore, IUserDataStore userDataStore)
+            IRemoteTokenStore remoteTokenStore, 
+            IUserDataStore userDataStore)
         {
             _votingStore = votingStore;
-            _localizer = localizer;
             _mailProvider = mailProvider;
             _tokenHandler = tokenHandler;
             _authorizationHandler = authorizationHandler;
@@ -67,7 +65,7 @@ namespace FreieWahl.Controllers
         private async Task<UserInformation> _GetUserForGetRequest()
         {
             var user = await _authorizationHandler.GetAuthorizedUser
-                (null, Operation.List, Request.Cookies["token"]);
+                (null, Operation.List, Request.Cookies["session"]);
             return user;
         }
 
@@ -87,7 +85,7 @@ namespace FreieWahl.Controllers
         public async Task<IActionResult> GetVotingsForUser()
         {
             var user = await _authorizationHandler.GetAuthorizedUser
-                (null, Operation.List, Request.Headers["Authorization"]);
+                (null, Operation.List, Request.Cookies["session"]);
             if (user == null)
                 return Unauthorized();
             
@@ -104,7 +102,7 @@ namespace FreieWahl.Controllers
 
         public async Task<IActionResult> GetQuestion(string votingId, string questionId)
         {
-            if (await _authorizationHandler.CheckAuthorization(votingId, Operation.UpdateQuestion, Request.Headers["Authorization"]) == false)
+            if (await _authorizationHandler.CheckAuthorization(votingId, Operation.UpdateQuestion, Request.Cookies["session"]) == false)
                 return Unauthorized();
 
             var voting = await _votingStore.GetById(_GetId(votingId));
@@ -128,20 +126,10 @@ namespace FreieWahl.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> SessionLogin(string idToken, string csrfToken)
-        {
-            var cookieToken = Request.Cookies["csrfToken"];
-            if (cookieToken != csrfToken)
-                return Unauthorized();
-
-            return Ok();
-        }
-
-        [HttpPost]
         public async Task<IActionResult> UpdateUserImage(string imageData)
         {
             var user = await _authorizationHandler.GetAuthorizedUser(string.Empty, Operation.EditUser,
-                Request.Headers["Authorization"]);
+                Request.Cookies["session"]);
             if (user == null)
                 return Unauthorized();
 
@@ -204,7 +192,7 @@ namespace FreieWahl.Controllers
             var idVal = _GetId(id);
             var operation = idVal == 0 ? Operation.Create : Operation.UpdateVoting;
             UserInformation user = await
-                _authorizationHandler.GetAuthorizedUser(id, operation, Request.Headers["Authorization"]);
+                _authorizationHandler.GetAuthorizedUser(id, operation, Request.Cookies["session"]);
             if (user == null)
                 return Unauthorized();
 
@@ -240,7 +228,7 @@ namespace FreieWahl.Controllers
                 return BadRequest("Invalid numer of min/max number of answers");
 
 
-            if (await _authorizationHandler.CheckAuthorization(id, Operation.UpdateQuestion, Request.Headers["Authorization"]) == false)
+            if (await _authorizationHandler.CheckAuthorization(id, Operation.UpdateQuestion, Request.Cookies["session"]) == false)
                 return Unauthorized();
 
             var voting = await _votingStore.GetById(_GetId(id)); // TODO - handle missing voting
@@ -262,7 +250,7 @@ namespace FreieWahl.Controllers
         [HttpPost]
         public async Task<IActionResult> DeleteVotingQuestion(string id, string qid)
         {
-            if (await _authorizationHandler.CheckAuthorization(id, Operation.UpdateQuestion, Request.Headers["Authorization"]) == false)
+            if (await _authorizationHandler.CheckAuthorization(id, Operation.UpdateQuestion, Request.Cookies["session"]) == false)
                 return Unauthorized();
 
             await _votingStore.DeleteQuestion(_GetId(id), (int)_GetId(qid));// TODO: is cast ok here?
@@ -272,7 +260,7 @@ namespace FreieWahl.Controllers
         [HttpPost]
         public async Task<IActionResult> DeleteVoting(string id)
         {
-            if (await _authorizationHandler.CheckAuthorization(id, Operation.DeleteVoting, Request.Headers["Authorization"]) == false)
+            if (await _authorizationHandler.CheckAuthorization(id, Operation.DeleteVoting, Request.Cookies["session"]) == false)
                 return Unauthorized();
 
             await _votingStore.Delete(_GetId(id));
@@ -283,7 +271,7 @@ namespace FreieWahl.Controllers
         [HttpPost]
         public async Task<IActionResult> SendInvitationMail(string votingId, string[] addresses)
         {
-            if (await _authorizationHandler.CheckAuthorization(votingId, Operation.Invite, Request.Headers["Authorization"]) == false)
+            if (await _authorizationHandler.CheckAuthorization(votingId, Operation.Invite, Request.Cookies["session"]) == false)
                 return Unauthorized();
 
             await _mailProvider.SendMail("Michael Faschinger", addresses[0], "Hello World", "This is just a -test-. Feel free to register for a voting <a href=\"-votingUrl-\">here</a> or copy the url to your browser: -votingUrl-.", 
@@ -337,7 +325,7 @@ namespace FreieWahl.Controllers
         private async Task<IActionResult> _InsertVoting(string title, string desc, UserInformation user, string imageData,
             DateTime startDate, DateTime endDate)
         {
-            if (await _authorizationHandler.CheckAuthorization(null, Operation.Create, Request.Headers["Authorization"]) == false)
+            if (await _authorizationHandler.CheckAuthorization(null, Operation.Create, Request.Cookies["session"]) == false)
                 return Unauthorized();
 
             StandardVoting voting = new StandardVoting()

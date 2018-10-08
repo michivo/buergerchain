@@ -12,7 +12,8 @@
                 @ViewData["Initials"]
             </a>
             <div class="dropdown-menu" aria-labelledby="fw-account">
-                <button class="dropdown-item" type="button" onclick="logout()">Ausloggen</button>
+                @Html.ActionLink("Ausloggen", "Index", "Home", new { source = "logout" }, new { @class = "dropdown-item"})
+                @*<a class="dropdown-item" href="">Ausloggen</a>*@
             </div>
         </li>
     </ul>

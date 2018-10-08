@@ -1,14 +1,13 @@
 ﻿using System;
+using System.IO;
 using System.Net;
-using System.Net.Http;
-using System.Threading;
 using System.Threading.Tasks;
 using FreieWahl.Security.Authentication;
 using FreieWahl.Security.UserHandling;
-using Google.Apis.Auth.OAuth2;
-using Google.Apis.Http;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 namespace FreieWahl.Application.Authentication
 {
@@ -18,7 +17,7 @@ namespace FreieWahl.Application.Authentication
         private readonly IJwtAuthentication _authentication;
         private readonly IAuthenticationManager _authManager;
         private readonly IUserHandler _userHandler;
- 
+
         public AuthorizationHandler(
             ILogger<AuthorizationHandler> logger,
             IJwtAuthentication authentication,
@@ -69,5 +68,6 @@ namespace FreieWahl.Application.Authentication
             
             return user;
         }
+
     }
 }

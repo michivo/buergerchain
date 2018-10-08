@@ -4,7 +4,7 @@ namespace FreieWahl.Security.Authentication
 {
     public interface IJwtAuthentication
     {
-        Task Initialize(string domain, string audience);
+        Task Initialize(string certUrl, string issuer, string audience);
 
         JwtAuthenticationResult CheckToken(string token);
     }

@@ -24,6 +24,7 @@ const config = require('./config.json');
 const uuidv4 = require('uuid/v4');
 const NodeRSA = require('node-rsa');
 const mailProvider = require('./mailprovider.js');
+const admin = require('firebase-admin');
 
 // Imports the Google Cloud client library
 const Logging = require('@google-cloud/logging');
@@ -45,6 +46,13 @@ const logResource = {
 const app = express();
 
 const rsaVerifier = new NodeRSA(config.FREIEWAHL_PUBLICKEY_CHALLENGE_PEM);
+
+const serviceAccount = require('./credentials.json');
+
+admin.initializeApp({
+  credential: admin.credential.cert(serviceAccount),
+  databaseURL: 'https://stunning-lambda-162919.firebaseio.com'
+});
 
 app.use(bodyParser.json({limit: '5mb'})); // support json encoded bodies
 app.use(bodyParser.urlencoded({ extended: true })); // support encoded bodies
@@ -147,6 +155,27 @@ app.post('/saveRegistrationDetails', async function(req, res) {
       res.status(200).send('OK!').end;
     });
 });
+
+app.post('/sessionLogin', (req, res) => {
+  // Get the ID token passed, TODO: check origin of req!
+  const idToken = req.body.idToken.toString();
+
+  // Set session expiration to 5 days.
+  const expiresIn = 60 * 60 * 24 * 5 * 1000;
+  // Create the session cookie. This will also verify the ID token in the process.
+  // The session cookie will have the same claims as the ID token.
+  // To only allow session cookie setting on recent sign-in, auth_time in ID token
+  // can be checked to ensure user was recently signed in before creating a session cookie.
+  admin.auth().createSessionCookie(idToken, {expiresIn}).then((sessionCookie) => {
+    // Set cookie policy for session cookie.
+    const options = {maxAge: expiresIn, httpOnly: true, secure: true};
+    res.cookie('session', sessionCookie, options);
+    res.end(JSON.stringify({status: 'success', session: sessionCookie, maxAge: expiresIn}));
+  }, error => {
+    res.status(401).send('UNAUTHORIZED REQUEST!');
+  });
+});
+
 
 // Start the server
 if(!module.parent) {

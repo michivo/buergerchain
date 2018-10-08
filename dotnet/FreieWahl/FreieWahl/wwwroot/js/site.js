@@ -1,70 +1,5 @@
-﻿// Initialize Firebase
-var config = {
-    apiKey: "AIzaSyDM8e5m6ToGxu5MZPpUeEYOkypSY1_j0PY",
-    authDomain: "stunning-lambda-162919.firebaseapp.com",
-    databaseURL: "https://stunning-lambda-162919.firebaseio.com",
-    storageBucket: "stunning-lambda-162919.appspot.com",
-    messagingSenderId: "576087239560",
-    projectId: "stunning-lambda-162919"
-};
-
-var app = firebase.apps.length === 0 ? firebase.initializeApp(config) : firebase.app();
-var currentUser = null;
-var idToken = null;
-var isInitialized = false;
-
-function getCurrentUser() {
-    return currentUser;
-}
-
-function initApp() {
-    if (isInitialized)
-        return;
-
-    firebase.auth().onAuthStateChanged(function (user) {
-        if (user) {
-            // User is signed in.
-            user.getIdToken().then(function (accessToken) {
-                idToken = accessToken;
-            });
-            currentUser = user;
-        } else {
-            logout();
-            idToken = null;
-            currentUser = null;
-        }
-        isInitialized = true;
-
-    }, function (error) {
-        currentUser = null;
-        console.log(error);
-    });
-};
-
-
-function isEmpty(str) {
+﻿function isEmpty(str) {
     return (!str || 0 === str.length || str === '0');
-}
-
-function logout() {
-    firebase.auth().signOut().then(function () {
-        onLogout();
-    }, function (error) {
-        onLogout();
-    });
-}
-
-function onLogout() {
-    document.cookie = 'token=;path=/;expires=Thu, 01 Jan 1970 00:00:01 GMT;';
-    var currentLocation = trimSlashes(window.location.href.split(/[?#]/)[0]);
-    var homeLocation = trimSlashes(window.location.origin);
-    if (currentLocation === homeLocation)
-        return;
-    window.location.href = homeLocation;
-}
-
-function trimSlashes(x) {
-    return x.replace(/\/+$/g, '');
 }
 
 function deleteQuestion(votingId, questionNumber) {
@@ -73,9 +8,6 @@ function deleteQuestion(votingId, questionNumber) {
         data: { "id": votingId, "qid": questionNumber },
         type: 'POST',
         datatype: 'json',
-        beforeSend: function (xhr) {
-            xhr.setRequestHeader("Authorization", idToken);
-        },
         success: function (data) {
             location.reload();
         } // TODO error
@@ -94,14 +26,14 @@ function editQuestion(question) {
         $('#maxNoAnswers').parent().show();
     }
 
-    $("#answersTable .answerOption").not('.hide').each(function() {
+    $("#answersTable .answerOption").not('.hide').each(function () {
         $(this).detach();
     });
 
 
     $.each(question.answerOptions,
-        function(idx, answer) {
-            var $clone = $('#answersTable').find('tr.hide').clone(true).removeClass('hide');
+        function (idx, answer) {
+            const $clone = $('#answersTable').find('tr.hide').clone(true).removeClass('hide');
             $clone.addClass('answer-line');
             $clone.children('td.answerOptionText').text(answer.answer);
             $clone.children('td.answerOptionDescription').text(answer.description);
@@ -114,94 +46,70 @@ function editQuestion(question) {
 function saveQuestion(vid, idx) {
     $('#modalQuestionOk').text('Speichere...');
     $('#modalQuestionOk').addClass('disabled');
-    var description = $('#newQuestionDescription').val();
-    var title = $('#newQuestionTitle').val();
-    var type = parseInt($('#questionType').val());
-    var currentUser = firebase.auth().currentUser;
-    var answers = [];
-    var answerDescriptions = [];
+    const description = $('#newQuestionDescription').val();
+    const title = $('#newQuestionTitle').val();
+    const type = parseInt($('#questionType').val());
+    const answers = [];
+    const answerDescriptions = [];
     $("#answersTable .answerOption").not('.hide').each(function () {
         answers.push($(this).find('td.answerOptionText').text());
         answerDescriptions.push($(this).find('td.answerOptionDescription').text());
     });
-    var minNumAnswers = parseInt($('#minNoAnswers').val());
-    var maxNumAnswers = parseInt($('#maxNoAnswers').val());
+    const minNumAnswers = parseInt($('#minNoAnswers').val());
+    const maxNumAnswers = parseInt($('#maxNoAnswers').val());
 
-    if (currentUser) {
-        currentUser.getIdToken(true).then(function (idToken) {
-            $.post({
-                url: 'UpdateVotingQuestion',
-                data: {
-                    "id": vid,
-                    "qid": idx,
-                    "title": title,
-                    "desc": description,
-                    "type": type,
-                    "answers": answers,
-                    "answerDescriptions": answerDescriptions,
-                    "minNumAnswers": minNumAnswers,
-                    "maxNumAnswers": maxNumAnswers
-                },
-                beforeSend: function (xhr) {
-                    xhr.setRequestHeader("Authorization", idToken);
-                },
-                success: function (data) { // todo
-                    $('#newQuestionModal').modal('hide');
-                }
-                // error: todo
-            });
-        });
-    }
+    $.post({
+        url: 'UpdateVotingQuestion',
+        data: {
+            "id": vid,
+            "qid": idx,
+            "title": title,
+            "desc": description,
+            "type": type,
+            "answers": answers,
+            "answerDescriptions": answerDescriptions,
+            "minNumAnswers": minNumAnswers,
+            "maxNumAnswers": maxNumAnswers
+        },
+        success: function (data) { // todo
+            $('#newQuestionModal').modal('hide');
+        }
+        // error: todo
+    });
 }
 
 function grantRegistration(regId, votingId) {
-    var currentUser = firebase.auth().currentUser;
-    if (currentUser) {
-        currentUser.getIdToken(true).then(function (idToken) {
-            $.post({
-                url: '../Registration/GrantRegistration',
-                data: { "rid": regId },
-                beforeSend: function (xhr) {
-                    xhr.setRequestHeader("Authorization", idToken);
-                },
-                success: function (data) { // todo
-                    updateRegistrations(votingId);
-                }
-                // error: todo
-            });
-        });
-    }
+    $.post({
+        url: '../Registration/GrantRegistration',
+        data: { "rid": regId },
+        success: function (data) { // todo
+            updateRegistrations(votingId);
+        }
+        // error: todo
+    });
 }
 
 function denyRegistration(regId, votingId) {
-    var currentUser = firebase.auth().currentUser;
-    if (currentUser) {
-        currentUser.getIdToken(true).then(function (idToken) {
-            $.post({
-                url: '../Registration/DenyRegistration',
-                data: { "rid": regId },
-                beforeSend: function (xhr) {
-                    xhr.setRequestHeader("Authorization", idToken);
-                },
-                success: function (data) { // todo
-                    updateRegistrations(votingId);
-                }
-                // error: todo
-            });
-        });
-    }
+    $.post({
+        url: '../Registration/DenyRegistration',
+        data: { "rid": regId },
+        success: function (data) { // todo
+            updateRegistrations(votingId);
+        }
+        // error: todo
+    });
 }
 
 function showCompletedRegistrations(registrations) {
-    var grantedList = $("#grantedRegistrationsList");
+    const grantedList = $("#grantedRegistrationsList");
     grantedList.empty();
-    var deniedList = $("#deniedRegistrationsList");
+    const deniedList = $("#deniedRegistrationsList");
     deniedList.empty();
-    var grantedCount = 0;
-    var deniedCount = 0;
+    let grantedCount = 0;
+    let deniedCount = 0;
     for (var i = 0; i < registrations.length; i++) {
-        var registration = registrations[i];
-        var item = '<div style="margin:0 1rem;border-bottom:1px solid #DCE4E7">' +
+        const registration = registrations[i];
+        const item = '<div class="m-0 px-3 border-bottom">' +
             registration.voterName +
             '</div>';
         if (registration.decision === 1) {
@@ -221,23 +129,18 @@ function updateRegistrations(votingId) {
     $.ajax({
         url: '../Registration/GetRegistrations',
         data: { "votingId": votingId },
-        type: 'GET',
+        type: 'POST',
         datatype: 'json',
-        beforeSend: function (xhr) {
-            xhr.setRequestHeader("Authorization", idToken);
-        },
         success: function (data) {
             showRegistrations(data, votingId);
         } // TODO error
     });
+
     $.ajax({
         url: '../Registration/GetCompletedRegistrations',
         data: { "votingId": votingId },
-        type: 'GET',
+        type: 'POST',
         datatype: 'json',
-        beforeSend: function (xhr) {
-            xhr.setRequestHeader("Authorization", idToken);
-        },
         success: function (data) {
             showCompletedRegistrations(data);
         } // TODO error
@@ -246,10 +149,10 @@ function updateRegistrations(votingId) {
 
 function showRegistrations(registrations, votingId) {
     $("#openRegistrationsList").removeClass('openRegistrationItem');
-    for (var i = 0; i < registrations.length; i++) {
-        var registration = registrations[i];
-        var item =
-            '<div style="display: flex; margin: 0 1rem;border-bottom: 1px solid #DCE4E7;" class="openRegistrationItem"><div style="flex:1;margin-right:1rem">' +
+    for (let i = 0; i < registrations.length; i++) {
+        const registration = registrations[i];
+        let item =
+            '<div class="d-flex mx-3 my-0 border-bottom openRegistrationItem"><div style="flex:1;margin-right:1rem">' +
             registration.voterName +
             '</div>';
         item += '<div style="align-self: flex-end;cursor:pointer;color:#657f8C" onclick="grantRegistration(\'' +
@@ -268,21 +171,13 @@ function showRegistrations(registrations, votingId) {
 
 
 function invite(votingId) {
-    var currentUser = firebase.auth().currentUser;
-    if (currentUser) {
-        var mails = ["michfasch@gmx.at"]
-        currentUser.getIdToken(true).then(function (idToken) {
-            $.post({
-                url: 'SendInvitationMail',
-                data: { "votingId": votingId, "addresses": mails },
-                beforeSend: function (xhr) {
-                    xhr.setRequestHeader("Authorization", idToken);
-                },
-                success: function (data) { }
-                // error: todo
-            });
-        });
-    }
+    const mails = ["michfasch@gmx.at"];
+    $.post({
+        url: 'SendInvitationMail',
+        data: { "votingId": votingId, "addresses": mails },
+        success: function (data) { }
+        // error: todo
+    });
 }
 
 function setupOverview(votingId) {
@@ -319,7 +214,7 @@ function setupOverview(votingId) {
     });
 
     $('.table-add').click(function () {
-        var $clone = $('#answersTable').find('tr.hide').clone(true).removeClass('hide table-line');
+        const $clone = $('#answersTable').find('tr.hide').clone(true).removeClass('hide table-line');
         $clone.addClass('answer-line');
         $('#answersTable').find('table').append($clone);
     });
@@ -329,21 +224,21 @@ function setupOverview(votingId) {
     });
 
     $('.table-up').click(function () {
-        var $row = $(this).parents('tr');
+        const $row = $(this).parents('tr');
         if ($row.index() === 1) return; // Don't go above the header
         $row.prev().before($row.get(0));
     });
 
     $('.table-down').click(function () {
-        var $row = $(this).parents('tr');
+        const $row = $(this).parents('tr');
         $row.next().after($row.get(0));
     });
 }
 
 
 function blinkOnScroll() {
-    var winHeightPadded = $(window).height() * 1.1;
-    var scrolled = $(window).scrollTop();
+    const winHeightPadded = $(window).height() * 1.1;
+    const scrolled = $(window).scrollTop();
     $(".blinkOnScroll:not(.animated)").each(function () {
         var $this = $(this),
             offsetTop = $this.offset().top;
@@ -360,7 +255,7 @@ function blinkOnScroll() {
         }
     });
     $(".blinkOnScroll.animated").each(function (index) {
-        var $this = $(this),
+        const $this = $(this),
             offsetTop = $this.offset().top;
         if (scrolled + winHeightPadded < offsetTop) {
             $(this).removeClass('animated blinky');

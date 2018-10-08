@@ -8,6 +8,8 @@ using FreieWahl.Security.TimeStamps;
 using FreieWahl.Security.UserHandling;
 using FreieWahl.Voting.Models;
 using FreieWahl.Voting.Storage;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 
@@ -19,19 +21,31 @@ namespace FreieWahl.Controllers
         private readonly ILogger _logger;
         
         private readonly IAuthorizationHandler _authorizationHandler;
+        private readonly ISessionCookieProvider _sessionCookieProvider;
+        private readonly IHostingEnvironment _env;
 
         public HomeController(ILogger<HomeController> logger,
-            IAuthorizationHandler authorizationHandler)
+            IAuthorizationHandler authorizationHandler,
+            ISessionCookieProvider sessionCookieProvider,
+            IHostingEnvironment env)
         {
             _logger = logger;
             _authorizationHandler = authorizationHandler;
+            _sessionCookieProvider = sessionCookieProvider;
+            _env = env;
         }
 
         public async Task<IActionResult> Index(string source)
         {
             _logger.LogInformation("Home page hit!");
+            if (source == "logout")
+            {
+                Response.Cookies.Delete("session");
+                return View();
+            }
+
             var user = await _authorizationHandler.GetAuthorizedUser
-                (null, Operation.List, Request.Cookies["token"]);
+                (null, Operation.List, Request.Cookies["session"]);
 
             if (user != null && source != "redirect")
             {
@@ -39,6 +53,23 @@ namespace FreieWahl.Controllers
             }
 
             return View();
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> SessionLogin(string idToken, string csrfToken)
+        {
+            var sessionCookie = await _sessionCookieProvider.CreateSessionCookie(idToken);
+
+            Response.Cookies.Append("session", sessionCookie.Token,
+                new CookieOptions
+                {
+                    HttpOnly = true,
+                    Secure = _env.IsProduction(),
+                    Expires = sessionCookie.MaxAge,
+                    Path = "/"
+                });
+
+            return Ok();
         }
 
         public IActionResult About()

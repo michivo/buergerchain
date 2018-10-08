@@ -278,8 +278,6 @@ tr.hide {
   background-image: url('../images/background.png');
   color: white;
   margin-bottom: 2rem;
-  display: flex;
-  justify-content: center;
 }
 
 #fw-navtitle {
@@ -287,10 +285,6 @@ tr.hide {
   font-size: 32pt;
   align-items: center;
   font-family: Calibri, Roboto, Arial, sans-serif;
-}
-
-#fw-firebase-auth-container {
-  flex-basis: 40%;
 }
 
 #fw-navtitle img {
@@ -366,17 +360,6 @@ div.fw-titlepage-bannercontent div {
 }
 
 div.fw-titlepage-info, div.fw-overview-list {
-  color: #657F8E;
-}
-
-h1 {
-  font-family: Calibri, Roboto, Arial, sans-serif;
-  font-size: 48pt;
-  text-transform: uppercase;
-  width: 100%;
-  border-bottom: 1px solid;
-  padding-left: 1em;
-  font-weight: 100;
   color: #657F8E;
 }
 

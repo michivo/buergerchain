@@ -1,10 +1,15 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
+using System.IO;
+using System.Net;
+using System.Security.Cryptography.X509Certificates;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.IdentityModel.Protocols;
 using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 using Microsoft.IdentityModel.Tokens;
+using Newtonsoft.Json.Linq;
 
 namespace FreieWahl.Security.Authentication
 {
@@ -13,28 +18,52 @@ namespace FreieWahl.Security.Authentication
         private TokenValidationParameters _validationParameters;
         private bool _isInitialized;
 
-        public async Task Initialize(string domain, string audience)
+        public async Task Initialize(string certUrl, string issuer, string audience)
         {
-            IConfigurationManager<OpenIdConnectConfiguration> configurationManager = 
-                new ConfigurationManager<OpenIdConnectConfiguration>(
-                    $"{domain}/.well-known/openid-configuration", new OpenIdConnectConfigurationRetriever());
-            OpenIdConnectConfiguration openIdConfig = 
-                await configurationManager.GetConfigurationAsync(CancellationToken.None);
+            var result = await _GetCertificateData(certUrl);
 
-            // Configure the TokenValidationParameters. Assign the SigningKeys which were downloaded from Auth0. 
-            // Also set the Issuer and Audience(s) to validate
+            var jResult = JObject.Parse(result);
+            var signingKeys = new List<SecurityKey>();
+            foreach (var t in jResult)
+            {
+                signingKeys.Add(_GetCertificate(t.Value.ToString()));
+            }
 
             _validationParameters = new TokenValidationParameters
             {
-                ValidIssuer = domain,
+                ValidIssuer = issuer,
                 ValidAudience = audience,
-                IssuerSigningKeys = openIdConfig.SigningKeys,
+                IssuerSigningKeys = signingKeys,
                 ValidateIssuer = true,
                 ValidateAudience = true,
-                ValidateLifetime = true
+                ValidateLifetime = true,
+                ValidateIssuerSigningKey = true
             };
 
             _isInitialized = true;
+        }
+
+        private SecurityKey _GetCertificate(string certificateData)
+        {
+            var startIdx = certificateData.IndexOf('\n');
+            var endIdx = certificateData.IndexOf("\n-----END CERTIFICATE-----", StringComparison.OrdinalIgnoreCase);
+            var rawCertificate = certificateData.Substring(startIdx, endIdx - startIdx);
+            return new X509SecurityKey(new X509Certificate2(Convert.FromBase64String(rawCertificate)));
+        }
+
+        private static async Task<string> _GetCertificateData(string certUrl)
+        {
+            var request =
+                WebRequest.CreateHttp(certUrl); //"https://www.googleapis.com/identitytoolkit/v3/relyingparty/publicKeys"
+            var resp = await request.GetResponseAsync();
+            string result;
+            using (var streamReader = new StreamReader(resp.GetResponseStream()))
+            {
+                // TODO: error handling
+                result = streamReader.ReadToEnd();
+            }
+
+            return result;
         }
 
         public JwtAuthenticationResult CheckToken(string token)

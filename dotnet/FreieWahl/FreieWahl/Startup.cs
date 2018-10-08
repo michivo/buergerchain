@@ -88,6 +88,8 @@ namespace FreieWahl
             services.AddSingleton<IVotingResultManager, VotingResultManager>();
             services.AddSingleton<IVotingChainBuilder, VotingChainBuilder>();
             services.AddSingleton<IVotingResultStore>(p => new VotingResultStore(Configuration["Datastore:ProjectId"]));
+            services.AddSingleton<ISessionCookieProvider>(p =>
+                new SessionCookieProvider(Configuration["SessionCookies:ProviderUrl"]));
             var sp = services.BuildServiceProvider();
             services.AddSingleton<IVotingTokenHandler>(p => new VotingTokenHandler(sp.GetService<IVotingKeyStore>(),
                 int.Parse(Configuration["VotingSettings:MaxNumQuestions"])));
@@ -140,7 +142,8 @@ namespace FreieWahl
 
             app.ApplicationServices.GetService<IJwtAuthentication>()
                 .Initialize(
-                    Configuration["JwtAuthentication:Domain"],
+                    Configuration["JwtAuthentication:PublicKeyUrl"],
+                    Configuration["JwtAuthentication:Issuer"], 
                     Configuration["JwtAuthentication:Audience"]);
 
             app.UseMvc(routes =>

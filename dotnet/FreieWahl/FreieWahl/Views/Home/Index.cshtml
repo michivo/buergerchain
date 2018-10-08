@@ -8,26 +8,26 @@
     <link rel="stylesheet" type="text/css" href="~/lib/slick-carousel/slick/slick-theme.css" />
 }
 
-<div class="fw-titlepage-banner" id="fw-title-banner">
-    <div class="fw-titlepage-bannercontent">
-        <div class="fw-titlepage-bannertext">
-            <h1>
-                <div class="border-left border-top border-bottom mr-0 d-inline" style="border-radius: 1rem;text-transform: none">
-                    <span class="text-light px-2 font-weight-bold">freie</span><span class="border text-primary bg-light px-2 font-italic" style="border-radius:1rem">Wahl</span>
-                </div>
-            </h1>
-            <p class="pt-4">
-                Diese Seite ist noch in Arbeit... Sie können sich aber gerne registrieren und mit den bisher implementierten Funktionen spielen. Sollten Sie Fragen haben, <a class="text-white" href="mailto:michivo+fw@gmail.com" style="text-decoration: underline">kontaktieren Sie mich bitte!</a>
-            </p>
-        </div>
-        <div id="fw-firebase-auth-container">
+<div class="fw-titlepage-banner container-fluid" id="fw-title-banner">
+    <div class="container pt-3">
+        <div class="row justify-content-between">
+            <div class="col-12 col-lg-6">
+                <h1 class="border-left border-top border-bottom mr-0 pl-0 ml-4 d-inline display-4" style="border-radius: 1rem; text-transform: none">
+                    <span class="text-light px-2 font-weight-bold">freie</span><span class="border text-primary bg-light px-2 font-italic" style="border-radius: 1rem">Wahl</span>
+                </h1>
+                <p class="pt-4">
+                    Diese Seite ist noch in Arbeit... Sie können sich aber gerne registrieren und mit den bisher implementierten Funktionen spielen. Sollten Sie Fragen haben, <a class="text-white" href="mailto:michivo+fw@gmail.com" style="text-decoration: underline">kontaktieren Sie mich bitte!</a>
+                </p>
+            </div>
+            <div class="col-12 col-lg-5 mb-3 float-right" id="fw-firebase-auth-container">
+            </div>
         </div>
     </div>
 </div>
 
-<div class="fw-titlepage-info">
+<div class="fw-titlepage-info container">
     <div class="fw-titlepage-box">
-        <h1>
+        <h1 class="display-4 text-uppercase border-bottom">
             Sicher, transparent, anonym
         </h1>
         <div class="fw-titlepage-flex">
@@ -43,7 +43,7 @@
     </div>
 
     <div class="fw-titlepage-box">
-        <h1>
+        <h1 class="display-4 text-uppercase border-bottom">
             So funktioniert es
         </h1>
         <div id="functions-slick" class="fw-titlepage-boxcontent">
@@ -99,7 +99,7 @@
     </div>
 
     <div class="fw-titlepage-box">
-        <h1>
+        <h1 class="display-4 text-uppercase border-bottom">
             Sicherheit
         </h1>
         <div class="fw-titlepage-flex" style="flex-direction: row-reverse">
@@ -121,36 +121,10 @@
     <script type="text/javascript" src="~/lib/slick-carousel/slick/slick.min.js"></script>
     <script>
         $('body').addClass('pt-0');
-        var uiConfig = {
-            signInOptions: [
-                // Leave the lines as is for the providers you want to offer your users.
-                firebase.auth.EmailAuthProvider.PROVIDER_ID
-            ],
-            credentialHelper: firebaseui.auth.CredentialHelper.NONE,
-            // Terms of service url.
-            tosUrl: 'TermsOfUse',
-            // Privacy policy url.
-            // privacyPolicyUrl: 'PrivacyPolicy',
-            callbacks: {
-                signInSuccess: function(currentUser) {
-                    // User successfully signed in.
-                    // Return type determines whether we continue the redirect automatically
-                    // or whether we leave that to developer to handle.
-                    currentUser.getIdToken(true).then(function (idToken) {
-                        document.cookie = 'token=' + idToken;
-                        window.location.replace("VotingAdministration/Overview");
-                    });
-                    return false;
-                }
-            }
-        };
 
-        // Initialize the FirebaseUI Widget using Firebase.
-        var ui = new firebaseui.auth.AuthUI(firebase.auth());
-        // The start method will wait until the DOM is loaded.
-        ui.start('#fw-firebase-auth-container', uiConfig);
+        $(document).ready(function () {
+            setupLoginUi();
 
-        $(document).ready(function(){
             $('#functions-slick').slick({
                 dots: true,
                 autoplay: true,
@@ -176,7 +150,7 @@
                             slidesToScroll: 1
                         }
                     }
-                    
+
                 ]
             });
         });
