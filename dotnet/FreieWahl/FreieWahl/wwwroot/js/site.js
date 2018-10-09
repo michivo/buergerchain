@@ -276,6 +276,11 @@ function setupOverview() {
     $('document').ready(function() {
         $('#fw-user-img-input').change(function() { previewAndUploadFile('user'); });
         $('#fw-voting-img-input').change(function () { previewAndUploadFile('voting'); });
+        $('#fwStartDate').change(function () { fwValidate('#fwStartDate', '#fwStartDateValidation', /^[0-3]?\d\.[0,1]?\d\.20\d{2}$/); });
+        $('#fwEndDate').change(function () { fwValidate('#fwEndDate', '#fwEndDateValidation', /^[0-3]?\d\.[0,1]?\d\.20\d{2}$/); });
+        $('#fwStartTime').change(function () { fwValidate('#fwStartTime', '#fwStartTimeValidation', /^[0-2]?\d:[0-5]\d$/); });
+        $('#fwEndTime').change(function () { fwValidate('#fwEndTime', '#fwEndTimeValidation', /^[0-2]?\d:[0-5]\d$/); });
+        $('#fwNewVotingName').change(function () { fwValidate('#fwNewVotingName', '#fwNewVotingNameValidation', /^(?!\s*$).+/); });
 
         showOverview();
         $('#fw-user-img-content').hover(
@@ -289,7 +294,10 @@ function setupOverview() {
         );
 
         $('.form-group.date').datepicker({
-            format: "dd.mm.yyyy"
+            format: "dd.mm.yyyy",
+            autoclose: true,
+            language: "de",
+            orientation: "top left"
         });
     });
 }
@@ -397,10 +405,31 @@ function uploadFile() {
 function updateImage(data) {
 }
 
+function fwValidate(elementId, validationId, regex) {
+    const startDate = $(elementId).val();
+    if (!startDate.match(regex)) {
+        $(elementId).addClass('is-invalid');
+        $(validationId).addClass('d-block');
+        return false;
+    }
+
+    $(elementId).removeClass('is-invalid');
+    $(validationId).removeClass('d-block');
+    return true;
+}
+
 function saveVoting() {
     var title = $("#fwNewVotingName").val();
     var desc = $("#fwNewVotingDescription").val();
     var imageData = '';
+    var validationResult = fwValidate('#fwStartDate', '#fwStartDateValidation', /^[0-3]?\d\.[0,1]?\d\.20\d{2}$/);
+    validationResult = fwValidate('#fwEndDate', '#fwEndDateValidation', /^[0-3]?\d\.[0,1]?\d\.20\d{2}$/) && validationResult;
+    validationResult = fwValidate('#fwStartTime', '#fwStartTimeValidation', /^[0-2]?\d:[0-5]\d$/) && validationResult;
+    validationResult = fwValidate('#fwEndTime', '#fwEndTimeValidation', /^[0-2]?\d:[0-5]\d$/) && validationResult;
+    validationResult = fwValidate('#fwNewVotingName', '#fwNewVotingNameValidation', /^(?!\s*$).+/) && validationResult;
+    if(!validationResult)
+        return;
+
     if ($('#fw-voting-img-real').is(':visible')) {
         var canvas = document.getElementById('fw-voting-img-real');
         imageData = canvas.toDataURL();

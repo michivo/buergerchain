@@ -13,7 +13,8 @@
                     <div class="row" style="margin-bottom:1rem;">
                         <div class="col-12">
                             <input type="text" class="form-control form-control-lg" aria-label="Large" aria-describedby="inputGroup-sizing-sm"
-                                   placeholder="Name" id="fwNewVotingName">
+                                   placeholder="Name" id="fwNewVotingName" required>
+                            <div class="invalid-feedback" id="fwNewVotingNameValidation">Sie müssen einen Titel für Ihre Abstimmung eingeben.</div>
                         </div>
                     </div>
                     <div class="row">
@@ -38,28 +39,31 @@
                                         <div class="custom-file">
                                             <input type="file" class="custom-file-input" id="fw-voting-img-input" required>
                                             <label class="custom-file-label" for="fw-voting-img-input">....</label>
-                                            <div class="invalid-feedback">Yadda TODO</div>
                                         </div>
                                     </form>
                                 </div>
                             </div>
                         </div>
                         <div class="col-12 col-md-6">
-                            <div class="form-group date">
-                                <label for="fwStartDate">Startdatum/-zeit</label>
-                                <input type="text" class="form-control form-control-sm" id="fwStartDate" placeholder="dd.mm.yyyy"><span class="input-group-addon"></span>
-                            </div>
                             <div class="form-group">
+                                <label for="fwStartTime">Startdatum/-zeit</label>
                                 <input type="text" class="form-control form-control-sm" id="fwStartTime" aria-describedby="emailHelp"
                                        placeholder="hh:mm">
+                                <div class="invalid-feedback" id="fwStartTimeValidation">Format: hh:mm</div>
                             </div>
                             <div class="form-group date">
-                                <label for="fwEndDate">Enddatum/-zeit</label>
-                                <input type="text" class="form-control form-control-sm" id="fwEndDate" placeholder="dd.mm.yyyy"><span class="input-group-addon"></span>
+                                <input type="text" class="form-control form-control-sm" id="fwStartDate" placeholder="dd.mm.yyyy"><span class="input-group-addon"></span>
+                                <div class="invalid-feedback" id="fwStartDateValidation">Format: dd.mm.yyyy</div>
                             </div>
                             <div class="form-group">
+                                <label for="fwEndTime">Enddatum/-zeit</label>
                                 <input type="text" class="form-control form-control-sm" id="fwEndTime" aria-describedby="emailHelp"
                                        placeholder="hh:mm">
+                                <div class="invalid-feedback" id="fwEndTimeValidation">Format: hh:mm</div>
+                            </div>
+                            <div class="form-group date">
+                                <input type="text" class="form-control form-control-sm" id="fwEndDate" placeholder="dd.mm.yyyy"><span class="input-group-addon"></span>
+                                <div class="invalid-feedback" id="fwEndDateValidation">Format: dd.mm.yyyy</div>
                             </div>
                         </div>
                     </div>
