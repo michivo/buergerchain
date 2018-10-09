@@ -3,8 +3,7 @@
 
 @await Html.PartialAsync("_Header", new ViewDataDictionary(ViewData) { { "Initials", Model.UserInitials }, { "IsOverview", false } })
 
-@await Html.PartialAsync("_InviteVoters", new ViewDataDictionary(ViewData) { { "Title", Model.Title }, { "VotingId", Model.VotingId } })
-
+@await Html.PartialAsync("_InviteVoters", new ViewDataDictionary(ViewData) { { "Title", Model.Title }, { "VotingId", Model.VotingId }, {"RegistrationDate", Model.StartDate } })
 
 @Html.Partial("_NewQuestionModal")
 
@@ -59,7 +58,7 @@
             <a href="@Model.RegistrationUrl">@Model.RegistrationUrl</a>
         </div>
         <div class="col-3">
-            <button class="btn btn-secondary text-uppercase float-lg-right mt-lg-0 mt-2" onclick="$('#inviteVotersModal').modal();">Link teilen</button>
+            <button class="btn btn-secondary text-uppercase float-lg-right mt-lg-0 mt-2" onclick="showInviteModal()">Link teilen</button>
         </div>
     </div>
 </div>

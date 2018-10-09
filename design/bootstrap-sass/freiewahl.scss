@@ -320,13 +320,6 @@ round-border {
     border-radius:50%;
 }
 
-.clearfix::after {
-   content: " ";
-   display: block;
-   height: 0;
-   clear: both;
-}
-
 div.fw-titlepage-flex {
   display: flex;
   width: 100%;

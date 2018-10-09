@@ -109,9 +109,7 @@ function showCompletedRegistrations(registrations) {
     let deniedCount = 0;
     for (var i = 0; i < registrations.length; i++) {
         const registration = registrations[i];
-        const item = '<div class="m-0 px-3 border-bottom">' +
-            registration.voterName +
-            '</div>';
+        const item = `<div class="m-0 px-3 border-bottom">@{registration.voterName}</div>`;
         if (registration.decision === 1) {
             grantedList.append(item);
             grantedCount++;
@@ -151,18 +149,11 @@ function showRegistrations(registrations, votingId) {
     $("#openRegistrationsList").removeClass('openRegistrationItem');
     for (let i = 0; i < registrations.length; i++) {
         const registration = registrations[i];
-        let item =
-            '<div class="d-flex mx-3 my-0 border-bottom openRegistrationItem"><div style="flex:1;margin-right:1rem">' +
-            registration.voterName +
-            '</div>';
-        item += '<div style="align-self: flex-end;cursor:pointer;color:#657f8C" onclick="grantRegistration(\'' +
-            registration.registrationId +
-            '\', \'' + votingId + '\')"><i class="material-icons">add_circle_outline</i></div>';
-        item += '<div style="align-self: flex-end;cursor:pointer;color:#657f8C" onclick="denyRegistration(\'' +
-            registration.registrationId +
-            '\', \'' + votingId + '\')"><i class="material-icons mx-1">remove_circle_outline</i></div>';
-        item +=
-            '<div style="align-self: flex-end;cursor:pointer;color:#657f8C"><i class="material-icons">info</i></div></div>'; // TODO
+        const item =
+            `<div class="d-flex mx-3 my-0 border-bottom openRegistrationItem"><div style="flex:1;margin-right:1rem">${registration.voterName}</div>\n` +
+            `<div style="align-self: flex-end;cursor:pointer;color:#657f8C" onclick="grantRegistration('${registration.registrationId}', '${votingId}')"><i class="material-icons">add_circle_outline</i></div>\n` +
+            `<div style="align-self: flex-end;cursor:pointer;color:#657f8C" onclick="denyRegistration('${registration.registrationId}', '${votingId}')"><i class="material-icons mx-1">remove_circle_outline</i></div>\n` +
+            `<div style="align-self: flex-end;cursor:pointer;color:#657f8C"><i class="material-icons">info</i></div></div>`;
         $(item).insertBefore('#openRegistrationsDivider');
     }
 
@@ -171,15 +162,10 @@ function showRegistrations(registrations, votingId) {
 
 
 function sendInvitations(votingId) {
-    const recipients = $('#mailRecipients').val().split(/[\s,;]+/);
-    const mailText = $('#mailText').val();
-    if (!mailText.includes('%link%')) {
-        alert('Der Mailtext muss den Platzhalter %link% für die Registrierung beinhalten!');
-        return;
-    }
+    const recipients = $('#mailRecipients').val().split(/[\n\r,;]+/);
     $.post({
         url: 'SendInvitationMail',
-        data: { "votingId": votingId, "addresses": recipients, "mailText": mailText, "mailSubject": $('#mailSubject').val() },
+        data: { "votingId": votingId, "addresses": recipients },
         success: function(data) {
             $('#inviteVotersModal').modal('hide');
         }
@@ -275,4 +261,9 @@ function createQuestion(votingId) {
     $('#newQuestionDescription').val('');
     $('#newQuestionModal').modal();
     $('#modalQuestionOk').off('click').on('click', function () { saveQuestion(votingId, 0); });
+}
+
+function showInviteModal() {
+    $('#mailRecipients').val('');
+    $('#inviteVotersModal').modal();
 }

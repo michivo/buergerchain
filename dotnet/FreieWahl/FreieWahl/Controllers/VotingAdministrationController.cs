@@ -10,6 +10,7 @@ using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
 using FreieWahl.Application.Registrations;
+using FreieWahl.Common;
 using FreieWahl.Mail;
 using FreieWahl.Security.Signing.VotingTokens;
 using FreieWahl.UserData.Store;
@@ -269,16 +270,24 @@ namespace FreieWahl.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> SendInvitationMail(string votingId, string[] addresses, string mailText, string mailSubject)
+        public async Task<IActionResult> SendInvitationMail(string votingId, string[] addresses)
         {
             if (await _authorizationHandler.CheckAuthorization(votingId, Operation.Invite, Request.Cookies["session"]) == false)
                 return Unauthorized();
 
-            mailText = mailText.Replace("\n", "<br>");
+            var id = votingId.ToId();
+            if (!id.HasValue)
+                return BadRequest();
+
+            var voting = await _votingStore.GetById(id.Value);
             var registrationUrl = _GetRegistrationUrl(votingId);
             var registrationUrlLink = "<a href=\"" + registrationUrl + "\">" + registrationUrl + "</a>";
-            await _mailProvider.SendMail(new List<string>(addresses), mailSubject, mailText,
-                new Dictionary<string, string> {{"%link%", registrationUrlLink } });
+            var dateString = voting.StartDate.ToString("HH:mm") + " am " + voting.StartDate.ToString("dd.MM.yyyy");
+            var mailText = $"Liebe Wahlberechtigte!<br/>Sie sind eingeladen, an unserer Abstimmung <i>{voting.Title}</i> teilzunehmen.Bitte registrieren Sie sich bis spätestens {dateString} unter %link%.<br />Vielen Dank!";
+            var subject = "Einladung zur Abstimmung " + voting.Title;
+
+            await _mailProvider.SendMail(new List<string>(addresses), subject, mailText,
+                new Dictionary<string, string> {{"%link%", registrationUrlLink} });
             return Ok();
         }
 

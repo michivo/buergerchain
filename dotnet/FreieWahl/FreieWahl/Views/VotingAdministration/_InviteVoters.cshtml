@@ -14,24 +14,21 @@
                 <div class="container">
                     <p>
                         <small>
-                            Sie können Wahlberechtigte per Mail einladen. Geben Sie hier den Text der Mail ein, unten können Sie die EmpfängerInnen der Mail anführen.
-                            Verwenden Sie den Platzhalter <strong>%link%</strong> für den Registrierungslink. Die Mailadressen können Sie durch Zeilenumbrüche oder Strichpunkte getrennt eingeben.
+                        Folgende Mail wird an alle Adressen geschickt, die bei den EmpfängerInnen aufgelistet sind.
                         </small>
                     </p>
-                    <div class="input-group mb-3">
-                        <div class="input-group-prepend">
-                            <span class="input-group-text" id="mailSubjectLabel">Betreff</span>
-                        </div>
-                        <input type="text" class="form-control" value="Einladung zur Wahl" aria-label="Einladung zur Wahl" aria-describedby="mailSubjectLabel" id="mailSubject">
+                    <div class="alert alert-primary" role="alert">
+                        <h5 class="alert-heading"><strong>Betreff:</strong> Einladung zur Abstimmung @ViewData["Title"]</h5>
+                        Liebe Wahlberechtigte!<br/>
+                        Sie sind eingeladen, an unserer Abstimmung <i>@ViewData["Title"]</i> teilzunehmen. Bitte registrieren Sie sich bis spätestens @ViewData["RegistrationDate"]
+                        @Html.ActionLink("hier", "Register", "Registration", new {votingId = ViewData["VotingId"]}, new {@class = "alert-link"}).<br/>
+                        Vielen Dank!
                     </div>
-                    <div class="input-group mb-3">
-                        <div class="input-group-prepend">
-                            <span class="input-group-text">Mailtext</span>
-                        </div>
-                        <textarea class="form-control" aria-label="Mailtext" rows="5" id="mailText">Liebe Wahlberechtigte!
-Ihr seid eingeladen, an unserer Abstimmung @ViewData["Title"] teilzunehmen. Bitte registriert euch unter %link%.
-Vielen Dank!</textarea>
-                    </div>
+                    <p>
+                        <small>
+                            Bitte geben Sie hier die Mail-Adressen der EmpfängerInnen ein. Die Mail-Adressen sollten durch Beistriche, Strichpunkte oder Zeilenumbrüche getrennt sein.
+                        </small>
+                    </p>
                     <div class="input-group">
                         <div class="input-group-prepend">
                             <span class="input-group-text">EmpfängerInnen</span>
