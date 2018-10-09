@@ -7,7 +7,7 @@
 <div class="container-fluid fw-banner">
     <div class="container">
         <div class="row align-items-end">
-            <div class="col-12 col-md-6 col-lg-auto fw-userheader-container">
+            <div class="col-12 col-md-6 col-lg-auto d-flex align-items-end">
                 <div id="fw-user-img-content" class="fw-user-img" style="cursor: pointer" onclick="showFileSelector('#fw-user-img-upload')">
                     @if (!string.IsNullOrEmpty(Model.Image))
                     {
@@ -42,15 +42,19 @@
                 <span class="fw-userheader">@Model.FullName</span>
             </div>
             <div class="col-lg-4 col-12">
-                <div class="fw-userinfo">
-                    <span class="fw-userinfo-block" id="fw-active-voting-count">...</span>
-                    <span class="fw-userinfo-block fw-userinfo-important">aktive</span>
-                    <span>Abstimmungen</span>
+                <div class="my-3 text-primary">
+                    <small>
+                        <span class="d-block low-line" style="height: 1rem" id="fw-active-voting-count">...</span>
+                        <span class="d-block low-line"><strong>aktive</strong></span>
+                        <span>Abstimmungen</span>
+                    </small>
                 </div>
-                <div class="fw-userinfo">
-                    <span class="fw-userinfo-block" id="fw-passed-voting-count">2</span>
-                    <span class="fw-userinfo-block fw-userinfo-important">abgeschlossene</span>
-                    <span>Abstimmungen</span>
+                <div class="my-3 text-primary">
+                    <small>
+                        <span class="d-block low-line" id="fw-passed-voting-count">2</span>
+                        <span class="d-block low-line"><strong>abgeschlossene</strong></span>
+                        <span>Abstimmungen</span>
+                    </small>
                 </div>
             </div>
         </div>
@@ -62,7 +66,7 @@
     <div class="container mb-4">
         <div class="row">
             <div class="col-xl-4 col-md-6 col-sm-12" id="fw-add-voting-card" style="display: none">
-                <div class="card fw-overview-card" style="cursor: pointer; background-color:#DCE4E7;color:#657f8C" onclick="createVoting()"
+                <div class="card fw-overview-card text-primary background-fw-light pointer-cursor" onclick="createVoting()"
                      onmouseenter="highlightAddVoting('#fw-add-voting-icon')" onmouseleave="resetAddVoting('#fw-add-voting-icon')">
                     <i class="card-img-top material-icons" style="width:100%;text-align:center;font-size:15rem" id="fw-add-voting-icon">add_circle_outline</i>
                     <div class="card-body">
@@ -82,12 +86,7 @@
             </div>
         </div>
     </div>
-    <!-- <div class="d-flex justify-content-end" style="width:100%">
-      <div style="background-color:#3481AB;height:3.5rem;width:3.5rem;border-radius: 2rem;box-shadow: 0px 3px 5px gray;padding:.5rem">
-        <a href="#">
-          <i class="material-icons" style="font-size: 2.5rem;font-weight: 900;color:white">add</i></a>
-      </div>
-    </div> -->
+
     <h1 class="display-4 w-100 text-primary border-bottom text-uppercase my-3">Abgeschlossene Abstimmungen</h1>
     <div class="container">
         <div class="row">
@@ -125,244 +124,6 @@
     <script src="~/lib/bootstrap-datepicker/js/locales/bootstrap-datepicker.de.js"></script>
 
     <script>
-        initApp();
-
-        $('#fw-user-img-content').hover(
-            function () { highlightImgSelector('user', 'rgba(255, 255, 255, 0.5)'); },
-            function () { resetImgSelector('user', 'rgba(255, 255, 255, 0.5)'); }
-        );
-
-        $('#fw-voting-img-content').hover(
-            function () { highlightImgSelector('voting', 'rgba(101, 127, 140, 0.5)'); },
-            function () { resetImgSelector('voting', 'rgba(101, 127, 140, 0.5)'); }
-        );
-
-        $('.form-group.date').datepicker({
-            format: "dd.mm.yyyy"
-        });
-
-        $('document').ready(function () {
-            $('#fw-user-img-input').change(function () { previewAndUploadFile('user'); });
-            $('#fw-voting-img-input').change(function () { previewAndUploadFile('voting'); });
-            console.log('again?');
-            showOverview();
-        });
-
-
-        function highlightImgSelector(type, color) {
-            $("#fw-" + type + "-img-selector").css("border", "1px solid " + color);
-            $("#fw-" + type + "-img-selector").css({
-                backgroundColor: 'rgba(0,0,0,.5)'
-            });
-            $("#fw-" + type + "-img-selector").css("box-shadow", "1px 1px 1px rgba(0, 0, 0, 0.5)");
-            $("#fw-" + type + "-img-icon").animate(
-                { fontSize: "1.5rem", color: "white" });
-            $("#fw-" + type + "-img-text").animate({
-                opacity: 1
-            });
-        }
-
-        function resetImgSelector(type, color) {
-            $("#fw-" + type + "-img-selector").css("border", "0px solid " + color);
-            $("#fw-" + type + "-img-selector").css({
-                backgroundColor: 'rgba(0,0,0,0)',
-            });
-            $("#fw-" + type + "-img-icon").animate(
-                { fontSize: "2rem" });
-            $("#fw-" + type + "-img-text").animate({
-                opacity: 0
-            });
-            $("#fw-" + type + "-img-selector").css("box-shadow", "0px 0px 0px");
-            $('#fw-' + type + '-img-upload').css('display', 'none');
-        }
-
-        function showFileSelector(elementId) {
-            $(elementId).css("display", "inline");
-        }
-
-        function highlightAddVoting(jqueryPath) {
-            $(jqueryPath).addClass('shadow-pulse');
-        }
-
-        function resetAddVoting(jqueryPath) {
-            $(jqueryPath).removeClass('shadow-pulse');
-        }
-
-        function createVoting() {
-            $("#newVotingModal").modal();
-        }
-
-        function previewAndUploadFile(type) {
-            var file = $('#fw-' + type + '-img-input')[0].files[0];
-            if (!file.type.match(/image.*/)) {
-                return; // TODO: inform user to upload actual image
-            };
-            var img = new Image();
-            var reader = new FileReader();
-            reader.onload = function (e) {
-                img.src = e.target.result;
-            }
-
-            img.onload = function () {
-                var canvas = document.getElementById('fw-' + type + '-img-real');
-                var context = canvas.getContext('2d');
-                var MAX_WIDTH = 300;
-                var MAX_HEIGHT = 300;
-                var width = img.width;
-                var height = img.height;
-
-                if (width > height) {
-                    if (width > MAX_WIDTH) {
-                        height *= MAX_WIDTH / width;
-                        width = MAX_WIDTH;
-                    }
-                } else {
-                    if (height > MAX_HEIGHT) {
-                        width *= MAX_HEIGHT / height;
-                        height = MAX_HEIGHT;
-                    }
-                }
-                canvas.width = width;
-                canvas.height = height;
-                context.drawImage(img, 0, 0, width, height);
-                $('#fw-' + type + '-img-dummy').hide();
-                $('#fw-' + type + '-img-real').show();
-                if (type === 'user')
-                    uploadFile();
-            }
-            reader.readAsDataURL(file);
-        }
-
-        function uploadFile() {
-            var canvas = document.getElementById('fw-user-img-real');
-            var dataURL = canvas.toDataURL();
-            $.ajax({
-                url: 'UpdateUserImage',
-                type: 'POST',
-                data: {
-                    imageData: dataURL
-                },
-                success: updateImage,
-                error: function (data) {
-                    // TODO
-                }
-            });
-        }
-
-        function updateImage(data) {
-        }
-
-        function saveVoting() {
-            var title = $("#fwNewVotingName").val();
-            var desc = $("#fwNewVotingDescription").val();
-            var imageData = '';
-            if ($('#fw-voting-img-real').is(':visible')) {
-                var canvas = document.getElementById('fw-voting-img-real');
-                imageData = canvas.toDataURL();
-            }
-
-            $.post({
-                url: 'UpdateVoting',
-                data: {
-                    "title": title,
-                    "desc": desc,
-                    "id": null,
-                    "imageData": imageData,
-                    "startDate": $("#fwStartDate").val(),
-                    "startTime": $("#fwStartTime").val(),
-                    "endDate": $("#fwEndDate").val(),
-                    "endTime": $("#fwEndTime").val()
-                },
-                success: function (data) {
-                    $('#newVotingModal').modal('hide');
-                    window.location.replace('Edit?id=' + data);
-                }
-                // error: todo
-            });
-        }
-
-        function showOverview() {
-            console.log('showing overview...');
-            $(".fw-open-voting").remove();
-            $("#fw-add-voting-card").hide();
-            $("#fw-load-votings-card").show();
-            console.log('starting ajax');
-            $.ajax({
-                url: 'GetVotingsForUser',
-                type: 'GET',
-                datatype: 'json',
-                success: showOverviewData,
-                error: function (data) {
-                    console.log('oops, error');
-                    $("<div/>",
-                        {
-                            "class": "bc-error-message TODO TODO error handling",
-                            html: "An error occurred getting your votings: " + data
-                        }).appendTo("#votingOverviewListContent");
-                    componentHandler.upgradeDom();
-                    $("#fw-add-voting-card").show();
-                    $("#fw-load-votings-card").hide();
-                }
-            });
-        }
-
-        function showOverviewData(data) {
-            console.log('showing overview data ...');
-            console.log(data);
-            var items = [];
-            $("#fw-active-voting-count").text(data.length);
-            for (var i = 0; i < data.length; i++) {
-                var voting = data[i];
-                var item =
-                    '<div class="col-xl-4 col-md-6 col-sm-12 fw-open-voting"><div class="card fw-overview-card">';
-                if (voting.imageData) {
-                    item += '<img class="card-img-top" src="' + voting.imageData + '">';
-                } else {
-                    item +=
-                        '<i class="material-icons fw-voting-img" style="text-align:center;width:100%">how_to_vote</i>';
-                }
-
-                item += '<div class="card-body"><h5 class="card-title">' + voting.title + '</h5>';
-                item += '<p class="card-text">' + truncate(voting.description, 150) + '</p>\r\n';
-                item +=
-                    '<a class="fw-card-link-icon float-left p-2 border" href="javascript:void(0);" onclick="deleteVoting(\'' +
-                    voting.id +
-                    '\')"><i class="material-icons">delete</i></a>\r\n';
-                item += '<a class="fw-card-link-icon bg-primary float-right p-2" href="Edit?id=' +
-                    voting.id +
-                    '"><i class="material-icons text-white">edit</i></a></div></div></div>';
-                items.push(item);
-            }
-            $(items.join("\n")).insertBefore("#fw-add-voting-card");
-            $("#fw-add-voting-card").show();
-            $("#fw-load-votings-card").hide();
-            console.log('upgrading dom');
-            console.trace();
-            //componentHandler.upgradeDom();
-        }
-
-
-        function truncate(val, maxLength) {
-            if (val.length < maxLength)
-                return val;
-
-            return val.substr(0, maxLength) + '...';
-        }
-
-        function deleteVoting(id) {
-            if (confirm("Sind Sie sicher, dass Sie diese Abstimmung unwiderruflich löschen wollen?")) {
-
-                $.post({
-                    url: 'DeleteVoting',
-                    data: {
-                        "id": id,
-                    },
-                    success: function (data) {
-                        showOverview(firebase.auth().currentUser);
-                    }
-                    // error: todo
-                });
-            }
-        }
+        setupOverview();
     </script>
 }

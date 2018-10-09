@@ -22,10 +22,6 @@ nav.navbar {
     height:$header-height;
 }
 
-.freiewahl-main {
-    padding: 3rem 1.5rem;
-}
-
 .display-1 { font-weight: 100; }
 
 .display-2 { font-weight: 100; }
@@ -36,6 +32,14 @@ nav.navbar {
 
 nav.navbar-dark { 
     background-image: url(../images/background_small.png);
+}
+
+.background-fw-light {
+    background-color: $fw-light;
+}
+
+.pointer-cursor {
+    cursor: pointer;
 }
 
 a.navbar-brand {
@@ -79,11 +83,6 @@ div.fw-banner {
     min-height: 15rem;
 }
 
-div.fw-userheader-container {
-    display:flex; 
-    align-items: flex-end;
-}
-
 i.fw-user-img {
     font-size: 15rem;
     color:$primary;
@@ -105,46 +104,33 @@ span.fw-userheader {
     color:$primary
 }
 
-div.fw-userinfo {
-    margin-bottom:1rem;
-    margin-top:1rem;
-    color:$primary;
-    font-size: .9rem
-}
-
-span.fw-userinfo-block {
-    display:block;
-    height:1rem
-}
-
-span.fw-userinfo-important {
-    font-weight: 700;
-}
-
-div.fw-overview-list {
-    margin: 2rem 0rem;
-}
-
-div.fw-overview-list h1 {
-    text-transform:uppercase;
-    border-bottom: 2px solid ; 
-    color: $primary;
+.low-line {
+     height:1rem
 }
 
 div.fw-overview-card {
     width: 18rem;
 }
 
+#functions-slick div.card-body{ 
+    box-shadow: 1px 1px 3px #C0C0C0
+}
+
 div.fw-overview-card div.card-body{ 
     box-shadow: 1px 1px 3px #C0C0C0
 }
 
-div.fw-overview-card h5.card-title { 
+h5.card-title { 
     font-weight:400;
     color: $secondary;
 }
 
 div.fw-overview-card p.card-text { 
+    color:$primary; 
+    font-size:.9rem
+}
+
+#functions-slick p.card-text { 
     color:$primary; 
     font-size:.9rem
 }
@@ -280,26 +266,6 @@ tr.hide {
   margin-bottom: 2rem;
 }
 
-#fw-navtitle {
-  display: flex;
-  font-size: 32pt;
-  align-items: center;
-  font-family: Calibri, Roboto, Arial, sans-serif;
-}
-
-#fw-navtitle img {
-  margin-right: 1rem;
-}
-
-#fw-navtitle span {
-  margin-top: -1rem;
-  margin-bottom: -1rem;
-}
-
-#fw-overview-new-voting {
-  text-align: right;
-}
-
 div.fw-overview-header {
   width: 100%;
   display: flex;
@@ -334,19 +300,6 @@ div.fw-titlepage-media {
 img.fw-card-svg {
   width: 50%;
   margin: auto;
-}
-
-div.fw-titlepage-boxcontent {
-  padding-left: 3em;
-  padding-right: 3em;
-}
-
-div.fw-titlepage-boxcontent p {
-  color: black;
-}
-
-div.fw-titlepage-boxtext {
-  color: black;
 }
 
 .slick-prev:before,

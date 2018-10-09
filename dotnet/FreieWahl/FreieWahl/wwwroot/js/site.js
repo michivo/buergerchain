@@ -109,7 +109,7 @@ function showCompletedRegistrations(registrations) {
     let deniedCount = 0;
     for (var i = 0; i < registrations.length; i++) {
         const registration = registrations[i];
-        const item = `<div class="m-0 px-3 border-bottom">@{registration.voterName}</div>`;
+        const item = `<div class="m-0 px-3 border-bottom">${registration.voterName}</div>`;
         if (registration.decision === 1) {
             grantedList.append(item);
             grantedCount++;
@@ -173,7 +173,7 @@ function sendInvitations(votingId) {
     });
 }
 
-function setupOverview(votingId) {
+function setupEditScreen(votingId) {
     $(document).on('click',
         '.dropdown-menu',
         function (e) {
@@ -266,4 +266,237 @@ function createQuestion(votingId) {
 function showInviteModal() {
     $('#mailRecipients').val('');
     $('#inviteVotersModal').modal();
+}
+
+//----------------------------------- OVERVIEW FUNCTIONS
+
+function setupOverview() {
+    initApp();
+
+    $('document').ready(function() {
+        $('#fw-user-img-input').change(function() { previewAndUploadFile('user'); });
+        $('#fw-voting-img-input').change(function () { previewAndUploadFile('voting'); });
+
+        showOverview();
+        $('#fw-user-img-content').hover(
+            function() { highlightImgSelector('user', 'rgba(255, 255, 255, 0.5)'); },
+            function() { resetImgSelector('user', 'rgba(255, 255, 255, 0.5)'); }
+        );
+
+        $('#fw-voting-img-content').hover(
+            function() { highlightImgSelector('voting', 'rgba(101, 127, 140, 0.5)'); },
+            function() { resetImgSelector('voting', 'rgba(101, 127, 140, 0.5)'); }
+        );
+
+        $('.form-group.date').datepicker({
+            format: "dd.mm.yyyy"
+        });
+    });
+}
+
+function highlightImgSelector(type, color) {
+    $("#fw-" + type + "-img-selector").css("border", "1px solid " + color);
+    $("#fw-" + type + "-img-selector").css({
+        backgroundColor: 'rgba(0,0,0,.5)'
+    });
+    $("#fw-" + type + "-img-selector").css("box-shadow", "1px 1px 1px rgba(0, 0, 0, 0.5)");
+    $("#fw-" + type + "-img-icon").animate(
+        { fontSize: "1.5rem", color: "white" });
+    $("#fw-" + type + "-img-text").animate({
+        opacity: 1
+    });
+}
+
+function resetImgSelector(type, color) {
+    $("#fw-" + type + "-img-selector").css("border", "0px solid " + color);
+    $("#fw-" + type + "-img-selector").css({
+        backgroundColor: 'rgba(0,0,0,0)',
+    });
+    $("#fw-" + type + "-img-icon").animate(
+        { fontSize: "2rem" });
+    $("#fw-" + type + "-img-text").animate({
+        opacity: 0
+    });
+    $("#fw-" + type + "-img-selector").css("box-shadow", "0px 0px 0px");
+    $('#fw-' + type + '-img-upload').css('display', 'none');
+}
+
+function showFileSelector(elementId) {
+    $(elementId).css("display", "inline");
+}
+
+function highlightAddVoting(jqueryPath) {
+    $(jqueryPath).addClass('shadow-pulse');
+}
+
+function resetAddVoting(jqueryPath) {
+    $(jqueryPath).removeClass('shadow-pulse');
+}
+
+function createVoting() {
+    $("#newVotingModal").modal();
+}
+
+function previewAndUploadFile(type) {
+    var file = $('#fw-' + type + '-img-input')[0].files[0];
+    if (!file.type.match(/image.*/)) {
+        return; // TODO: inform user to upload actual image
+    };
+    var img = new Image();
+    var reader = new FileReader();
+    reader.onload = function (e) {
+        img.src = e.target.result;
+    }
+
+    img.onload = function () {
+        var canvas = document.getElementById('fw-' + type + '-img-real');
+        var context = canvas.getContext('2d');
+        var MAX_WIDTH = 300;
+        var MAX_HEIGHT = 300;
+        var width = img.width;
+        var height = img.height;
+
+        if (width > height) {
+            if (width > MAX_WIDTH) {
+                height *= MAX_WIDTH / width;
+                width = MAX_WIDTH;
+            }
+        } else {
+            if (height > MAX_HEIGHT) {
+                width *= MAX_HEIGHT / height;
+                height = MAX_HEIGHT;
+            }
+        }
+        canvas.width = width;
+        canvas.height = height;
+        context.drawImage(img, 0, 0, width, height);
+        $('#fw-' + type + '-img-dummy').hide();
+        $('#fw-' + type + '-img-real').show();
+        if (type === 'user')
+            uploadFile();
+    }
+    reader.readAsDataURL(file);
+}
+
+function uploadFile() {
+    var canvas = document.getElementById('fw-user-img-real');
+    var dataURL = canvas.toDataURL();
+    $.ajax({
+        url: 'UpdateUserImage',
+        type: 'POST',
+        data: {
+            imageData: dataURL
+        },
+        success: updateImage,
+        error: function (data) {
+            // TODO
+        }
+    });
+}
+
+function updateImage(data) {
+}
+
+function saveVoting() {
+    var title = $("#fwNewVotingName").val();
+    var desc = $("#fwNewVotingDescription").val();
+    var imageData = '';
+    if ($('#fw-voting-img-real').is(':visible')) {
+        var canvas = document.getElementById('fw-voting-img-real');
+        imageData = canvas.toDataURL();
+    }
+
+    $.post({
+        url: 'UpdateVoting',
+        data: {
+            "title": title,
+            "desc": desc,
+            "id": null,
+            "imageData": imageData,
+            "startDate": $("#fwStartDate").val(),
+            "startTime": $("#fwStartTime").val(),
+            "endDate": $("#fwEndDate").val(),
+            "endTime": $("#fwEndTime").val()
+        },
+        success: function (data) {
+            $('#newVotingModal').modal('hide');
+            window.location.replace('Edit?id=' + data);
+        }
+        // error: todo
+    });
+}
+
+function showOverview() {
+    console.log('showing overview...');
+    $(".fw-open-voting").remove();
+    $("#fw-add-voting-card").hide();
+    $("#fw-load-votings-card").show();
+    console.log('starting ajax');
+    $.ajax({
+        url: 'GetVotingsForUser',
+        type: 'GET',
+        datatype: 'json',
+        success: showOverviewData,
+        error: function (data) {
+            console.log('oops, error');
+            $("<div/>",
+                {
+                    "class": "bc-error-message TODO TODO error handling",
+                    html: "An error occurred getting your votings: " + data
+                }).appendTo("#votingOverviewListContent");
+            componentHandler.upgradeDom();
+            $("#fw-add-voting-card").show();
+            $("#fw-load-votings-card").hide();
+        }
+    });
+}
+
+function showOverviewData(data) {
+    console.log('showing overview data ...');
+    console.log(data);
+    var items = [];
+    $("#fw-active-voting-count").text(data.length);
+    for (var i = 0; i < data.length; i++) {
+        const voting = data[i];
+        let item = '<div class="col-xl-4 col-md-6 col-sm-12 fw-open-voting"><div class="card fw-overview-card">';
+        if (voting.imageData) {
+            item += `<img class="card-img-top" src="${voting.imageData}">`;
+        } else {
+            item +=
+                '<i class="material-icons fw-voting-img" style="text-align:center;width:100%">how_to_vote</i>';
+        }
+
+        item += `<div class="card-body"><h5 class="card-title">${voting.title}</h5>`;
+        item += `<p class="card-text">${truncate(voting.description, 150)}</p>\r\n`;
+        item += `<a class="fw-card-link-icon float-left p-2 border" href="javascript:void(0);" onclick="deleteVoting('${voting.id}')"><i class="material-icons">delete</i></a>\r\n`;
+        item += `<a class="fw-card-link-icon bg-primary float-right p-2" href="Edit?id=${voting.id}"><i class="material-icons text-white">edit</i></a></div></div></div>`;
+        items.push(item);
+    }
+    $(items.join("\n")).insertBefore("#fw-add-voting-card");
+    $("#fw-add-voting-card").show();
+    $("#fw-load-votings-card").hide();
+    console.trace();
+    componentHandler.upgradeDom();
+}
+
+
+function truncate(val, maxLength) {
+    if (val.length < maxLength)
+        return val;
+
+    return val.substr(0, maxLength) + '...';
+}
+
+function deleteVoting(id) {
+    if (confirm("Sind Sie sicher, dass Sie diese Abstimmung unwiderruflich löschen wollen?")) {
+
+        $.post({
+            url: 'DeleteVoting',
+            data: { "id": id },
+            success: function (data) {
+                showOverview(firebase.auth().currentUser);
+            }
+            // error: todo
+        });
+    }
 }
