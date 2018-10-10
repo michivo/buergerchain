@@ -14,7 +14,6 @@ using FreieWahl.Common;
 using FreieWahl.Mail;
 using FreieWahl.Security.Signing.VotingTokens;
 using FreieWahl.UserData.Store;
-using Microsoft.ApplicationInsights.AspNetCore.Extensions;
 
 namespace FreieWahl.Controllers
 {
@@ -284,10 +283,7 @@ namespace FreieWahl.Controllers
 
         private string _GetRegistrationUrl(string votingId)
         {
-            var url = Request.GetUri();
-            var baseUrl = url.GetLeftPart(UriPartial.Authority);
-            var registrationUrl = baseUrl + "/Voting/Register?votingId=" + votingId;
-            return registrationUrl;
+            return Url.Action("Register", "Voting", new {votingId}, HttpContext.Request.Scheme);
         }
 
         private static Question _GetQuestion(string title, string desc, string[] answers, string[] answerDescriptions)

@@ -85,10 +85,14 @@ app.post('/grantRegistration', async function(req, res) {
   const registration = await dbwrapper.getRegistration(registrationId);
   const voterId = uuidv4();
   const votingId = req.body.votingId;
+  const votingTitle = req.body.votingTitle;
+  const startDate = req.body.startDate;
+  const endDate = req.body.endDate;
+  const link = req.body.link + `?votingId=${votingId}&voterId=${voterId}`;
   // console.log('inserting registration with id ' + registrationId + ', voter id ' + voterId + ', voting id ' + votingId);
   await dbwrapper.insertVotingTokens(votingId, voterId, registration.tokens, req.body.tokens, registration.blindingFactors);
   await dbwrapper.deleteRegistration(registrationId);
-  mailProvider.sendInvitation(registration.email, voterId, votingId);
+  mailProvider.sendInvitation(registration.email, votingTitle, startDate, endDate, link);
   prepareRes(res);
   res.status(200).send('OK!').end;
 });

@@ -1,12 +1,13 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
+using FreieWahl.Voting.Models;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using Org.BouncyCastle.Asn1.X509;
 using Org.BouncyCastle.Crypto.Parameters;
 
 namespace FreieWahl.Application.Registrations
@@ -20,8 +21,8 @@ namespace FreieWahl.Application.Registrations
             _remoteUrl = remoteUrl;
         }
 
-        public async Task<string> GrantRegistration(string registrationStoreId, long votingId,
-            string signedChallengeString, List<string> signedTokens)
+        public async Task<string> GrantRegistration(string registrationStoreId, StandardVoting voting,
+            string signedChallengeString, List<string> signedTokens, string votingUrl)
         {
             var request = WebRequest.CreateHttp(_remoteUrl + "grantRegistration");
             request.ContentType = "application/json";
@@ -34,7 +35,11 @@ namespace FreieWahl.Application.Registrations
                     registrationId = registrationStoreId,
                     challengeSignature = signedChallengeString,
                     tokens = signedTokens,
-                    votingId = votingId.ToString(CultureInfo.InvariantCulture)
+                    votingId = voting.Id.ToString(CultureInfo.InvariantCulture),
+                    startDate = voting.StartDate.ToString("HH:mm") + ", " + voting.StartDate.ToString("dd.MM.yyyy"),
+                    endDate = voting.EndDate.ToString("HH:mm") + ", " + voting.EndDate.ToString("dd.MM.yyyy"),
+                    votingTitle = voting.Title,
+                    link = votingUrl
                 };
 
                 var json = JsonConvert.SerializeObject(resultData);

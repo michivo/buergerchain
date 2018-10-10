@@ -1,0 +1,20 @@
+﻿@using FreieWahl.Voting.Models
+@model FreieWahl.Models.VotingAdministration.QuestionModel[]
+
+<h2>Vote</h2>
+
+@foreach (var question in Model)
+{
+    if (question.Type == QuestionType.Decision)
+    {
+
+    }
+    else if (question.Type == QuestionType.MultipleChoice)
+    {
+
+    }
+    else if (question.Type == QuestionType.Ordering)
+    { //@Json.Serialize(Model)
+
+    }
+}

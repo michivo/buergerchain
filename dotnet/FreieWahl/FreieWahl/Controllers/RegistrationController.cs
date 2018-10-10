@@ -125,8 +125,9 @@ namespace FreieWahl.Controllers
                 return Unauthorized();
             }
 
+            var link = Url.Action("Vote", "Voting", new{}, HttpContext.Request.Scheme);
 
-            await _registrationHandler.GrantRegistration(regId.Value, user.UserId);
+            await _registrationHandler.GrantRegistration(regId.Value, user.UserId, link);
             return Ok();
         }
 

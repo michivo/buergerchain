@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using FreieWahl.Application.VotingResults;
 using FreieWahl.Common;
+using FreieWahl.Models.VotingAdministration;
 using FreieWahl.Security.Signing.VotingTokens;
 using FreieWahl.Voting.Models;
 using FreieWahl.Voting.Storage;
@@ -62,6 +63,26 @@ namespace FreieWahl.Controllers
         }
 
         [HttpGet]
+        public async Task<IActionResult> Vote(string votingId, string voterId)
+        {
+            var id = votingId.ToId();
+            if (id.HasValue == false)
+                return BadRequest("Invalid voting id");
+
+            var voting = await _votingStore.GetById(id.Value);
+            if (voting == null)
+            {
+                return BadRequest("No voting with the given id");
+            }
+
+            var questionModel = voting.Questions
+                .Where(x => x.Status == QuestionStatus.OpenForVoting)
+                .Select(x => new QuestionModel(x, votingId)).ToArray();
+
+            return View(questionModel);
+        }
+
+        [HttpGet]
         public async Task<IActionResult> CastVote(string votingId, string voterId, int questionIndex)
         {
             var id = votingId.ToId();
@@ -78,7 +99,7 @@ namespace FreieWahl.Controllers
                 x.Status == QuestionStatus.OpenForVoting && x.QuestionIndex == questionIndex);
             if (question == null)
             {
-                return BadRequest("No question with the given id is ready for voting")
+                return BadRequest("No question with the given id is ready for voting");
             }
 
             var model = question.AnswerOptions.Select(x => new FreieWahl.Models.Voting.AnswerOption
