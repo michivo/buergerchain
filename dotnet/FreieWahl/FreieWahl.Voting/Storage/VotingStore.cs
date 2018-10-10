@@ -201,7 +201,7 @@ namespace FreieWahl.Voting.Storage
                 Id = entity.Key.Path.First().Id,
                 Title = entity["Title"].StringValue,
                 Creator = entity["Creator"].StringValue,
-                Description = entity["Description"].StringValue,
+                Description = entity["Description"]?.StringValue ?? string.Empty,
                 DateCreated = (DateTime)entity["DateCreated"],
                 StartDate = _SafeGetDate(entity, "StartDate", DateTime.Now),
                 EndDate = _SafeGetDate(entity, "EndDate", DateTime.Now.AddDays(1)),

@@ -15,7 +15,6 @@ using FreieWahl.Mail;
 using FreieWahl.Security.Signing.VotingTokens;
 using FreieWahl.UserData.Store;
 using Microsoft.ApplicationInsights.AspNetCore.Extensions;
-using Microsoft.AspNetCore.Hosting;
 
 namespace FreieWahl.Controllers
 {
@@ -101,29 +100,27 @@ namespace FreieWahl.Controllers
             return new JsonResult(resultForSerialization.ToArray());
         }
 
-        public async Task<IActionResult> GetQuestion(string votingId, string questionId)
+        [HttpPost]
+        public async Task<IActionResult> UnlockQuestion(string votingId, int questionIndex)
         {
-            if (await _authorizationHandler.CheckAuthorization(votingId, Operation.UpdateQuestion, Request.Cookies["session"]) == false)
+            var isAuthorized = await _authorizationHandler.CheckAuthorization(votingId, Operation.UpdateQuestion, Request.Cookies["session"]);
+            if (!isAuthorized)
                 return Unauthorized();
 
-            var voting = await _votingStore.GetById(_GetId(votingId));
-            var qid = _GetId(questionId);
-            var question = voting.Questions.SingleOrDefault(x => x.QuestionIndex == qid);
-            if (question == null)
-                return BadRequest("Invalid question id"); // TODO
-            var result = new
-            {
-                Id = question.QuestionIndex,
-                Text = question.QuestionText,
-                Description = _GetDescription(question),
-                AnswerOptions = question.AnswerOptions.Select(x =>
-                    new
-                    {
-                        x.Id,
-                        Text = x.AnswerText
-                    })
-            };
-            return new JsonResult(result);
+            var id = votingId.ToId();
+            if (id == null)
+                return BadRequest();
+
+            var voting = await _votingStore.GetById(id.Value);
+            var question = voting.Questions.SingleOrDefault(x => x.QuestionIndex == questionIndex);
+
+            if (question == null || question.Status != QuestionStatus.InPreparation)
+                return BadRequest();
+
+            question.Status = QuestionStatus.OpenForVoting;
+            await _votingStore.UpdateQuestion(id.Value, question);
+
+            return Ok();
         }
 
         [HttpPost]
@@ -137,17 +134,6 @@ namespace FreieWahl.Controllers
             await _userDataStore.SaveUserImage(user.UserId, imageData);
 
             return Ok();
-        }
-
-        private string _GetDescription(Question question)
-        {
-            foreach (var questionDetail in question.Details)
-            {
-                if (questionDetail.DetailType == QuestionDetailType.AdditionalInfo)
-                    return questionDetail.DetailValue;
-            }
-
-            return string.Empty;
         }
 
         private long _GetId(string s)
@@ -234,6 +220,11 @@ namespace FreieWahl.Controllers
 
             var voting = await _votingStore.GetById(_GetId(id)); // TODO - handle missing voting
             var question = _GetQuestion(title, desc, answers, answerDescriptions);
+            if (question.Status != QuestionStatus.InPreparation)
+            {
+                return BadRequest("The answer has already been locked!");
+            }
+
             question.QuestionIndex = qid;
             question.QuestionType = (QuestionType) type;
             question.MinNumAnswers = question.QuestionType == QuestionType.Decision ? 1 : minNumAnswers;

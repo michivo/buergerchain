@@ -18,6 +18,10 @@ body {
     padding-top: $header-height;
 }
 
+small {
+    font-size: 90%;
+}  
+
 nav.navbar {
     height:$header-height;
 }

@@ -6,8 +6,8 @@
 
 <div class="container-fluid fw-banner">
     <div class="container">
-        <div class="row align-items-end">
-            <div class="col-12 col-md-6 col-lg-auto d-flex align-items-end">
+        <div class="row align-items-end py-3">
+            <div class="col-12 col-md-6 col-lg-auto">
                 <div id="fw-user-img-content" class="fw-user-img" style="cursor: pointer" onclick="showFileSelector('#fw-user-img-upload')">
                     @if (!string.IsNullOrEmpty(Model.Image))
                     {
@@ -38,23 +38,20 @@
                     </div>
                 </div>
             </div>
-            <div class="fw-userheader col-lg-4 col-md-6 col-12">
-                <span class="fw-userheader">@Model.FullName</span>
+            <div class="col-lg-4 col-md-6 col-12">
+                <h1 class="h1 display-4 text-uppercase text-primary" style="margin-bottom:-.75rem !important">
+                    @Model.FullName
+                </h1>
             </div>
-            <div class="col-lg-4 col-12">
-                <div class="my-3 text-primary">
-                    <small>
-                        <span class="d-block low-line" style="height: 1rem" id="fw-active-voting-count">...</span>
-                        <span class="d-block low-line"><strong>aktive</strong></span>
-                        <span>Abstimmungen</span>
-                    </small>
-                </div>
-                <div class="my-3 text-primary">
-                    <small>
-                        <span class="d-block low-line" id="fw-passed-voting-count">2</span>
-                        <span class="d-block low-line"><strong>abgeschlossene</strong></span>
-                        <span>Abstimmungen</span>
-                    </small>
+            <div class="col-lg-4 col-12 text-primary" style="font-size: 0.9rem">
+                <div class="float-right" style="line-height: 1.2">
+
+                    <span id="fw-active-voting-count">...</span><br />
+                    <strong>aktive</strong><br />
+                    Abstimmungen<br /><br />
+                    <span id="fw-passed-voting-count">2</span><br />
+                    <strong>abgeschlossene</strong><br />
+                    Abstimmungen
                 </div>
             </div>
         </div>
