@@ -329,6 +329,10 @@ function resetImgSelector(type, color) {
     $('#fw-' + type + '-img-upload').css('display', 'none');
 }
 
+function highlightVotingCard() {
+    console.log(this);
+}
+
 function showFileSelector(elementId) {
     $(elementId).css("display", "inline");
 }
@@ -481,31 +485,41 @@ function showOverview() {
 }
 
 function showOverviewData(data) {
-    console.log('showing overview data ...');
-    console.log(data);
     var items = [];
     $("#fw-active-voting-count").text(data.length);
     for (var i = 0; i < data.length; i++) {
         const voting = data[i];
-        let item = '<div class="col-xl-4 col-md-6 col-sm-12 fw-open-voting"><div class="card fw-overview-card">';
+        let item = '<div class="col-xl-4 col-md-6 col-12 fw-open-voting"><div class="card fw-overview-card">' + 
+            `<a href="Edit?id=${voting.id}">`;
         if (voting.imageData) {
-            item += `<img class="card-img-top" src="${voting.imageData}">`;
+            item += `<img class="card-img-top" style="max-height:12rem;" src="${voting.imageData}">`;
         } else {
             item +=
                 '<i class="material-icons fw-voting-img" style="text-align:center;width:100%">how_to_vote</i>';
         }
 
-        item += `<div class="card-body"><h5 class="card-title">${voting.title}</h5>`;
-        item += `<p class="card-text">${truncate(voting.description, 150)}</p>\r\n`;
-        item += `<a class="fw-card-link-icon float-left p-2 border" href="javascript:void(0);" onclick="deleteVoting('${voting.id}')"><i class="material-icons">delete</i></a>\r\n`;
-        item += `<a class="fw-card-link-icon bg-primary float-right p-2" href="Edit?id=${voting.id}"><i class="material-icons text-white">edit</i></a></div></div></div>`;
+        item += `</a><div class="card-body d-flex flex-column justify-content-between" style="height:12rem"><h5 class="card-title">${voting.title}</h5>` +
+                `<p class="card-text">${truncate(voting.description, 50)}</p>\r\n` +
+                `<div><a class="fw-card-link-icon float-left p-2 border" href="javascript:void(0);" onclick="deleteVoting('${voting.id}')"><i class="material-icons">delete</i></a>\r\n` +
+                `<a class="fw-card-link-icon bg-primary float-right p-2" href="Edit?id=${voting.id}"><i class="material-icons text-white">edit</i></a></div></div></div></div>`;
         items.push(item);
     }
     $(items.join("\n")).insertBefore("#fw-add-voting-card");
     $("#fw-add-voting-card").show();
     $("#fw-load-votings-card").hide();
-    console.trace();
+
     componentHandler.upgradeDom();
+
+    $(".fw-overview-card").mouseover(function () {
+        $(this).removeClass('fw-overview-card-inactive');
+        $(this).addClass('fw-overview-card-active');
+    });
+
+
+    $(".fw-overview-card").mouseout(function () {
+        $(this).removeClass('fw-overview-card-active');
+        $(this).addClass('fw-overview-card-inactive');
+    });
 }
 
 

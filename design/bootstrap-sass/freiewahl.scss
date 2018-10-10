@@ -113,6 +113,7 @@ span.fw-userheader {
 }
 
 div.fw-overview-card {
+    box-shadow: 1px 1px 3px #C0C0C0;
     width: 18rem;
 }
 
@@ -120,8 +121,44 @@ div.fw-overview-card {
     box-shadow: 1px 1px 3px #C0C0C0
 }
 
-div.fw-overview-card div.card-body{ 
-    box-shadow: 1px 1px 3px #C0C0C0
+@keyframes fwOverviewCardPulse {
+    0% {
+        box-shadow: 1px 1px 3px #C0C0C0;
+        transform: scale(1);
+    }
+
+    100% {
+        box-shadow: 2px 2px 5px #808080;
+        transform: scale(1.01);
+    }
+}
+
+@keyframes fwOverviewCardUnpulse {
+    0% {
+        box-shadow: 2px 2px 5px #808080;
+        transform: scale(1.01);
+    }
+
+    100% {
+        box-shadow: 1px 1px 3px #C0C0C0;
+        transform: scale(1);
+    }
+}
+
+.fw-overview-card-active {
+    animation-name: fwOverviewCardPulse;
+    animation-duration: .5s;
+    animation-iteration-count: 1;
+    animation-timing-function: linear;
+    animation-fill-mode: forwards;
+}
+
+.fw-overview-card-inactive {
+    animation-name: fwOverviewCardUnpulse;
+    animation-duration: .5s;
+    animation-iteration-count: 1;
+    animation-timing-function: linear;
+    animation-fill-mode: backwards;
 }
 
 h5.card-title { 
@@ -134,12 +171,14 @@ div.fw-overview-card p.card-text {
     font-size:.9rem
 }
 
+
 #functions-slick p.card-text { 
     color:$primary; 
     font-size:.9rem
 }
 
 a.fw-card-link-icon {
+    box-shadow: 2px 2px 3px #808080;
     height:3rem;
     width:3rem;
     border-radius: 50%;

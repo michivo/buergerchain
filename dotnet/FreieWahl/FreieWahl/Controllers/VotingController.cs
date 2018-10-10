@@ -64,9 +64,24 @@ namespace FreieWahl.Controllers
         [HttpGet]
         public async Task<IActionResult> CastVote(string votingId, string voterId, int questionIndex)
         {
-            var voting = await _votingStore.GetById(votingId.ToId().Value);
+            var id = votingId.ToId();
+            if (id.HasValue == false)
+                return BadRequest("Invalid voting id");
 
-            var model = voting.Questions[questionIndex].AnswerOptions.Select(x => new FreieWahl.Models.Voting.AnswerOption
+            var voting = await _votingStore.GetById(id.Value);
+            if (voting == null)
+            {
+                return BadRequest("No voting with the given id");
+            }
+
+            var question = voting.Questions.FirstOrDefault(x =>
+                x.Status == QuestionStatus.OpenForVoting && x.QuestionIndex == questionIndex);
+            if (question == null)
+            {
+                return BadRequest("No question with the given id is ready for voting")
+            }
+
+            var model = question.AnswerOptions.Select(x => new FreieWahl.Models.Voting.AnswerOption
             {
                 Text = x.AnswerText,
                 Description = "yadda yadda ", // TODO
