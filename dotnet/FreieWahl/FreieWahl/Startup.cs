@@ -137,6 +137,7 @@ namespace FreieWahl
             }
 
             app.UseAuthentication();
+            app.UseHttpsRedirection();
             app.UseStaticFiles();
             app.UseGoogleTrace();
 
