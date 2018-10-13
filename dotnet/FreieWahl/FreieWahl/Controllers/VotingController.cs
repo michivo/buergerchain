@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using FreieWahl.Application.VotingResults;
 using FreieWahl.Common;
+using FreieWahl.Models.Voting;
 using FreieWahl.Models.VotingAdministration;
 using FreieWahl.Security.Signing.VotingTokens;
 using FreieWahl.Voting.Models;
@@ -20,7 +21,7 @@ namespace FreieWahl.Controllers
         private readonly IVotingTokenHandler _votingTokenHandler;
         private readonly IVotingStore _votingStore;
         private readonly IVotingResultManager _votingResultManager;
-        private string _regUrl;
+        private readonly string _regUrl;
 
         public VotingController(
             IVotingTokenHandler votingTokenHandler,
@@ -75,11 +76,19 @@ namespace FreieWahl.Controllers
                 return BadRequest("No voting with the given id");
             }
 
-            var questionModel = voting.Questions
+            var questions = voting.Questions
                 .Where(x => x.Status == QuestionStatus.OpenForVoting)
                 .Select(x => new QuestionModel(x, votingId)).ToArray();
 
-            return View(questionModel);
+            var model = new VoteModel
+            {
+                StartDate = voting.StartDate,
+                EndDate = voting.EndDate,
+                Questions = questions,
+                VotingTitle = voting.Title
+            };
+
+            return View(model);
         }
 
         [HttpGet]

@@ -18,5 +18,7 @@ namespace FreieWahl.Voting.Registrations
         Task<OpenRegistration> GetOpenRegistration(string registrationStoreId);
 
         Task<IReadOnlyList<CompletedRegistration>> GetCompletedRegistrations(long votingId);
+
+        Task<bool> IsRegistrationUnique(string dataSigneeId, long votingId);
     }
 }

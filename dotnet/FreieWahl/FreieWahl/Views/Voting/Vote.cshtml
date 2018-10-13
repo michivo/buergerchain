@@ -1,20 +1,20 @@
 ﻿@using FreieWahl.Voting.Models
-@model FreieWahl.Models.VotingAdministration.QuestionModel[]
+@model FreieWahl.Models.Voting.VoteModel
 
-<h2>Vote</h2>
+<h2>@Model.VotingTitle</h2>
 
-@foreach (var question in Model)
+@foreach (var question in Model.Questions)
 {
     if (question.Type == QuestionType.Decision)
     {
-
+        @await Html.PartialAsync("_VoteDecisionQuestion", question)
     }
     else if (question.Type == QuestionType.MultipleChoice)
     {
-
+        @await Html.PartialAsync("_VoteMultipleChoiceQuestion", question)
     }
     else if (question.Type == QuestionType.Ordering)
     { //@Json.Serialize(Model)
-
+        @await Html.PartialAsync("_VoteOrderingQuestion", question)
     }
 }

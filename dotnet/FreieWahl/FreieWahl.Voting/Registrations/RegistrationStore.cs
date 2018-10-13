@@ -114,6 +114,17 @@ namespace FreieWahl.Voting.Registrations
             return results.Entities.Select(_FromCompletedEntity).ToList();
         }
 
+        public async Task<bool> IsRegistrationUnique(string dataSigneeId, long votingId)
+        {
+            Query q = new Query(CompletedStoreKind)
+            {
+                Filter = Filter.And(Filter.Equal("VoterId", dataSigneeId), Filter.Equal("VotingId", votingId))
+            };
+
+            var results = await _db.RunQueryAsync(q);
+            return results.Entities.Count == 0;
+        }
+
         private CompletedRegistration _FromCompletedEntity(Entity entity)
         {
             return new CompletedRegistration

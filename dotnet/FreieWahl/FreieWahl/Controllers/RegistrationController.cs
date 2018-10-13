@@ -64,10 +64,16 @@ namespace FreieWahl.Controllers
                     .InnerText;
                 var data = _signatureHandler.GetSignedContent(signedData);
                 _logger.LogInformation("Received signed data: " + data.Data);
+
                 var dataContent = data.Data;
                 var votingId = dataContent.ToId();
                 if (votingId == null)
                     return BadRequest();
+
+                if (!await _registrationStore.IsRegistrationUnique(data.SigneeId, votingId.Value))
+                {
+                    return BadRequest("You have already registered for this voting!");
+                }
 
                 await _registrationStore.AddOpenRegistration(new OpenRegistration
                 {
