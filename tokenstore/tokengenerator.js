@@ -54,7 +54,6 @@ function unblindToken(message, r, password, n) {
   return unblinded.toString(16);
 }
 
-
 module.exports = {
   generateToken: generateToken,
   blindToken: blindToken,

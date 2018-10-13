@@ -6,6 +6,7 @@ const datastore = Datastore({ projectId: config.GCLOUD_PROJECT });
 const TABLE_REGISTRATIONS = 'registration';
 const TABLE_VOTINGTOKENS = 'votingToken';
 const TABLE_PUBLICKEYS = 'publicKeys';
+const TABLE_PASSWORDS = 'voterPasswords';
 
 async function addRegisteredTokens(registrationId, email, tokens, blindedTokens, blindingFactors) {
   const newRegistration = {
@@ -45,7 +46,7 @@ function getToken(voterId, index) {
     .then((results) => {
       // TODO: error handling
       const resultArray = results[0];
-      if(resultArray.length != 1) {
+      if (resultArray.length != 1) {
         return null;
       }
 
@@ -82,7 +83,7 @@ function getChallenge(registrationId) {
     }
     const registration = queryResult[0];
     const now = Date.now();
-    if(now - registration.date > config.MAX_TIME_DELTA) {
+    if (now - registration.date > config.MAX_TIME_DELTA) {
       return null; // TODO logging
     }
 
@@ -106,7 +107,7 @@ function getRegistration(registrationId) {
 
 async function insertVotingTokens(votingId, voterId, tokens, signedTokens, blindingFactors) {
   let tokenEntities = [];
-  for(let i = 0; i < tokens.length; i++) {
+  for (let i = 0; i < tokens.length; i++) {
     const newEntity = {
       key: datastore.key(TABLE_VOTINGTOKENS),
       data: {
@@ -122,6 +123,14 @@ async function insertVotingTokens(votingId, voterId, tokens, signedTokens, blind
     tokenEntities[i] = newEntity;
   }
   await datastore.insert(tokenEntities);
+}
+
+async function getVotingTokens(voterId) {
+  const query = datastore.createQuery(TABLE_VOTINGTOKENS)
+    .filter('voterId', '=', voterId)
+    .select(['token', 'tokenIndex']);
+
+  return await datastore.runQuery(query);
 }
 
 function deleteTokens(votingId) {
@@ -161,7 +170,7 @@ function getKeys(votingId) {
 
 function insertKeys(votingId, exponents, moduli) {
   let keyEntities = [];
-  for(let i = 0; i < exponents.length; i++) {
+  for (let i = 0; i < exponents.length; i++) {
     const newEntity = {
       key: datastore.key(TABLE_PUBLICKEYS),
       data: {
@@ -176,6 +185,44 @@ function insertKeys(votingId, exponents, moduli) {
   return datastore.insert(keyEntities);
 }
 
+async function savePasswordHash(id, passwordHash) {
+  const newEntry = {
+    password: passwordHash
+  };
+
+  await datastore.insert({
+    key: datastore.key([TABLE_PASSWORDS, id]),
+    data: newEntry
+  });
+}
+
+async function updatePasswordHash(oldId, newId) {
+  const oldKey = datastore.key([TABLE_PASSWORDS, oldId]);
+  const result = await datastore.get(oldKey);
+
+  if(!result || !result[0]) {
+    return; // TODO log
+  }
+
+  const password = result[0].password;
+
+  await datastore.delete(oldKey);
+  const newEntry = {
+    password: password
+  };
+
+  await datastore.insert({
+    key: datastore.key([TABLE_PASSWORDS, newId]),
+    data: newEntry
+  });
+}
+
+async function getPasswordHash(voterId) {
+  const result = await datastore.get(datastore.key([TABLE_PASSWORDS, voterId]));
+  if(result && result[0])
+    return result[0].password;
+}
+
 module.exports = {
   registerTokens: addRegisteredTokens,
   getToken: getToken,
@@ -188,5 +235,9 @@ module.exports = {
   insertKeys: insertKeys,
   getKey: getKey,
   getKeys: getKeys,
-  datastore: datastore
+  datastore: datastore,
+  getVotingTokens: getVotingTokens,
+  savePasswordHash: savePasswordHash,
+  getPasswordHash: getPasswordHash,
+  updatePasswordHash: updatePasswordHash
 };

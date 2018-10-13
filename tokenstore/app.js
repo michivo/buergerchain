@@ -25,6 +25,7 @@ const uuidv4 = require('uuid/v4');
 const NodeRSA = require('node-rsa');
 const mailProvider = require('./mailprovider.js');
 const admin = require('firebase-admin');
+const sha256 = require('sha256');
 
 // Imports the Google Cloud client library
 const Logging = require('@google-cloud/logging');
@@ -54,7 +55,7 @@ admin.initializeApp({
   databaseURL: 'https://stunning-lambda-162919.firebaseio.com'
 });
 
-app.use(bodyParser.json({limit: '5mb'})); // support json encoded bodies
+app.use(bodyParser.json({ limit: '5mb' })); // support json encoded bodies
 app.use(bodyParser.urlencoded({ extended: true })); // support encoded bodies
 
 const MAX_TOKEN_COUNT = config.MAX_TOKEN_COUNT;
@@ -65,21 +66,21 @@ app.get('/', (req, res) => {
   res.status(200).send(result).end();
 });
 
-app.post('/grantRegistration', async function(req, res) {
+app.post('/grantRegistration', async function (req, res) {
   const registrationId = req.body.registrationId;
   const challenge = await dbwrapper.getChallenge(registrationId);
 
   const challengeSignature = Buffer.from(req.body.challengeSignature, 'base64');
   const challengeBuffer = Buffer.from(challenge);
   const result = rsaVerifier.verify(challengeBuffer, challengeSignature);
-  if(result) {
+  if (result) {
     //console.log('Successfully received signature for challenge for registration ' + registrationId);
-    log.entry({resource: logResource}, 'Successfully received signature for challenge for registration ' + registrationId);
+    log.entry({ resource: logResource }, 'Successfully received signature for challenge for registration ' + registrationId);
   }
   else {
     // TODO: error!
     // console.log('Received invalid signature for challenge for registration ' + registrationId);
-    log.entry({resource: logResource}, 'Received invalid signature for challenge for registration ' + registrationId);
+    log.entry({ resource: logResource }, 'Received invalid signature for challenge for registration ' + registrationId);
   }
 
   const registration = await dbwrapper.getRegistration(registrationId);
@@ -91,21 +92,22 @@ app.post('/grantRegistration', async function(req, res) {
   const link = req.body.link + `?votingId=${votingId}&voterId=${voterId}`;
   // console.log('inserting registration with id ' + registrationId + ', voter id ' + voterId + ', voting id ' + votingId);
   await dbwrapper.insertVotingTokens(votingId, voterId, registration.tokens, req.body.tokens, registration.blindingFactors);
+  await dbwrapper.updatePasswordHash(registrationId, voterId);
   await dbwrapper.deleteRegistration(registrationId);
   mailProvider.sendInvitation(registration.email, votingTitle, startDate, endDate, link);
   prepareRes(res);
   res.status(200).send('OK!').end;
 });
 
-app.post('/getChallengeAndTokens', async function(req, res) {
+app.post('/getChallengeAndTokens', async function (req, res) {
   const challenge = uuidv4();
   const date = Date.now();
   const tokens = await dbwrapper.setChallengeAndGetTokens(req.body.registrationId, challenge, date.toString());
   prepareRes(res);
-  res.json({'challenge': challenge, 'tokens': tokens}).end;
+  res.json({ 'challenge': challenge, 'tokens': tokens }).end;
 });
 
-app.post('/setKeys', async function(req, res) {
+app.post('/setKeys', async function (req, res) {
   const exponents = req.body.exponents;
   const moduli = req.body.moduli;
   const votingId = req.body.votingId;
@@ -113,10 +115,33 @@ app.post('/setKeys', async function(req, res) {
   res.status(200).send('OK!').end;
 });
 
-app.post('/getToken', async function(req, res) {
+app.post('/getTokens', async function (req, res) {
+  const voterId = req.body.voterId;
+  const questionIndices = req.body.questionIndices;
+  const password = await dbwrapper.getPassword(voterId);
+  const hashedPassword = getPasswordHash(req.body.password);
+  if (hashedPassword != password) {
+    res.status(401).send("Invalid password").end;
+  }
+  else {
+    const tokens = await dbwrapper.getVotingTokens(voterId);
+    const filteredTokens = tokens.filter(token => questionIndices.includes(token.tokenIndex));
+    prepareRes(res);
+    res.json({ 'tokens': filteredTokens }).end;
+  }
+});
+
+app.post('/getToken', async function (req, res) {
   const password = req.body.password;
   const voterId = req.body.voterId;
   const questionIndex = req.body.questionIndex;
+
+  const dbPassword = await dbwrapper.getPassword(voterId);
+  const hashedPassword = getPasswordHash(password);
+  if (hashedPassword != dbPassword) {
+    res.status(401).send("Invalid password").end;
+  }
+
   const voting = await dbwrapper.getToken(voterId, questionIndex);
   const token = voting.token;
   const blindingFactor = voting.blindingFactor;
@@ -125,18 +150,18 @@ app.post('/getToken', async function(req, res) {
   const unblindedToken = tokengenerator.unblindToken(signedToken, blindingFactor, password + '_' + questionIndex.toString() + '_' + voting.votingId, key.modulus);
   // Website you wish to allow to connect
   prepareRes(res);
-  res.json({'unblindedToken': unblindedToken, 'token': token}).end;
+  res.json({ 'unblindedToken': unblindedToken, 'token': token }).end;
 });
 
-app.post('/saveRegistrationDetails', async function(req, res) {
+app.post('/saveRegistrationDetails', async function (req, res) {
   const registrationId = req.body.id;
   const email = req.body.mail;
   const password = req.body.password;
   let tokenCount = req.body.tokenCount;
-  if(tokenCount < 1) {
+  if (tokenCount < 1) {
     tokenCount = 1; // TODO err?
   }
-  if(tokenCount > MAX_TOKEN_COUNT) {
+  if (tokenCount > MAX_TOKEN_COUNT) {
     tokenCount = MAX_TOKEN_COUNT;
   }
 
@@ -144,14 +169,17 @@ app.post('/saveRegistrationDetails', async function(req, res) {
   let blindedTokens = [];
   let blindingFactors = [];
   const keys = await dbwrapper.getKeys(req.body.votingId);
-  for(let i = 0; i < tokenCount; i++) {
+  for (let i = 0; i < tokenCount; i++) {
     const token = tokengenerator.generateToken();
     const blindedToken = tokengenerator.blindToken(token, password + '_' + i.toString() + '_' + req.body.votingId, keys[i].modulus, keys[i].exponent);
     blindingFactors[i] = blindedToken.r;
     blindedTokens[i] = blindedToken.blinded;
     tokens[i] = token;
   }
-  log.entry({resource: logResource}, 'Saving Registration details for registration with id' + registrationId);
+  
+  log.entry({ resource: logResource }, 'Saving Registration details for registration with id' + registrationId);
+
+  await dbwrapper.savePasswordHash(registrationId, getPasswordHash(password));
 
   dbwrapper.registerTokens(registrationId, email, tokens, blindedTokens, blindingFactors)
     .then(() => {
@@ -170,11 +198,11 @@ app.post('/sessionLogin', (req, res) => {
   // The session cookie will have the same claims as the ID token.
   // To only allow session cookie setting on recent sign-in, auth_time in ID token
   // can be checked to ensure user was recently signed in before creating a session cookie.
-  admin.auth().createSessionCookie(idToken, {expiresIn}).then((sessionCookie) => {
+  admin.auth().createSessionCookie(idToken, { expiresIn }).then((sessionCookie) => {
     // Set cookie policy for session cookie.
-    const options = {maxAge: expiresIn, httpOnly: true, secure: true};
+    const options = { maxAge: expiresIn, httpOnly: true, secure: true };
     res.cookie('session', sessionCookie, options);
-    res.end(JSON.stringify({status: 'success', session: sessionCookie, maxAge: expiresIn}));
+    res.end(JSON.stringify({ status: 'success', session: sessionCookie, maxAge: expiresIn }));
   }, error => {
     res.status(401).send('UNAUTHORIZED REQUEST!');
   });
@@ -182,7 +210,7 @@ app.post('/sessionLogin', (req, res) => {
 
 
 // Start the server
-if(!module.parent) {
+if (!module.parent) {
   const PORT = process.env.PORT || 8082;
   app.listen(PORT, () => {
     console.log(`App listening on port ${PORT}`); // eslint-disable-line no-console
@@ -193,6 +221,10 @@ if(!module.parent) {
 
 function prepareRes(res) {
   res.setHeader('Access-Control-Allow-Origin', 'http://localhost:61878');
+}
+
+function getPasswordHash(password, voterId) {
+  return sha256(password + '_' + voterId + '_yummySalt420++');
 }
 
 module.exports = app;

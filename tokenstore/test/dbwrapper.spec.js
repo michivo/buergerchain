@@ -9,6 +9,7 @@ const timeout = ms => new Promise(res => setTimeout(res, ms));
 const TABLE_REGISTRATIONS = 'registration';
 const TABLE_VOTINGTOKENS = 'votingToken';
 const TABLE_PUBLICKEYS = 'publicKeys';
+const TABLE_PASSWORDS = 'voterPasswords';
 
 const DATASTORE_WAIT_TIME = 100;
 
@@ -304,6 +305,31 @@ describe('The deleteTokens function', function() {
   });
 });
 
+
+describe('The getTokens function', function() {
+  it('should get all tokens for a voter id', async() => {
+    // arrange
+    const tokens = [ 'token1', 'token2', 'token3' ];
+    const signed = [ 'signed1', 'signed2', 'signed3' ];
+    const blindingFactors = [ 'blinding1', 'blinding2', 'blinding3' ];
+    await dbwrapper.insertVotingTokens('testVotingDeleteToken2', 'voter456', tokens, signed, blindingFactors);
+    await timeout(DATASTORE_WAIT_TIME);
+
+    // act
+    var readTokens = await dbwrapper.getVotingTokens('voter456');
+    await timeout(DATASTORE_WAIT_TIME);
+
+    // assert
+    expect(readTokens[0].length).to.equal(3);
+    expect(readTokens[0][0].tokenIndex).to.equal(0);
+    expect(readTokens[0][1].tokenIndex).to.equal(1);
+    expect(readTokens[0][2].tokenIndex).to.equal(2);
+    expect(readTokens[0][0].token).to.equal('token1');
+    expect(readTokens[0][1].token).to.equal('token2');
+    expect(readTokens[0][2].token).to.equal('token3');
+  });
+});
+
 describe('The insertKeys function', function() {
   after(async() => {
     await deleteKeys('vTestInsertKeys1');
@@ -538,6 +564,52 @@ describe('The getChallenge function', function() {
   });
 });
 
+describe('The getPassword and setPassword function', function() {
+  after(async() => {
+    await deletePassword('foobar');
+    await deletePassword('foobar2');
+    await deletePassword('foobar3');
+    await deletePassword('barfoo3');
+  });
+  it('should read and write a password', async() => {
+    // arrange
+    await dbwrapper.savePasswordHash('foobar', 'pass1234');
+    await timeout(DATASTORE_WAIT_TIME);
+
+    // act
+    var password = await dbwrapper.getPasswordHash('foobar');
+
+    // assert
+    expect(password).to.equal('pass1234');
+  });
+
+  it('should not fail with a bad id', async() => {
+    // arrange
+    await dbwrapper.savePasswordHash('foobar2', 'pass1234');
+    await timeout(DATASTORE_WAIT_TIME);
+
+    // act
+    var password = await dbwrapper.getPasswordHash('barfoo2');
+
+    // assert
+    assert(!password);
+  });  
+
+  it('should update the voting id', async() => {
+    // arrange
+    await dbwrapper.savePasswordHash('foobar3', 'pass1234');
+    await timeout(DATASTORE_WAIT_TIME);
+    await dbwrapper.updatePasswordHash('foobar3', 'barfoo3');
+    await timeout(DATASTORE_WAIT_TIME);
+
+    // act
+    var password = await dbwrapper.getPasswordHash('barfoo3');
+
+    // assert
+    expect(password).to.equal('pass1234');
+  });    
+});
+
 
 // BEGIN helper functions
 // async function printTable(table) {
@@ -570,6 +642,18 @@ async function deleteRegistration(registrationId) {
       datastore.delete(results[0].map(x => x[datastore.KEY]));
     });
 }
+
+async function deletePassword(id) {
+  const oldKey = datastore.key([TABLE_PASSWORDS, id]);
+  const result = await datastore.get(oldKey);
+
+  if(!result || !result[0] || result[0].length === 0) {
+    return; // TODO log
+  }
+
+  await datastore.delete(oldKey);
+}
+
 
 async function deleteVotingTokens(votingId) {
   const query = datastore.createQuery(TABLE_VOTINGTOKENS)
