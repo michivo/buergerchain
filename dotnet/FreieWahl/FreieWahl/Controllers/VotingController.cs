@@ -62,6 +62,12 @@ namespace FreieWahl.Controllers
             return result;
         }
 
+        [HttpPost]
+        public IActionResult GetQuestionStatus(string[] tokens)
+        {
+            return Ok();
+        }
+
         [HttpGet]
         public async Task<IActionResult> Vote(string votingId, string voterId)
         {
@@ -74,12 +80,20 @@ namespace FreieWahl.Controllers
             {
                 return BadRequest("No voting with the given id");
             }
+            
+            var questions = voting.Questions
+                .Where(x => x.Status == QuestionStatus.OpenForVoting)
+                .Select(x => new QuestionModel(x, votingId)).ToArray();
 
             var model = new VoteModel
             {
                 StartDate = voting.StartDate,
                 EndDate = voting.EndDate,
-                VotingTitle = voting.Title
+                VotingTitle = voting.Title,
+                VotingId = votingId,
+                VoterId = voterId,
+                Questions = questions,
+                GetTokensUrl = _regUrl + "getTokens"
             };
 
             return View(model);

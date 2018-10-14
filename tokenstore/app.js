@@ -118,9 +118,10 @@ app.post('/setKeys', async function (req, res) {
 app.post('/getTokens', async function (req, res) {
   const voterId = req.body.voterId;
   const questionIndices = req.body.questionIndices;
-  const password = await dbwrapper.getPassword(voterId);
+  const password = await dbwrapper.getPasswordHash(voterId);
   const hashedPassword = getPasswordHash(req.body.password);
   if (hashedPassword != password) {
+    prepareRes(res);
     res.status(401).send("Invalid password").end;
   }
   else {
@@ -139,6 +140,7 @@ app.post('/getToken', async function (req, res) {
   const dbPassword = await dbwrapper.getPassword(voterId);
   const hashedPassword = getPasswordHash(password);
   if (hashedPassword != dbPassword) {
+    prepareRes(res);
     res.status(401).send("Invalid password").end;
   }
 
