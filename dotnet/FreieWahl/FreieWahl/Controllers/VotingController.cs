@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using FreieWahl.Application.VotingResults;
@@ -76,19 +75,36 @@ namespace FreieWahl.Controllers
                 return BadRequest("No voting with the given id");
             }
 
-            var questions = voting.Questions
-                .Where(x => x.Status == QuestionStatus.OpenForVoting)
-                .Select(x => new QuestionModel(x, votingId)).ToArray();
-
             var model = new VoteModel
             {
                 StartDate = voting.StartDate,
                 EndDate = voting.EndDate,
-                Questions = questions,
                 VotingTitle = voting.Title
             };
 
             return View(model);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> GetVotingQuestions(string votingId, string voterId)
+        {
+            var id = votingId.ToId();
+            if (!id.HasValue)
+            {
+                return BadRequest("Invalid voting id!");
+            }
+
+            var voting = await _votingStore.GetById(id.Value);
+            if (voting == null)
+            {
+                return BadRequest("No voting with the given id");
+            }
+
+            var questions = voting.Questions
+                .Where(x => x.Status == QuestionStatus.OpenForVoting)
+                .Select(x => new QuestionModel(x, votingId)).ToArray();
+            // TODO
+            return Ok();
         }
 
         [HttpGet]

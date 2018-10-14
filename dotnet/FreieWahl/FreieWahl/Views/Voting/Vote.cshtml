@@ -1,20 +1,16 @@
-﻿@using FreieWahl.Voting.Models
+﻿@using Newtonsoft.Json
 @model FreieWahl.Models.Voting.VoteModel
 
 <h2>@Model.VotingTitle</h2>
 
-@foreach (var question in Model.Questions)
-{
-    if (question.Type == QuestionType.Decision)
-    {
-        @await Html.PartialAsync("_VoteDecisionQuestion", question)
-    }
-    else if (question.Type == QuestionType.MultipleChoice)
-    {
-        @await Html.PartialAsync("_VoteMultipleChoiceQuestion", question)
-    }
-    else if (question.Type == QuestionType.Ordering)
-    { //@Json.Serialize(Model)
-        @await Html.PartialAsync("_VoteOrderingQuestion", question)
-    }
-}
+Geben Sie Ihr Passwort ein
+<form action="@Model.GetTokensUrl">
+    <div class="form-group">
+        <label for="voterPassword">Passwort</label>
+        <input type="password" class="form-control" id="voterPassword" name="password" placeholder="Password">
+    </div>
+    <input type="hidden" id="voterId" name="voterId" value="@Model.VoterId" />
+    <input type="hidden" id="votingId" name="votingId" value="@Model.VotingId" />
+    <input type="hidden" id="questionIndices" name="questionIndices" value="@Html.Raw(Json.Serialize(Model.Questions))" />
+    <button type="submit" class="btn btn-primary">Submit</button>
+</form>
