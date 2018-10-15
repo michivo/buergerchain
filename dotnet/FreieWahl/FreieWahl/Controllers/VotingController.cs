@@ -35,10 +35,18 @@ namespace FreieWahl.Controllers
             _regUrl = configuration["RemoteTokenStore:Url"];
         }
 
-        public IActionResult Register(string votingId)
+        public async Task<IActionResult> Register(string votingId)
         {
+            var id = votingId.ToId();
+            if (!id.HasValue)
+                return BadRequest("Invalid votingId");
+
+            var voting = await _votingStore.GetById(id.Value);
             ViewData["VotingId"] = votingId;
             ViewData["RegistrationStoreId"] = Guid.NewGuid().ToString("D");
+            ViewData["VotingTitle"] = voting.Title;
+            ViewData["VotingDescription"] = voting.Description;
+
             return View();
         }
 

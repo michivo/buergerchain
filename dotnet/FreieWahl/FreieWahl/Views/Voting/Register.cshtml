@@ -1,36 +1,48 @@
-﻿@{
-    ViewData["Title"] = "Get tokens";
-}
-<h2>@ViewData["Title"].</h2>
-<h3>@ViewData["Message"]</h3>
+﻿<nav class="navbar navbar-dark fixed-top navbar-expand-md">
+    <a class="navbar-brand" href="@Url.Action("Index", "Home")">
+        <span id="fw-brand-1">freie</span><span id="fw-brand-2">Wahl</span>
+    </a>
+</nav>
 
-<form target="signatureFrame" id="buergerkarteLoader" action="https://www.a-trust.at/mobile/https-security-layer-request/default.aspx" enctype="application/x-www-form-urlencoded" method="post" style="display: none;">
+<div class="container-fluid">
+    <div style="width: 350px;margin:auto">
+        <h1 class="text-uppercase text-primary">Registrierung</h1>
+        <h3 class="text-primary">@ViewData["VotingTitle"]</h3>
+        <p class="text-primary">
+            @ViewData["VotingDescription"]
+        </p>
 
-    <!-- XMLRequest -->
-    <input type="hidden" name="XMLRequest" id="sigRequest" value="<?xml version='1.0' encoding='UTF-8' ?>
-    <sl:CreateCMSSignatureRequest xmlns:sl='http://www.buergerkarte.at/namespaces/securitylayer/1.2#' Structure='enveloping'>
-        <sl:KeyboxIdentifier>SecureSignatureKeypair</sl:KeyboxIdentifier>
-        <sl:DataObject>
-            <sl:MetaInfo><sl:MimeType>text/plain</sl:MimeType></sl:MetaInfo>
-            <sl:Content>
-                <sl:Base64Content>TOKEN_PLACEHOLDER</sl:Base64Content>
-            </sl:Content>
-        </sl:DataObject>
-    </sl:CreateCMSSignatureRequest>" />
+        <div>
+            <div class="w-100 bg-primary text-white px-2" style="font-size: 2.5rem;font-weight: 100">Handysignatur</div>
+            <form target="signatureFrame" id="buergerkarteLoader" action="https://www.a-trust.at/mobile/https-security-layer-request/default.aspx" enctype="application/x-www-form-urlencoded" method="post" style="display: none;">
 
-    <input type="hidden" name="appletheight" value="250" />
-    <input type="hidden" name="appletwidth" value="250" />
+                <!-- XMLRequest -->
+                <input type="hidden" name="XMLRequest" id="sigRequest" value="<?xml version='1.0' encoding='UTF-8' ?>
+                <sl:CreateCMSSignatureRequest xmlns:sl='http://www.buergerkarte.at/namespaces/securitylayer/1.2#' Structure='enveloping'>
+                    <sl:KeyboxIdentifier>SecureSignatureKeypair</sl:KeyboxIdentifier>
+                    <sl:DataObject>
+                        <sl:MetaInfo><sl:MimeType>text/plain</sl:MimeType></sl:MetaInfo>
+                        <sl:Content>
+                            <sl:Base64Content>TOKEN_PLACEHOLDER</sl:Base64Content>
+                        </sl:Content>
+                    </sl:DataObject>
+                </sl:CreateCMSSignatureRequest>"/>
 
-    <!-- DataURL -->
-    <!-- <input type="hidden" name="DataURL" value="https://groovy-cider-826.appspot.com/HandySignatur?regUid=@ViewData["RegistrationStoreId"]" /> -->
-    <input type="hidden" name="DataURL" value="https://stunning-lambda-162919.appspot.com/Registration/Register?regUid=@ViewData["RegistrationStoreId"]" />
-    <!-- Submit Button -->
-    <input type="submit" value="Test Request" />
+                <input type="hidden" name="appletheight" value="350"/>
+                <input type="hidden" name="appletwidth" value="350"/>
 
-</form>
+                <!-- DataURL -->
+                <!-- <input type="hidden" name="DataURL" value="https://groovy-cider-826.appspot.com/HandySignatur?regUid=@ViewData["RegistrationStoreId"]" /> -->
+                <input type="hidden" name="DataURL" value="https://stunning-lambda-162919.appspot.com/Registration/Register?regUid=@ViewData["RegistrationStoreId"]"/>
+                <!-- Submit Button -->
+                <input type="submit" value="Test Request"/>
 
-<iframe name="signatureFrame" id="signatureFrame" width="250px" height="250px" scrolling="no"></iframe>
+            </form>
 
+            <iframe name="signatureFrame" id="signatureFrame" width="350" height="350" scrolling="no"></iframe>
+        </div>
+    </div>
+</div>
 <script>
     var orig_val = $("#sigRequest").val();
     var base64_encoded = window.btoa('@ViewData["VotingId"]');
