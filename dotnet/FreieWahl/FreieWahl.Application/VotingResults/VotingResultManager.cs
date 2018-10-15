@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading;
@@ -124,6 +125,12 @@ namespace FreieWahl.Application.VotingResults
         {
             if (_lastVoteCache.ContainsKey(votingId))
                 _lastVoteCache[votingId].Remove(questionIndex);
+        }
+
+        public async Task<IReadOnlyCollection<Vote>> GetResults(long votingId, string[] tokens)
+        {
+            var allVotes = await _votingResultStore.GetVotes(votingId).ConfigureAwait(false);
+            return allVotes.Where(x => tokens.Contains(x.Token)).ToList();
         }
 
         private byte[] _GetRawData(long votingId, int questionIndex, List<string> answers, string token, string signedToken)

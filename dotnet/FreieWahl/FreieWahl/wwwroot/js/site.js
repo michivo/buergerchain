@@ -543,3 +543,14 @@ function deleteVoting(id) {
         });
     }
 }
+
+function unlockQuestion(votingId, questionIndex) {
+    $.post({
+        url: 'UnlockQuestion',
+        data: { "votingId": votingId, "questionIndex": questionIndex },
+        success: function (data) {
+            alert('ok!');
+        }
+        // error: todo
+    });
+}

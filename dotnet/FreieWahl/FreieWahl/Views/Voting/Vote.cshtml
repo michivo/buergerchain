@@ -15,13 +15,14 @@ Geben Sie Ihr Passwort ein
 
     function getTokens() {
         const pwd = $('#voterPassword').val();
+        const questionIndices = @Json.Serialize(Model.Questions.Select(x => x.Index).ToArray());
         $.ajax({
             url: '@Model.GetTokensUrl',
-            data: { "voterId": '@Model.VoterId', "password": pwd },
+            data: { "voterId": '@Model.VoterId', "password": pwd, "questionIndices": questionIndices },
             type: 'POST',
             datatype: 'json',
             success: function (x) {
-                getQuestionStatus(x);
+                getQuestionStatus(x.tokens);
             },
             error: function (x) {
                 alert(JSON.stringify(x));
@@ -33,8 +34,8 @@ Geben Sie Ihr Passwort ein
     function getQuestionStatus(data) {
         var tokens = data.map(x => x.token);
         $.ajax({
-            url: 'GetQuestionStatus',
-            data: { "tokens": tokens },
+            url: 'GetAnsweredQuestionIndices',
+            data: { "votingId": '@Model.VotingId',"tokens": tokens },
             type: 'POST',
             datatype: 'json',
             success: function (x) {

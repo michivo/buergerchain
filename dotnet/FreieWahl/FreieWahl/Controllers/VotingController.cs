@@ -44,7 +44,7 @@ namespace FreieWahl.Controllers
 
         // GET: /VotingController/
         public async Task<IActionResult> SignTokens(string votingId, string[] tokens, string signature)
-        {   
+        {
             var signedTokens = new string[tokens.Length];
             int count = 0;
             var votingIdVal = long.Parse(votingId);
@@ -63,9 +63,18 @@ namespace FreieWahl.Controllers
         }
 
         [HttpPost]
-        public IActionResult GetQuestionStatus(string[] tokens)
+        public async Task<IActionResult> GetAnsweredQuestionIndices(string votingId, string[] tokens)
         {
-            return Ok();
+            var id = votingId.ToId();
+            if (!id.HasValue)
+                return BadRequest("Invalid votingId");
+
+            var votes = await _votingResultManager.GetResults(id.Value, tokens);
+            var result = new JsonResult(new
+            {
+                AnsweredIndices = votes.Select(x => x.QuestionIndex).ToArray()
+            });
+            return result;
         }
 
         [HttpGet]
@@ -80,7 +89,7 @@ namespace FreieWahl.Controllers
             {
                 return BadRequest("No voting with the given id");
             }
-            
+
             var questions = voting.Questions
                 .Where(x => x.Status == QuestionStatus.OpenForVoting)
                 .Select(x => new QuestionModel(x, votingId)).ToArray();

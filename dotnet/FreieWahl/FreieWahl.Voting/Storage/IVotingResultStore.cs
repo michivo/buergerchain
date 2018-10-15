@@ -11,7 +11,7 @@ namespace FreieWahl.Voting.Storage
         Task<IReadOnlyCollection<Vote>> GetVotes(long votingId);
 
         Task<IReadOnlyCollection<Vote>> GetVotes(long votingId, int questionIndex);
-
+        
         Task<Vote> GetLastVote(long votingId, int questionIndex);
     }
 }

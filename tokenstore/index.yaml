@@ -5,3 +5,9 @@ indexes:
   - name: votingId
   - name: keyIndex
     direction: asc
+
+- kind: votingToken
+  properties:
+  - name: voterId
+  - name: token
+  - name: tokenIndex

@@ -130,7 +130,8 @@ async function getVotingTokens(voterId) {
     .filter('voterId', '=', voterId)    
     .select(['token', 'tokenIndex']);
 
-  return await datastore.runQuery(query);
+  const result = await datastore.runQuery(query);
+  return result[0];
 }
 
 function deleteTokens(votingId) {

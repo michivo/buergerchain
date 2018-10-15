@@ -116,18 +116,28 @@ app.post('/setKeys', async function (req, res) {
 });
 
 app.post('/getTokens', async function (req, res) {
+  prepareRes(res);
   const voterId = req.body.voterId;
-  const questionIndices = req.body.questionIndices;
+  let questionIndices = req.body.questionIndices;
+  if(questionIndices.length === 0)
+  {
+    res.json({ 'tokens': [] }).end;
+  }
+  if(typeof questionIndices[0] === "string" || questionIndices[0] instanceof String) {
+    questionIndices = questionIndices.map(x => parseInt(x));
+  }
+
   const password = await dbwrapper.getPasswordHash(voterId);
   const hashedPassword = getPasswordHash(req.body.password);
   if (hashedPassword != password) {
-    prepareRes(res);
     res.status(401).send("Invalid password").end;
   }
   else {
     const tokens = await dbwrapper.getVotingTokens(voterId);
+    console.log(JSON.stringify(tokens));
+    console.log(JSON.stringify(questionIndices));
     const filteredTokens = tokens.filter(token => questionIndices.includes(token.tokenIndex));
-    prepareRes(res);
+    console.log(JSON.stringify(filteredTokens));
     res.json({ 'tokens': filteredTokens }).end;
   }
 });
@@ -225,8 +235,8 @@ function prepareRes(res) {
   res.setHeader('Access-Control-Allow-Origin', 'http://localhost:61878');
 }
 
-function getPasswordHash(password, voterId) {
-  return sha256(password + '_' + voterId + '_yummySalt420++');
+function getPasswordHash(password) {
+  return sha256(password + '_yummySalt420++');
 }
 
 module.exports = app;
