@@ -1,21 +1,83 @@
-﻿<h2>RegistrationDetails</h2>
+﻿<nav class="navbar navbar-dark fixed-top navbar-expand-md">
+    <a class="navbar-brand" href="@Url.Action("Index", "Home")">
+        <span id="fw-brand-1">freie</span><span id="fw-brand-2">Wahl</span>
+    </a>
+</nav>
+<div class="container-fluid fw-banner py-3">
+    <div class="row justify-content-between">
+        <div class="col-12 col-md-auto pl-0 py-3">
+            <div class="bg-primary px-5 text-light display-4">
+                @ViewData["VotingTitle"]
+            </div>
+            <div class="container pt-3">
+                <div class="row justify-content-between">
+                    <div style="max-width: 30rem;">
+                        <div class="p-0">
+                            <div class="bg-light text-primary px-3 mr-3 small">
+                                @ViewData["VotingDescription"]
+                            </div>
+                        </div>
+                    </div>
+                    <div class="d-flex flex-column justify-content-between">
+                        <div class="bg-light text-primary d-flex flex-row align-items-center" style="font-size:1.5rem;font-weight:100">
+                            <div><i class="material-icons text-primary mx-2" style="font-size: 3rem;">date_range</i></div>
+                            <div class="px-2">Start: @ViewData["StartDate"]<br />Ende: @ViewData["EndDate"]</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
 
-<div id="detailsInput">
-    <div class="form-group">
-        <label for="inputEmail">Email address</label>
-        <input type="email" class="form-control" id="inputEmail" aria-describedby="emailHelp" placeholder="Enter email">
-        <small id="emailHelp" class="form-text text-muted">Wir geben deine E-Mail-Adresse niemals weiter.</small>
+        </div>
+        <div class="col-12 col-md-auto">
+            @if (!string.IsNullOrEmpty(ViewData["ImageData"].ToString()))
+            {
+                <img src="@ViewData["ImageData"]" style="max-height: 13rem;" />
+            }
+            else
+            {
+                <i class="material-icons fw-voting-img" id="fw-voting-img-dummy">how_to_vote</i>
+            }
+        </div>
     </div>
-    <div class="form-group">
-        <label for="inputPassword">Password</label>
-        <input type="password" class="form-control" id="inputPassword" placeholder="Password">
-        <small id="passwordHelp" class="form-text text-muted">Vergiss dein Passwort nicht! Es kann nicht zurückgesetzt werden.</small>
-    </div>
-    <button class="btn btn-primary" onclick="saveRegistration()">Registrierung abschließen</button>
 </div>
 
-<div id="registrationSuccess" style="display: none">
-    Die Registrierung wurde erfolgreich abgeschlossen. Sie bekommen eine Mail, sobald Sie für die Wahl freigeschaltet wurden.
+<div class="container">
+    <div class="w-100 m-auto display-4 text-center text-primary text-uppercase">
+        Registrierung
+    </div>
+    <div class="progress mt-3">
+        <div class="progress-bar bg-primary" role="progressbar" id="registrationProgress" style="width: 66%" aria-valuenow="66" aria-valuemin="0" aria-valuemax="100"></div>
+    </div>
+    <div class="row border-bottom pb-2 mb-3">
+        <div class="col-4 text-center text-lightgray">Identitätsnachweis</div>
+        <div class="col-4 text-center text-primary" id="progressStatusContact">Kontaktdaten</div>
+        <div class="col-4 text-center text-lightgray" id="progressStatusDone">Abschluss</div>
+    </div>
+
+    <div id="detailsInput">
+        <div class="form-group">
+            <label for="inputEmail">Email address</label>
+            <input type="email" class="form-control" id="inputEmail" aria-describedby="emailHelp" placeholder="Enter email">
+            <small id="emailHelp" class="form-text text-muted">Wir geben Ihre E-Mail-Adresse niemals weiter.</small>
+        </div>
+        <div class="form-group">
+            <label for="inputPassword">Password</label>
+            <input type="password" class="form-control" id="inputPassword" placeholder="Password">
+            <small id="passwordHelp" class="form-text text-muted">Vergessen Sie Ihr Passwort nicht! Es kann nicht zurückgesetzt werden.</small>
+        </div>
+        <button class="btn btn-primary" onclick="showRegistrationSuccess()">Registrierung abschließen</button>
+    </div>
+
+    <div class="text-primary d-none row" id="registrationSuccess">
+        <div class="col-12 col-md-auto text-center">
+            <i class="material-icons" style="font-size: 10rem; color:green">check</i>
+        </div>
+        <div class="col">
+            <h1 class="pt-4">Registrierung erfolgreich</h1>
+            Die Registrierung wurde erfolgreich abgeschlossen. Sie bekommen eine Mail, sobald Sie für die Wahl freigeschaltet wurden. <br/>
+            Sie können dieses Fenster jetzt schließen.
+        </div>
+    </div>
 </div>
 
 <script>
@@ -42,6 +104,11 @@
 
     function showRegistrationSuccess() {
         $('#detailsInput').hide();
-        $('#registrationSuccess').show();
+        $('#registrationSuccess').removeClass('d-none');
+        $('#progressStatusContact').addClass('text-lightgray');
+        $('#progressStatusContact').removeClass('text-primary');
+        $('#progressStatusDone').remove('text-lightgray');
+        $('#progressStatusDone').addClass('text-primary');
+        $('#registrationProgress').css('width', '100%').attr('aria-valuenow', 100);
     }
 </script>

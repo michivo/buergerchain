@@ -8,6 +8,7 @@ using FreieWahl.Application.Registrations;
 using FreieWahl.Common;
 using FreieWahl.Security.Signing.Buergerkarte;
 using FreieWahl.Voting.Registrations;
+using FreieWahl.Voting.Storage;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
@@ -21,6 +22,7 @@ namespace FreieWahl.Controllers
         private readonly IRegistrationStore _registrationStore;
         private readonly IAuthorizationHandler _authHandler;
         private readonly IRegistrationHandler _registrationHandler;
+        private readonly IVotingStore _votingStore;
         private readonly string _regUrl;
         private readonly int _tokenCount;
         private readonly string _redirectUrl;
@@ -30,13 +32,15 @@ namespace FreieWahl.Controllers
             IRegistrationStore registrationStore,
             IAuthorizationHandler authHandler,
             IRegistrationHandler registrationHandler,
-            IConfiguration configuration)
+            IConfiguration configuration,
+            IVotingStore votingStore)
         {
             _logger = logger;
             _signatureHandler = signatureHandler;
             _registrationStore = registrationStore;
             _authHandler = authHandler;
             _registrationHandler = registrationHandler;
+            _votingStore = votingStore;
             _regUrl = configuration["RemoteTokenStore:Url"];
             _tokenCount = int.Parse(configuration["VotingSettings:MaxNumQuestions"]);
             _redirectUrl = configuration["Registration:RedirectUrl"];
@@ -106,6 +110,15 @@ namespace FreieWahl.Controllers
         public async Task<IActionResult> RegistrationDetails(string regUid)
         {
             var registration = await _registrationStore.GetOpenRegistration(regUid);
+            var id = registration.VotingId;
+
+            var voting = await _votingStore.GetById(id);
+            ViewData["RegistrationStoreId"] = Guid.NewGuid().ToString("D");
+            ViewData["VotingTitle"] = voting.Title;
+            ViewData["VotingDescription"] = voting.Description;
+            ViewData["ImageData"] = voting.ImageData ?? string.Empty;
+            ViewData["StartDate"] = voting.StartDate.ToString("HH:mm, dd.MM.yyyy");
+            ViewData["EndDate"] = voting.EndDate.ToString("HH:mm, dd.MM.yyyy");
             ViewData["RegistrationStoreId"] = regUid;
             ViewData["RegistrationStoreSaveRegUrl"] = _regUrl + "saveRegistrationDetails";
             ViewData["TokenCount"] = _tokenCount;

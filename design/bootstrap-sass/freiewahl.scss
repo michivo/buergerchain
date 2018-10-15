@@ -1,6 +1,7 @@
 $primary: #657f8C;
 $fw-light: #DCE4E7;
 $secondary: #3583A9;
+$fw-gray: #C0C0C0;
 $header-height: 4rem;
 
 $font-family-sans-serif: Roboto, -apple-system, system-ui, BlinkMacSystemFont, "Helvetica Neue", "Segoe UI", Arial, sans-serif !default;
@@ -113,17 +114,17 @@ span.fw-userheader {
 }
 
 div.fw-overview-card {
-    box-shadow: 1px 1px 3px #C0C0C0;
+    box-shadow: 1px 1px 3px $fw-gray;
     width: 18rem;
 }
 
 #functions-slick div.card-body{ 
-    box-shadow: 1px 1px 3px #C0C0C0
+    box-shadow: 1px 1px 3px $fw-gray
 }
 
 @keyframes fwOverviewCardPulse {
     0% {
-        box-shadow: 1px 1px 3px #C0C0C0;
+        box-shadow: 1px 1px 3px $fw-gray;
         transform: scale(1);
     }
 
@@ -140,7 +141,7 @@ div.fw-overview-card {
     }
 
     100% {
-        box-shadow: 1px 1px 3px #C0C0C0;
+        box-shadow: 1px 1px 3px $fw-gray;
         transform: scale(1);
     }
 }
@@ -219,7 +220,7 @@ div.fw-finished-vote-card {
 }
 
 div.fw-finished-vote-card-content {
-    box-shadow: 1px 1px 3px #C0C0C0; 
+    box-shadow: 1px 1px 3px $fw-gray; 
     position:absolute;
     left:0;
     right:0;
@@ -348,4 +349,8 @@ img.fw-card-svg {
 .slick-prev:before,
 .slick-next:before {
   color: #3582AC !important;
+}
+
+.text-lightgray {
+    color: #C0C0C0
 }

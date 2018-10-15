@@ -46,6 +46,9 @@ namespace FreieWahl.Controllers
             ViewData["RegistrationStoreId"] = Guid.NewGuid().ToString("D");
             ViewData["VotingTitle"] = voting.Title;
             ViewData["VotingDescription"] = voting.Description;
+            ViewData["ImageData"] = voting.ImageData ?? string.Empty;
+            ViewData["StartDate"] = voting.StartDate.ToString("HH:mm, dd.MM.yyyy");
+            ViewData["EndDate"] = voting.EndDate.ToString("HH:mm, dd.MM.yyyy");
 
             return View();
         }
