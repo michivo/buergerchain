@@ -26,6 +26,8 @@ namespace FreieWahl.Controllers
         private readonly string _regUrl;
         private readonly int _tokenCount;
         private readonly string _redirectUrl;
+        private string _duplicateRedirectUrl;
+        private string _errorRedirectUrl;
 
         public RegistrationController(ILogger<RegistrationController> logger,
             ISignatureHandler signatureHandler,
@@ -44,11 +46,13 @@ namespace FreieWahl.Controllers
             _regUrl = configuration["RemoteTokenStore:Url"];
             _tokenCount = int.Parse(configuration["VotingSettings:MaxNumQuestions"]);
             _redirectUrl = configuration["Registration:RedirectUrl"];
+            _errorRedirectUrl = configuration["Registration:ErrorUrl"];
         }
 
         [HttpPost]
         public async Task<IActionResult> Register(string regUid)
         {
+            string dataContent = "x";
             try
             {
                 _logger.LogInformation("Received response form: ");
@@ -69,14 +73,20 @@ namespace FreieWahl.Controllers
                 var data = _signatureHandler.GetSignedContent(signedData);
                 _logger.LogInformation("Received signed data: " + data.Data);
 
-                var dataContent = data.Data;
+                dataContent = data.Data;
                 var votingId = dataContent.ToId();
                 if (votingId == null)
                     return BadRequest();
 
                 if (!await _registrationStore.IsRegistrationUnique(data.SigneeId, votingId.Value))
                 {
-                    return BadRequest("You have already registered for this voting!");
+                    return new ContentResult
+                    {
+                        ContentType = "text/html",
+                        StatusCode = 200,
+                        Content = "<!DOCTYPE html><html><head><script>window.top.location.href = '" + _errorRedirectUrl +
+                                  "?reason=duplicate&votingId=" + dataContent + "';</script></head></html>"
+                    };
                 }
 
                 await _registrationStore.AddOpenRegistration(new OpenRegistration
@@ -89,7 +99,7 @@ namespace FreieWahl.Controllers
                 });
 
                 return new ContentResult
-                {
+                { // all is good
                     ContentType = "text/html",
                     StatusCode = 200,
                     Content = "<!DOCTYPE html><html><head><script>window.top.location.href = '" + _redirectUrl +
@@ -99,7 +109,13 @@ namespace FreieWahl.Controllers
             catch (Exception ex)
             {
                 _logger.LogWarning(ex, "Error processing signature");
-                return BadRequest();
+                return new ContentResult
+                {
+                    ContentType = "text/html",
+                    StatusCode = 200,
+                    Content = "<!DOCTYPE html><html><head><script>window.top.location.href = '" + _errorRedirectUrl +
+                              "?reason=error&votingId=" + dataContent + "';</script></head></html>"
+                };
             }
             finally
             {
@@ -125,6 +141,34 @@ namespace FreieWahl.Controllers
             ViewData["VotingId"] = registration.VotingId.ToString(CultureInfo.InvariantCulture);
             return View();
         }
+
+        public async Task<IActionResult> RegistrationError(string reason, string votingId)
+        {
+            var id = votingId.ToId();
+            if (id.HasValue)
+            {
+                var voting = await _votingStore.GetById(id.Value);
+                ViewData["RegistrationStoreId"] = Guid.NewGuid().ToString("D");
+                ViewData["VotingTitle"] = voting.Title;
+                ViewData["VotingDescription"] = voting.Description;
+                ViewData["ImageData"] = voting.ImageData ?? string.Empty;
+                ViewData["StartDate"] = voting.StartDate.ToString("HH:mm, dd.MM.yyyy");
+                ViewData["EndDate"] = voting.EndDate.ToString("HH:mm, dd.MM.yyyy");
+                ViewData["RegistrationStoreSaveRegUrl"] = _regUrl + "saveRegistrationDetails";
+                ViewData["TokenCount"] = _tokenCount;
+                ViewData["VotingId"] = votingId;
+            }
+
+            ViewData["ErrorTitle"] = reason.Equals("duplicate", StringComparison.OrdinalIgnoreCase)
+                ? "Bereits registriert"
+                : "Fehler beim Identitätsnachweis";
+            ViewData["ErrorMessage"] = reason.Equals("duplicate", StringComparison.OrdinalIgnoreCase)
+                ? "Sie haben sich für diese Wahl bereits registriert. Eine erneute Registrierung ist nicht möglich."
+                : "Beim Verarbeiten der Handysignatur ist es zu einem unerwarteten Fehler gekommen. Wenn dieser Fehler erneut auftritt, kontaktieren Sie bitte den Administrator/die Administratorin Ihrer Wahl.";
+
+            return View();
+        }
+
 
         [HttpPost]
         public async Task<IActionResult> GrantRegistration(string rid)
