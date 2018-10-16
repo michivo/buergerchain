@@ -73,21 +73,6 @@ namespace FreieWahl.Controllers
             return result;
         }
 
-        [HttpPost]
-        public async Task<IActionResult> GetAnsweredQuestionIndices(string votingId, string[] tokens)
-        {
-            var id = votingId.ToId();
-            if (!id.HasValue)
-                return BadRequest("Invalid votingId");
-
-            var votes = await _votingResultManager.GetResults(id.Value, tokens);
-            var result = new JsonResult(new
-            {
-                AnsweredIndices = votes.Select(x => x.QuestionIndex).ToArray()
-            });
-            return result;
-        }
-
         [HttpGet]
         public async Task<IActionResult> Vote(string votingId, string voterId)
         {
@@ -119,8 +104,7 @@ namespace FreieWahl.Controllers
             return View(model);
         }
 
-        [HttpPost]
-        public async Task<IActionResult> GetVotingQuestions(string votingId, string voterId)
+        public async Task<IActionResult> GetQuestions(string votingId, string voterId, string[] tokens)
         {
             var id = votingId.ToId();
             if (!id.HasValue)
@@ -134,11 +118,19 @@ namespace FreieWahl.Controllers
                 return BadRequest("No voting with the given id");
             }
 
+            var votes = await _votingResultManager.GetResults(id.Value, tokens);
+
             var questions = voting.Questions
                 .Where(x => x.Status == QuestionStatus.OpenForVoting)
                 .Select(x => new QuestionModel(x, votingId)).ToArray();
-            // TODO
-            return Ok();
+
+            var model = new QuestionData
+            {
+                AnsweredQuestions = questions.Where(x => votes.Any(vote => vote.QuestionIndex == x.Index)).ToArray(),
+                OpenQuestions = questions.Where(x => votes.All(vote => vote.QuestionIndex != x.Index)).ToArray()
+            };
+
+            return PartialView(model);
         }
 
         [HttpGet]

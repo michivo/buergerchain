@@ -352,5 +352,10 @@ img.fw-card-svg {
 }
 
 .text-lightgray {
-    color: #C0C0C0
+    color: $fw-gray;
+}
+
+[contenteditable=true]:empty::before {
+  content: attr(placeholder);
+  color: $fw-gray;
 }

@@ -160,7 +160,7 @@ app.post('/getToken', async function (req, res) {
   const signedToken = voting.signedToken;
   const key = await dbwrapper.getKey(voting.votingId, questionIndex);
   const unblindedToken = tokengenerator.unblindToken(signedToken, blindingFactor, password + '_' + questionIndex.toString() + '_' + voting.votingId, key.modulus);
-  // Website you wish to allow to connect
+  
   prepareRes(res);
   res.json({ 'unblindedToken': unblindedToken, 'token': token }).end;
 });
@@ -184,20 +184,17 @@ app.post('/saveRegistrationDetails', async function (req, res) {
   for (let i = 0; i < tokenCount; i++) {
     const token = tokengenerator.generateToken();
     const blindedToken = tokengenerator.blindToken(token, password + '_' + i.toString() + '_' + req.body.votingId, keys[i].modulus, keys[i].exponent);
-    blindingFactors[i] = blindedToken.r;
-    blindedTokens[i] = blindedToken.blinded;
-    tokens[i] = token;
+    blindingFactors.push(blindedToken.r);
+    blindedTokens.push(blindedToken.blinded);
+    tokens.push(token);
   }
   
-  log.entry({ resource: logResource }, 'Saving Registration details for registration with id' + registrationId);
-
+  log.entry({ resource: logResource }, 'Saving Registration details for registration with id ' + registrationId);
+  await dbwrapper.registerTokens(registrationId, email, tokens, blindedTokens, blindingFactors);
   await dbwrapper.savePasswordHash(registrationId, getPasswordHash(password));
 
-  dbwrapper.registerTokens(registrationId, email, tokens, blindedTokens, blindingFactors)
-    .then(() => {
-      prepareRes(res);
-      res.status(200).send('OK!').end;
-    });
+  prepareRes(res);
+  res.status(200).send('OK!').end;
 });
 
 app.post('/sessionLogin', (req, res) => {
@@ -219,7 +216,6 @@ app.post('/sessionLogin', (req, res) => {
     res.status(401).send('UNAUTHORIZED REQUEST!');
   });
 });
-
 
 // Start the server
 if (!module.parent) {

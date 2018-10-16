@@ -9,7 +9,7 @@ function deleteQuestion(votingId, questionNumber) {
         type: 'POST',
         datatype: 'json',
         success: function (data) {
-            location.reload();
+            updateQuestions(votingId);
         } // TODO error
     });
 }
@@ -20,9 +20,7 @@ function editQuestion(question) {
     $('#newQuestionDescription').val(question.description);
     $('#questionType').val(question.type);
     if (question.type !== '1') {
-        $('#minNoAnswers').val(question.minNumAnswers);
         $('#maxNoAnswers').val(question.maxNumAnswers);
-        $('#minNoAnswers').parent().show();
         $('#maxNoAnswers').parent().show();
     }
 
@@ -55,8 +53,12 @@ function saveQuestion(vid, idx) {
         answers.push($(this).find('td.answerOptionText').text());
         answerDescriptions.push($(this).find('td.answerOptionDescription').text());
     });
-    const minNumAnswers = parseInt($('#minNoAnswers').val());
-    const maxNumAnswers = parseInt($('#maxNoAnswers').val());
+
+    let maxNumAnswers = parseInt($('#maxNoAnswers').val());
+    if (isNaN(maxNumAnswers)) {
+        maxNumAnswers = 1;
+    }
+
 
     $.post({
         url: 'UpdateVotingQuestion',
@@ -68,14 +70,31 @@ function saveQuestion(vid, idx) {
             "type": type,
             "answers": answers,
             "answerDescriptions": answerDescriptions,
-            "minNumAnswers": minNumAnswers,
+            "minNumAnswers": 1,
             "maxNumAnswers": maxNumAnswers
         },
         success: function (data) { // todo
             $('#newQuestionModal').modal('hide');
+            resetNewQuestionModal();
+            updateQuestions(vid);
         }
         // error: todo
     });
+}
+
+function updateQuestions(votingId) {
+    $('#questionList').load(`QuestionList?id=${votingId}`);
+}
+
+function resetNewQuestionModal() {
+    $('#newQuestionTitle').val('');
+    $('#newQuestionDescription').val('');
+    $('#maxNoAnswers').val('1');
+    $("#answersTable .answerOption").not('.hide').each(function () {
+        $(this).detach();
+    });
+    $('#modalQuestionOk').text('OK');
+    $('#modalQuestionOk').removeClass('disabled');
 }
 
 function grantRegistration(regId, votingId) {
@@ -166,7 +185,7 @@ function sendInvitations(votingId) {
     $.post({
         url: 'SendInvitationMail',
         data: { "votingId": votingId, "addresses": recipients },
-        success: function(data) {
+        success: function (data) {
             $('#inviteVotersModal').modal('hide');
         }
         // error: todo
@@ -198,10 +217,8 @@ function setupEditScreen(votingId) {
 
     $('#questionType').change(function () {
         if ($('#questionType').val() === '1') {
-            $('#minNoAnswers').parent().hide();
             $('#maxNoAnswers').parent().hide();
         } else {
-            $('#minNoAnswers').parent().show();
             $('#maxNoAnswers').parent().show();
         }
     });
@@ -257,8 +274,6 @@ function blinkOnScroll() {
 }
 
 function createQuestion(votingId) {
-    $('#newQuestionTitle').val('');
-    $('#newQuestionDescription').val('');
     $('#newQuestionModal').modal();
     $('#modalQuestionOk').off('click').on('click', function () { saveQuestion(votingId, 0); });
 }
@@ -273,8 +288,8 @@ function showInviteModal() {
 function setupOverview() {
     initApp();
 
-    $('document').ready(function() {
-        $('#fw-user-img-input').change(function() { previewAndUploadFile('user'); });
+    $('document').ready(function () {
+        $('#fw-user-img-input').change(function () { previewAndUploadFile('user'); });
         $('#fw-voting-img-input').change(function () { previewAndUploadFile('voting'); });
         $('#fwStartDate').change(function () { fwValidate('#fwStartDate', '#fwStartDateValidation', /^[0-3]?\d\.[0,1]?\d\.20\d{2}$/); });
         $('#fwEndDate').change(function () { fwValidate('#fwEndDate', '#fwEndDateValidation', /^[0-3]?\d\.[0,1]?\d\.20\d{2}$/); });
@@ -284,13 +299,13 @@ function setupOverview() {
 
         showOverview();
         $('#fw-user-img-content').hover(
-            function() { highlightImgSelector('user', 'rgba(255, 255, 255, 0.5)'); },
-            function() { resetImgSelector('user', 'rgba(255, 255, 255, 0.5)'); }
+            function () { highlightImgSelector('user', 'rgba(255, 255, 255, 0.5)'); },
+            function () { resetImgSelector('user', 'rgba(255, 255, 255, 0.5)'); }
         );
 
         $('#fw-voting-img-content').hover(
-            function() { highlightImgSelector('voting', 'rgba(101, 127, 140, 0.5)'); },
-            function() { resetImgSelector('voting', 'rgba(101, 127, 140, 0.5)'); }
+            function () { highlightImgSelector('voting', 'rgba(101, 127, 140, 0.5)'); },
+            function () { resetImgSelector('voting', 'rgba(101, 127, 140, 0.5)'); }
         );
 
         $('.form-group.date').datepicker({
@@ -431,7 +446,7 @@ function saveVoting() {
     validationResult = fwValidate('#fwStartTime', '#fwStartTimeValidation', /^[0-2]?\d:[0-5]\d$/) && validationResult;
     validationResult = fwValidate('#fwEndTime', '#fwEndTimeValidation', /^[0-2]?\d:[0-5]\d$/) && validationResult;
     validationResult = fwValidate('#fwNewVotingName', '#fwNewVotingNameValidation', /^(?!\s*$).+/) && validationResult;
-    if(!validationResult)
+    if (!validationResult)
         return;
 
     if ($('#fw-voting-img-real').is(':visible')) {
@@ -489,7 +504,7 @@ function showOverviewData(data) {
     $("#fw-active-voting-count").text(data.length);
     for (var i = 0; i < data.length; i++) {
         const voting = data[i];
-        let item = '<div class="col-xl-4 col-md-6 col-12 fw-open-voting"><div class="card fw-overview-card">' + 
+        let item = '<div class="col-xl-4 col-md-6 col-12 fw-open-voting"><div class="card fw-overview-card">' +
             `<a href="Edit?id=${voting.id}">`;
         if (voting.imageData) {
             item += `<img class="card-img-top" style="max-height:12rem;" src="${voting.imageData}">`;
@@ -499,9 +514,9 @@ function showOverviewData(data) {
         }
 
         item += `</a><div class="card-body d-flex flex-column justify-content-between" style="height:12rem"><h5 class="card-title">${voting.title}</h5>` +
-                `<p class="card-text">${truncate(voting.description, 50)}</p>\r\n` +
-                `<div><a class="fw-card-link-icon float-left p-2 border" href="javascript:void(0);" onclick="deleteVoting('${voting.id}')"><i class="material-icons">delete</i></a>\r\n` +
-                `<a class="fw-card-link-icon bg-primary float-right p-2" href="Edit?id=${voting.id}"><i class="material-icons text-white">edit</i></a></div></div></div></div>`;
+            `<p class="card-text">${truncate(voting.description, 50)}</p>\r\n` +
+            `<div><a class="fw-card-link-icon float-left p-2 border" href="javascript:void(0);" onclick="deleteVoting('${voting.id}')"><i class="material-icons">delete</i></a>\r\n` +
+            `<a class="fw-card-link-icon bg-primary float-right p-2" href="Edit?id=${voting.id}"><i class="material-icons text-white">edit</i></a></div></div></div></div>`;
         items.push(item);
     }
     $(items.join("\n")).insertBefore("#fw-add-voting-card");
@@ -549,7 +564,7 @@ function unlockQuestion(votingId, questionIndex) {
         url: 'UnlockQuestion',
         data: { "votingId": votingId, "questionIndex": questionIndex },
         success: function (data) {
-            alert('ok!');
+            updateQuestions(votingId);
         }
         // error: todo
     });

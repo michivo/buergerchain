@@ -1,0 +1,24 @@
+﻿@using FreieWahl.Voting.Models
+@model FreieWahl.Models.Voting.QuestionData
+
+<h1 class="display-4">Offene Fragen</h1>
+
+@foreach (var question in Model.OpenQuestions)
+{
+    if (question.Type == QuestionType.Decision)
+    {
+        @await Html.PartialAsync("_VoteDecisionQuestion", question);
+    }
+    else if (question.Type == QuestionType.Ordering)
+    {
+        @await Html.PartialAsync("_VoteOrderingQuestion", question);
+    }
+    else if (question.Type == QuestionType.MultipleChoice)
+    {
+        @await Html.PartialAsync("_VoteMultipleChoiceQuestion", question);
+    }
+}
+
+<h1 class="display-4 border-top">Beantwortete Fragen</h1>
+
+todo

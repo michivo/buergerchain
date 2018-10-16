@@ -16,7 +16,10 @@ namespace FreieWahl.Models.VotingAdministration
             Type = q.QuestionType;
             MinNumAnswers = q.MinNumAnswers;
             MaxNumAnswers = q.MaxNumAnswers;
+            Status = q.Status;
         }
+
+        public QuestionStatus Status { get; set; }
 
         private string _GetDescription(List<QuestionDetail> details)
         {

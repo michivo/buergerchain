@@ -8,11 +8,13 @@ Geben Sie Ihr Passwort ein
         <label for="voterPassword">Passwort</label>
         <input type="password" class="form-control" id="voterPassword" name="password" placeholder="Password">
     </div>
-    <button class="btn btn-primary" onclick="getTokens()">Submit</button>
+<button class="btn btn-primary" onclick="getTokens()">Submit</button>
+
+<div class="container" id="votingQuestions">
+
+</div>
 
 <script>
-    const questions = @Json.Serialize(Model.Questions);
-
     function getTokens() {
         const pwd = $('#voterPassword').val();
         const questionIndices = @Json.Serialize(Model.Questions.Select(x => x.Index).ToArray());
@@ -21,8 +23,9 @@ Geben Sie Ihr Passwort ein
             data: { "voterId": '@Model.VoterId', "password": pwd, "questionIndices": questionIndices },
             type: 'POST',
             datatype: 'json',
-            success: function (x) {
-                getQuestionStatus(x.tokens);
+            success: function (data) {
+                var tokens = data.tokens.map(x => x.token);
+                $('#votingQuestions').load('GetQuestions', { 'tokens': tokens, 'votingId': '@Model.VotingId', 'voterId': '@Model.VoterId' })
             },
             error: function (x) {
                 alert(JSON.stringify(x));
@@ -30,22 +33,5 @@ Geben Sie Ihr Passwort ein
             }
         });
     }
-
-    function getQuestionStatus(data) {
-        var tokens = data.map(x => x.token);
-        $.ajax({
-            url: 'GetAnsweredQuestionIndices',
-            data: { "votingId": '@Model.VotingId',"tokens": tokens },
-            type: 'POST',
-            datatype: 'json',
-            success: function (x) {
-                alert('yeehaw!');
-            },
-            error: function(x) {
-                // error: todo
-            }
-        });
-    }
-
-
+    
 </script>

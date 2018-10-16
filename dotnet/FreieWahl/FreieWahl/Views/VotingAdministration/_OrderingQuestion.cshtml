@@ -1,16 +1,20 @@
-﻿@model FreieWahl.Models.VotingAdministration.QuestionModel
+﻿@using FreieWahl.Voting.Models
+@model FreieWahl.Models.VotingAdministration.QuestionModel
 
 <div class="card my-4">
-<div class="card-header bg-primary text-light pb-0 pt-1" style="font-size:2.5rem; font-weight: 100;line-height: 2.5rem"><div class="pt-2 float-left">Reihungsfrage</div>
+    <div class="card-header bg-primary text-light pb-0 pt-1" style="font-size:2.5rem; font-weight: 100;line-height: 2.5rem"><div class="py-2 float-left">Reihungsfrage</div>
+    @if (Model.Status == QuestionStatus.InPreparation)
+    {
         <div class="btn-group dropleft float-right">
             <a class="nav-link" href="#" id="question-@Model.Index-menu" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                <i class="material-icons text-white" style="font-size:2.5rem">more_vert</i>
+                <i class="material-icons text-white" style="font-size: 2.5rem">more_vert</i>
             </a>
             <div class="dropdown-menu" aria-labelledby="question-@Model.Index-menu">
                 <button class="dropdown-item" type="button" onclick='editQuestion(@Json.Serialize(Model))'>Bearbeiten</button>
                 <button class="dropdown-item" type="button" onclick="deleteQuestion('@Model.VotingId', @Model.Index)">Frage löschen</button>
             </div>
         </div>
+    }
     </div>
     <div class="card-body">
         <h1 class="card-title" style="border-bottom: 1px solid #657F8C"  id="question-@Model.Index-title">@Model.Text</h1>
@@ -34,17 +38,20 @@
                     }
                 </div>
                 <div class="col-lg-6 col-12">
-                    @for (int i = 0; i < Model.MinNumAnswers; i++)
+                    @for (int i = 0; i < Model.MaxNumAnswers; i++)
                     {
                         <div class="my-2 p-2 border w-100 bg-dark text-light">@(i + 1)</div>
-                    }
-                    @for (int j = Model.MinNumAnswers; j < Model.MaxNumAnswers; j++)
-                    {
-                        <div class="my-2 p-2 border w-100 text-white" style="background-color: gray">@(j + 1)</div>
                     }
                 </div>
             </div>
         </div>
-        <button class="btn btn-success float-right mx-3" onClick="unlockQuestion('@Model.VotingId', @Model.Index)">Für Wahl freischalten</button>
+        @if (Model.Status == QuestionStatus.InPreparation)
+        {
+            <button class="btn btn-success float-right mx-3" onClick="unlockQuestion('@Model.VotingId', @Model.Index)" data-toggle="popover" data-placement="top" data-content="Vivamus sagittis lacus vel augue laoreet rutrum faucibus.">Für Wahl freischalten</button>
+        }
+        else
+        {
+            <span class="float-right bg-light text-dark p-2 border">Diese Frage wurde bereits für die WählerInnen freigeschaltet und kann nicht mehr bearbeitet werden.</span>
+        }
     </div>
 </div>

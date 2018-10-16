@@ -171,6 +171,31 @@ namespace FreieWahl.Controllers
             });
         }
 
+
+        [HttpGet]
+        public async Task<IActionResult> QuestionList(string id)
+        {
+            var user = await _GetUserForGetRequest();
+
+            if (user == null)
+                return Unauthorized();
+
+            var voting = await _votingStore.GetById(_GetId(id));
+
+            return PartialView(new EditVotingModel
+            {
+                VotingId = id,
+                Title = voting.Title,
+                Description = voting.Description,
+                ImageData = voting.ImageData,
+                Questions = voting.Questions.Select(q => new QuestionModel(q, id)).ToList(),
+                UserInitials = _GetInitials(user.Name),
+                StartDate = voting.StartDate.ToString("dd.MM.yyyy HH:mm", CultureInfo.InvariantCulture),
+                EndDate = voting.EndDate.ToString("dd.MM.yyyy HH:mm", CultureInfo.InvariantCulture),
+                RegistrationUrl = _GetRegistrationUrl(id)
+            });
+        }
+
         [HttpPost]
         public async Task<IActionResult> UpdateVoting(string id, string title, string desc, string imageData,
             string startDate, string startTime, string endDate, string endTime)
@@ -301,6 +326,8 @@ namespace FreieWahl.Controllers
             List<AnswerOption> answerOptions = new List<AnswerOption>();
             for(int i = 0; i < answers.Length; i++)
             {
+                if (string.IsNullOrEmpty(answers[i]))
+                    continue;
                 answerOptions.Add(new AnswerOption
                 {
                     AnswerText = answers[i],

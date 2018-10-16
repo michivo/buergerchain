@@ -109,27 +109,8 @@
                 </div>
             </div>
         </div>
-        <div class="col-12 col-lg-8 p-3">
-            <h1 class="display-4">Fragen</h1>
-            @foreach (var question in Model.Questions)
-            {
-                if (question.Type == QuestionType.Decision)
-                {
-                    @await Html.PartialAsync("_DecisionQuestion", question);
-                }
-                else if (question.Type == QuestionType.MultipleChoice)
-                {
-                    @await Html.PartialAsync("_MultipleChoiceQuestion", question);
-                }
-                else if (question.Type == QuestionType.Ordering)
-                {
-                    @await Html.PartialAsync("_OrderingQuestion", question);
-                }
-            }
-            <div class="float-right">
-                <i class="material-icons blinkOnScroll" style="font-size: 4rem;color: #3583A9;font-weight: 700;border-radius: 50%;cursor:pointer"
-                   onclick="createQuestion('@Model.VotingId')">add_circle</i>
-            </div>
+        <div class="col-12 col-lg-8 p-3" id="questionList">
+            @await Html.PartialAsync("QuestionList", Model)
         </div>
     </div>
 </main>

@@ -20,7 +20,12 @@ function blindToken(token, password, n, e, r) {
   const nBig = new BigInteger(n, 16);
   const eBig = new BigInteger(e, 16);
 
-  const rBig = new BigInteger(r, 16) || getR(nBig);
+  let rBig;
+  if (r) {
+    rBig = new BigInteger(r, 16);
+  } else {
+    rBig = getR(nBig);
+  }
 
   const blinded = messageHash.multiply(rBig.modPow(eBig, nBig)).mod(nBig);
   return {
