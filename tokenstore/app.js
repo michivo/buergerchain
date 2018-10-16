@@ -66,7 +66,7 @@ app.get('/', (req, res) => {
   res.status(200).send(result).end();
 });
 
-app.post('/grantRegistration', async function (req, res) {
+app.post('/grantRegistration', wrapAsync(async function (req, res) {
   const registrationId = req.body.registrationId;
   const challenge = await dbwrapper.getChallenge(registrationId);
 
@@ -97,25 +97,25 @@ app.post('/grantRegistration', async function (req, res) {
   mailProvider.sendInvitation(registration.email, votingTitle, startDate, endDate, link);
   prepareRes(res);
   res.status(200).send('OK!').end;
-});
+}));
 
-app.post('/getChallengeAndTokens', async function (req, res) {
+app.post('/getChallengeAndTokens', wrapAsync(async function (req, res) {
   const challenge = uuidv4();
   const date = Date.now();
   const tokens = await dbwrapper.setChallengeAndGetTokens(req.body.registrationId, challenge, date.toString());
   prepareRes(res);
   res.json({ 'challenge': challenge, 'tokens': tokens }).end;
-});
+}));
 
-app.post('/setKeys', async function (req, res) {
+app.post('/setKeys', wrapAsync(async function (req, res) {
   const exponents = req.body.exponents;
   const moduli = req.body.moduli;
   const votingId = req.body.votingId;
   await dbwrapper.insertKeys(votingId, exponents, moduli);
   res.status(200).send('OK!').end;
-});
+}));
 
-app.post('/getTokens', async function (req, res) {
+app.post('/getTokens', wrapAsync(async function (req, res) {
   prepareRes(res);
   const voterId = req.body.voterId;
   let questionIndices = req.body.questionIndices;
@@ -140,9 +140,9 @@ app.post('/getTokens', async function (req, res) {
     console.log(JSON.stringify(filteredTokens));
     res.json({ 'tokens': filteredTokens }).end;
   }
-});
+}));
 
-app.post('/getToken', async function (req, res) {
+app.post('/getToken', wrapAsync(async function (req, res) {
   const password = req.body.password;
   const voterId = req.body.voterId;
   const questionIndex = req.body.questionIndex;
@@ -163,9 +163,9 @@ app.post('/getToken', async function (req, res) {
   
   prepareRes(res);
   res.json({ 'unblindedToken': unblindedToken, 'token': token }).end;
-});
+}));
 
-app.post('/saveRegistrationDetails', async function (req, res) {
+app.post('/saveRegistrationDetails', wrapAsync(async function (req, res) {
   const registrationId = req.body.id;
   const email = req.body.mail;
   const password = req.body.password;
@@ -195,7 +195,7 @@ app.post('/saveRegistrationDetails', async function (req, res) {
 
   prepareRes(res);
   res.status(200).send('OK!').end;
-});
+}));
 
 app.post('/sessionLogin', (req, res) => {
   // Get the ID token passed, TODO: check origin of req!
@@ -225,6 +225,18 @@ if (!module.parent) {
     console.log('Press Ctrl+C to quit.');         // eslint-disable-line no-console
   });
 }
+
+app.use(function(err, req, res, next) {
+  // TODO: logging
+  log.error('An error occurred: ' + err.message + ', stack: ' + err.stack);
+  if (res.headersSent) {
+    return next(err);
+  }
+  prepareRes(res);
+  res.status(500);
+  res.send('error: ' + err.message);
+  res.end;
+});
 // [END app]
 
 function prepareRes(res) {
@@ -233,6 +245,14 @@ function prepareRes(res) {
 
 function getPasswordHash(password) {
   return sha256(password + '_yummySalt420++');
+}
+
+function wrapAsync(fn) {
+  return function(req, res, next) {
+    // Make sure to `.catch()` any errors and pass them along to the `next()`
+    // middleware in the chain, in this case the error handler.
+    fn(req, res, next).catch(next);
+  };
 }
 
 module.exports = app;
