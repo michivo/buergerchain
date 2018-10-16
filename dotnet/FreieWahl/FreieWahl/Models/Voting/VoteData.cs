@@ -9,9 +9,13 @@ namespace FreieWahl.Models.Voting
 
         public string VotingTitle { get; set; }
 
-        public DateTime StartDate { get; set; }
+        public string VotingDescription { get; set; }
 
-        public DateTime EndDate { get; set; }
+        public string StartDate { get; set; }
+
+        public string EndDate { get; set; }
+
+        public string ImageData { get; set; }
 
         public string GetTokensUrl { get; set; }
 

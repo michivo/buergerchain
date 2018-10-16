@@ -1,14 +1,58 @@
 ﻿@using Newtonsoft.Json
 @model FreieWahl.Models.Voting.VoteModel
 
-<h2>@Model.VotingTitle</h2>
+<nav class="navbar navbar-dark fixed-top navbar-expand-md">
+    <a class="navbar-brand" href="@Url.Action("Index", "Home")">
+        <span id="fw-brand-1">freie</span><span id="fw-brand-2">Wahl</span>
+    </a>
+</nav>
+<div class="container-fluid fw-banner py-3">
+    <div class="row justify-content-between">
+        <div class="col-12 col-md-auto pl-0 py-3">
+            <div class="bg-primary px-5 text-light display-4">
+                @Model.VotingTitle
+            </div>
+            <div class="container pt-3">
+                <div class="row justify-content-between">
+                    <div style="max-width: 30rem;">
+                        <div class="p-0">
+                            <div class="bg-light text-primary px-3 mr-3 small">
+                                @Model.VotingDescription
+                            </div>
+                        </div>
+                    </div>
+                    <div class="d-flex flex-column justify-content-between">
+                        <div class="bg-light text-primary d-flex flex-row align-items-center" style="font-size:1.5rem;font-weight:100">
+                            <div><i class="material-icons text-primary mx-2" style="font-size: 3rem;">date_range</i></div>
+                            <div class="px-2">Start: @Model.StartDate<br />Ende: @Model.EndDate</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
 
-Geben Sie Ihr Passwort ein
+        </div>
+        <div class="col-12 col-md-auto">
+            @if (!string.IsNullOrEmpty(Model.ImageData.ToString()))
+            {
+                <img src="@Model.ImageData" style="max-height: 13rem;" />
+            }
+            else
+            {
+                <i class="material-icons fw-voting-img" id="fw-voting-img-dummy">how_to_vote</i>
+            }
+        </div>
+    </div>
+</div>
+
+
+<div class="container" id="passwordEntry">
+    Geben Sie Ihr Passwort ein
     <div class="form-group">
         <label for="voterPassword">Passwort</label>
         <input type="password" class="form-control" id="voterPassword" name="password" placeholder="Password">
     </div>
-<button class="btn btn-primary" onclick="getTokens()">Submit</button>
+    <button class="btn btn-primary" onclick="getTokens()">OK</button>
+</div>
 
 <div class="container" id="votingQuestions">
 
@@ -25,6 +69,7 @@ Geben Sie Ihr Passwort ein
             datatype: 'json',
             success: function (data) {
                 var tokens = data.tokens.map(x => x.token);
+                $('#passwordEntry').hide();
                 $('#votingQuestions').load('GetQuestions', { 'tokens': tokens, 'votingId': '@Model.VotingId', 'voterId': '@Model.VoterId' })
             },
             error: function (x) {
@@ -33,5 +78,5 @@ Geben Sie Ihr Passwort ein
             }
         });
     }
-    
+
 </script>

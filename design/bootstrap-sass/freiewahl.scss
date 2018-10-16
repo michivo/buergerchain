@@ -359,3 +359,56 @@ img.fw-card-svg {
   content: attr(placeholder);
   color: $fw-gray;
 }
+
+.fw-checkcontainer {
+    display: block;
+    position: relative;
+    padding-left: 35px;
+    margin-bottom: 12px;
+    cursor: pointer;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+
+/* Hide the browser's default radio button */
+.fw-checkcontainer input {
+    position: absolute;
+    opacity: 0;
+    cursor: pointer;
+}
+
+/* Create a custom radio button */
+.fw-checkmark {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 25px;
+    width: 25px;
+    background-color: #eee;
+    border-radius: 50%;
+}
+
+/* On mouse-over, add a grey background color */
+.fw-checkcontainer:hover input ~ .fw-checkmark {
+    background-color: #ccc;
+}
+
+/* When the radio button is checked, add a blue background */
+.fw-checkcontainer input:checked ~ .fw-checkmark {
+    background-color: $primary;
+    box-shadow: 1px 1px 2px $primary;
+}
+
+/* Create the indicator (the dot/circle - hidden when not checked) */
+.fw-checkcontainer:after {
+    content: "";
+    position: absolute;
+    display: none;
+}
+
+/* Show the indicator (dot/circle) when checked */
+.fw-checkcontainer input:checked ~ .fw-checkmark:after {
+    display: block;
+}

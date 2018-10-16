@@ -3,6 +3,11 @@
 
 <h1 class="display-4">Offene Fragen</h1>
 
+@if (!Model.OpenQuestions.Any())
+{
+    <h3>Derzeit keine offenen Fragen...</h3>
+}
+
 @foreach (var question in Model.OpenQuestions)
 {
     if (question.Type == QuestionType.Decision)
@@ -19,6 +24,8 @@
     }
 }
 
-<h1 class="display-4 border-top">Beantwortete Fragen</h1>
-
+@if (Model.AnsweredQuestions.Any())
+{
+    <h1 class="display-4 border-top">Beantwortete Fragen</h1>
+}
 todo

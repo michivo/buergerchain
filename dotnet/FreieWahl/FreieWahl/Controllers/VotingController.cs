@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
 using FreieWahl.Application.VotingResults;
@@ -92,13 +93,15 @@ namespace FreieWahl.Controllers
 
             var model = new VoteModel
             {
-                StartDate = voting.StartDate,
-                EndDate = voting.EndDate,
+                StartDate = voting.StartDate.ToString("dd.MM.yyyy HH:mm", CultureInfo.InvariantCulture),
+                EndDate = voting.EndDate.ToString("dd.MM.yyyy HH:mm", CultureInfo.InvariantCulture),
                 VotingTitle = voting.Title,
                 VotingId = votingId,
                 VoterId = voterId,
                 Questions = questions,
-                GetTokensUrl = _regUrl + "getTokens"
+                GetTokensUrl = _regUrl + "getTokens",
+                VotingDescription = voting.Description,
+                ImageData = voting.ImageData
             };
 
             return View(model);
