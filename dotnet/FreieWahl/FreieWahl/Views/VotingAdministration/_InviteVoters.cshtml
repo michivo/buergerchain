@@ -19,9 +19,9 @@
                     </p>
                     <div class="alert alert-primary" role="alert">
                         <h5 class="alert-heading"><strong>Betreff:</strong> Einladung zur Abstimmung @ViewData["Title"]</h5>
-                        Liebe Wahlberechtigte!<br/>
-                        Sie sind eingeladen, an unserer Abstimmung <i>@ViewData["Title"]</i> teilzunehmen. Bitte registrieren Sie sich bis spätestens @ViewData["RegistrationDate"]
-                        @Html.ActionLink("hier", "Register", "Registration", new {votingId = ViewData["VotingId"]}, new {@class = "alert-link"}).<br/>
+                        Liebe Wahlberechtigte!<br />
+                        Sie sind eingeladen, an unserer Abstimmung <i>@ViewData["Title"]</i> teilzunehmen. Bitte registrieren Sie sich bis spätestens <script>formatDateTimeSeconds(@ViewData["RegistrationDate"], true)</script>
+                        @Html.ActionLink("hier", "Register", "Registration", new { votingId = ViewData["VotingId"] }, new { @class = "alert-link" }).<br />
                         Vielen Dank!
                     </div>
                     <p>

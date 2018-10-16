@@ -7,8 +7,6 @@
 
 @Html.Partial("_NewQuestionModal")
 
-@await Html.PartialAsync("_InviteVoters", Model.Title)
-
 <div class="container-fluid fw-banner py-3">
     <div class="row justify-content-between">
         <div class="col-12 col-md-auto pl-0">
@@ -27,7 +25,7 @@
                     <div class="d-flex flex-column justify-content-between">
                         <div class="bg-light text-primary d-flex flex-row align-items-center" style="font-size:1.5rem;font-weight:100">
                             <div><i class="material-icons text-primary mx-2" style="font-size: 3rem;">date_range</i></div>
-                            <div class="px-2">Start: @Model.StartDate<br>Ende: @Model.EndDate</div>
+                            <div class="px-2 text-right" id="fwDateInfo"></div>
                         </div>
                         <div class="float-right mt-3">
                             <button class="btn btn-secondary float-right text-uppercase">Bearbeiten</button>
@@ -125,6 +123,7 @@
 
         $(document).ready(function() {
             setupEditScreen('@Model.VotingId');
+            $('#fwDateInfo').html('Start: ' + formatDateTimeSeconds(@Model.StartDate, false) + '<br />Ende: ' + formatDateTimeSeconds(@Model.EndDate, false));
         });
     </script>
 

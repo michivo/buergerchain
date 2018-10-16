@@ -40,5 +40,23 @@ namespace FreieWahl.Common
                 return imageData;
             return imageData.Substring(0, 50);
         }
+
+        private static readonly DateTime Epoch = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
+
+        public static int ToSecondsSinceEpoch(this DateTime dateTime)
+        {
+            if (dateTime.Kind != DateTimeKind.Utc)
+                throw new ArgumentException("Only UTC timestamps are supported");
+
+            return (int)dateTime.Subtract(Epoch).TotalSeconds;
+        }
+
+        public static int ToMillisecondsSinceEpoch(this DateTime dateTime)
+        {
+            if (dateTime.Kind != DateTimeKind.Utc)
+                throw new ArgumentException("Only UTC timestamps are supported");
+
+            return (int)dateTime.Subtract(Epoch).TotalSeconds;
+        }
     }
 }

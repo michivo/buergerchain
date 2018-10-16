@@ -82,6 +82,15 @@ function saveQuestion(vid, idx) {
     });
 }
 
+function formatDateTimeSeconds(secondsSinceEpoch, withFillword = false) {
+    var date = new Date(0);
+    date.setUTCSeconds(secondsSinceEpoch);
+    if (withFillword) {
+        return `${date.getDate()}.${date.getMonth() + 1}.${date.getFullYear()} um ${date.getHours()}:${date.getMinutes()}`;
+    }
+    return `${date.getDate()}.${(date.getMonth() + 1).toString().padStart(2, '0')}.${date.getFullYear()} ${date.getHours()}:${date.getMinutes().toString().padStart(2, '0')}`;
+}
+
 function updateQuestions(votingId) {
     $('#questionList').load(`QuestionList?id=${votingId}`);
 }
