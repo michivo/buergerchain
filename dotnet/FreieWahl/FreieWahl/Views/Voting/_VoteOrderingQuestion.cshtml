@@ -1,3 +1,44 @@
 ﻿@model FreieWahl.Models.VotingAdministration.QuestionModel
 
 @Model.Text
+
+<div class="card my-4 pb-3">
+    <div class="card-body">
+        <h1 class="card-title" style="border-bottom: 1px solid #657F8C" id="question-@Model.Index-title">
+            Das ist eine
+            Reihungsfrage
+        </h1>
+        <p class="card-text border-bottom" id="question-@Model.Index-description">
+            Hier sollten Sie ein paar Optionen
+            ausw&#xE4;hlen, dann und so weiter.
+        </p>
+        <div class="container">
+            <div class="row ordering-question-list" id="question-@Model.Index-answers">
+                <div class="col-lg-5 col-12 sortable" id="options-@Model.Index">
+                    @foreach (var answer in Model.AnswerOptions)
+                    {
+                        <div class="my-2 border w-100 fw-answer-title px-2 rounded" id="answer-@Model.Index-@answer.Id">
+                            <span>@answer.Answer</span>
+                            <br/>
+                            @if (!string.IsNullOrEmpty(answer.Description))
+                            {
+                                <span class="small text-primary fw-answer-description">@answer.Description</span>
+                            }
+                        </div>
+                    }
+                </div>
+                <div class="col align-self-center">
+                    <i class="material-icons text-primary m-0" style="font-size: 2.5rem">swap_horiz</i>
+                </div>
+                <div class="col-lg-6 col-12 p-1" style="position:relative;border:2px solid #C0C0C0;min-height: 5rem">
+                    <div class="text-primary p-4 fw-options-info" style="z-index:1;position: absolute;color:#657f8C"
+                         id="info-options-@Model.Index">Ziehen Sie Ihre Auswahl hierher...</div>
+                    <div class="w-100 fw-selected-options" style="z-index:10;height: 100%" id="selected-options-@Model.Index">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="alert alert-danger d-none mx-3 mb-0" id="alert-question-@Model.Index" role="alert">Sie dürfen maximal 3 Optionen wählen!</div>
+    <button class="btn btn-success mx-3" id="submit-question-@Model.Index" onClick="submitVote(@Model.Index)">Stimme abgeben</button>
+</div>

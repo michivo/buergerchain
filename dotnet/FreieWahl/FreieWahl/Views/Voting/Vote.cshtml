@@ -58,25 +58,54 @@
 
 </div>
 
-<script>
-    function getTokens() {
-        const pwd = $('#voterPassword').val();
-        const questionIndices = @Json.Serialize(Model.Questions.Select(x => x.Index).ToArray());
-        $.ajax({
-            url: '@Model.GetTokensUrl',
-            data: { "voterId": '@Model.VoterId', "password": pwd, "questionIndices": questionIndices },
-            type: 'POST',
-            datatype: 'json',
-            success: function (data) {
-                var tokens = data.tokens.map(x => x.token);
-                $('#passwordEntry').hide();
-                $('#votingQuestions').load('GetQuestions', { 'tokens': tokens, 'votingId': '@Model.VotingId', 'voterId': '@Model.VoterId' })
-            },
-            error: function (x) {
-                alert(JSON.stringify(x));
-                // error: todo
-            }
-        });
-    }
+@section scripts {
+    <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.6.1/Sortable.min.js"></script>
+    <script src="~/js/vote.js"></script>
 
-</script>
+    <script>
+
+
+        function getTokens() {
+            const pwd = $('#voterPassword').val();
+            const questionIndices = @Json.Serialize(Model.Questions.Select(x => x.Index).ToArray());
+            $.ajax({
+                url: '@Model.GetTokensUrl',
+                data: { "voterId": '@Model.VoterId', "password": pwd, "questionIndices": questionIndices },
+                type: 'POST',
+                datatype: 'json',
+                success: function(data) {
+                    loadQuestions(data);
+                },
+                error: function(x) {
+                    alert(JSON.stringify(x));
+                    // error: todo
+                }
+            });
+        }
+
+        function loadQuestions(data) {
+            const tokens = data.tokens.map(x => x.token);
+            $('#passwordEntry').hide();
+            $('#votingQuestions').load('GetQuestions',
+                {
+                    'tokens': tokens,
+                    'votingId': '@Model.VotingId',
+                    'voterId': '@Model.VoterId'
+                },
+                function() {
+                    setupQuestions();
+                });
+        }
+
+        function setupQuestions() {
+            $('.ordering-question-list').each(function(index, elem) {
+                const id = $(elem).attr('id');
+                const startIdx = id.indexOf('-', id);
+                const endIdx = id.lastIndexOf('-', id);
+                const questionidx = id.substr(startIdx + 1, endIdx - startIdx - 1);
+                setupOrderingQuestion(questionidx);
+            });
+        }
+
+    </script>
+}
