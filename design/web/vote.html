@@ -1,0 +1,265 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title> FreieWahl</title>
+
+
+
+    <link rel="stylesheet" href="../../dotnet/FreieWahl/FreieWahl/wwwroot/css/freiewahl.css" />
+
+    <script src="../../dotnet/FreieWahl/FreieWahl/wwwroot/lib/jquery/dist/jquery.js"></script>
+
+    <link href="https://fonts.googleapis.com/css?family=Roboto:100,300,400,400i,700" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link rel="stylesheet" type="text/css" href="../../dotnet/FreieWahl/FreieWahl/wwwroot/lib/bootstrap-datepicker/dist/css/bootstrap-datepicker3.standalone.min.css">
+</head>
+
+<body>
+
+
+    <nav class="navbar navbar-dark fixed-top navbar-expand-md">
+        <a class="navbar-brand" href="#">
+            <span id="fw-brand-1">freie</span><span id="fw-brand-2">Wahl</span>
+        </a>
+    </nav>
+
+    <div class="container-fluid fw-banner py-3">
+        <div class="row justify-content-between">
+            <div class="col-12 col-md-auto pl-0">
+                <div class="bg-primary px-5 text-light display-4">
+                    Testabstimmung
+                </div>
+                <div class="container pt-3">
+                    <div class="row justify-content-between">
+                        <div style="max-width: 30rem;">
+                            <div class="p-0">
+                                <div class="bg-light text-primary px-3 mr-3 small">
+                                    Test test Test testTest testTest testTest testTest testTest testTest testTest
+                                    testTest testTest testTest testTest testTest testTest testTest testTest testTest
+                                    testTest testTest testTest testTest testTest test
+                                </div>
+                            </div>
+                        </div>
+                        <div class="d-flex flex-column justify-content-between">
+                            <div class="bg-light text-primary d-flex flex-row align-items-center" style="font-size:1.5rem;font-weight:100">
+                                <div><i class="material-icons text-primary mx-2" style="font-size: 3rem;">date_range</i></div>
+                                <div class="px-2">Start: 30.09.2018 22:00<br>Ende: 26.09.2018 21:59</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+            <div class="col-12 col-md-auto">
+                <i class="material-icons fw-voting-img" id="fw-voting-img-dummy">how_to_vote</i>
+            </div>
+        </div>
+    </div>
+
+    <main role="main" class="container">
+        <h1 class="display-4">Offene Fragen</h1>
+
+        <div class="card my-4 pb-3">
+            <div class="card-body">
+                <h1 class="card-title" style="border-bottom: 1px solid #657F8C" id="question-10-title">Das ist eine
+                    Reihungsfrage</h1>
+                <p class="card-text border-bottom" id="question-10-description">Hier sollten Sie ein paar Optionen
+                    ausw&#xE4;hlen, dann und so weiter.</p>
+                <div class="container">
+                    <div class="row" id="question-10-answers">
+                        <div class="col-lg-5 col-12 sortable" id="options-10">
+                            <div class="my-2 border w-100 fw-answer-title px-2 rounded">
+                                <span id="fw-answer-title-10-0">Maxi Mustermann</span>
+                                <br /><span class="small text-primary fw-answer-description" id="fw-answer-description-10-0">Ein
+                                    anst&#xE4;ndiger B&#xFC;rger</span>
+                            </div>
+                            <div class="my-2 border w-100 fw-answer-title px-2 rounded">
+                                <span id="fw-answer-title-10-1">Maria Musterfrau</span>
+                                <br /><span class="small text-primary fw-answer-description" id="fw-answer-description-10-1">Eine
+                                    gestandene B&#xFC;rgerin</span>
+                            </div>
+                            <div class="my-2 border w-100 fw-answer-title px-2 rounded">
+                                <span id="fw-answer-title-10-2">Hektor Cuper</span>
+                            </div>
+                            <div class="my-2 border w-100 fw-answer-title px-2 rounded">
+                                <div id="fw-answer-title-10-3">Eva Glawischnig</div>
+                            </div>
+                        </div>
+                        <div class="col align-self-center">
+                            <i class="material-icons text-primary m-0" style="font-size: 2.5rem">swap_horiz</i>
+                        </div>
+                        <div class="col-lg-6 col-12 p-1" style="position:relative;border:2px solid #C0C0C0;min-height: 5rem">
+                            <div class="text-primary p-4 fw-options-info" style="z-index:1;position: absolute;color:#657f8C"
+                                id="info-options-10">
+                                Ziehen Sie Ihre Auswahl hierher...
+                            </div>
+                            <div class="w-100 fw-selected-options" style="z-index:10;height: 100%" id="selected-options-10">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="alert alert-danger d-none mx-3 mb-0" id="alert-question-10" role="alert">Sie dürfen maximal 3
+                Optionen wählen!</div>
+            <button class="btn btn-success mx-3" id="submit-question-10" onClick="unlockQuestion('5753985201864704', 10)">Stimme
+                abgeben</button>
+        </div>
+        <div class="card my-4 pb-3">
+            <div class="card-body">
+                <h1 class="card-title" style="border-bottom: 1px solid #657F8C" id="question-15-title">Was wollen Sie
+                    trinken?</h1>
+                <p class="card-text" style="border-bottom: 1px solid #C0C0C0" id="question-15-description">blah blah
+                    blah</p>
+                <label style="display: block; position: relative; padding-left: 35px; margin-bottom: 12px;">
+                    <span id="fw-answer-title-15-0">
+                        Wasser
+                    </span><br />
+                    <span class="small text-primary border-bottom" id="fw-answer-description-15-0">
+                    </span>
+                    <input type="radio" style="position: absolute; opacity: 0;"><span style="position: absolute; top: 0; left: 0; height: 23px; width: 23px; background-color: #eee; border: 3px solid #657f8C; border-radius: 50%"></span>
+                </label>
+                <label style="display: block; position: relative; padding-left: 35px; margin-bottom: 12px;">
+                    <span id="fw-answer-title-15-1">
+                        Bier
+                    </span><br />
+                    <span class="small text-primary border-bottom" id="fw-answer-description-15-1">
+                        alkoholfrei
+                    </span>
+                    <input type="radio" style="position: absolute; opacity: 0;"><span style="position: absolute; top: 0; left: 0; height: 23px; width: 23px; background-color: #eee; border: 3px solid #657f8C; border-radius: 50%"></span>
+                </label>
+                <label style="display: block; position: relative; padding-left: 35px; margin-bottom: 12px;">
+                    <span id="fw-answer-title-15-2">
+                        Man bringe den Spritzwein
+                    </span><br />
+                    <span class="small text-primary border-bottom" id="fw-answer-description-15-2">
+                        Zitat Michi Häupl
+                    </span>
+                    <input type="radio" style="position: absolute; opacity: 0;"><span style="position: absolute; top: 0; left: 0; height: 23px; width: 23px; background-color: #eee; border: 3px solid #657f8C; border-radius: 50%"></span>
+                </label>
+            </div>
+            <a href="#" class="btn btn-success mx-3">Stimme abgeben</a>
+        </div>
+        </div>
+        <div class="card my-4 pb-3">
+            <div class="card-body">
+                <h1 class="card-title" style="border-bottom: 1px solid #657F8C" id="question-24-title">Wollen Sie
+                    mitkommen ins Famoos?</h1>
+                <p class="card-text" style="border-bottom: 1px solid #C0C0C0" id="question-24-description">Mit der
+                    Sieghild und der Rosi. Nur eine von den zwei geht nicht.</p>
+                <div class="container">
+                    <label style="display: block; position: relative; padding-left: 35px; margin-bottom: 12px;">
+                        <span id="fw-answer-title-24-0">
+                            Ja
+                        </span><br />
+                        <span class="small text-primary border-bottom" id="fw-answer-description-24-0">
+
+                        </span>
+                        <input type="radio" style="position: absolute; opacity: 0;"><span style="position: absolute; top: 0; left: 0; height: 23px; width: 23px; background-color: #eee; border: 3px solid #657f8C; border-radius: 50%"></span>
+                    </label>
+                    <label style="display: block; position: relative; padding-left: 35px; margin-bottom: 12px;">
+                        <span id="fw-answer-title-24-1">
+                            Nein
+                        </span><br />
+                        <span class="small text-primary border-bottom" id="fw-answer-description-24-1">
+
+                        </span>
+                        <input type="radio" style="position: absolute; opacity: 0;"><span style="position: absolute; top: 0; left: 0; height: 23px; width: 23px; background-color: #eee; border: 3px solid #657f8C; border-radius: 50%"></span>
+                    </label>
+                </div>
+            </div>
+            <a href="#" class="btn btn-success float-right mx-3">Stimme abgeben</a>
+        </div>
+    </main>
+
+
+    <footer class="border-top mt-3">
+        <p>&copy; 2018 - FreieWahl</p>
+    </footer>
+
+
+
+    <script src="https://ajax.aspnetcdn.com/ajax/jquery/jquery-3.3.1.min.js">
+    </script>
+    <script>(window.jQuery || document.write("\u003Cscript src=\u0022\/lib\/jquery\/dist\/jquery.min.js\u0022\u003E\u003C\/script\u003E"));</script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49"
+        crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js" integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy"
+        crossorigin="anonymous"></script>
+    <script src="../../dotnet/FreieWahl/FreieWahl/wwwroot/js/site.min.js"></script>
+
+
+
+
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js" integrity="sha256-VazP97ZCwtekAsvgPBSUwPFKdrwD3unUfSGVYrahUqU="
+        crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.6.1/Sortable.min.js"></script>
+
+    <script>
+        function updateSorting(selector) {
+            $(selector + ' .option-numbering').detach();
+            $(selector + ' .option-spacer').detach();
+            $(selector + ' div.fw-answer-title').each(function (index, val) {
+                $(val).prepend(`<div class="bg-primary text-white text-center my-2 mr-2 option-numbering rounded-circle float-left" style="height:2rem;width:2rem;font-size:1.25rem">${index + 1}</div>`);
+                $(val).append('<div class="option-spacer" style="clear: both;"></div>');
+            })
+        }
+
+        $(document).ready(function () {
+
+            setupOrderingQuestion('10');
+        });
+
+        function setupOrderingQuestion(questionIdx) {
+            setupSelectedOptionsList(questionIdx);
+            setupSelectableOptionsList(questionIdx);
+        }
+
+        function setupSelectableOptionsList(questionIdx) {
+            var optionsGroup = document.getElementById(`options-${questionIdx}`);
+            Sortable.create(optionsGroup, {
+                group: `options-group-${questionIdx}`,
+                onStart: function (/**Event*/evt) {
+                    $(`#info-options-${questionIdx}`).hide();
+                },
+                onAdd: function (evt) {
+                    $(`#options-${questionIdx} div.option-numbering`).detach();
+                    $(`#options-${questionIdx} .option-spacer`).detach();
+                }
+            });
+        }
+
+        function setupSelectedOptionsList(questionIdx) {
+            var selectedOptions = document.getElementById(`selected-options-${questionIdx}`);
+            Sortable.create(selectedOptions, {
+                group: `options-group-${questionIdx}`,
+                onRemove: function (evt) {
+                    if ($(`#selected-options-${questionIdx} div.fw-answer-title`).length == 0) {
+                        $(`#info-options-${questionIdx}`).show();
+                    }
+                    if ($(`#selected-options-${questionIdx} div.fw-answer-title`).length <= 3) {
+                        $(`#selected-options-${questionIdx}`).parent().css("border", "2px solid #C0C0C0");
+                        $(`#alert-question-${questionIdx}`).addClass("d-none");
+                        $(`#submit-question-${questionIdx}`).removeClass("d-none");
+                    }
+                },
+                onAdd: function (evt) {
+                    if ($(`#selected-options-${questionIdx} div.fw-answer-title`).length > 3) {
+                        $(`#selected-options-${questionIdx}`).parent().css("border", "3px solid red");
+                        $(`#alert-question-${questionIdx}`).removeClass("d-none");
+                        $(`#submit-question-${questionIdx}`).addClass("d-none");
+                    }
+                },
+                onSort: function (evt) {
+                    updateSorting(`#selected-options-${questionIdx}`);
+                }
+            });
+        }
+    </script>
+
+
+</body>
+
+</html>
