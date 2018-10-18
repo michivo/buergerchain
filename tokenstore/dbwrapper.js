@@ -127,8 +127,7 @@ async function insertVotingTokens(votingId, voterId, tokens, signedTokens, blind
 
 async function getVotingTokens(voterId) {
   const query = datastore.createQuery(TABLE_VOTINGTOKENS)
-    .filter('voterId', '=', voterId)    
-    .select(['token', 'tokenIndex']);
+    .filter('voterId', '=', voterId);
 
   const result = await datastore.runQuery(query);
   return result[0];

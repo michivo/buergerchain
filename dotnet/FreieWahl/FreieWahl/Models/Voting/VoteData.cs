@@ -19,6 +19,8 @@ namespace FreieWahl.Models.Voting
 
         public string GetTokensUrl { get; set; }
 
+        public string GetSignedTokenUrl { get; set; }
+
         public string VotingId { get; set; }
 
         public string VoterId { get; set; }

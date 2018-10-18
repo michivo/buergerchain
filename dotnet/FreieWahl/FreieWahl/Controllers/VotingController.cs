@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
@@ -54,26 +55,6 @@ namespace FreieWahl.Controllers
             return View();
         }
 
-        // GET: /VotingController/
-        public async Task<IActionResult> SignTokens(string votingId, string[] tokens, string signature)
-        {
-            var signedTokens = new string[tokens.Length];
-            int count = 0;
-            var votingIdVal = long.Parse(votingId);
-            foreach (var token in tokens)
-            {
-                signedTokens[count] = _votingTokenHandler.Sign(token, votingIdVal, count);
-                count++;
-            }
-
-            var result = new JsonResult(new
-            {
-
-            });
-
-            return result;
-        }
-
         [HttpGet]
         public async Task<IActionResult> Vote(string votingId, string voterId)
         {
@@ -101,11 +82,49 @@ namespace FreieWahl.Controllers
                 Questions = questions,
                 GetTokensUrl = _regUrl + "getTokens",
                 VotingDescription = voting.Description,
-                ImageData = voting.ImageData
+                ImageData = voting.ImageData,
+                GetSignedTokenUrl = _regUrl + "getToken"
             };
 
             return View(model);
         }
+
+        public async Task<IActionResult> GetQuestion(string votingId, string voterId, int questionIndex, string token)
+        {
+            var id = votingId.ToId();
+            if (!id.HasValue)
+            {
+                return BadRequest("Invalid voting id!");
+            }
+
+            var voting = await _votingStore.GetById(id.Value);
+            if (voting == null)
+            {
+                return BadRequest("No voting with the given id");
+            }
+
+            var votes = await _votingResultManager.GetResults(id.Value, new[] { token });
+            var vote = votes.SingleOrDefault();
+            var answerIds = vote?.SelectedAnswerIds ?? new List<string>();
+
+            var question = voting.Questions
+                .SingleOrDefault(x => x.QuestionIndex == questionIndex);
+            if (question == null)
+            {
+                return BadRequest("No answer available for the given question");
+            }
+
+            var questionModel = new QuestionModel(question, votingId);
+            var model = new AnsweredQuestion
+            {
+                Question = questionModel,
+                WasAnswered = vote != null,
+                SelectedAnswerIds = answerIds.ToArray()
+            };
+
+            return PartialView(model);
+        }
+
 
         public async Task<IActionResult> GetQuestions(string votingId, string voterId, string[] tokens)
         {

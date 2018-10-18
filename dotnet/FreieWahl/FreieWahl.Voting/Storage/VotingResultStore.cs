@@ -59,7 +59,8 @@ namespace FreieWahl.Voting.Storage
                 ["Token"] = vote.Token,
                 ["SignedToken"] = vote.SignedToken,
                 ["TimestampData"] = vote.TimestampData,
-                ["SelectedAnswerIds"] = answerIds
+                ["SelectedAnswerIds"] = answerIds,
+                ["PreviousBlockSignature"] = vote.PreviousBlockSignature
             };
         }
 

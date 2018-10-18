@@ -1,4 +1,5 @@
 ﻿@using FreieWahl.Voting.Models
+@using Microsoft.CodeAnalysis.CSharp.Syntax
 @model FreieWahl.Models.Voting.QuestionData
 
 <h1 class="display-4">Offene Fragen</h1>
@@ -28,3 +29,10 @@
 {
     <h1 class="display-4 border-top">Beantwortete Fragen</h1>
 }
+else
+{
+    <h1 class="display-4 border-top d-none" id="answered-questions-header">Beantwortete Fragen</h1>
+}
+<div class="container" id="answered-questions-list">
+
+</div>

@@ -134,10 +134,7 @@ app.post('/getTokens', wrapAsync(async function (req, res) {
   }
   else {
     const tokens = await dbwrapper.getVotingTokens(voterId);
-    console.log(JSON.stringify(tokens));
-    console.log(JSON.stringify(questionIndices));
     const filteredTokens = tokens.filter(token => questionIndices.includes(token.tokenIndex));
-    console.log(JSON.stringify(filteredTokens));
     res.json({ 'tokens': filteredTokens }).end;
   }
 }));
@@ -147,7 +144,7 @@ app.post('/getToken', wrapAsync(async function (req, res) {
   const voterId = req.body.voterId;
   const questionIndex = req.body.questionIndex;
 
-  const dbPassword = await dbwrapper.getPassword(voterId);
+  const dbPassword = await dbwrapper.getPasswordHash(voterId);
   const hashedPassword = getPasswordHash(password);
   if (hashedPassword != dbPassword) {
     prepareRes(res);

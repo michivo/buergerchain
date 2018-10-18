@@ -63,17 +63,20 @@
     <script src="~/js/vote.js"></script>
 
     <script>
-
+        var password;
+        var tokenData;
 
         function getTokens() {
             const pwd = $('#voterPassword').val();
+            password = pwd;
             const questionIndices = @Json.Serialize(Model.Questions.Select(x => x.Index).ToArray());
             $.ajax({
                 url: '@Model.GetTokensUrl',
                 data: { "voterId": '@Model.VoterId', "password": pwd, "questionIndices": questionIndices },
                 type: 'POST',
                 datatype: 'json',
-                success: function(data) {
+                success: function (data) {
+                    tokenData = data.tokens;
                     loadQuestions(data);
                 },
                 error: function(x) {
@@ -100,10 +103,85 @@
         function setupQuestions() {
             $('.ordering-question-list').each(function(index, elem) {
                 const id = $(elem).attr('id');
-                const startIdx = id.indexOf('-', id);
-                const endIdx = id.lastIndexOf('-', id);
+                const startIdx = id.indexOf('-');
+                const endIdx = id.lastIndexOf('-');
                 const questionidx = id.substr(startIdx + 1, endIdx - startIdx - 1);
                 setupOrderingQuestion(questionidx);
+            });
+        }
+
+        function submitOrderingQuestionVote(index) {
+            $(`#submit-question-${index}`).addClass('disabled');
+            $(`#submit-question-${index}`).text('Übertrage...');
+            const selector = `#selected-options-${index} div.fw-answer-title`;
+            const selectedItems = $(selector);
+            const answerIds = [];
+            $(selectedItems).each(function(idx, item) {
+                answerIds.push(getAnswerIdFromOptionId(item.id));
+            });
+            const indexVal = parseInt(index);
+
+            $.ajax({
+                url: '@Model.GetSignedTokenUrl',
+                data: { "voterId": '@Model.VoterId', "password": password, "questionIndex": indexVal },
+                type: 'POST',
+                datatype: 'json',
+                success: function(data) {
+                    submitVote(index, answerIds, data.token, data.unblindedToken);
+                },
+                error: function(x) {
+                    alert(JSON.stringify(x));
+                    // error: todo
+                }
+            });
+        }
+
+        function submitVote(index, answerIds, token, signedToken) {
+
+            $.ajax({
+                url: 'SubmitVote',
+                data: {
+                    "voterId": '@Model.VoterId',
+                    "votingId": '@Model.VotingId',
+                    "questionIndex": index,
+                    "answerIds": answerIds,
+                    "token": token,
+                    "signedToken": signedToken
+                },
+                type: 'POST',
+                datatype: 'json',
+                success: function() {
+                    updateQuestion(index);
+                },
+                error: function(x) {
+                    alert(JSON.stringify(x));
+                    // error: todo
+                }
+            });
+        }
+
+        function getAnswerIdFromOptionId(id) {
+            const startIdx = id.indexOf('-', 8);
+            return id.substr(startIdx + 1);
+        }
+
+        function updateQuestion(index) {
+            $(`#question-card-${index}`).detach();
+            $('#answered-questions-header').removeClass('d-none');
+            const token = tokenData.filter(x => x.tokenIndex === index);
+
+            $.ajax({
+                url: 'GetQuestion',
+                data: { "voterId": '@Model.VoterId', "votingId": '@Model.VotingId', "questionIndex": index, "token": token[0].token },
+                type: 'POST',
+                datatype: 'json',
+                success: function(data) {
+                    $('#answered-questions-list').append(data);
+                },
+                error: function(x) {
+                    alert(JSON.stringify(x));
+                    // error: todo
+                }
             });
         }
 

@@ -1,0 +1,17 @@
+﻿@using FreieWahl.Voting.Models
+@using Microsoft.AspNetCore.Mvc.Rendering
+@model FreieWahl.Models.Voting.AnsweredQuestion
+
+
+@if (Model.Question.Type == QuestionType.Decision)
+{
+    @await Html.PartialAsync("_AnsweredDecisionQuestion", Model);
+}
+else if (Model.Question.Type == QuestionType.Ordering)
+{
+    @await Html.PartialAsync("_AnsweredOrderingQuestion", Model);
+}
+else if (Model.Question.Type == QuestionType.MultipleChoice)
+{
+    @await Html.PartialAsync("_AnsweredMultipleChoiceQuestion", Model);
+}
