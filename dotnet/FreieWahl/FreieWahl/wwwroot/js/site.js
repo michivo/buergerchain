@@ -484,11 +484,9 @@ function saveVoting() {
 }
 
 function showOverview() {
-    console.log('showing overview...');
     $(".fw-open-voting").remove();
-    $("#fw-add-voting-card").hide();
     $("#fw-load-votings-card").show();
-    console.log('starting ajax');
+
     $.ajax({
         url: 'GetVotingsForUser',
         type: 'GET',
@@ -502,7 +500,7 @@ function showOverview() {
                     html: "An error occurred getting your votings: " + data
                 }).appendTo("#votingOverviewListContent");
             componentHandler.upgradeDom();
-            $("#fw-add-voting-card").show();
+
             $("#fw-load-votings-card").hide();
         }
     });
@@ -528,9 +526,16 @@ function showOverviewData(data) {
             `<a class="fw-card-link-icon bg-primary float-right p-2" href="Edit?id=${voting.id}"><i class="material-icons text-white">edit</i></a></div></div></div></div>`;
         items.push(item);
     }
-    $(items.join("\n")).insertBefore("#fw-add-voting-card");
-    $("#fw-add-voting-card").show();
+    $(items.join("\n")).insertAfter("#fw-new-voting-onboarding");
+
     $("#fw-load-votings-card").hide();
+    if (data.length === 0) {
+        $("#fw-new-voting-onboarding").removeClass("d-none").addClass("d-flex");
+        $("#fw-new-voting-button").addClass("d-none");
+    } else {
+        $("#fw-new-voting-onboarding").removeClass("d-flex").addClass("d-none");
+        $("#fw-new-voting-button").removeClass("d-none");
+    }
 
     componentHandler.upgradeDom();
 
