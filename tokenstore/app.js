@@ -61,7 +61,6 @@ app.use(bodyParser.urlencoded({ extended: true })); // support encoded bodies
 const MAX_TOKEN_COUNT = config.MAX_TOKEN_COUNT;
 
 app.get('/', (req, res) => {
-  // console.log('received request, sending response');
   const result = '<html><head><title>Hello</title></head><body><form action="/foo" method="post"><input type="submit" value="foo" /></form>Version 7</body></html>';
   res.status(200).send(result).end();
 });
@@ -117,6 +116,7 @@ app.post('/setKeys', wrapAsync(async function (req, res) {
 
 app.post('/getTokens', wrapAsync(async function (req, res) {
   prepareRes(res);
+
   const voterId = req.body.voterId;
   let questionIndices = req.body.questionIndices;
   if(questionIndices.length === 0)
@@ -237,7 +237,12 @@ app.use(function(err, req, res, next) {
 // [END app]
 
 function prepareRes(res) {
-  res.setHeader('Access-Control-Allow-Origin', 'http://localhost:61878');
+  if(process.env.NODE_ENV) {
+    res.setHeader('Access-Control-Allow-Origin', 'https://www.freiewahl.eu');
+  }
+  else {
+    res.setHeader('Access-Control-Allow-Origin', 'http://localhost:61878');
+  }
 }
 
 function getPasswordHash(password) {
