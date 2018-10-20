@@ -14,6 +14,7 @@ using FreieWahl.Common;
 using FreieWahl.Mail;
 using FreieWahl.Security.Signing.VotingTokens;
 using FreieWahl.UserData.Store;
+using Microsoft.EntityFrameworkCore.Internal;
 
 namespace FreieWahl.Controllers
 {
@@ -148,7 +149,7 @@ namespace FreieWahl.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> Edit(string id)
+        public async Task<IActionResult> Edit(string id, bool isNew = false)
         {
             var user = await _GetUserForGetRequest();
 
@@ -167,7 +168,8 @@ namespace FreieWahl.Controllers
                 UserInitials = _GetInitials(user.Name),
                 StartDate = voting.StartDate.ToSecondsSinceEpoch(),
                 EndDate = voting.EndDate.ToSecondsSinceEpoch(),
-                RegistrationUrl = _GetRegistrationUrl(id)
+                RegistrationUrl = _GetRegistrationUrl(id),
+                IsNew = isNew
             });
         }
 
@@ -198,7 +200,7 @@ namespace FreieWahl.Controllers
 
         [HttpPost]
         public async Task<IActionResult> UpdateVoting(string id, string title, string desc, string imageData,
-            string startDate, string startTime, string endDate, string endTime)
+            string startDate, string endDate)
         {
             var idVal = _GetId(id);
             var operation = idVal == 0 ? Operation.Create : Operation.UpdateVoting;
@@ -207,8 +209,8 @@ namespace FreieWahl.Controllers
             if (user == null)
                 return Unauthorized();
 
-            var startTimeValue = _GetDateTime(startDate, startTime);
-            var endTimeValue = _GetDateTime(endDate, endTime);
+            var startTimeValue = DateTime.Parse(startDate, null, DateTimeStyles.RoundtripKind);
+            var endTimeValue = DateTime.Parse(endDate, null, DateTimeStyles.RoundtripKind);
 
             if (idVal != 0)
             {
@@ -308,7 +310,13 @@ namespace FreieWahl.Controllers
 
         private string _GetRegistrationUrl(string votingId)
         {
-            return Url.Action("Register", "Voting", new {votingId}, HttpContext.Request.Scheme);
+            var result = Url.Action("Register", "Voting", new {votingId}, HttpContext.Request.Scheme);
+            if (result.StartsWith("http://") && !result.StartsWith("http://localhost"))
+            { // TODO this is not clean
+                result = "https" + result.Substring(4);
+            }
+
+            return result;
         }
 
         private static Question _GetQuestion(string title, string desc, string[] answers, string[] answerDescriptions)

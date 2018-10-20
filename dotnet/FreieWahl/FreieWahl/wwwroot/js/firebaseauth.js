@@ -12,10 +12,11 @@
         // Privacy policy url.
         // privacyPolicyUrl: 'PrivacyPolicy',
         callbacks: {
-            signInSuccess: function (loggedInUser) {
+            signInSuccessWithAuthResult: function (authResult, redirectUrl) {
                 // User successfully signed in.
                 // Return type determines whether we continue the redirect automatically
                 // or whether we leave that to developer to handle.
+                const loggedInUser = authResult.user;
                 loggedInUser.getIdToken(true).then(function (idToken) {
                     $.ajax({
                         url: 'Home/SessionLogin',

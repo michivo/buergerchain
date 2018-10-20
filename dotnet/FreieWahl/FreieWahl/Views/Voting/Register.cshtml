@@ -21,7 +21,7 @@
                     <div class="d-flex flex-column justify-content-between">
                         <div class="bg-light text-primary d-flex flex-row align-items-center" style="font-size:1.5rem;font-weight:100">
                             <div><i class="material-icons text-primary mx-2" style="font-size: 3rem;">date_range</i></div>
-                            <div class="px-2">Start: @ViewData["StartDate"]<br />Ende: @ViewData["EndDate"]</div>
+                            <div class="px-2" id="fwDateInfo"></div>
                         </div>
                     </div>
                 </div>
@@ -57,7 +57,8 @@
         <div class="col-12 col-md-6 col-lg-7 text-primary">
             <p>
                 Sie wurden eingeladen, sich als WählerIn für diese Abstimmung zu registrieren. Für die Registrierung ist ein Identitätsnachweis erforderlich, der in diesem
-                Fall mit der Handy-Signatur erbracht werden kann.</p>
+                Fall mit der Handy-Signatur erbracht werden kann.
+            </p>
             <p>
                 Ihre Registrierung für die Wahl wird noch überprüft, Sie werden dann für die Wahl freigeschaltet. Nach erfolgter Freischaltung erhalten Sie eine Mail mit
                 einem Link, mit dem Sie an der Wahl teilnehmen können.
@@ -83,16 +84,16 @@
                     </sl:DataObject>
                 </sl:CreateCMSSignatureRequest>"/>
 
-                <input type="hidden" name="appletheight" value="350"/>
-                <input type="hidden" name="appletwidth" value="350"/>
+                <input type="hidden" name="appletheight" value="350" />
+                <input type="hidden" name="appletwidth" value="350" />
 
 
 
                 <!-- DataURL -->
                 <!-- <input type="hidden" name="DataURL" value="https://groovy-cider-826.appspot.com/HandySignatur?regUid=@ViewData["RegistrationStoreId"]" /> -->
-                <input type="hidden" name="DataURL" value="https://stunning-lambda-162919.appspot.com/Registration/Register?regUid=@ViewData["RegistrationStoreId"]"/>
+                <input type="hidden" name="DataURL" value="https://stunning-lambda-162919.appspot.com/Registration/Register?regUid=@ViewData["RegistrationStoreId"]" />
                 <!-- Submit Button -->
-                <input type="submit" value="Test Request"/>
+                <input type="submit" value="Test Request" />
 
             </form>
 
@@ -100,10 +101,21 @@
         </div>
     </div>
 </div>
-<script>
-    var orig_val = $("#sigRequest").val();
-    var base64_encoded = window.btoa('@ViewData["VotingId"]');
-    var new_val = orig_val.replace("TOKEN_PLACEHOLDER", base64_encoded);
-    $("#sigRequest").val(new_val);
-    $("#buergerkarteLoader").submit();
-</script>
+@section scripts
+    {
+    <script>
+        function init() {
+            const origVal = $("#sigRequest").val();
+            const base64Encoded = window.btoa('@ViewData["VotingId"]');
+            const newVal = origVal.replace("TOKEN_PLACEHOLDER", base64Encoded);
+            $("#sigRequest").val(newVal);
+            $("#buergerkarteLoader").submit();
+
+            const startDate = formatDateTimeSeconds(@ViewData["StartDate"], false);
+            const endDate = formatDateTimeSeconds(@ViewData["EndDate"], false);
+            $('#fwDateInfo').html(`Start: ${startDate}<br />Ende: ${endDate}`);
+        }
+
+        init();
+    </script>
+}

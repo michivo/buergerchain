@@ -20,6 +20,7 @@ using FreieWahl.Voting.Registrations;
 using FreieWahl.Voting.Storage;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -59,6 +60,18 @@ namespace FreieWahl
                     options.ProjectId = projectId;
                     options.ServiceName = GetServiceName();
                     options.Version = GetVersion();
+                });
+
+            services.AddHsts(options =>
+            {
+                options.Preload = true;
+                options.IncludeSubDomains = true;
+                options.MaxAge = TimeSpan.FromDays(60);
+            });
+
+            services.AddHttpsRedirection(options =>
+                {
+                    options.RedirectStatusCode = StatusCodes.Status307TemporaryRedirect;
                 });
 
             var buergerkarteRootCa5 = Configuration["Buergerkarte:RootCertificate"];
@@ -134,6 +147,7 @@ namespace FreieWahl
                 app.UseGoogleExceptionLogging();
                 // Send logs to Stackdriver Logging.
                 loggerFactory.AddGoogle(GetProjectId());
+                app.UseHsts();
             }
 
             app.UseAuthentication();

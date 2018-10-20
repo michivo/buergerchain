@@ -9,7 +9,7 @@ $font-family-serif:      "Roboto Slab", Georgia, "Times New Roman", Times, serif
 $font-family-monospace:  "Roboto Mono", Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace !default;
 $font-family-base:       $font-family-sans-serif !default;
 
-$headings-font-weight:  100 !default;
+$headings-font-weight:  300 !default;
 
 $display-4-font-weight: 100 !default;
 
@@ -118,8 +118,9 @@ div.fw-overview-card {
     width: 18rem;
 }
 
-#functions-slick div.card-body{ 
-    box-shadow: 1px 1px 3px $fw-gray
+#functions-slick div.card{ 
+    box-shadow: 1px 1px 3px $fw-gray;
+    margin-bottom: .25rem;
 }
 
 @keyframes fwOverviewCardPulse {
@@ -189,23 +190,6 @@ a.fw-card-link-icon i {
     font-size: 2rem;
 }
 
-@keyframes shadowPulse {
-    0% {
-        text-shadow: 0px 0px 30px $primary;
-    }
-
-    100% {
-        text-shadow: 0px 0px 0px $fw-light;
-    }
-}
-
-.shadow-pulse {
-    animation-name: shadowPulse;
-    animation-duration: 1.5s;
-    animation-iteration-count: 1;
-    animation-timing-function: linear;
-}
-
 img.fw-finished-vote {
     max-width: 18rem;
     max-height:18rem;
@@ -253,21 +237,6 @@ div.fw-finished-vote-card-text h5 {
     margin:auto;
 }
 
-@keyframes spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
-}
-
-@keyframes blinkyAnim {
-    0%   {color: $secondary; transform: rotate(0deg);box-shadow:0 0 0 $secondary;}
-    50%   {color: $fw-light; transform: rotate(45deg);box-shadow:1rem 1rem 1rem $secondary;}
-    100%   {color: $secondary; transform: rotate(90deg);box-shadow:0 0 0;}
-}
-
-.blinky {
-    animation: blinkyAnim 1s ease-in-out;
-}
-
 .table-editable {
     position: relative;
 }
@@ -308,6 +277,8 @@ tr.hide {
   background-image: url('../images/background.png');
   color: white;
   margin-bottom: 2rem;
+  min-height: 20rem;
+  padding-top:2rem;
 }
 
 div.fw-overview-header {
@@ -411,4 +382,8 @@ img.fw-card-svg {
 /* Show the indicator (dot/circle) when checked */
 .fw-checkcontainer input:checked ~ .fw-checkmark:after {
     display: block;
+}
+
+.button-shadow {
+    box-shadow: 0px 4px 5px gray;
 }

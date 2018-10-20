@@ -14,5 +14,6 @@ namespace FreieWahl.Models.VotingAdministration
         public int StartDate { get; set; }
         public int EndDate { get; set; }
         public string RegistrationUrl { get; set; }
+        public bool IsNew { get; set; }
     }
 }

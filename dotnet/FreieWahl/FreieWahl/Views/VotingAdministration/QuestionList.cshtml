@@ -17,7 +17,18 @@
         @await Html.PartialAsync("_OrderingQuestion", question);
     }
 }
-<div class="float-right">
-    <i class="material-icons blinkOnScroll" style="font-size: 4rem;color: #3583A9;font-weight: 700;border-radius: 50%;cursor:pointer"
-       onclick="createQuestion('@Model.VotingId')">add_circle</i>
-</div>
+@if (Model.Questions.Any())
+{
+    <div class="float-right">
+        <i class="material-icons text-white bg-secondary rounded-circle button-shadow" style="font-size: 4rem; cursor: pointer"
+           onclick="createQuestion('@Model.VotingId')">add</i>
+    </div>
+}
+else
+{
+    <div class="align-items-center p-2 my-4" id="fw-new-question-onboarding" style="cursor:pointer" onclick="createQuestion('@Model.VotingId')">
+        <i class="material-icons text-white rounded-circle bg-secondary p-1 button-shadow float-left mr-3" style="font-size:3.5rem;height:4rem;width:4rem">add</i>
+        <div class="text-primary pt-1" ><h5 style="font-weight:300">Es gibt noch keine Fragen in dieser Abstimmung</h5>
+            <small>Klicken Sie hier, um eine erste Frage zu erstellen.</small></div>
+    </div>
+}

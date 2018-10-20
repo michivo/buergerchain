@@ -1,4 +1,10 @@
-﻿@using System.Reflection
+﻿<script>
+    function formatDateTimeSecondsForMail(secondsSinceEpoch) {
+        var date = new Date(0);
+        date.setUTCSeconds(secondsSinceEpoch);
+        return `${date.getDate()}.${date.getMonth() + 1}.${date.getFullYear()} um ${date.getHours()}:${date.getMinutes()}`;
+    }
+</script>
 
 <div class="modal fade" id="inviteVotersModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
      aria-hidden="true">
@@ -14,13 +20,13 @@
                 <div class="container">
                     <p>
                         <small>
-                        Folgende Mail wird an alle Adressen geschickt, die bei den EmpfängerInnen aufgelistet sind.
+                            Folgende Mail wird an alle Adressen geschickt, die bei den EmpfängerInnen aufgelistet sind.
                         </small>
                     </p>
                     <div class="alert alert-primary" role="alert">
                         <h5 class="alert-heading"><strong>Betreff:</strong> Einladung zur Abstimmung @ViewData["Title"]</h5>
                         Liebe Wahlberechtigte!<br />
-                        Sie sind eingeladen, an unserer Abstimmung <i>@ViewData["Title"]</i> teilzunehmen. Bitte registrieren Sie sich bis spätestens <script>formatDateTimeSeconds(@ViewData["RegistrationDate"], true)</script>
+                        Sie sind eingeladen, an unserer Abstimmung <i>@ViewData["Title"]</i> teilzunehmen. Bitte registrieren Sie sich bis spätestens <script>formatDateTimeSecondsForMail(@ViewData["RegistrationDate"])</script>
                         @Html.ActionLink("hier", "Register", "Registration", new { votingId = ViewData["VotingId"] }, new { @class = "alert-link" }).<br />
                         Vielen Dank!
                     </div>

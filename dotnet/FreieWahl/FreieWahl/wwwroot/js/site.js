@@ -82,12 +82,9 @@ function saveQuestion(vid, idx) {
     });
 }
 
-function formatDateTimeSeconds(secondsSinceEpoch, withFillword = false) {
+function formatDateTimeSeconds(secondsSinceEpoch) {
     var date = new Date(0);
     date.setUTCSeconds(secondsSinceEpoch);
-    if (withFillword) {
-        return `${date.getDate()}.${date.getMonth() + 1}.${date.getFullYear()} um ${date.getHours()}:${date.getMinutes()}`;
-    }
     return `${date.getDate()}.${(date.getMonth() + 1).toString().padStart(2, '0')}.${date.getFullYear()} ${date.getHours()}:${date.getMinutes().toString().padStart(2, '0')}`;
 }
 
@@ -283,11 +280,19 @@ function blinkOnScroll() {
 }
 
 function createQuestion(votingId) {
+    $('#shareLinkText').popover('hide');
+    $('#shareLinkButton').popover('hide');
+    $('#shareLinkText').popover('dispose');
+    $('#shareLinkButton').popover('dispose');
     $('#newQuestionModal').modal();
     $('#modalQuestionOk').off('click').on('click', function () { saveQuestion(votingId, 0); });
 }
 
 function showInviteModal() {
+    $('#shareLinkText').popover('hide');
+    $('#shareLinkButton').popover('hide');
+    $('#shareLinkText').popover('dispose');
+    $('#shareLinkButton').popover('dispose');
     $('#mailRecipients').val('');
     $('#inviteVotersModal').modal();
 }
@@ -463,6 +468,9 @@ function saveVoting() {
         imageData = canvas.toDataURL();
     }
 
+    const startDate = parseDateTime($("#fwStartDate").val(), $("#fwStartTime").val());
+    const endDate = parseDateTime($("#fwEndDate").val(), $("#fwEndTime").val());
+
     $.post({
         url: 'UpdateVoting',
         data: {
@@ -470,17 +478,29 @@ function saveVoting() {
             "desc": desc,
             "id": null,
             "imageData": imageData,
-            "startDate": $("#fwStartDate").val(),
-            "startTime": $("#fwStartTime").val(),
-            "endDate": $("#fwEndDate").val(),
-            "endTime": $("#fwEndTime").val()
+            "startDate": startDate.toISOString(),
+            "endDate": endDate.toISOString(),
         },
         success: function (data) {
             $('#newVotingModal').modal('hide');
-            window.location.replace('Edit?id=' + data);
+            window.location.replace(`Edit?id=${data}&isNew=true`);
+        },
+        error: function (err) {
+            alert(err);
+            // TODO
         }
-        // error: todo
     });
+}
+
+function parseDateTime(date, time) {
+    const dateParts = date.split('.');
+    const timeParts = time.split(':');
+    const day = parseInt(dateParts[0]);
+    const month = parseInt(dateParts[1]);
+    const year = parseInt(dateParts[2]);
+    const hour = parseInt(timeParts[0]);
+    const minute = parseInt(timeParts[1]);
+    return new Date(year, month - 1, day, hour, minute);
 }
 
 function showOverview() {

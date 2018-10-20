@@ -49,8 +49,8 @@ namespace FreieWahl.Controllers
             ViewData["VotingTitle"] = voting.Title;
             ViewData["VotingDescription"] = voting.Description;
             ViewData["ImageData"] = voting.ImageData ?? string.Empty;
-            ViewData["StartDate"] = voting.StartDate.ToString("HH:mm, dd.MM.yyyy");
-            ViewData["EndDate"] = voting.EndDate.ToString("HH:mm, dd.MM.yyyy");
+            ViewData["StartDate"] = voting.StartDate.ToMillisecondsSinceEpoch();
+            ViewData["EndDate"] = voting.EndDate.ToMillisecondsSinceEpoch();
 
             return View();
         }

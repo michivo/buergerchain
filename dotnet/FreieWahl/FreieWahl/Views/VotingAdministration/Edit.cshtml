@@ -55,10 +55,10 @@
         </div>
         <div class="col-10 col-lg-8 text-primary">
             <strong>Link zur Registrierung für die Abstimmung</strong><br>
-            <a href="@Model.RegistrationUrl">@Model.RegistrationUrl</a>
+            <a href="@Model.RegistrationUrl" id="shareLinkText" data-toggle="tooltip" data-placement="right" title="WählerInnen einladen" data-content="Kopieren Sie den Link und schicken ihn Ihren WählerInnen...">@Model.RegistrationUrl</a>
         </div>
         <div class="col-3">
-            <button class="btn btn-secondary text-uppercase float-lg-right mt-lg-0 mt-2" onclick="showInviteModal()">Link teilen</button>
+            <button class="btn btn-secondary text-uppercase float-lg-right mt-lg-0 mt-2" id="shareLinkButton" onclick="showInviteModal()" data-toggle="tooltip" data-placement="left" data-content="... oder senden Sie den Link zur Abstimmung per Mail aus.">Link teilen</button>
         </div>
     </div>
 </div>
@@ -114,8 +114,6 @@
 </main>
 
 @section scripts {
-    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js" integrity="sha256-VazP97ZCwtekAsvgPBSUwPFKdrwD3unUfSGVYrahUqU="
-            crossorigin="anonymous"></script>
     <script src="~/js/bootstrap-datepicker.min.js"></script>
 
     <script>
@@ -123,7 +121,28 @@
 
         $(document).ready(function() {
             setupEditScreen('@Model.VotingId');
-            $('#fwDateInfo').html('Start: ' + formatDateTimeSeconds(@Model.StartDate, false) + '<br />Ende: ' + formatDateTimeSeconds(@Model.EndDate, false));
+            const startDate = formatDateTimeSeconds(@Model.StartDate, false);
+            const endDate = formatDateTimeSeconds(@Model.EndDate, false);
+            $('#fwDateInfo').html(`Start: ${startDate}<br />Ende: ${endDate}`);
+
+            $('#shareLinkText').popover({ offset: '1rem' });
+            $('#shareLinkButton').popover();
+            @if (Model.IsNew)
+            {
+                <text>
+                    if (window.innerWidth > 1400) {
+                        $('#shareLinkText').popover('show');
+                        $('#shareLinkButton').popover('show');
+                    }
+                </text>
+            }
+            else
+            {
+                <text>
+                    $('#shareLinkText').popover('disable');
+                    $('#shareLinkButton').popover('disable');
+                </text>
+            }
         });
     </script>
 

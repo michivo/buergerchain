@@ -12,11 +12,11 @@
     <div class="container pt-3">
         <div class="row justify-content-between">
             <div class="col-12 col-lg-6">
-                <h1 class="border-left border-top border-bottom mr-0 pl-0 ml-4 d-inline display-4 rounded-edges">
-                    <span class="text-light px-2 font-weight-bold">freie</span><span class="border text-primary bg-light px-2 font-italic rounded-edges">Wahl</span>
+                <h1 class="border-left border-top border-bottom mr-0 pl-0 ml-4 d-inline display-4 rounded">
+                    <span class="text-light px-2 font-weight-bold">freie</span><span class="border text-primary bg-light px-2 font-italic rounded">Wahl</span>
                 </h1>
                 <p class="pt-4">
-                    Diese Seite ist noch in Arbeit... Sie können sich aber gerne registrieren und mit den bisher implementierten Funktionen spielen. Sollten Sie Fragen haben, <a class="text-white" href="mailto:michivo+fw@gmail.com"><u>kontaktieren Sie mich bitte!</u></a>
+                    Führen Sie kostenlos, einfach und schnell Wahlen und Abstimmungen durch. Mit der Bürgerkarte als Identitätsnachweise und sicherer, anonymer Speicherung der Wahlergebnisse haben Sie die <span class="border rounded"><span class="px-1">freie</span><i class="text-primary bg-white px-1">Wahl</i></span>.
                 </p>
             </div>
             <div class="col-12 col-lg-5 mb-3 float-right" id="fw-firebase-auth-container">
@@ -26,6 +26,66 @@
 </div>
 
 <div class="text-primary container">
+    <h1 class="display-4 text-uppercase border-bottom">
+        So funktioniert es
+    </h1>
+    <div id="functions-slick" class="px-5">
+        <div class="col-6 col-md-4 col-lg-3">
+            <div class="card border">
+                <img class="card-img-top fw-card-svg" src="icons/baseline-account_box-24px.svg" alt="Wahl erstellen" />
+                <div class="card-body" style="height:9rem">
+                    <h5 class="card-title">Anmelden</h5>
+                    <p class="card-text">Eröffnen Sie einen Account und melden Sie sich mit Ihrer E-Mail-Adresse an.</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-6 col-md-4 col-lg-3">
+            <div class="card border">
+                <img class="card-img-top fw-card-svg" src="icons/outline-create-24px.svg" alt="Wahl erstellen" />
+                <div class="card-body" style="height:9rem">
+                    <h5 class="card-title">Erstellen</h5>
+                    <p class="card-text">Erstellen Sie eine neue Abstimmung. In wenigen Schritten haben Sie alles eingestellt.</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-6 col-md-4 col-lg-3">
+            <div class="card border">
+                <img class="card-img-top fw-card-svg" src="icons/outline-email-24px.svg" alt="Wahlberechtigte einladen">
+                <div class="card-body" style="height:9rem">
+                    <h5 class="card-title">Einladen</h5>
+                    <p class="card-text">Laden Sie Wahlberechtigte dazu ein, an Ihrer Abstimmung teilzunehmen.</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-6 col-md-4 col-lg-3">
+            <div class="card border">
+                <img class="card-img-top fw-card-svg" src="icons/outline-how_to_reg-24px.svg" alt="Registrierung">
+                <div class="card-body" style="height:9rem">
+                    <h5 class="card-title">Registrierung</h5>
+                    <p class="card-text">Warten Sie ab, welche Wahlberechtigten Ihrer Einladung folgen.</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-6 col-md-4 col-lg-3">
+            <div class="card border">
+                <img class="card-img-top fw-card-svg" src="icons/outline-how_to_vote-24px.svg" alt="Durchführung">
+                <div class="card-body" style="height:9rem">
+                    <h5 class="card-title">Durchführung</h5>
+                    <p class="card-text">Stellen Sie Fragen, lassen Sie abstimmen. Jetzt sind die WählerInnen am Wort!</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-6 col-md-4 col-lg-3">
+            <div class="card border">
+                <img class="card-img-top fw-card-svg" src="icons/outline-insert_chart-24px.svg" alt="Auswertung">
+                <div class="card-body" style="height:9rem">
+                    <h5 class="card-title">Auswertung</h5>
+                    <p class="card-text">Welche Option bekommt die meisten Stimmen? Wie ist die Stimmverteilung?</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
     <h1 class="display-4 text-uppercase border-bottom">
         Sicher, transparent, anonym
     </h1>
@@ -37,60 +97,6 @@
             Ihr Verein, Ihre Partei, Ihr Team möchte über etwas abstimmen. Ihnen ist Sicherheit, Transparenz und
             Anonymität wichtig. Die Freie Wahl ist die Lösung für Sie. Frei heißt gratis, einfach und transparent.
             Probier' es einfach aus.
-        </div>
-    </div>
-
-    <h1 class="display-4 text-uppercase border-bottom">
-        So funktioniert es
-    </h1>
-    <div id="functions-slick" class="px-5">
-        <div class="col-6 col-md-4 col-lg-3">
-            <div class="card border-light">
-                <img class="card-img-top fw-card-svg" src="icons/outline-create-24px.svg" alt="Wahl erstellen" />
-                <div class="card-body">
-                    <h5 class="card-title">Erstellen</h5>
-                    <p class="card-text">
-                        Erstellen Sie eine neue Abstimmung. In wenigen Schritten haben Sie alles
-                        eingestellt.
-                    </p>
-                </div>
-            </div>
-        </div>
-        <div class="col-6 col-md-4 col-lg-3">
-            <div class="card border-light">
-                <img class="card-img-top fw-card-svg" src="icons/outline-email-24px.svg" alt="Wahlberechtigte einladen">
-                <div class="card-body">
-                    <h5 class="card-title">Einladen</h5>
-                    <p class="card-text">Laden Sie Wahlberechtigte dazu ein, an Ihrer Abstimmung teilzunehmen.</p>
-                </div>
-            </div>
-        </div>
-        <div class="col-6 col-md-4 col-lg-3">
-            <div class="card border-light">
-                <img class="card-img-top fw-card-svg" src="icons/outline-how_to_reg-24px.svg" alt="Registrierung">
-                <div class="card-body">
-                    <h5 class="card-title">Registrierung</h5>
-                    <p class="card-text">Warten Sie ab, welche Wahlberechtigten Ihrer Einladung folgen.</p>
-                </div>
-            </div>
-        </div>
-        <div class="col-6 col-md-4 col-lg-3">
-            <div class="card border-light">
-                <img class="card-img-top fw-card-svg" src="icons/outline-how_to_vote-24px.svg" alt="Durchführung">
-                <div class="card-body">
-                    <h5 class="card-title">Durchführung</h5>
-                    <p class="card-text">Stellen Sie Fragen, lassen Sie abstimmen. Jetzt sind die WählerInnen am Wort!</p>
-                </div>
-            </div>
-        </div>
-        <div class="col-6 col-md-4 col-lg-3">
-            <div class="card border-light">
-                <img class="card-img-top fw-card-svg" src="icons/outline-insert_chart-24px.svg" alt="Auswertung">
-                <div class="card-body">
-                    <h5 class="card-title">Auswertung</h5>
-                    <p class="card-text">Welche Option bekommt die meisten Stimmen? Wie ist die Stimmverteilung?</p>
-                </div>
-            </div>
         </div>
     </div>
 
