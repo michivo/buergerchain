@@ -21,6 +21,7 @@ using FreieWahl.Voting.Storage;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -32,6 +33,7 @@ namespace FreieWahl
     {
         public Startup(IHostingEnvironment env)
         {
+            CurrentEnvironment = env;
             var builder = new ConfigurationBuilder()
                 .SetBasePath(env.ContentRootPath)
                 .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
@@ -41,6 +43,7 @@ namespace FreieWahl
         }
 
         public IConfigurationRoot Configuration { get; }
+        private IHostingEnvironment CurrentEnvironment { get; set; }
 
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
@@ -48,6 +51,26 @@ namespace FreieWahl
             string projectId = GetProjectId();
 
             services.AddMvc();
+
+            if (CurrentEnvironment != null && !CurrentEnvironment.IsDevelopment())
+            {
+                services.Configure<MvcOptions>(options =>
+                {
+                    options.Filters.Add(new RequireHttpsAttribute { Permanent = false });
+                });
+                //    services.AddHsts(options =>
+                //    {
+                //        options.Preload = true;
+                //        options.IncludeSubDomains = true;
+                //        options.MaxAge = TimeSpan.FromDays(60);
+                //    });
+
+                //    services.AddHttpsRedirection(options =>
+                //    {
+                //        options.RedirectStatusCode = StatusCodes.Status307TemporaryRedirect;
+                //        options.HttpsPort = 443;
+                //    });
+            }
 
             services.AddLocalization(opts => { opts.ResourcesPath = "Resources"; });
 
@@ -60,18 +83,6 @@ namespace FreieWahl
                     options.ProjectId = projectId;
                     options.ServiceName = GetServiceName();
                     options.Version = GetVersion();
-                });
-
-            services.AddHsts(options =>
-            {
-                options.Preload = true;
-                options.IncludeSubDomains = true;
-                options.MaxAge = TimeSpan.FromDays(60);
-            });
-
-            services.AddHttpsRedirection(options =>
-                {
-                    options.RedirectStatusCode = StatusCodes.Status307TemporaryRedirect;
                 });
 
             var buergerkarteRootCa5 = Configuration["Buergerkarte:RootCertificate"];
@@ -120,7 +131,7 @@ namespace FreieWahl
                 var prio = int.Parse(serverInfo["Priority"]);
                 var reader = new PemReader(new StringReader(cert));
                 var obj = reader.ReadObject();
-                var x509Cert = (Org.BouncyCastle.X509.X509Certificate) obj;
+                var x509Cert = (Org.BouncyCastle.X509.X509Certificate)obj;
                 result.Add(new TimestampServer(url, x509Cert, prio));
             }
 
@@ -147,18 +158,22 @@ namespace FreieWahl
                 app.UseGoogleExceptionLogging();
                 // Send logs to Stackdriver Logging.
                 loggerFactory.AddGoogle(GetProjectId());
-                app.UseHsts();
+                //app.UseHsts();
             }
 
             app.UseAuthentication();
-            app.UseHttpsRedirection();
+            //if (!env.IsDevelopment())
+            //{
+            //    app.UseHttpsRedirection();
+            //}
+
             app.UseStaticFiles();
             app.UseGoogleTrace();
 
             app.ApplicationServices.GetService<IJwtAuthentication>()
                 .Initialize(
                     Configuration["JwtAuthentication:PublicKeyUrl"],
-                    Configuration["JwtAuthentication:Issuer"], 
+                    Configuration["JwtAuthentication:Issuer"],
                     Configuration["JwtAuthentication:Audience"]);
 
             app.UseMvc(routes =>

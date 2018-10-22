@@ -5,6 +5,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="FirebaseAdmin" Version="1.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\FreieWahl.Common\FreieWahl.Common.csproj" />
     <ProjectReference Include="..\FreieWahl.Security\FreieWahl.Security.csproj" />
     <ProjectReference Include="..\FreieWahl.Voting\FreieWahl.Voting.csproj" />

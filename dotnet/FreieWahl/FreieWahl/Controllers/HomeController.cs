@@ -1,13 +1,5 @@
-﻿using System;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using FreieWahl.Application.Authentication;
-using FreieWahl.Models;
-using FreieWahl.Security.Authentication;
-using FreieWahl.Security.TimeStamps;
-using FreieWahl.Security.UserHandling;
-using FreieWahl.Voting.Models;
-using FreieWahl.Voting.Storage;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -78,7 +70,7 @@ namespace FreieWahl.Controllers
             return View();
         }
 
-        public IActionResult Contact()
+        public IActionResult Impressum()
         {
             ViewData["Message"] = "Your contact page.";
             return View();

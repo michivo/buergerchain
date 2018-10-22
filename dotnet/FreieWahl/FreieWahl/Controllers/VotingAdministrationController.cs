@@ -14,7 +14,6 @@ using FreieWahl.Common;
 using FreieWahl.Mail;
 using FreieWahl.Security.Signing.VotingTokens;
 using FreieWahl.UserData.Store;
-using Microsoft.EntityFrameworkCore.Internal;
 
 namespace FreieWahl.Controllers
 {

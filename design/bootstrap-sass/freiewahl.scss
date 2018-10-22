@@ -3,6 +3,7 @@ $fw-light: #DCE4E7;
 $secondary: #3583A9;
 $fw-gray: #C0C0C0;
 $header-height: 4rem;
+$footer-height: 2.5rem;
 
 $font-family-sans-serif: Roboto, -apple-system, system-ui, BlinkMacSystemFont, "Helvetica Neue", "Segoe UI", Arial, sans-serif !default;
 $font-family-serif:      "Roboto Slab", Georgia, "Times New Roman", Times, serif !default;
@@ -15,7 +16,23 @@ $display-4-font-weight: 100 !default;
 
 @import "bootstrap";
 
-body {
+html {
+    height: 100%;
+    box-sizing: border-box;
+  }
+  
+  *,
+  *:before,
+  *:after {
+    box-sizing: inherit;
+  }
+  
+  body {
+    position: relative;
+    margin: 0;
+    padding-bottom: $footer-height;
+    min-height: 100%;
+    font-family: "Helvetica Neue", Arial, sans-serif;
     padding-top: $header-height;
 }
 
@@ -386,4 +403,14 @@ img.fw-card-svg {
 
 .button-shadow {
     box-shadow: 0px 4px 5px gray;
+}
+
+footer {
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    height: 2.5rem;
+    background-color: #efefef;
+    text-align: center;
 }

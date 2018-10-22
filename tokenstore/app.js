@@ -52,7 +52,7 @@ const serviceAccount = require('./credentials.json');
 
 admin.initializeApp({
   credential: admin.credential.cert(serviceAccount),
-  databaseURL: 'https://stunning-lambda-162919.firebaseio.com'
+  databaseURL: 'https://freiewahl-application.firebaseio.com'
 });
 
 app.use(bodyParser.json({ limit: '5mb' })); // support json encoded bodies
@@ -210,6 +210,7 @@ app.post('/sessionLogin', (req, res) => {
     res.cookie('session', sessionCookie, options);
     res.end(JSON.stringify({ status: 'success', session: sessionCookie, maxAge: expiresIn }));
   }, error => {
+    console.log(JSON.stringify(error));
     res.status(401).send('UNAUTHORIZED REQUEST!');
   });
 });

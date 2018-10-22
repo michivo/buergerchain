@@ -40,11 +40,17 @@
     </script>
 </head>
 <body>
+    @RenderBody()
+<footer class="border-top mt-3 pb-1 border-top" style="height: 2.5rem;">
+    <div class="d-flex justify-content-between">
+        <div class="px-3">
+            @Html.ActionLink("Impressum", "Impressum", "Home", new { }, new { @class = "border-top border-bottom rounded px-2 py-1 mx-2 bg-light" }) @Html.ActionLink("Über uns", "About", "Home", new { }, new { @class = "border-top border-bottom rounded px-2 py-1 m-2 bg-light" })
 
-            @RenderBody()
-    <footer class="border-top mt-3">
-        <p>&copy; 2018 - FreieWahl</p>
-    </footer>
+        </div>
+        <div class="px-2">supported by <a href="http://www.netidee.at" target="_blank"><img src="~/images/netidee_logo.png" height="30" width="119" alt="netidee Logo"/></a></div>
+    </div>
+    
+</footer>
     <environment names="Development">
         <script src="~/lib/jquery/dist/jquery.min.js"></script>
         <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js" integrity="sha256-VazP97ZCwtekAsvgPBSUwPFKdrwD3unUfSGVYrahUqU="

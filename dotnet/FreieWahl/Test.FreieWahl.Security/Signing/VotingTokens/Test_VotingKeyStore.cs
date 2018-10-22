@@ -18,7 +18,7 @@ namespace Test.FreieWahl.Security.Signing.VotingTokens
     [TestClass]
     public class Test_VotingKeyStore
     {
-        private static readonly string ProjectId = "groovy-cider-826";
+        private static readonly string ProjectId = "freiewahl-data";
         private VotingKeyStore _votingStore;
 
         [TestInitialize]

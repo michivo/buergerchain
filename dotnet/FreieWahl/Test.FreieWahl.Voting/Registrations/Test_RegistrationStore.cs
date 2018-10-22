@@ -14,7 +14,7 @@ namespace Test.FreieWahl.Voting.Registrations
     public class Test_RegistrationStore
     {
 
-        private static readonly string ProjectId = "groovy-cider-826";
+        private static readonly string ProjectId = "freiewahl-data";
         private RegistrationStore _votingStore;
 
         [TestInitialize]

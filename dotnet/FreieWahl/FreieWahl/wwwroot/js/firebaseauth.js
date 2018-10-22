@@ -49,14 +49,15 @@ function initApp() {
     if (firebase.apps.length !== 0)
         return;
 
-    const config = {
-        apiKey: "AIzaSyDM8e5m6ToGxu5MZPpUeEYOkypSY1_j0PY",
-        authDomain: "stunning-lambda-162919.firebaseapp.com",
-        databaseURL: "https://stunning-lambda-162919.firebaseio.com",
-        storageBucket: "stunning-lambda-162919.appspot.com",
-        messagingSenderId: "576087239560",
-        projectId: "stunning-lambda-162919"
+    var config = {
+        apiKey: "AIzaSyALVLNBtV3GyvjpBS0M2q4EALy-WnPA9rA",
+        authDomain: "freiewahl-application.firebaseapp.com",
+        databaseURL: "https://freiewahl-application.firebaseio.com",
+        projectId: "freiewahl-application",
+        storageBucket: "freiewahl-application.appspot.com",
+        messagingSenderId: "124237585532"
     };
+
     firebase.initializeApp(config);
     firebase.auth().setPersistence(firebase.auth.Auth.Persistence.NONE);
 };
