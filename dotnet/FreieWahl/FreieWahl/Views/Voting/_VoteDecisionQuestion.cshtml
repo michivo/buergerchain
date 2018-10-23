@@ -1,29 +1,24 @@
 ﻿@using FreieWahl.Voting.Models
 @model FreieWahl.Models.VotingAdministration.QuestionModel
 
-<div class="card my-4">
+<div class="card my-4" id="question-card-@Model.Index">
     <div class="card-body">
         <h1 class="card-title" style="border-bottom: 1px solid #657F8C" id="question-@Model.Index-title">@Model.Text</h1>
         <p class="card-text" style="border-bottom: 1px solid #C0C0C0" id="question-@Model.Index-description">@Model.Description</p>
-        <div class="container">
-
-            @{ int answerCount = 0; }
+        <div class="container" id="answer-list-@Model.Index">
             @foreach (var answer in Model.AnswerOptions)
             {
-                <label class="fw-checkcontainer">
-                    <span id="fw-answer-title-@Model.Index-@answerCount">
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" name="radios-@Model.Index" id="answer-@Model.Index-@answer.Id" value="@answer.Id">
+                    <label class="form-check-label" for="answer-@Model.Index-@answer.Id">
                         @answer.Answer
-                    </span><br />
-                    <span class="small text-primary border-bottom" id="fw-answer-description-@Model.Index-@answerCount">
+                    </label>
+                    <span class="small text-primary border-bottom" id="fw-answer-description-@Model.Index-@answer.Id">
                         @answer.Description
                     </span>
-                    <input type="radio" name="radio-@Model.Index"><span class="fw-checkmark"></span>
-                </label>
-
-                answerCount++;
+                </div>
             }
         </div>
     </div>
-    <button class="btn btn-success float-right mx-3" onClick="vote('@Model.VotingId', @Model.Index)">Stimme abgeben</button>
-</div>
+    <button class="btn btn-success mx-3" id="submit-question-@Model.Index" onClick="submitDecisionQuestionVote(@Model.Index)">Stimme abgeben</button>
 </div>

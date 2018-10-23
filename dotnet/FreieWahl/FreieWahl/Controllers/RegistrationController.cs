@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Globalization;
+using System.IO;
 using System.Linq;
+using System.Net;
 using System.Threading.Tasks;
 using System.Xml;
 using FreieWahl.Application.Authentication;
@@ -12,6 +14,7 @@ using FreieWahl.Voting.Storage;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using Newtonsoft.Json;
 
 namespace FreieWahl.Controllers
 {
@@ -26,8 +29,7 @@ namespace FreieWahl.Controllers
         private readonly string _regUrl;
         private readonly int _tokenCount;
         private readonly string _redirectUrl;
-        private string _duplicateRedirectUrl;
-        private string _errorRedirectUrl;
+        private readonly string _errorRedirectUrl;
 
         public RegistrationController(ILogger<RegistrationController> logger,
             ISignatureHandler signatureHandler,
@@ -123,6 +125,66 @@ namespace FreieWahl.Controllers
             }
         }
 
+        public async Task<IActionResult> FakeRegistrations(string votingId, int count)
+        {
+            string[] firstNames = { "Anton", "Berta", "Christoph", "Dora", "Emil", "Franz", "Greta", "Heinz", "Ida", "Jörg", "Karl", "Leo", "Michael", "Norbert", "Oskar", "Paula", "Rosi", "Susi", "Thomas", "Uwe", "Viktor", "Werner", "Xaver", "Zacharias" };
+            string[] lastNames = { "Almer", "Brunner", "Degen", "Eisenberger", "Faschinger", "Gruber", "Huber", "Jaklitsch", "Konrad", "Lechner", "Maier", "Nachbagauer", "Ortner", "Pospisil", "Rüdiger", "Schiffkowitz", "Timischl", "Unterasinger", "Vogel", "Wiener", "Richter" };
+            Random rnd = new Random();
+
+            for (int i = 0; i < count; i++)
+            {
+                var firstName = firstNames[rnd.Next(0, firstNames.Length)];
+                var lastName = lastNames[rnd.Next(0, lastNames.Length)];
+                var fullName = firstName + " " + lastName;
+                var regId = Guid.NewGuid().ToString();
+
+                await _registrationStore.AddOpenRegistration(new OpenRegistration
+                {
+                    VotingId = votingId.ToId().Value,
+                    VoterIdentity = rnd.Next(1000000000).ToString(),
+                    VoterName = fullName,
+                    RegistrationTime = DateTime.UtcNow,
+                    RegistrationStoreId = regId
+                });
+
+                var request = WebRequest.CreateHttp("https://tokenstore-210111.appspot.com/saveRegistrationDetails");
+                request.ContentType = "application/json";
+                request.Method = WebRequestMethods.Http.Post;
+
+                using (var streamWriter = new StreamWriter(request.GetRequestStream()))
+                {
+                    var resultData = new
+                    {
+                        id = regId,
+                        mail = "michfasch@gmx.at",
+                        password = "123",
+                        tokenCount = 20,
+                        votingId
+                    };
+
+                    var json = JsonConvert.SerializeObject(resultData);
+
+                    streamWriter.Write(json);
+                    streamWriter.Flush();
+                    streamWriter.Close();
+                }
+
+                var httpResponse = await request.GetResponseAsync();
+                string result;
+                using (var streamReader = new StreamReader(httpResponse.GetResponseStream()))
+                {
+                    result = streamReader.ReadToEnd();
+                }
+            }
+
+            return new ContentResult()
+            {
+                Content = "OK",
+                StatusCode = 200,
+                ContentType = "text/html"
+            };
+        }
+
         public async Task<IActionResult> RegistrationDetails(string regUid)
         {
             var registration = await _registrationStore.GetOpenRegistration(regUid);
@@ -171,26 +233,29 @@ namespace FreieWahl.Controllers
 
 
         [HttpPost]
-        public async Task<IActionResult> GrantRegistration(string rid)
+        public async Task<IActionResult> GrantRegistration(string[] rids)
         {
-            var regId = rid.ToId();
-            if (regId == null)
+            var regIds = rids.Select(x => x.ToId()).ToList();
+            if (regIds.Any(x => x == null))
             {
                 return BadRequest();
             }
 
-            var registration = await _registrationStore.GetOpenRegistration(regId.Value);
-            string vid = registration.VotingId.ToString(CultureInfo.InvariantCulture);
-            var user = await _authHandler.GetAuthorizedUser(vid,
-                Operation.GrantRegistration, Request.Cookies["session"]);
-            if (user == null)
+            foreach (var regId in regIds)
             {
-                return Unauthorized();
+                var registration = await _registrationStore.GetOpenRegistration(regId.Value);
+                string vid = registration.VotingId.ToString(CultureInfo.InvariantCulture);
+                var user = await _authHandler.GetAuthorizedUser(vid,
+                    Operation.GrantRegistration, Request.Cookies["session"]);
+                if (user == null)
+                {
+                    return Unauthorized();
+                }
+
+                var link = Url.Action("Vote", "Voting", new { }, HttpContext.Request.Scheme);
+
+                await _registrationHandler.GrantRegistration(regId.Value, user.UserId, link);
             }
-
-            var link = Url.Action("Vote", "Voting", new{}, HttpContext.Request.Scheme);
-
-            await _registrationHandler.GrantRegistration(regId.Value, user.UserId, link);
             return Ok();
         }
 

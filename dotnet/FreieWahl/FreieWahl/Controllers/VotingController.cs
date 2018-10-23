@@ -7,7 +7,6 @@ using FreieWahl.Application.VotingResults;
 using FreieWahl.Common;
 using FreieWahl.Models.Voting;
 using FreieWahl.Models.VotingAdministration;
-using FreieWahl.Security.Signing.VotingTokens;
 using FreieWahl.Voting.Models;
 using FreieWahl.Voting.Storage;
 using Microsoft.AspNetCore.Mvc;
@@ -19,18 +18,15 @@ namespace FreieWahl.Controllers
 {
     public class VotingController : Controller
     {
-        private readonly IVotingTokenHandler _votingTokenHandler;
         private readonly IVotingStore _votingStore;
         private readonly IVotingResultManager _votingResultManager;
         private readonly string _regUrl;
 
         public VotingController(
-            IVotingTokenHandler votingTokenHandler,
             IVotingStore votingStore,
             IConfiguration configuration,
             IVotingResultManager votingResultManager)
         {
-            _votingTokenHandler = votingTokenHandler;
             _votingStore = votingStore;
             _votingResultManager = votingResultManager;
 

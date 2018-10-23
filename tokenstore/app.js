@@ -238,12 +238,12 @@ app.use(function(err, req, res, next) {
 // [END app]
 
 function prepareRes(res) {
-  if(process.env.NODE_ENV) {
-    res.setHeader('Access-Control-Allow-Origin', 'https://www.freiewahl.eu');
-  }
-  else {
+  // if(process.env.NODE_ENV) {
+  //   res.setHeader('Access-Control-Allow-Origin', 'https://www.freiewahl.eu');
+  // }
+  // else {
     res.setHeader('Access-Control-Allow-Origin', 'http://localhost:61878');
-  }
+  // }
 }
 
 function getPasswordHash(password) {

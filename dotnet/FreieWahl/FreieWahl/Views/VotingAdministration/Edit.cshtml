@@ -75,8 +75,8 @@
                     <div id="collapseOpenRegistrations" class="collapse" aria-labelledby="headingOne">
                         <div class="card-body" aria-labelledby="fw-dropdown-registered" id="openRegistrationsList">
                             <div class="dropdown-divider" id="openRegistrationsDivider"></div>
-                            <a class="dropdown-item" href="#">Alle freischalten</a>
-                            <a class="dropdown-item" href="#">Alle ablehnen</a>
+                            <button type="button" class="btn-success" onclick="grantAllRegistrations('@Model.VotingId')">Alle freischalten</button>
+                            <button type="button" class="btn-warning" >Alle ablehnen</button>
                         </div>
                     </div>
                 </div>

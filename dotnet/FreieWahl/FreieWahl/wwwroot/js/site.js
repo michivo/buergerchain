@@ -103,10 +103,10 @@ function resetNewQuestionModal() {
     $('#modalQuestionOk').removeClass('disabled');
 }
 
-function grantRegistration(regId, votingId) {
+function grantRegistration(regIds, votingId) {
     $.post({
         url: '../Registration/GrantRegistration',
-        data: { "rid": regId },
+        data: { "rids": regIds },
         success: function (data) { // todo
             updateRegistrations(votingId);
         }
@@ -175,14 +175,21 @@ function showRegistrations(registrations, votingId) {
     for (let i = 0; i < registrations.length; i++) {
         const registration = registrations[i];
         const item =
-            `<div class="d-flex mx-3 my-0 border-bottom openRegistrationItem"><div style="flex:1;margin-right:1rem">${registration.voterName}</div>\n` +
-            `<div style="align-self: flex-end;cursor:pointer;color:#657f8C" onclick="grantRegistration('${registration.registrationId}', '${votingId}')"><i class="material-icons">add_circle_outline</i></div>\n` +
+            `<div class="d-flex mx-3 my-0 border-bottom openRegistrationItem" id="openreg-${registration.registrationId}"><div style="flex:1;margin-right:1rem">${registration.voterName}</div>\n` +
+            `<div style="align-self: flex-end;cursor:pointer;color:#657f8C" onclick="grantRegistration(['${registration.registrationId}'], '${votingId}')"><i class="material-icons">add_circle_outline</i></div>\n` +
             `<div style="align-self: flex-end;cursor:pointer;color:#657f8C" onclick="denyRegistration('${registration.registrationId}', '${votingId}')"><i class="material-icons mx-1">remove_circle_outline</i></div>\n` +
             `<div style="align-self: flex-end;cursor:pointer;color:#657f8C"><i class="material-icons">info</i></div></div>`;
         $(item).insertBefore('#openRegistrationsDivider');
     }
 
     $('#openRegistrationsBadge').text(registrations.length);
+}
+
+function grantAllRegistrations(votingId) {
+    const ids = $('.openRegistrationItem').map(function() {
+        return this.id.substr(8);
+    });
+    grantRegistration(ids.toArray(), votingId);
 }
 
 

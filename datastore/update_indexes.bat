@@ -1,1 +1,1 @@
-gcloud datastore indexes create index.yaml --project=groovy-cider-826
+gcloud datastore indexes create index.yaml --project=freiewahl-data
