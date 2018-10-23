@@ -1,5 +1,6 @@
 ﻿using System.Threading.Tasks;
 using FreieWahl.Application.Authentication;
+using FreieWahl.Helpers;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -8,6 +9,7 @@ using Microsoft.Extensions.Logging;
 
 namespace FreieWahl.Controllers
 {
+    [ForwardedRequireHttps]
     public class HomeController : Controller
     {
         private readonly ILogger _logger;

@@ -21,6 +21,7 @@ using FreieWahl.Voting.Storage;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -51,26 +52,6 @@ namespace FreieWahl
             string projectId = GetProjectId();
 
             services.AddMvc();
-
-            if (CurrentEnvironment != null && !CurrentEnvironment.IsDevelopment())
-            {
-                services.Configure<MvcOptions>(options =>
-                {
-                    options.Filters.Add(new RequireHttpsAttribute { Permanent = false });
-                });
-                //    services.AddHsts(options =>
-                //    {
-                //        options.Preload = true;
-                //        options.IncludeSubDomains = true;
-                //        options.MaxAge = TimeSpan.FromDays(60);
-                //    });
-
-                //    services.AddHttpsRedirection(options =>
-                //    {
-                //        options.RedirectStatusCode = StatusCodes.Status307TemporaryRedirect;
-                //        options.HttpsPort = 443;
-                //    });
-            }
 
             services.AddLocalization(opts => { opts.ResourcesPath = "Resources"; });
 
@@ -158,14 +139,10 @@ namespace FreieWahl
                 app.UseGoogleExceptionLogging();
                 // Send logs to Stackdriver Logging.
                 loggerFactory.AddGoogle(GetProjectId());
-                //app.UseHsts();
+                app.UseHsts();
             }
-
+            
             app.UseAuthentication();
-            //if (!env.IsDevelopment())
-            //{
-            //    app.UseHttpsRedirection();
-            //}
 
             app.UseStaticFiles();
             app.UseGoogleTrace();

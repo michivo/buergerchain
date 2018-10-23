@@ -19,9 +19,6 @@ namespace FreieWahl.Application.Authentication
 
         public async Task<SessionCookie> CreateSessionCookie(string idToken)
         {
-            FirebaseToken decodedToken = await FirebaseAuth.DefaultInstance
-                .VerifyIdTokenAsync(idToken);
-            Console.WriteLine(decodedToken.Issuer);
             var request = _CreateRequest(idToken);
 
             var httpResponse = await request.GetResponseAsync();
