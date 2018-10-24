@@ -112,9 +112,10 @@
 
         function submitDecisionQuestionVote(index) {
             $(`#submit-question-${index}`).addClass('disabled');
+            $(`#abstain-question-${index}`).addClass('disabled');
             $(`#submit-question-${index}`).text('Übertrage...');
             const answerIds = [];
-            const selected = $(`#answer-list-${index} :checked`).each(function() {
+            $(`#answer-list-${index} :checked`).each(function() {
                 answerIds.push($(this).val());
             });
 
@@ -136,6 +137,7 @@
 
         function submitMultipleChoiceQuestionVote(index) {
             $(`#submit-question-${index}`).addClass('disabled');
+            $(`#abstain-question-${index}`).addClass('disabled');
             $(`#submit-question-${index}`).text('Übertrage...');
             const selected = $(`#answer-list-${index} :checked`).val();
             const answerIds = [selected];
@@ -158,6 +160,7 @@
 
         function submitOrderingQuestionVote(index) {
             $(`#submit-question-${index}`).addClass('disabled');
+            $(`#abstain-question-${index}`).addClass('disabled');
             $(`#submit-question-${index}`).text('Übertrage...');
             const selector = `#selected-options-${index} div.fw-answer-title`;
             const selectedItems = $(selector);
@@ -166,6 +169,28 @@
                 answerIds.push(getAnswerIdFromOptionId(item.id));
             });
             const indexVal = parseInt(index);
+
+            $.ajax({
+                url: '@Model.GetSignedTokenUrl',
+                data: { "voterId": '@Model.VoterId', "password": password, "questionIndex": indexVal },
+                type: 'POST',
+                datatype: 'json',
+                success: function(data) {
+                    submitVote(index, answerIds, data.token, data.unblindedToken);
+                },
+                error: function(x) {
+                    alert(JSON.stringify(x));
+                    // error: todo
+                }
+            });
+        }
+
+        function abstainQuestionVote(index) {
+            $(`#submit-question-${index}`).addClass('disabled');
+            $(`#abstain-question-${index}`).addClass('disabled');
+            $(`#abstain-question-${index}`).text('Übertrage...');
+            const indexVal = parseInt(index);
+            const answerIds = [];
 
             $.ajax({
                 url: '@Model.GetSignedTokenUrl',
@@ -212,7 +237,6 @@
         }
 
         function updateQuestion(index) {
-            $(`#question-card-${index}`).detach();
             $('#answered-questions-header').removeClass('d-none');
             const token = tokenData.filter(x => x.tokenIndex === index);
 
@@ -222,7 +246,7 @@
                 type: 'POST',
                 datatype: 'json',
                 success: function(data) {
-                    $('#answered-questions-list').append(data);
+                    $(`#question-card-${index}`).replaceWith(data);
                 },
                 error: function(x) {
                     alert(JSON.stringify(x));

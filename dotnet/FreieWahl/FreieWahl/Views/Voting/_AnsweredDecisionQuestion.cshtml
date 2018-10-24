@@ -1,49 +1,30 @@
 ﻿@model FreieWahl.Models.Voting.VotingQuestionModel
 
-<div class="card my-4 pb-3 bg-dark text-white">
-    <div class="card-body">
-        <h1 class="card-title" style="border-bottom: 1px solid #C0C0C0">@Model.Question.Text</h1>
-        <p class="card-text border-bottom">@Model.Question.Description</p>
-        <div class="container">
-            <div class="row">
-                <div class="col-lg-6 col-12">
-                    @foreach (var answer in Model.Question.AnswerOptions)
-                    {
-                        if (Model.SelectedAnswerIds.Contains(answer.Id))
-                        {
-                            continue;
-                        }
-                        <div class="my-2 border w-100 fw-answer-title px-2 rounded">
-                            <span>@answer.Answer</span>
-                            <br />
-                            @if (!string.IsNullOrEmpty(answer.Description))
-                            {
-                                <span class="small text-primary fw-answer-description">@answer.Description</span>
-                            }
-                        </div>
-                    }
-                </div>
-                <div class="col-lg-6 col-12 p-1" style="position: relative; border: 2px solid #C0C0C0; min-height: 5rem">
-                    @{int idx = 1;}
-                    @foreach (var answer in Model.Question.AnswerOptions)
-                    {
-                        if (!Model.SelectedAnswerIds.Contains(answer.Id))
-                        {
-                            continue;
-                        }
-                        <div class="my-2 border w-100 fw-answer-title px-2 rounded" draggable="false">
-                            <div class="bg-primary text-white text-center my-2 mr-2 rounded-circle float-left" style="height:2rem;width:2rem;font-size:1.25rem">@idx</div>
-                            <span>@answer.Answer</span>
-                            <br>
-                            @if (!string.IsNullOrEmpty(answer.Description))
-                            {
-                                <span class="small text-primary fw-answer-description">@answer.Description</span>
-                            }
-                            <div class="option-spacer" style="clear: both;"></div>
-                        </div>
-                        idx++;
-                    }
-                </div>
+<div class="card my-4" id="question-card-@Model.Question.Index">
+    <div class="card-header position-relative p-0 fw-voting-question-header" id="header-question-@Model.Question.Index">
+        <div class="bg-white rounded-circle text-@(Model.SelectedAnswerIds.Length == 0 ? "dark" : "success") text-center fw-voting-question-symbol"><i class="material-icons" style="font-size: 2.5rem">@(Model.SelectedAnswerIds.Length == 0 ? "not_interested" : "check")</i></div>
+        <button class="btn collapsed btn-@(Model.SelectedAnswerIds.Length == 0 ? "dark" : "success") w-100 text-left fw-voting-question-toggler" data-toggle="collapse" data-target="#body-question-@Model.Question.Index"
+                aria-expanded="false" aria-controls="body-question-@Model.Question.Index" id="question-@Model.Question.Index-title">@Model.Question.Text</button>
+    </div>
+    <div id="body-question-@Model.Question.Index" class="collapse" data-parent="#votingQuestions" aria-labelledby="header-question-@Model.Question.Index">
+        <div class="card-body">
+            @if (!string.IsNullOrEmpty(Model.Question.Description))
+            {
+                <p class="card-text" style="border-bottom: 1px solid #C0C0C0" id="question-@Model.Question.Index-description">@Model.Question.Description</p>
+            }
+            <div class="container" id="answer-list-@Model.Question.Index">
+                @foreach (var answer in Model.Question.AnswerOptions)
+                {
+                    <div class="form-check">
+                        <input class="form-check-input" type="radio" name="radios-@Model.Question.Index" id="answer-@Model.Question.Index-@answer.Id" value="@answer.Id" disabled="disabled" @(Model.SelectedAnswerIds.Contains(answer.Id) ? "checked" : string.Empty)>
+                        <label class="form-check-label" for="answer-@Model.Question.Index-@answer.Id">
+                            @answer.Answer
+                        </label>
+                        <span class="small text-primary border-bottom" id="fw-answer-description-@Model.Question.Index-@answer.Id">
+                            @answer.Description
+                        </span>
+                    </div>
+                }
             </div>
         </div>
     </div>

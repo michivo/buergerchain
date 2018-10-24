@@ -4,9 +4,7 @@
     <div class="card-header position-relative p-0 fw-voting-question-header" id="header-question-@Model.Index">
         <div class="bg-white rounded-circle text-secondary text-center fw-voting-question-symbol">?</div>
         <button class="btn collapsed btn-secondary w-100 text-left fw-voting-question-toggler" data-toggle="collapse" data-target="#body-question-@Model.Index"
-                aria-expanded="false" aria-controls="body-question-@Model.Index" id="question-@Model.Index-title">
-            @Model.Text
-        </button>
+                aria-expanded="false" aria-controls="body-question-@Model.Index" id="question-@Model.Index-title">@Model.Text</button>
     </div>
     <div id="body-question-@Model.Index" class="collapse" data-parent="#votingQuestions" aria-labelledby="header-question-@Model.Index">
         <div class="card-body">

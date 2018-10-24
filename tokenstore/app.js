@@ -57,6 +57,7 @@ admin.initializeApp({
 
 app.use(bodyParser.json({ limit: '5mb' })); // support json encoded bodies
 app.use(bodyParser.urlencoded({ extended: true })); // support encoded bodies
+app.use(allowCrossDomain);
 
 const MAX_TOKEN_COUNT = config.MAX_TOKEN_COUNT;
 
@@ -94,7 +95,7 @@ app.post('/grantRegistration', wrapAsync(async function (req, res) {
   await dbwrapper.updatePasswordHash(registrationId, voterId);
   await dbwrapper.deleteRegistration(registrationId);
   mailProvider.sendInvitation(registration.email, votingTitle, startDate, endDate, link);
-  prepareRes(res);
+  
   res.status(200).send('OK!').end;
 }));
 
@@ -102,7 +103,7 @@ app.post('/getChallengeAndTokens', wrapAsync(async function (req, res) {
   const challenge = uuidv4();
   const date = Date.now();
   const tokens = await dbwrapper.setChallengeAndGetTokens(req.body.registrationId, challenge, date.toString());
-  prepareRes(res);
+  
   res.json({ 'challenge': challenge, 'tokens': tokens }).end;
 }));
 
@@ -115,15 +116,12 @@ app.post('/setKeys', wrapAsync(async function (req, res) {
 }));
 
 app.post('/getTokens', wrapAsync(async function (req, res) {
-  prepareRes(res);
-
   const voterId = req.body.voterId;
   let questionIndices = req.body.questionIndices;
-  if(questionIndices.length === 0)
-  {
+  if (questionIndices.length === 0) {
     res.json({ 'tokens': [] }).end;
   }
-  if(typeof questionIndices[0] === "string" || questionIndices[0] instanceof String) {
+  if (typeof questionIndices[0] === "string" || questionIndices[0] instanceof String) {
     questionIndices = questionIndices.map(x => parseInt(x));
   }
 
@@ -147,7 +145,6 @@ app.post('/getToken', wrapAsync(async function (req, res) {
   const dbPassword = await dbwrapper.getPasswordHash(voterId);
   const hashedPassword = getPasswordHash(password);
   if (hashedPassword != dbPassword) {
-    prepareRes(res);
     res.status(401).send("Invalid password").end;
   }
 
@@ -157,8 +154,7 @@ app.post('/getToken', wrapAsync(async function (req, res) {
   const signedToken = voting.signedToken;
   const key = await dbwrapper.getKey(voting.votingId, questionIndex);
   const unblindedToken = tokengenerator.unblindToken(signedToken, blindingFactor, password + '_' + questionIndex.toString() + '_' + voting.votingId, key.modulus);
-  
-  prepareRes(res);
+
   res.json({ 'unblindedToken': unblindedToken, 'token': token }).end;
 }));
 
@@ -185,12 +181,11 @@ app.post('/saveRegistrationDetails', wrapAsync(async function (req, res) {
     blindedTokens.push(blindedToken.blinded);
     tokens.push(token);
   }
-  
+
   log.entry({ resource: logResource }, 'Saving Registration details for registration with id ' + registrationId);
   await dbwrapper.registerTokens(registrationId, email, tokens, blindedTokens, blindingFactors);
   await dbwrapper.savePasswordHash(registrationId, getPasswordHash(password));
 
-  prepareRes(res);
   res.status(200).send('OK!').end;
 }));
 
@@ -224,26 +219,35 @@ if (!module.parent) {
   });
 }
 
-app.use(function(err, req, res, next) {
+app.use(function (err, req, res, next) {
   // TODO: logging
   log.error('An error occurred: ' + err.message + ', stack: ' + err.stack);
   if (res.headersSent) {
     return next(err);
   }
-  prepareRes(res);
+  
   res.status(500);
   res.send('error: ' + err.message);
   res.end;
 });
 // [END app]
 
-function prepareRes(res) {
-  // if(process.env.NODE_ENV) {
-  //   res.setHeader('Access-Control-Allow-Origin', 'https://www.freiewahl.eu');
-  // }
-  // else {
-    res.setHeader('Access-Control-Allow-Origin', 'http://localhost:61878');
-  // }
+function allowCrossDomain(req, res, next) {
+  console.log(`origin is ${req.headers.origin}`);
+
+  var origin = req.headers.origin.toLowerCase();
+
+  if (origin.includes('localhost') || origin.includes('freiewahl')) {
+    console.log(`setting response header to ${origin}`);
+    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+    res.setHeader('Access-Control-Allow-Origin', origin);
+  }
+
+  if (req.method === 'OPTIONS') {
+    res.send(200);
+  } else {
+    next();
+  }
 }
 
 function getPasswordHash(password) {
@@ -251,7 +255,7 @@ function getPasswordHash(password) {
 }
 
 function wrapAsync(fn) {
-  return function(req, res, next) {
+  return function (req, res, next) {
     // Make sure to `.catch()` any errors and pass them along to the `next()`
     // middleware in the chain, in this case the error handler.
     fn(req, res, next).catch(next);
