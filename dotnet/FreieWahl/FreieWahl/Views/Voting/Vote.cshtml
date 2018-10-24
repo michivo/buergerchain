@@ -113,6 +113,30 @@
         function submitDecisionQuestionVote(index) {
             $(`#submit-question-${index}`).addClass('disabled');
             $(`#submit-question-${index}`).text('Übertrage...');
+            const answerIds = [];
+            const selected = $(`#answer-list-${index} :checked`).each(function() {
+                answerIds.push($(this).val());
+            });
+
+            const indexVal = parseInt(index);
+            $.ajax({
+                url: '@Model.GetSignedTokenUrl',
+                data: { "voterId": '@Model.VoterId', "password": password, "questionIndex": indexVal },
+                type: 'POST',
+                datatype: 'json',
+                success: function(data) {
+                    submitVote(index, answerIds, data.token, data.unblindedToken);
+                },
+                error: function(x) {
+                    alert(JSON.stringify(x));
+                    // error: todo
+                }
+            });
+        }
+
+        function submitMultipleChoiceQuestionVote(index) {
+            $(`#submit-question-${index}`).addClass('disabled');
+            $(`#submit-question-${index}`).text('Übertrage...');
             const selected = $(`#answer-list-${index} :checked`).val();
             const answerIds = [selected];
 

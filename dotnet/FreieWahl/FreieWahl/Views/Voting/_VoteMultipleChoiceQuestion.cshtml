@@ -1,3 +1,36 @@
-﻿@model FreieWahl.Models.VotingAdministration.QuestionModel
+﻿@using FreieWahl.Voting.Models
+@model FreieWahl.Models.VotingAdministration.QuestionModel
 
-@Model.Text
+<div class="card my-4" id="question-card-@Model.Index">
+    <div class="card-header position-relative p-0 fw-voting-question-header" id="header-question-@Model.Index">
+        <div class="bg-white rounded-circle text-secondary text-center fw-voting-question-symbol">?</div>
+        <button class="btn collapsed btn-secondary w-100 text-left fw-voting-question-toggler" data-toggle="collapse" data-target="#body-question-@Model.Index"
+                aria-expanded="false" aria-controls="body-question-@Model.Index" id="question-@Model.Index-title">
+            @Model.Text
+        </button>
+    </div>
+    <div id="body-question-@Model.Index" class="collapse" data-parent="#votingQuestions" aria-labelledby="header-question-@Model.Index">
+        <div class="card-body">
+            @if (!string.IsNullOrEmpty(Model.Description))
+            {
+                <p class="card-text" style="border-bottom: 1px solid #C0C0C0" id="question-@Model.Index-description">@Model.Description</p>
+            }
+            <div class="container" id="answer-list-@Model.Index">
+                @foreach (var answer in Model.AnswerOptions)
+                {
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" name="check-@Model.Index" id="answer-@Model.Index-@answer.Id" value="@answer.Id">
+                        <label class="form-check-label" for="answer-@Model.Index-@answer.Id">
+                            @answer.Answer
+                        </label>
+                        <span class="small text-primary border-bottom" id="fw-answer-description-@Model.Index-@answer.Id">
+                            @answer.Description
+                        </span>
+                    </div>
+                }
+            </div>
+        </div>
+        <button class="btn btn-secondary mx-3 mb-2 float-right" id="submit-question-@Model.Index" onclick="submitMultipleChoiceQuestionVote(@Model.Index)">Stimme abgeben</button>
+        <button class="btn btn-light text-secondary mx-3 mb-2 float-right" id="abstain-question-@Model.Index" onclick="abstainQuestionVote(@Model.Index)">Enthalten</button>
+    </div>
+</div>
