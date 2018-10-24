@@ -111,10 +111,10 @@ namespace FreieWahl.Controllers
             }
 
             var questionModel = new QuestionModel(question, votingId);
-            var model = new AnsweredQuestion
+            var model = new VotingQuestionModel
             {
                 Question = questionModel,
-                WasAnswered = vote != null,
+                AnswerStatus = vote == null ? VotingQuestionStatus.Open : VotingQuestionStatus.Answered,
                 SelectedAnswerIds = answerIds.ToArray()
             };
 
@@ -144,11 +144,29 @@ namespace FreieWahl.Controllers
 
             var model = new QuestionData
             {
-                AnsweredQuestions = questions.Where(x => votes.Any(vote => vote.QuestionIndex == x.Index)).ToArray(),
-                OpenQuestions = questions.Where(x => votes.All(vote => vote.QuestionIndex != x.Index)).ToArray()
+                Questions = questions.Select(x => _MapToModel(x, votes)).ToArray()
             };
 
             return PartialView(model);
+        }
+
+        private VotingQuestionModel _MapToModel(QuestionModel questionModel, IReadOnlyCollection<Vote> votes)
+        {
+            var matchingVotes = votes.Where(x => x.QuestionIndex == questionModel.Index).ToList();
+            if (matchingVotes.Count > 1)
+            {
+                throw new ArgumentException("Invalid vote state, multiple answers by one voter!");
+            }
+
+            var answerState = matchingVotes.Count == 0 ? VotingQuestionStatus.Open : VotingQuestionStatus.Answered;
+            var answers = matchingVotes.Count == 0 ? new string[0] : matchingVotes[0].SelectedAnswerIds.ToArray();
+
+            return new VotingQuestionModel
+            {
+                Question = questionModel,
+                AnswerStatus = answerState,
+                SelectedAnswerIds = answers
+            };
         }
 
         [HttpGet]

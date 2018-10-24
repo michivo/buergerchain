@@ -35,7 +35,6 @@ html {
     margin: 0;
     padding-bottom: $footer-height;
     min-height: 100%;
-    font-family: "Helvetica Neue", Arial, sans-serif;
     padding-top: $header-height;
 }
 
@@ -416,4 +415,28 @@ footer {
     height: 2.5rem;
     background-color: #efefef;
     text-align: center;
+}
+
+div.fw-voting-question-header {
+    overflow:hidden;
+    min-height:4rem;
+}
+
+div.fw-voting-question-symbol {
+    font-weight:100;
+    height:4rem;
+    width:4rem;
+    position:absolute;
+    left:-.75rem;
+    top:-.75rem;
+    font-size:3rem;
+    pointer-events: none
+}
+
+.fw-voting-question-toggler
+{
+    min-height: 4rem;
+    font-size:1.25rem;
+    padding-left:5rem;
+    font-weight:300
 }

@@ -9,8 +9,6 @@ namespace FreieWahl.Models.Voting
 {
     public class QuestionData
     {
-        public QuestionModel[] OpenQuestions { get; set; }
-
-        public QuestionModel[] AnsweredQuestions { get; set; }
+        public VotingQuestionModel[] Questions { get; set; }
     }
 }

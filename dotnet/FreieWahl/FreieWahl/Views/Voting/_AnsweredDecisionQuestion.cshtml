@@ -1,2 +1,50 @@
-﻿@model FreieWahl.Models.Voting.AnsweredQuestion
+﻿@model FreieWahl.Models.Voting.VotingQuestionModel
 
+<div class="card my-4 pb-3 bg-dark text-white">
+    <div class="card-body">
+        <h1 class="card-title" style="border-bottom: 1px solid #C0C0C0">@Model.Question.Text</h1>
+        <p class="card-text border-bottom">@Model.Question.Description</p>
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-6 col-12">
+                    @foreach (var answer in Model.Question.AnswerOptions)
+                    {
+                        if (Model.SelectedAnswerIds.Contains(answer.Id))
+                        {
+                            continue;
+                        }
+                        <div class="my-2 border w-100 fw-answer-title px-2 rounded">
+                            <span>@answer.Answer</span>
+                            <br />
+                            @if (!string.IsNullOrEmpty(answer.Description))
+                            {
+                                <span class="small text-primary fw-answer-description">@answer.Description</span>
+                            }
+                        </div>
+                    }
+                </div>
+                <div class="col-lg-6 col-12 p-1" style="position: relative; border: 2px solid #C0C0C0; min-height: 5rem">
+                    @{int idx = 1;}
+                    @foreach (var answer in Model.Question.AnswerOptions)
+                    {
+                        if (!Model.SelectedAnswerIds.Contains(answer.Id))
+                        {
+                            continue;
+                        }
+                        <div class="my-2 border w-100 fw-answer-title px-2 rounded" draggable="false">
+                            <div class="bg-primary text-white text-center my-2 mr-2 rounded-circle float-left" style="height:2rem;width:2rem;font-size:1.25rem">@idx</div>
+                            <span>@answer.Answer</span>
+                            <br>
+                            @if (!string.IsNullOrEmpty(answer.Description))
+                            {
+                                <span class="small text-primary fw-answer-description">@answer.Description</span>
+                            }
+                            <div class="option-spacer" style="clear: both;"></div>
+                        </div>
+                        idx++;
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

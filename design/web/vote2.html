@@ -1,0 +1,401 @@
+<!doctype html>
+<html lang="en" class="mdl-js">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title> FreieWahl</title>
+
+
+    <link rel="stylesheet" href="../../dotnet/FreieWahl/FreieWahl/wwwroot/css/freiewahl.css?v=HQUdXNb3yx93vZOkd12h7XBu-dg7FIUZFJJbXjpBh7o">
+
+    <script src="https://www.gstatic.com/firebasejs/5.5.5/firebase-app.js"></script>
+
+    <script src="https://www.gstatic.com/firebasejs/5.5.5/firebase-auth.js"></script>
+
+    <script src="https://www.gstatic.com/firebasejs/ui/3.4.1/firebase-ui-auth__de.js"></script>
+    <script src="../../dotnet/FreieWahl/FreieWahl/wwwroot/js/firebaseauth.js?v=qp8DbS_mm5eGe6qQQgdRYuYlA6t8d1L_c_l_Ktn-Y5w"></script>
+    <link type="text/css" rel="stylesheet" href="https://www.gstatic.com/firebasejs/ui/3.4.1/firebase-ui-auth.css">
+    <link href="https://fonts.googleapis.com/css?family=Roboto:100,300,400,400i,700" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link rel="stylesheet" type="text/css" href="../../dotnet/FreieWahl/FreieWahl/wwwroot/lib/bootstrap-datepicker/dist/css/bootstrap-datepicker3.standalone.min.css">
+
+
+
+    <script>
+        window.addEventListener('load', initApp);
+    </script>
+</head>
+
+<body>
+
+    <nav class="navbar navbar-dark fixed-top navbar-expand-md">
+        <a class="navbar-brand" href="/">
+            <span id="fw-brand-1">freie</span><span id="fw-brand-2">Wahl</span>
+        </a>
+    </nav>
+    <div class="container-fluid fw-banner py-3">
+        <div class="row justify-content-between">
+            <div class="col-12 col-md-auto pl-0 py-3">
+                <div class="bg-primary px-5 text-light display-4">
+                    Testabstimmung
+                </div>
+                <div class="container pt-3">
+                    <div class="row justify-content-between">
+                        <div style="max-width: 30rem;">
+                            <div class="p-0">
+                                <div class="bg-light text-primary px-3 mr-3 small">
+                                    Test
+                                </div>
+                            </div>
+                        </div>
+                        <div class="d-flex flex-column justify-content-between">
+                            <div class="bg-light text-primary d-flex flex-row align-items-center" style="font-size:1.5rem;font-weight:100">
+                                <div><i class="material-icons text-primary mx-2" style="font-size: 3rem;">date_range</i></div>
+                                <div class="px-2">Start: 31.10.2018 11:34<br>Ende: 01.11.2018 11:35</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+            <div class="col-12 col-md-auto">
+                <i class="material-icons fw-voting-img" id="fw-voting-img-dummy">how_to_vote</i>
+            </div>
+        </div>
+    </div>
+
+
+    <div class="container" id="passwordEntry" style="display: none;">
+        Geben Sie Ihr Passwort ein
+        <div class="form-group">
+            <label for="voterPassword">Passwort</label>
+            <input type="password" class="form-control" id="voterPassword" name="password" placeholder="Password">
+        </div>
+        <button class="btn btn-primary" onclick="getTokens()">OK</button>
+    </div>
+
+    <div class="container" id="votingQuestions">
+
+        <div class="card my-4" id="question-card-0">
+            <div class="card-header position-relative p-0 fw-voting-question-header" id="header-question-0">
+                <div class="bg-white rounded-circle text-success text-center fw-voting-question-symbol"><i class="material-icons" style="font-size: 2.5rem">check</i></div>
+                <button class="btn collapsed btn-success w-100 text-left fw-voting-question-toggler" data-toggle="collapse" data-target="#body-question-0"
+                    aria-expanded="false" aria-controls="body-question-0" id="question-0-title">Was machen wir heute noch?</button>
+            </div>
+            <div id="body-question-0" class="collapse" data-parent="#votingQuestions" aria-labelledby="header-question-0">
+                <div class="card-body">
+                    <p class="card-text" style="border-bottom: 1px solid #C0C0C0" id="question-0-description"></p>
+                    <div class="container" id="answer-list-0">
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="radios-0" id="answer-0-bc1af8f2-8062-4eec-b016-be41e28cfbb8"
+                                value="bc1af8f2-8062-4eec-b016-be41e28cfbb8">
+                            <label class="form-check-label" for="answer-0-bc1af8f2-8062-4eec-b016-be41e28cfbb8">
+                                Schlafen
+                            </label>
+                            <span class="small text-primary border-bottom" id="fw-answer-description-0-bc1af8f2-8062-4eec-b016-be41e28cfbb8">
+
+                            </span>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="radios-0" id="answer-0-81fbc0f9-ce75-44c8-9b3f-3eea1d5d926d"
+                                value="81fbc0f9-ce75-44c8-9b3f-3eea1d5d926d">
+                            <label class="form-check-label" for="answer-0-81fbc0f9-ce75-44c8-9b3f-3eea1d5d926d">
+                                Arbeiten
+                            </label>
+                            <span class="small text-primary border-bottom" id="fw-answer-description-0-81fbc0f9-ce75-44c8-9b3f-3eea1d5d926d">
+
+                            </span>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="radios-0" id="answer-0-b789a037-b5b5-4f37-a027-bbdbd02d357d"
+                                value="b789a037-b5b5-4f37-a027-bbdbd02d357d">
+                            <label class="form-check-label" for="answer-0-b789a037-b5b5-4f37-a027-bbdbd02d357d">
+                                Pokern
+                            </label>
+                            <span class="small text-primary border-bottom" id="fw-answer-description-0-b789a037-b5b5-4f37-a027-bbdbd02d357d">
+
+                            </span>
+                        </div>
+                    </div>
+                </div>
+                <button class="btn btn-secondary mx-3 mb-2 float-right" id="submit-question-0" onclick="submitDecisionQuestionVote(0)">Stimme abgeben</button>
+                    <button class="btn btn-light text-secondary mx-3 mb-2 float-right" id="abstain-question-0" onclick="abstainQuestionVote(0)">Enthalten</button>                    
+            </div>
+        </div>
+        <div class="card my-4" id="question-card-1">
+                <div class="card-header position-relative p-0 fw-voting-question-header" id="header-question-1">
+                    <div class="bg-white rounded-circle text-secondary text-center fw-voting-question-symbol">?</div>
+                    <button class="btn collapsed btn-secondary w-100 text-left fw-voting-question-toggler" data-toggle="collapse" data-target="#body-question-1"
+                        aria-expanded="false" aria-controls="body-question-1" id="question-1-title">Was machen wir
+                        heute noch?</button>
+                </div>
+                <div id="body-question-1" class="collapse" data-parent="#votingQuestions" aria-labelledby="header-question-1">
+                    <div class="card-body">
+                        <p class="card-text" style="border-bottom: 1px solid #C0C0C0" id="question-1-description"></p>
+                        <div class="container" id="answer-list-1">
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="radios-1" id="answer-1-bc1af8f2-8062-4eec-b016-be41e28cfbb8"
+                                    value="bc1af8f2-8062-4eec-b016-be41e28cfbb8">
+                                <label class="form-check-label" for="answer-1-bc1af8f2-8062-4eec-b016-be41e28cfbb8">
+                                    Schlafen
+                                </label>
+                                <span class="small text-primary border-bottom" id="fw-answer-description-1-bc1af8f2-8062-4eec-b016-be41e28cfbb8">
+    
+                                </span>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="radios-1" id="answer-1-81fbc0f9-ce75-44c8-9b3f-3eea1d5d926d"
+                                    value="81fbc0f9-ce75-44c8-9b3f-3eea1d5d926d">
+                                <label class="form-check-label" for="answer-1-81fbc0f9-ce75-44c8-9b3f-3eea1d5d926d">
+                                    Arbeiten
+                                </label>
+                                <span class="small text-primary border-bottom" id="fw-answer-description-1-81fbc0f9-ce75-44c8-9b3f-3eea1d5d926d">
+    
+                                </span>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="radios-1" id="answer-1-b789a037-b5b5-4f37-a027-bbdbd02d357d"
+                                    value="b789a037-b5b5-4f37-a027-bbdbd02d357d">
+                                <label class="form-check-label" for="answer-1-b789a037-b5b5-4f37-a027-bbdbd02d357d">
+                                    Pokern
+                                </label>
+                                <span class="small text-primary border-bottom" id="fw-answer-description-1-b789a037-b5b5-4f37-a027-bbdbd02d357d">
+    
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                    <button class="btn btn-secondary mx-3 mb-2 float-right" id="submit-question-1" onclick="submitDecisionQuestionVote(1)">Stimme abgeben</button>
+                        <button class="btn btn-light text-secondary mx-3 mb-2 float-right" id="abstain-question-1" onclick="abstainQuestionVote(1)">Enthalten</button>                    
+                </div>
+            </div>     
+            
+            
+        <div class="card my-4" id="question-card-2">
+                <div class="card-header position-relative p-0 fw-voting-question-header" id="header-question-2">
+                    <div class="bg-white rounded-circle text-dark text-center fw-voting-question-symbol"><i class="material-icons" style="font-size: 2.5rem">not_interested</i></div>
+                    <button class="btn collapsed btn-dark w-100 text-left fw-voting-question-toggler" data-toggle="collapse" data-target="#body-question-2"
+                        aria-expanded="false" aria-controls="body-question-2" id="question-2-title">Was machen wir heute noch?</button>
+                </div>
+                <div id="body-question-2" class="collapse" data-parent="#votingQuestions" aria-labelledby="header-question-2">
+                    <div class="card-body">
+                        <p class="card-text" style="border-bottom: 1px solid #C0C0C0" id="question-2-description"></p>
+                        <div class="container" id="answer-list-2">
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="radios-2" id="answer-2-bc1af8f2-8062-4eec-b016-be41e28cfbb8"
+                                    value="bc1af8f2-8062-4eec-b016-be41e28cfbb8">
+                                <label class="form-check-label" for="answer-2-bc1af8f2-8062-4eec-b016-be41e28cfbb8">
+                                    Schlafen
+                                </label>
+                                <span class="small text-primary border-bottom" id="fw-answer-description-2-bc1af8f2-8062-4eec-b016-be41e28cfbb8">
+    
+                                </span>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="radios-2" id="answer-2-81fbc0f9-ce75-44c8-9b3f-3eea1d5d926d"
+                                    value="81fbc0f9-ce75-44c8-9b3f-3eea1d5d926d">
+                                <label class="form-check-label" for="answer-2-81fbc0f9-ce75-44c8-9b3f-3eea1d5d926d">
+                                    Arbeiten
+                                </label>
+                                <span class="small text-primary border-bottom" id="fw-answer-description-2-81fbc0f9-ce75-44c8-9b3f-3eea1d5d926d">
+    
+                                </span>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="radios-2" id="answer-2-b789a037-b5b5-4f37-a027-bbdbd02d357d"
+                                    value="b789a037-b5b5-4f37-a027-bbdbd02d357d">
+                                <label class="form-check-label" for="answer-2-b789a037-b5b5-4f37-a027-bbdbd02d357d">
+                                    Pokern
+                                </label>
+                                <span class="small text-primary border-bottom" id="fw-answer-description-2-b789a037-b5b5-4f37-a027-bbdbd02d357d">
+    
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                    <button class="btn btn-secondary mx-3 mb-2 float-right" id="submit-question-2" onclick="submitDecisionQuestionVote(0)">Stimme abgeben</button>
+                        <button class="btn btn-light text-secondary mx-3 mb-2 float-right" id="abstain-question-2" onclick="abstainQuestionVote(0)">Enthalten</button>                    
+                </div>
+            </div>
+    </div>
+
+
+    <footer class="border-top mt-3 pb-1 border-top" style="height: 2.5rem;">
+        <div class="d-flex justify-content-between">
+            <div class="px-3">
+                <a class="border-top border-bottom rounded px-2 py-1 mx-2 bg-light" href="/Home/Impressum">Impressum</a>
+                <a class="border-top border-bottom rounded px-2 py-1 m-2 bg-light" href="/Home/About">Über uns</a>
+
+            </div>
+            <div class="px-2">supported by <a href="http://www.netidee.at" target="_blank"><img src="../../dotnet/FreieWahl/FreieWahl/wwwroot/images/netidee_logo.png"
+                        height="30" width="119" alt="netidee Logo"></a></div>
+        </div>
+
+    </footer>
+
+    <script src="../../dotnet/FreieWahl/FreieWahl/wwwroot/lib/jquery/dist/jquery.min.js"></script>
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js" integrity="sha256-VazP97ZCwtekAsvgPBSUwPFKdrwD3unUfSGVYrahUqU="
+        crossorigin="anonymous"></script>
+    <script src="../../dotnet/FreieWahl/FreieWahl/wwwroot/lib/popper.js/dist/umd/popper.min.js"></script>
+    <script src="../../dotnet/FreieWahl/FreieWahl/wwwroot/lib/bootstrap/dist/js/bootstrap.js"></script>
+    <script src="../../dotnet/FreieWahl/FreieWahl/wwwroot/js/site.js?v=FrCvFZIzL6Z497zK3dbkBgigIau9yoS5XRL_6ocuN6w"></script>
+
+
+
+
+    <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.6.1/Sortable.min.js"></script>
+    <script src="../../dotnet/FreieWahl/FreieWahl/wwwroot/js/vote.js"></script>
+
+    <script>
+        var password;
+        var tokenData;
+
+        function getTokens() {
+            const pwd = $('#voterPassword').val();
+            password = pwd;
+            const questionIndices = [0];
+            $.ajax({
+                url: 'https://tokenstore-210111.appspot.com/getTokens',
+                data: { "voterId": 'a2a0447c-527f-47e1-9433-0f0a8c166a25', "password": pwd, "questionIndices": questionIndices },
+                type: 'POST',
+                datatype: 'json',
+                success: function (data) {
+                    tokenData = data.tokens;
+                    loadQuestions(data);
+                },
+                error: function (x) {
+                    alert(JSON.stringify(x));
+                    // error: todo
+                }
+            });
+        }
+
+        function loadQuestions(data) {
+            const tokens = data.tokens.map(x => x.token);
+            $('#passwordEntry').hide();
+            $('#votingQuestions').load('GetQuestions',
+                {
+                    'tokens': tokens,
+                    'votingId': '5629499534213120',
+                    'voterId': 'a2a0447c-527f-47e1-9433-0f0a8c166a25'
+                },
+                function () {
+                    setupQuestions();
+                });
+        }
+
+        function setupQuestions() {
+            $('.ordering-question-list').each(function (index, elem) {
+                const id = $(elem).attr('id');
+                const startIdx = id.indexOf('-');
+                const endIdx = id.lastIndexOf('-');
+                const questionidx = id.substr(startIdx + 1, endIdx - startIdx - 1);
+                setupOrderingQuestion(questionidx);
+            });
+        }
+
+        function submitDecisionQuestionVote(index) {
+            $(`#submit-question-${index}`).addClass('disabled');
+            $(`#submit-question-${index}`).text('Übertrage...');
+            const selected = $(`#answer-list-${index} :checked`).val();
+            const answerIds = [selected];
+
+            const indexVal = parseInt(index);
+            $.ajax({
+                url: 'https://tokenstore-210111.appspot.com/getToken',
+                data: { "voterId": 'a2a0447c-527f-47e1-9433-0f0a8c166a25', "password": password, "questionIndex": indexVal },
+                type: 'POST',
+                datatype: 'json',
+                success: function (data) {
+                    submitVote(index, answerIds, data.token, data.unblindedToken);
+                },
+                error: function (x) {
+                    alert(JSON.stringify(x));
+                    // error: todo
+                }
+            });
+        }
+
+        function submitOrderingQuestionVote(index) {
+            $(`#submit-question-${index}`).addClass('disabled');
+            $(`#submit-question-${index}`).text('Übertrage...');
+            const selector = `#selected-options-${index} div.fw-answer-title`;
+            const selectedItems = $(selector);
+            const answerIds = [];
+            $(selectedItems).each(function (idx, item) {
+                answerIds.push(getAnswerIdFromOptionId(item.id));
+            });
+            const indexVal = parseInt(index);
+
+            $.ajax({
+                url: 'https://tokenstore-210111.appspot.com/getToken',
+                data: { "voterId": 'a2a0447c-527f-47e1-9433-0f0a8c166a25', "password": password, "questionIndex": indexVal },
+                type: 'POST',
+                datatype: 'json',
+                success: function (data) {
+                    submitVote(index, answerIds, data.token, data.unblindedToken);
+                },
+                error: function (x) {
+                    alert(JSON.stringify(x));
+                    // error: todo
+                }
+            });
+        }
+
+        function submitVote(index, answerIds, token, signedToken) {
+
+            $.ajax({
+                url: 'SubmitVote',
+                data: {
+                    "voterId": 'a2a0447c-527f-47e1-9433-0f0a8c166a25',
+                    "votingId": '5629499534213120',
+                    "questionIndex": index,
+                    "answerIds": answerIds,
+                    "token": token,
+                    "signedToken": signedToken
+                },
+                type: 'POST',
+                datatype: 'json',
+                success: function () {
+                    updateQuestion(index);
+                },
+                error: function (x) {
+                    alert(JSON.stringify(x));
+                    // error: todo
+                }
+            });
+        }
+
+        function getAnswerIdFromOptionId(id) {
+            const startIdx = id.indexOf('-', 8);
+            return id.substr(startIdx + 1);
+        }
+
+        function updateQuestion(index) {
+            $(`#question-card-${index}`).detach();
+            $('#answered-questions-header').removeClass('d-none');
+            const token = tokenData.filter(x => x.tokenIndex === index);
+
+            $.ajax({
+                url: 'GetQuestion',
+                data: { "voterId": 'a2a0447c-527f-47e1-9433-0f0a8c166a25', "votingId": '5629499534213120', "questionIndex": index, "token": token[0].token },
+                type: 'POST',
+                datatype: 'json',
+                success: function (data) {
+                    $('#answered-questions-list').append(data);
+                },
+                error: function (x) {
+                    alert(JSON.stringify(x));
+                    // error: todo
+                }
+            });
+        }
+
+    </script>
+
+
+
+</body>
+
+</html>

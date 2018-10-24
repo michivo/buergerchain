@@ -2,12 +2,12 @@
 
 namespace FreieWahl.Models.Voting
 {
-    public class AnsweredQuestion
+    public class VotingQuestionModel
     {
         public QuestionModel Question { get; set; }
 
-        public string[] SelectedAnswerIds { get; set; }
+        public VotingQuestionStatus AnswerStatus { get; set; }
 
-        public bool WasAnswered { get; set; }
+        public string[] SelectedAnswerIds { get; set; }
     }
 }
