@@ -108,7 +108,9 @@ function grantRegistration(regIds, votingId) {
     $('#openRegistrationsBadge').text('.');
     $.each(regIds,
         function(index, value) {
-            $(`#openreg-${value}`).detach();
+            $(`#openreg-${value}`).slideUp(250, function () {
+                $(`#openreg-${value}`).detach();
+            });
         });
 
     $.post({
@@ -126,7 +128,9 @@ function denyRegistration(regIds, votingId) {
     $('#openRegistrationsBadge').text('.');
     $.each(regIds,
         function (index, value) {
-            $(`#openreg-${value}`).detach();
+            $(`#openreg-${value}`).slideUp(250, function() {
+                $(`#openreg-${value}`).detach();
+            });
         });
 
     $.post({
