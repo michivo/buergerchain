@@ -30,7 +30,7 @@ namespace FreieWahl.Application.Registrations
             _votingStore = votingStore;
         }
 
-        public async Task GrantRegistration(long registrationId, string userId, string votingUrl)
+        public async Task GrantRegistration(long registrationId, string userId, string votingUrl, TimeSpan utcOffset, string timezoneName)
         {
             var registration = await _store.GetOpenRegistration(registrationId);
             var challenge = await _remoteTokenStore.GetChallenge(registration.RegistrationStoreId);
@@ -40,8 +40,9 @@ namespace FreieWahl.Application.Registrations
             var voting = await _votingStore.GetById(registration.VotingId);
 
             await _remoteTokenStore.GrantRegistration(registration.RegistrationStoreId, 
-                voting, signedChallengeString, signedTokens, votingUrl);
-            var completedReg = new CompletedRegistration()
+                voting, signedChallengeString, signedTokens, votingUrl, utcOffset, timezoneName);
+
+            var completedReg = new CompletedRegistration
             {
                 VotingId = registration.VotingId,
                 DecisionTime = DateTime.UtcNow,

@@ -24,7 +24,7 @@
                     <div class="d-flex flex-column justify-content-between">
                         <div class="bg-light text-primary d-flex flex-row align-items-center" style="font-size:1.5rem;font-weight:100">
                             <div><i class="material-icons text-primary mx-2" style="font-size: 3rem;">date_range</i></div>
-                            <div class="px-2">Start: @Model.StartDate<br />Ende: @Model.EndDate</div>
+                            <div class="px-2" id="fwDateInfo"></div>
                         </div>
                     </div>
                 </div>
@@ -32,7 +32,7 @@
 
         </div>
         <div class="col-12 col-md-auto">
-            @if (!string.IsNullOrEmpty(Model.ImageData.ToString()))
+            @if (!string.IsNullOrEmpty(Model.ImageData))
             {
                 <img src="@Model.ImageData" style="max-height: 13rem;" />
             }
@@ -45,13 +45,20 @@
 </div>
 
 
-<div class="container" id="passwordEntry">
-    Geben Sie Ihr Passwort ein
-    <div class="form-group">
-        <label for="voterPassword">Passwort</label>
-        <input type="password" class="form-control" id="voterPassword" name="password" placeholder="Password">
+<div class="container py-3" id="passwordEntry">
+    <div class="row justify-content-center">
+        <div class="col-auto text-white text-center">
+            <div class="bg-white rounded-circle text-primary border" style="height: 12rem;width:12rem"><i class="material-icons pt-3" style="font-size: 9.5rem">lock_open</i></div>
+        </div>
     </div>
-    <button class="btn btn-primary" onclick="getTokens()">OK</button>
+    <div class="row justify-content-center mt-3">
+        <div class="col-12 col-md-6 col-lg-4"><small>Um mitstimmen zu können, müssen Sie das vorher von Ihnen festgelegte Passwort eingeben.</small>
+            <div class="form-group w-100 mt-2">
+                <input type="password" class="form-control form-control-lg" id="voterPassword" name="password" placeholder="Passwort">
+            </div>
+            <button class="btn btn-primary btn-lg w-100" id="submitPassword">OK</button>
+        </div>
+    </div>
 </div>
 
 <div class="container" id="votingQuestions">
@@ -60,200 +67,19 @@
 
 @section scripts {
     <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.6.1/Sortable.min.js"></script>
-    <script src="~/js/vote.js"></script>
+    <script src="~/js/vote.js" asp-append-version="true"></script>
 
     <script>
-        var password;
-        var tokenData;
+        Vote.init('@Model.VotingId', '@Model.VoterId', '@Model.GetSignedTokenUrl', '@Model.GetTokensUrl', @Json.Serialize(Model.Questions.Select(x => x.Index).ToArray()) );
 
-        function getTokens() {
-            const pwd = $('#voterPassword').val();
-            password = pwd;
-            const questionIndices = @Json.Serialize(Model.Questions.Select(x => x.Index).ToArray());
-            $.ajax({
-                url: '@Model.GetTokensUrl',
-                data: { "voterId": '@Model.VoterId', "password": pwd, "questionIndices": questionIndices },
-                type: 'POST',
-                datatype: 'json',
-                success: function (data) {
-                    tokenData = data.tokens;
-                    loadQuestions(data);
-                },
-                error: function(x) {
-                    alert(JSON.stringify(x));
-                    // error: todo
-                }
-            });
-        }
+        $(document).ready(function() {
+            const startDate = formatDateTimeSeconds(@Model.StartDate);
+            const endDate = formatDateTimeSeconds(@Model.EndDate);
+            $('#fwDateInfo').html(`Start: ${startDate}<br />Ende: ${endDate}`);
+            $('#submitPassword').click(Vote.getTokens);
+        });
 
-        function loadQuestions(data) {
-            const tokens = data.tokens.map(x => x.token);
-            $('#passwordEntry').hide();
-            $('#votingQuestions').load('GetQuestions',
-                {
-                    'tokens': tokens,
-                    'votingId': '@Model.VotingId',
-                    'voterId': '@Model.VoterId'
-                },
-                function() {
-                    setupQuestions();
-                });
-        }
 
-        function setupQuestions() {
-            $('.ordering-question-list').each(function(index, elem) {
-                const id = $(elem).attr('id');
-                const startIdx = id.indexOf('-');
-                const endIdx = id.lastIndexOf('-');
-                const questionidx = id.substr(startIdx + 1, endIdx - startIdx - 1);
-                setupOrderingQuestion(questionidx);
-            });
-        }
-
-        function submitDecisionQuestionVote(index) {
-            $(`#submit-question-${index}`).addClass('disabled');
-            $(`#abstain-question-${index}`).addClass('disabled');
-            $(`#submit-question-${index}`).text('Übertrage...');
-            const answerIds = [];
-            $(`#answer-list-${index} :checked`).each(function() {
-                answerIds.push($(this).val());
-            });
-
-            const indexVal = parseInt(index);
-            $.ajax({
-                url: '@Model.GetSignedTokenUrl',
-                data: { "voterId": '@Model.VoterId', "password": password, "questionIndex": indexVal },
-                type: 'POST',
-                datatype: 'json',
-                success: function(data) {
-                    submitVote(index, answerIds, data.token, data.unblindedToken);
-                },
-                error: function(x) {
-                    alert(JSON.stringify(x));
-                    // error: todo
-                }
-            });
-        }
-
-        function submitMultipleChoiceQuestionVote(index) {
-            $(`#submit-question-${index}`).addClass('disabled');
-            $(`#abstain-question-${index}`).addClass('disabled');
-            $(`#submit-question-${index}`).text('Übertrage...');
-            const selected = $(`#answer-list-${index} :checked`).val();
-            const answerIds = [selected];
-
-            const indexVal = parseInt(index);
-            $.ajax({
-                url: '@Model.GetSignedTokenUrl',
-                data: { "voterId": '@Model.VoterId', "password": password, "questionIndex": indexVal },
-                type: 'POST',
-                datatype: 'json',
-                success: function(data) {
-                    submitVote(index, answerIds, data.token, data.unblindedToken);
-                },
-                error: function(x) {
-                    alert(JSON.stringify(x));
-                    // error: todo
-                }
-            });
-        }
-
-        function submitOrderingQuestionVote(index) {
-            $(`#submit-question-${index}`).addClass('disabled');
-            $(`#abstain-question-${index}`).addClass('disabled');
-            $(`#submit-question-${index}`).text('Übertrage...');
-            const selector = `#selected-options-${index} div.fw-answer-title`;
-            const selectedItems = $(selector);
-            const answerIds = [];
-            $(selectedItems).each(function(idx, item) {
-                answerIds.push(getAnswerIdFromOptionId(item.id));
-            });
-            const indexVal = parseInt(index);
-
-            $.ajax({
-                url: '@Model.GetSignedTokenUrl',
-                data: { "voterId": '@Model.VoterId', "password": password, "questionIndex": indexVal },
-                type: 'POST',
-                datatype: 'json',
-                success: function(data) {
-                    submitVote(index, answerIds, data.token, data.unblindedToken);
-                },
-                error: function(x) {
-                    alert(JSON.stringify(x));
-                    // error: todo
-                }
-            });
-        }
-
-        function abstainQuestionVote(index) {
-            $(`#submit-question-${index}`).addClass('disabled');
-            $(`#abstain-question-${index}`).addClass('disabled');
-            $(`#abstain-question-${index}`).text('Übertrage...');
-            const indexVal = parseInt(index);
-            const answerIds = [];
-
-            $.ajax({
-                url: '@Model.GetSignedTokenUrl',
-                data: { "voterId": '@Model.VoterId', "password": password, "questionIndex": indexVal },
-                type: 'POST',
-                datatype: 'json',
-                success: function(data) {
-                    submitVote(index, answerIds, data.token, data.unblindedToken);
-                },
-                error: function(x) {
-                    alert(JSON.stringify(x));
-                    // error: todo
-                }
-            });
-        }
-
-        function submitVote(index, answerIds, token, signedToken) {
-
-            $.ajax({
-                url: 'SubmitVote',
-                data: {
-                    "voterId": '@Model.VoterId',
-                    "votingId": '@Model.VotingId',
-                    "questionIndex": index,
-                    "answerIds": answerIds,
-                    "token": token,
-                    "signedToken": signedToken
-                },
-                type: 'POST',
-                datatype: 'json',
-                success: function() {
-                    updateQuestion(index);
-                },
-                error: function(x) {
-                    alert(JSON.stringify(x));
-                    // error: todo
-                }
-            });
-        }
-
-        function getAnswerIdFromOptionId(id) {
-            const startIdx = id.indexOf('-', 8);
-            return id.substr(startIdx + 1);
-        }
-
-        function updateQuestion(index) {
-            $('#answered-questions-header').removeClass('d-none');
-            const token = tokenData.filter(x => x.tokenIndex === index);
-
-            $.ajax({
-                url: 'GetQuestion',
-                data: { "voterId": '@Model.VoterId', "votingId": '@Model.VotingId', "questionIndex": index, "token": token[0].token },
-                type: 'POST',
-                datatype: 'json',
-                success: function(data) {
-                    $(`#question-card-${index}`).replaceWith(data);
-                },
-                error: function(x) {
-                    alert(JSON.stringify(x));
-                    // error: todo
-                }
-            });
-        }
 
     </script>
 }

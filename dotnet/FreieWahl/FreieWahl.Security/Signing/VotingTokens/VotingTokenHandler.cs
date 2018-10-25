@@ -66,7 +66,11 @@ namespace FreieWahl.Security.Signing.VotingTokens
             return signed.ToString(16);
         }
 
-
+        private static readonly BigInteger MaxHashValue = new BigInteger(new byte[] 
+            { 1, 0, 0, 0, 0, 0, 0, 0, 0,
+              0, 0, 0, 0, 0, 0, 0, 0,
+              0, 0, 0, 0, 0, 0, 0, 0,
+              0, 0, 0, 0, 0, 0, 0, 0 });
 
         public bool Verify(string signature, string origMessage, long votingId, int tokenIndex)
         {
@@ -74,7 +78,12 @@ namespace FreieWahl.Security.Signing.VotingTokens
             var sigInt = new BigInteger(signature, 16);
             var publicKey = (RsaKeyParameters) keyPair.Public;
 
-            var messageHash = new BigInteger(_digest.ComputeHash(Encoding.UTF8.GetBytes(origMessage)));
+            var bytes = _digest.ComputeHash(Encoding.UTF8.GetBytes(origMessage));
+            var messageHash = new BigInteger(bytes);
+            if (messageHash.CompareTo(BigInteger.Zero) < 0)
+            {
+                messageHash = MaxHashValue.Add(messageHash);
+            }
             var sigIntVerification = sigInt.ModPow(publicKey.Exponent, publicKey.Modulus);
             return Equals(messageHash, sigIntVerification);
         }

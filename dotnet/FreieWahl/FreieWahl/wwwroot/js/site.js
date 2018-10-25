@@ -104,9 +104,16 @@ function resetNewQuestionModal() {
 }
 
 function grantRegistration(regIds, votingId) {
+    $('#grantedRegistrationsBadge').text('.');
+    $('#openRegistrationsBadge').text('.');
+    $.each(regIds,
+        function(index, value) {
+            $(`#openreg-${value}`).detach();
+        });
+
     $.post({
-        url: '../Registration/GrantRegistration',
-        data: { "rids": regIds },
+        url: "../Registration/GrantRegistration",
+        data: { 'registrationIds': regIds, 'utcOffsetMinutes': new Date().getTimezoneOffset(), 'timezoneName': Intl.DateTimeFormat().resolvedOptions().timeZone},
         success: function (data) { // todo
             updateRegistrations(votingId);
         }
@@ -114,10 +121,17 @@ function grantRegistration(regIds, votingId) {
     });
 }
 
-function denyRegistration(regId, votingId) {
+function denyRegistration(regIds, votingId) {
+    $('#deniedRegistrationsBadge').text('.');
+    $('#openRegistrationsBadge').text('.');
+    $.each(regIds,
+        function (index, value) {
+            $(`#openreg-${value}`).detach();
+        });
+
     $.post({
         url: '../Registration/DenyRegistration',
-        data: { "rid": regId },
+        data: { "registrationIds": regIds },
         success: function (data) { // todo
             updateRegistrations(votingId);
         }
@@ -171,14 +185,14 @@ function updateRegistrations(votingId) {
 }
 
 function showRegistrations(registrations, votingId) {
-    $("#openRegistrationsList").removeClass('openRegistrationItem');
+    $(".openRegistrationItem").detach();
     for (let i = 0; i < registrations.length; i++) {
         const registration = registrations[i];
         const item =
             `<div class="d-flex mx-3 my-0 border-bottom openRegistrationItem" id="openreg-${registration.registrationId}"><div style="flex:1;margin-right:1rem">${registration.voterName}</div>\n` +
-            `<div style="align-self: flex-end;cursor:pointer;color:#657f8C" onclick="grantRegistration(['${registration.registrationId}'], '${votingId}')"><i class="material-icons">add_circle_outline</i></div>\n` +
-            `<div style="align-self: flex-end;cursor:pointer;color:#657f8C" onclick="denyRegistration('${registration.registrationId}', '${votingId}')"><i class="material-icons mx-1">remove_circle_outline</i></div>\n` +
-            `<div style="align-self: flex-end;cursor:pointer;color:#657f8C"><i class="material-icons">info</i></div></div>`;
+            `<div class="fw-registration-item-button" onclick="grantRegistration(['${registration.registrationId}'], '${votingId}')"><i class="material-icons">add_circle_outline</i></div>\n` +
+            `<div class="fw-registration-item-button" onclick="denyRegistration(['${registration.registrationId}'], '${votingId}')"><i class="material-icons mx-1">remove_circle_outline</i></div>\n` +
+            `<div class="fw-registration-item-button"><i class="material-icons">info</i></div></div>`;
         $(item).insertBefore('#openRegistrationsDivider');
     }
 
@@ -190,6 +204,13 @@ function grantAllRegistrations(votingId) {
         return this.id.substr(8);
     });
     grantRegistration(ids.toArray(), votingId);
+}
+
+function denyAllRegistrations(votingId) {
+    const ids = $('.openRegistrationItem').map(function () {
+        return this.id.substr(8);
+    });
+    denyRegistration(ids.toArray(), votingId);
 }
 
 

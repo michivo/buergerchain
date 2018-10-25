@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using FreieWahl.Voting.Models;
 using Org.BouncyCastle.Crypto.Parameters;
@@ -11,7 +12,9 @@ namespace FreieWahl.Application.Registrations
             StandardVoting voting,
             string signedChallengeString, 
             List<string> signedTokens, 
-            string votingUrl);
+            string votingUrl,
+            TimeSpan utcOffset,
+            string timezoneName);
 
         Task<RegistrationChallenge> GetChallenge(string registrationId);
 

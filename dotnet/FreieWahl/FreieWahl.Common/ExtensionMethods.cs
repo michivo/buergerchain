@@ -56,7 +56,7 @@ namespace FreieWahl.Common
             if (dateTime.Kind != DateTimeKind.Utc)
                 throw new ArgumentException("Only UTC timestamps are supported");
 
-            return (int)dateTime.Subtract(Epoch).TotalSeconds;
+            return (int)dateTime.Subtract(Epoch).TotalMilliseconds;
         }
     }
 }

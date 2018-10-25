@@ -145,24 +145,24 @@ div.fw-overview-card {
 @keyframes fwOverviewCardPulse {
     0% {
         box-shadow: 1px 1px 3px $fw-gray;
-        transform: scale(1);
+        transform: translate(0, 0);
     }
 
     100% {
         box-shadow: 2px 2px 5px #808080;
-        transform: scale(1.01);
+        transform: translate(2px, 2px);
     }
 }
 
 @keyframes fwOverviewCardUnpulse {
     0% {
         box-shadow: 2px 2px 5px #808080;
-        transform: scale(1.01);
+        transform: translate(2px, 2px);
     }
 
     100% {
         box-shadow: 1px 1px 3px $fw-gray;
-        transform: scale(1);
+        transform: translate(0, 0);
     }
 }
 
@@ -439,4 +439,24 @@ div.fw-voting-question-symbol {
     font-size:1.25rem;
     padding-left:5rem;
     font-weight:300
+}
+
+div.fw-registration-item-button {
+    align-self: flex-end;
+    cursor:pointer;
+    color:$primary;
+}
+
+div.fw-registration-item-button :hover {
+    align-self: flex-end;
+    cursor:pointer;
+    color:$secondary;
+    text-shadow: 1px 1px 3px gray;
+}
+
+div.fw-registration-item-button :active {
+    align-self: flex-end;
+    cursor:pointer;
+    color:$primary;
+    transform:translate(1px, 1px)
 }

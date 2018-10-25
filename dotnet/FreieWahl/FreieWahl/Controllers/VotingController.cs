@@ -5,6 +5,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using FreieWahl.Application.VotingResults;
 using FreieWahl.Common;
+using FreieWahl.Helpers;
 using FreieWahl.Models.Voting;
 using FreieWahl.Models.VotingAdministration;
 using FreieWahl.Voting.Models;
@@ -12,10 +13,9 @@ using FreieWahl.Voting.Storage;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 
-// For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
-
 namespace FreieWahl.Controllers
 {
+    [ForwardedRequireHttps]
     public class VotingController : Controller
     {
         private readonly IVotingStore _votingStore;
@@ -45,8 +45,8 @@ namespace FreieWahl.Controllers
             ViewData["VotingTitle"] = voting.Title;
             ViewData["VotingDescription"] = voting.Description;
             ViewData["ImageData"] = voting.ImageData ?? string.Empty;
-            ViewData["StartDate"] = voting.StartDate.ToMillisecondsSinceEpoch();
-            ViewData["EndDate"] = voting.EndDate.ToMillisecondsSinceEpoch();
+            ViewData["StartDate"] = voting.StartDate.ToSecondsSinceEpoch();
+            ViewData["EndDate"] = voting.EndDate.ToSecondsSinceEpoch();
 
             return View();
         }
@@ -70,8 +70,8 @@ namespace FreieWahl.Controllers
 
             var model = new VoteModel
             {
-                StartDate = voting.StartDate.ToString("dd.MM.yyyy HH:mm", CultureInfo.InvariantCulture),
-                EndDate = voting.EndDate.ToString("dd.MM.yyyy HH:mm", CultureInfo.InvariantCulture),
+                StartDate = voting.StartDate.ToSecondsSinceEpoch(),
+                EndDate = voting.EndDate.ToSecondsSinceEpoch(),
                 VotingTitle = voting.Title,
                 VotingId = votingId,
                 VoterId = voterId,

@@ -95,7 +95,7 @@ app.post('/grantRegistration', wrapAsync(async function (req, res) {
   await dbwrapper.updatePasswordHash(registrationId, voterId);
   await dbwrapper.deleteRegistration(registrationId);
   mailProvider.sendInvitation(registration.email, votingTitle, startDate, endDate, link);
-  
+
   res.status(200).send('OK!').end;
 }));
 
@@ -103,7 +103,7 @@ app.post('/getChallengeAndTokens', wrapAsync(async function (req, res) {
   const challenge = uuidv4();
   const date = Date.now();
   const tokens = await dbwrapper.setChallengeAndGetTokens(req.body.registrationId, challenge, date.toString());
-  
+
   res.json({ 'challenge': challenge, 'tokens': tokens }).end;
 }));
 
@@ -163,6 +163,7 @@ app.post('/saveRegistrationDetails', wrapAsync(async function (req, res) {
   const email = req.body.mail;
   const password = req.body.password;
   let tokenCount = req.body.tokenCount;
+  
   if (tokenCount < 1) {
     tokenCount = 1; // TODO err?
   }
@@ -221,11 +222,12 @@ if (!module.parent) {
 
 app.use(function (err, req, res, next) {
   // TODO: logging
+  console.log('An error occurred: ' + err.message + ', stack: ' + err.stack); // eslint-disable-line no-console
   log.error('An error occurred: ' + err.message + ', stack: ' + err.stack);
   if (res.headersSent) {
     return next(err);
   }
-  
+
   res.status(500);
   res.send('error: ' + err.message);
   res.end;
@@ -233,14 +235,13 @@ app.use(function (err, req, res, next) {
 // [END app]
 
 function allowCrossDomain(req, res, next) {
-  console.log(`origin is ${req.headers.origin}`);
+  if (req.headers.origin) {
+    var origin = req.headers.origin.toLowerCase();
 
-  var origin = req.headers.origin.toLowerCase();
-
-  if (origin.includes('localhost') || origin.includes('freiewahl')) {
-    console.log(`setting response header to ${origin}`);
-    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
-    res.setHeader('Access-Control-Allow-Origin', origin);
+    if (origin.includes('localhost') || origin.includes('freiewahl')) {
+      res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+      res.setHeader('Access-Control-Allow-Origin', origin);
+    }
   }
 
   if (req.method === 'OPTIONS') {

@@ -8,6 +8,7 @@ using System.Xml;
 using FreieWahl.Application.Authentication;
 using FreieWahl.Application.Registrations;
 using FreieWahl.Common;
+using FreieWahl.Helpers;
 using FreieWahl.Security.Signing.Buergerkarte;
 using FreieWahl.Voting.Registrations;
 using FreieWahl.Voting.Storage;
@@ -18,6 +19,7 @@ using Newtonsoft.Json;
 
 namespace FreieWahl.Controllers
 {
+    [ForwardedRequireHttps]
     public class RegistrationController : Controller
     {
         private readonly ILogger<RegistrationController> _logger;
@@ -195,8 +197,8 @@ namespace FreieWahl.Controllers
             ViewData["VotingTitle"] = voting.Title;
             ViewData["VotingDescription"] = voting.Description;
             ViewData["ImageData"] = voting.ImageData ?? string.Empty;
-            ViewData["StartDate"] = voting.StartDate.ToString("HH:mm, dd.MM.yyyy");
-            ViewData["EndDate"] = voting.EndDate.ToString("HH:mm, dd.MM.yyyy");
+            ViewData["StartDate"] = voting.StartDate.ToSecondsSinceEpoch();
+            ViewData["EndDate"] = voting.EndDate.ToSecondsSinceEpoch();
             ViewData["RegistrationStoreId"] = regUid;
             ViewData["RegistrationStoreSaveRegUrl"] = _regUrl + "saveRegistrationDetails";
             ViewData["TokenCount"] = _tokenCount;
@@ -233,9 +235,9 @@ namespace FreieWahl.Controllers
 
 
         [HttpPost]
-        public async Task<IActionResult> GrantRegistration(string[] rids)
+        public async Task<IActionResult> GrantRegistration(string[] registrationIds, int utcOffsetMinutes, string timezoneName)
         {
-            var regIds = rids.Select(x => x.ToId()).ToList();
+            var regIds = registrationIds.Select(x => x.ToId()).ToList();
             if (regIds.Any(x => x == null))
             {
                 return BadRequest();
@@ -254,31 +256,36 @@ namespace FreieWahl.Controllers
 
                 var link = Url.Action("Vote", "Voting", new { }, HttpContext.Request.Scheme);
 
-                await _registrationHandler.GrantRegistration(regId.Value, user.UserId, link);
+                await _registrationHandler.GrantRegistration(regId.Value, user.UserId, link, 
+                    TimeSpan.FromMinutes(utcOffsetMinutes), timezoneName);
             }
             return Ok();
         }
 
         [HttpPost]
-        public async Task<IActionResult> DenyRegistration(string rid)
+        public async Task<IActionResult> DenyRegistration(string[] registrationIds)
         {
-            var regId = rid.ToId();
-            if (regId == null)
+            var regIds = registrationIds.Select(x => x.ToId()).ToList();
+            if (regIds.Any(x => x == null))
             {
                 return BadRequest();
             }
 
-            var registration = await _registrationStore.GetOpenRegistration(regId.Value);
-            string vid = registration.VotingId.ToString(CultureInfo.InvariantCulture);
-            var user = await _authHandler.GetAuthorizedUser(vid,
-                Operation.GrantRegistration, Request.Cookies["session"]);
-            if (user == null)
+            foreach (var regId in regIds)
             {
-                return Unauthorized();
+                var registration = await _registrationStore.GetOpenRegistration(regId.Value);
+                string vid = registration.VotingId.ToString(CultureInfo.InvariantCulture);
+                var user = await _authHandler.GetAuthorizedUser(vid,
+                    Operation.GrantRegistration, Request.Cookies["session"]);
+                if (user == null)
+                {
+                    return Unauthorized();
+                }
+
+
+                await _registrationHandler.DenyRegistration(regId.Value, user.UserId);
             }
 
-
-            await _registrationHandler.DenyRegistration(regId.Value, user.UserId);
             return Ok();
         }
 

@@ -11,9 +11,9 @@ namespace FreieWahl.Models.Voting
 
         public string VotingDescription { get; set; }
 
-        public string StartDate { get; set; }
+        public int StartDate { get; set; }
 
-        public string EndDate { get; set; }
+        public int EndDate { get; set; }
 
         public string ImageData { get; set; }
 

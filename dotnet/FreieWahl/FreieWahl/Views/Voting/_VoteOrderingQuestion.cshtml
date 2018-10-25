@@ -40,7 +40,7 @@
             </div>
         </div>
         <div class="alert alert-danger d-none mx-3 mb-0" id="alert-question-@Model.Index" role="alert">Sie dürfen maximal @Model.MaxNumAnswers Optionen wählen!</div>
-        <button class="btn btn-secondary mx-3 mb-2 float-right" id="submit-question-@Model.Index" onclick="submitOrderingQuestionVote(@Model.Index)">Stimme abgeben</button>
-        <button class="btn btn-light text-secondary mx-3 mb-2 float-right" id="abstain-question-@Model.Index" onclick="abstainQuestionVote(@Model.Index)">Enthalten</button>
+        <button class="btn btn-secondary mx-3 mb-2 float-right" id="submit-question-@Model.Index" onclick="Vote.submitOrderingQuestionVote(@Model.Index)">Stimme abgeben</button>
+        <button class="btn btn-light text-secondary mx-3 mb-2 float-right" id="abstain-question-@Model.Index" onclick="Vote.abstainQuestionVote(@Model.Index)">Enthalten</button>
     </div>
 </div>

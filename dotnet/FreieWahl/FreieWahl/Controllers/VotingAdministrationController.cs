@@ -11,12 +11,14 @@ using System.Linq;
 using System.Threading.Tasks;
 using FreieWahl.Application.Registrations;
 using FreieWahl.Common;
+using FreieWahl.Helpers;
 using FreieWahl.Mail;
 using FreieWahl.Security.Signing.VotingTokens;
 using FreieWahl.UserData.Store;
 
 namespace FreieWahl.Controllers
 {
+    [ForwardedRequireHttps] 
     public class VotingAdministrationController : Controller
     {
         private readonly IVotingStore _votingStore;

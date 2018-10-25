@@ -22,11 +22,14 @@ namespace FreieWahl.Application.Registrations
         }
 
         public async Task<string> GrantRegistration(string registrationStoreId, StandardVoting voting,
-            string signedChallengeString, List<string> signedTokens, string votingUrl)
+            string signedChallengeString, List<string> signedTokens, string votingUrl, TimeSpan utcOffset, string timezoneName)
         {
             var request = WebRequest.CreateHttp(_remoteUrl + "grantRegistration");
             request.ContentType = "application/json";
             request.Method = WebRequestMethods.Http.Post;
+            var startTime = voting.StartDate.Subtract(utcOffset);
+            var endTime = voting.EndDate.Subtract(utcOffset);
+            var timezoneInfo = string.IsNullOrEmpty(timezoneName) ? string.Empty : " (Zeitzone: " + timezoneName + ")";
 
             using (var streamWriter = new StreamWriter(request.GetRequestStream()))
             {
@@ -36,8 +39,8 @@ namespace FreieWahl.Application.Registrations
                     challengeSignature = signedChallengeString,
                     tokens = signedTokens,
                     votingId = voting.Id.ToString(CultureInfo.InvariantCulture),
-                    startDate = voting.StartDate.ToString("HH:mm") + ", " + voting.StartDate.ToString("dd.MM.yyyy"),
-                    endDate = voting.EndDate.ToString("HH:mm") + ", " + voting.EndDate.ToString("dd.MM.yyyy"),
+                    startDate = startTime.ToString("HH:mm") + ", " + startTime.ToString("dd.MM.yyyy"),
+                    endDate = endTime.ToString("HH:mm") + ", " + endTime.ToString("dd.MM.yyyy") + timezoneInfo,
                     votingTitle = voting.Title,
                     link = votingUrl
                 };

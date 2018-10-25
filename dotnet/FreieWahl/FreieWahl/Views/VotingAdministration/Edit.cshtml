@@ -75,8 +75,8 @@
                     <div id="collapseOpenRegistrations" class="collapse" aria-labelledby="headingOne">
                         <div class="card-body" aria-labelledby="fw-dropdown-registered" id="openRegistrationsList">
                             <div class="dropdown-divider" id="openRegistrationsDivider"></div>
-                            <button type="button" class="btn-success" onclick="grantAllRegistrations('@Model.VotingId')">Alle freischalten</button>
-                            <button type="button" class="btn-warning" >Alle ablehnen</button>
+                            <button type="button" class="btn btn-primary" onclick="grantAllRegistrations('@Model.VotingId')">Alle freischalten</button>
+                            <button type="button" class="btn btn-light"  onclick="denyAllRegistrations('@Model.VotingId')">Alle ablehnen</button>
                         </div>
                     </div>
                 </div>
@@ -121,8 +121,8 @@
 
         $(document).ready(function() {
             setupEditScreen('@Model.VotingId');
-            const startDate = formatDateTimeSeconds(@Model.StartDate, false);
-            const endDate = formatDateTimeSeconds(@Model.EndDate, false);
+            const startDate = formatDateTimeSeconds(@Model.StartDate);
+            const endDate = formatDateTimeSeconds(@Model.EndDate);
             $('#fwDateInfo').html(`Start: ${startDate}<br />Ende: ${endDate}`);
 
             $('#shareLinkText').popover({ offset: '1rem' });
