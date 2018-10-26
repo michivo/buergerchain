@@ -13,5 +13,7 @@ namespace FreieWahl.Application.VotingResults
         void CompleteQuestion(long votingId, int questionIndex);
 
         Task<IReadOnlyCollection<Vote>> GetResults(long votingId, string[] tokens);
+
+        Task<IReadOnlyCollection<Vote>> GetResults(long votingId);
     }
 }

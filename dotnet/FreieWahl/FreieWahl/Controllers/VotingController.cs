@@ -150,6 +150,27 @@ namespace FreieWahl.Controllers
             return PartialView(model);
         }
 
+        [HttpPost]
+        public async Task<IActionResult> GetNumberOfAnswers(string votingId, int[] questionIndices)
+        {
+            var id = votingId.ToId();
+            if (!id.HasValue)
+                return BadRequest();
+
+            var results = await _votingResultManager.GetResults(id.Value);
+            var answerCounts = results.Where(x => questionIndices.Contains(x.QuestionIndex))
+                .GroupBy(x => x.QuestionIndex)
+                .OrderBy(x => x.Key)
+                .Select(y => new
+                {
+                    Index = y.Key,
+                    Count = y.Count()
+                })
+                .ToArray();
+
+            return new JsonResult(answerCounts);
+        }
+
         private VotingQuestionModel _MapToModel(QuestionModel questionModel, IReadOnlyCollection<Vote> votes)
         {
             var matchingVotes = votes.Where(x => x.QuestionIndex == questionModel.Index).ToList();

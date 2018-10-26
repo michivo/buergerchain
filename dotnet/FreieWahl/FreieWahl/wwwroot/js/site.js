@@ -107,7 +107,7 @@ function grantRegistration(regIds, votingId) {
     $('#grantedRegistrationsBadge').text('.');
     $('#openRegistrationsBadge').text('.');
     $.each(regIds,
-        function(index, value) {
+        function (index, value) {
             $(`#openreg-${value}`).slideUp(250, function () {
                 $(`#openreg-${value}`).detach();
             });
@@ -115,7 +115,7 @@ function grantRegistration(regIds, votingId) {
 
     $.post({
         url: "../Registration/GrantRegistration",
-        data: { 'registrationIds': regIds, 'utcOffsetMinutes': new Date().getTimezoneOffset(), 'timezoneName': Intl.DateTimeFormat().resolvedOptions().timeZone},
+        data: { 'registrationIds': regIds, 'utcOffsetMinutes': new Date().getTimezoneOffset(), 'timezoneName': Intl.DateTimeFormat().resolvedOptions().timeZone },
         success: function (data) { // todo
             updateRegistrations(votingId);
         }
@@ -128,7 +128,7 @@ function denyRegistration(regIds, votingId) {
     $('#openRegistrationsBadge').text('.');
     $.each(regIds,
         function (index, value) {
-            $(`#openreg-${value}`).slideUp(250, function() {
+            $(`#openreg-${value}`).slideUp(250, function () {
                 $(`#openreg-${value}`).detach();
             });
         });
@@ -204,7 +204,7 @@ function showRegistrations(registrations, votingId) {
 }
 
 function grantAllRegistrations(votingId) {
-    const ids = $('.openRegistrationItem').map(function() {
+    const ids = $('.openRegistrationItem').map(function () {
         return this.id.substr(8);
     });
     grantRegistration(ids.toArray(), votingId);
@@ -281,6 +281,46 @@ function setupEditScreen(votingId) {
         const $row = $(this).parents('tr');
         $row.next().after($row.get(0));
     });
+
+    window.setInterval(function () {
+        updateResultCounts(votingId);
+    },
+        60000);
+}
+
+function updateResultCounts(votingId) {
+    const questionIndices = [];
+    $(".questionCardInactive").each(function () {
+        const id = $(this).attr('data-questionid');
+        questionIndices.push(parseInt(id));
+    });
+
+    if (questionIndices.length === 0)
+        return;
+
+    $.ajax({
+        url: '../Voting/GetNumberOfAnswers',
+        data: { "votingId": votingId, 'questionIndices': questionIndices },
+        type: 'POST',
+        datatype: 'json',
+        success: function (data) {
+            showResultCounts(data);
+        } // TODO error
+    });
+}
+
+function showResultCounts(data) {
+    $.each(data,
+        function (index, value) {
+            const progressBar = $(`.questionProgress[data-questionid=${value.index}]`).first();
+            if (progressBar && progressBar.length > 0) {
+                progressBar.removeClass('bg-white');
+                const bar = progressBar.children('div').first();
+                bar.css("width", `${5 * value.count}%`);
+                bar.attr("aria-valuenow", `${5 * value.count}`);
+                bar.text(`${value.count} Wahlberechtigte haben bereits abgestimmt`);
+            }
+        });
 }
 
 

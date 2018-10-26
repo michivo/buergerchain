@@ -1,7 +1,7 @@
 ﻿@using FreieWahl.Voting.Models
 @model FreieWahl.Models.VotingAdministration.QuestionModel
 
-<div class="card my-4">
+<div class="card my-4 questionCard @(Model.Status == QuestionStatus.OpenForVoting ? "questionCardInactive" : "")" data-questionid="@Model.Index">
     <div class="card-header bg-primary text-light pb-0 pt-1" style="font-size:2.5rem; font-weight: 100;line-height: 2.5rem"><div class="py-2 float-left">Entscheidungsfrage</div>
     @if (Model.Status == QuestionStatus.InPreparation)
     {
@@ -21,22 +21,22 @@
         <p class="card-text" style="border-bottom: 1px solid #C0C0C0" id="question-@Model.Index-description">@Model.Description</p>
         <div class="container">
             <div class="row" id="question-@Model.Index-answers">
+                <div class="col-lg-6 col-12">
                 @{ int answerCount = 0; }
                 @foreach (var answer in Model.AnswerOptions)
                 {
-                    <div class="col-lg-6 col-12">
-                        <label style="display: block; position: relative; padding-left: 35px; margin-bottom: 12px;">
-                            <span id="fw-answer-title-@Model.Index-@answerCount">
-                                @answer.Answer
-                            </span><br />
-                            <span class="small text-primary border-bottom" id="fw-answer-description-@Model.Index-@answerCount">
-                                @answer.Description
-                            </span>
-                            <input type="radio" style="position: absolute; opacity: 0;"><span style="position: absolute; top: 0; left: 0; height: 23px; width: 23px; background-color: #eee; border: 3px solid #657f8C; border-radius: 50%"></span>
-                        </label>
-                    </div>
+                    <label style="display: block; position: relative; padding-left: 35px; margin-bottom: 12px;">
+                        <span id="fw-answer-title-@Model.Index-@answerCount">
+                            @answer.Answer
+                        </span><br/>
+                        <span class="small text-primary border-bottom" id="fw-answer-description-@Model.Index-@answerCount">
+                            @answer.Description
+                        </span>
+                        <input type="radio" style="position: absolute; opacity: 0;"><span style="position: absolute; top: 0; left: 0; height: 23px; width: 23px; background-color: #eee; border: 3px solid #657f8C; border-radius: 50%"></span>
+                    </label>
                     answerCount++;
                 }
+                </div>
             </div>
         </div>
         @if (Model.Status == QuestionStatus.InPreparation)
@@ -45,7 +45,10 @@
         }
         else
         {
-            <span class="float-right bg-light text-dark p-2 border">Diese Frage wurde bereits für die WählerInnen freigeschaltet und kann nicht mehr bearbeitet werden.</span>
+            <div class="w-100 bg-light text-dark p-2 border">Diese Frage wurde bereits für die WählerInnen freigeschaltet und kann nicht mehr bearbeitet werden.</div>
+            <div class="progress questionProgress w-100 mt-1 bg-white" style="height: 1rem;" data-questionid="@Model.Index">
+                <div class="progress-bar" role="progressbar" style="width: 0%;" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+            </div>
         }
     </div>
 </div>
