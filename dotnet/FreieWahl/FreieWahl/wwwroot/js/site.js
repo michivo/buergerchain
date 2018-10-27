@@ -166,6 +166,26 @@ function showCompletedRegistrations(registrations) {
     $('#deniedRegistrationsBadge').text(deniedCount);
 }
 
+function lockQuestion(votingId, questionIndex) {
+    $.ajax({
+        url: 'LockQuestion',
+        data: { "votingId": votingId, 'questionIndex': questionIndex },
+        type: 'POST',
+        datatype: 'json',
+        success: function (data) {
+            updateQuestions(votingId);
+        } // TODO error
+    });
+}
+
+function loadQuestionResults(votingId, questionIndex) {
+    $(`#result-dropdown-${questionIndex}`).load(`../Voting/GetResults?votingId=${votingId}&questionIndex=${questionIndex}`);
+}
+
+function showQuestionResults(votingId, questionIndex, resultData) {
+
+}
+
 function updateRegistrations(votingId) {
     $.ajax({
         url: '../Registration/GetRegistrations',
@@ -282,6 +302,7 @@ function setupEditScreen(votingId) {
         $row.next().after($row.get(0));
     });
 
+    updateResultCounts(votingId);
     window.setInterval(function () {
         updateResultCounts(votingId);
     },

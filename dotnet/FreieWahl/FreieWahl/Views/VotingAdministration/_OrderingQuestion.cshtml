@@ -26,7 +26,7 @@
                     @{ int answerCount = 0; }
                     @foreach (var answer in Model.AnswerOptions)
                     {
-                        <div class="my-2 border w-100 fw-answer-title">
+                        <div class="my-2 border w-100 fw-answer-title px-1">
                             <span id="fw-answer-title-@Model.Index-@answerCount">
                                 @answer.Answer
                             </span>
@@ -48,13 +48,22 @@
         </div>
         @if (Model.Status == QuestionStatus.InPreparation)
         {
-            <button class="btn btn-success float-right mx-3" onClick="unlockQuestion('@Model.VotingId', @Model.Index)" data-toggle="popover" data-placement="top" data-content="Vivamus sagittis lacus vel augue laoreet rutrum faucibus.">Für Wahl freischalten</button>
+            <button class="btn btn-success float-right mx-3" onClick="unlockQuestion('@Model.VotingId', @Model.Index)">Für Wahl freischalten</button>
         }
         else
         {
-            <div class="w-100 bg-light text-dark p-2 border">Diese Frage wurde bereits für die WählerInnen freigeschaltet und kann nicht mehr bearbeitet werden.</div>
-            <div class="progress questionProgress w-100 mt-1 bg-white" style="height: 1rem;" data-questionid="@Model.Index">
-                <div class="progress-bar" role="progressbar" style="width: 0%;" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+            <div class="w-100 bg-light text-dark p-1 border"><small>Diese Frage ist für die WählerInnen freigeschaltet und kann nicht mehr bearbeitet werden.</small></div>
+            <div class="container">
+                <div class="row justify-content-between align-items-center mt-2">
+                    <div class="col-12 col-lg-8 col-md-6">
+                        <div class="progress questionProgress w-100 mt-1 bg-white" style="height: 1rem;" data-questionid="@Model.Index">
+                            <div class="progress-bar" role="progressbar" style="width: 0%;" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+                        </div>
+                    </div>
+                    <div class="col-6 col-lg-3">
+                        <button class="btn btn-secondary float-right" onclick="lockQuestion('@Model.VotingId', @Model.Index)">Beantwortungszeit abschließen</button>
+                    </div>
+                </div>
             </div>
         }
     </div>

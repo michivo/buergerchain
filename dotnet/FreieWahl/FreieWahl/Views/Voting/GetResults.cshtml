@@ -1,0 +1,9 @@
+﻿@model FreieWahl.Models.Voting.QuestionResultModel
+
+@foreach (var answer in Model.SelectedAnswerIds)
+{
+    foreach (var id in answer)
+    {
+        @id <br />
+    }
+}

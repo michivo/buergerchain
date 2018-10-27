@@ -125,6 +125,29 @@ namespace FreieWahl.Controllers
         }
 
         [HttpPost]
+        public async Task<IActionResult> LockQuestion(string votingId, int questionIndex)
+        {
+            var isAuthorized = await _authorizationHandler.CheckAuthorization(votingId, Operation.UpdateQuestion, Request.Cookies["session"]);
+            if (!isAuthorized)
+                return Unauthorized();
+
+            var id = votingId.ToId();
+            if (id == null)
+                return BadRequest();
+
+            var voting = await _votingStore.GetById(id.Value);
+            var question = voting.Questions.SingleOrDefault(x => x.QuestionIndex == questionIndex);
+
+            if (question == null || question.Status != QuestionStatus.OpenForVoting)
+                return BadRequest();
+
+            question.Status = QuestionStatus.Locked;
+            await _votingStore.UpdateQuestion(id.Value, question);
+
+            return Ok();
+        }
+
+        [HttpPost]
         public async Task<IActionResult> UpdateUserImage(string imageData)
         {
             var user = await _authorizationHandler.GetAuthorizedUser(string.Empty, Operation.EditUser,

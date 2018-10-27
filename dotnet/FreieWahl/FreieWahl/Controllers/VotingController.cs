@@ -121,6 +121,21 @@ namespace FreieWahl.Controllers
             return PartialView(model);
         }
 
+        public async Task<IActionResult> GetResults(string votingId, int questionIndex)
+        {
+            var id = votingId.ToId();
+            if (!id.HasValue)
+            {
+                return BadRequest("Invalid voting id!");
+            }
+
+            var results = await _votingResultManager.GetResults(id.Value, questionIndex);
+            var model = new QuestionResultModel()
+            {
+                SelectedAnswerIds = results.Select(x => x.SelectedAnswerIds.ToArray()).ToArray()
+            };
+            return PartialView(model);
+        }
 
         public async Task<IActionResult> GetQuestions(string votingId, string voterId, string[] tokens)
         {

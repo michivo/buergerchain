@@ -132,6 +132,11 @@ namespace FreieWahl.Application.VotingResults
             return _votingResultStore.GetVotes(votingId);
         }
 
+        public Task<IReadOnlyCollection<Vote>> GetResults(long votingId, int questionIndex)
+        {
+            return _votingResultStore.GetVotes(votingId, questionIndex);
+        }
+
         public async Task<IReadOnlyCollection<Vote>> GetResults(long votingId, string[] tokens)
         {
             var allVotes = await _votingResultStore.GetVotes(votingId).ConfigureAwait(false);
