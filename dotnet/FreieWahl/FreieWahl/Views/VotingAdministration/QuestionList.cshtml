@@ -20,15 +20,20 @@
 @if (Model.Questions.Any())
 {
     <div class="float-right">
-        <i class="material-icons text-white bg-secondary rounded-circle button-shadow" style="font-size: 4rem; cursor: pointer"
-           onclick="createQuestion('@Model.VotingId')">add</i>
+        <i class="material-icons text-white bg-secondary rounded-circle button-shadow" id="fw-new-question-button" style="font-size: 4rem; cursor: pointer">add</i>
     </div>
 }
 else
 {
-    <div class="align-items-center p-2 my-4" id="fw-new-question-onboarding" style="cursor:pointer" onclick="createQuestion('@Model.VotingId')">
+    <div class="align-items-center p-2 my-4" id="fw-new-question-onboarding" style="cursor:pointer">
         <i class="material-icons text-white rounded-circle bg-secondary p-1 button-shadow float-left mr-3" style="font-size:3.5rem;height:4rem;width:4rem">add</i>
         <div class="text-primary pt-1" ><h5 style="font-weight:300">Es gibt noch keine Fragen in dieser Abstimmung</h5>
             <small>Klicken Sie hier, um eine erste Frage zu erstellen.</small></div>
     </div>
 }
+
+<script>
+    if (typeof Edit !== 'undefined') {
+        Edit.setQuestions(@Json.Serialize(Model.Questions));
+    }
+</script>

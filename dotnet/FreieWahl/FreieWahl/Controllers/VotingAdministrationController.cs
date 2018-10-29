@@ -260,8 +260,7 @@ namespace FreieWahl.Controllers
                 return BadRequest("Number of Answers and Descriptions do not match");
             if (type < 1 || type > 3)
                 return BadRequest("Invalid Question type, only decision, multiple choice and ordering are supported");
-            if ((QuestionType) type != QuestionType.Decision && minNumAnswers > maxNumAnswers || maxNumAnswers > answers.Length ||
-                minNumAnswers < 0)
+            if ((QuestionType) type != QuestionType.Decision && (minNumAnswers > maxNumAnswers || minNumAnswers < 0))
                 return BadRequest("Invalid numer of min/max number of answers");
 
 

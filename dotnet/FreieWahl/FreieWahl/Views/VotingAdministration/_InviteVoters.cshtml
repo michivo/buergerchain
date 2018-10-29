@@ -1,12 +1,4 @@
-﻿<script>
-    function formatDateTimeSecondsForMail(secondsSinceEpoch) {
-        var date = new Date(0);
-        date.setUTCSeconds(secondsSinceEpoch);
-        return `${date.getDate()}.${date.getMonth() + 1}.${date.getFullYear()} um ${date.getHours()}:${date.getMinutes()}`;
-    }
-</script>
-
-<div class="modal fade" id="inviteVotersModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+﻿<div class="modal fade" id="inviteVotersModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
      aria-hidden="true">
     <div class="modal-dialog modal-lg" role="document">
         <div class="modal-content">
@@ -23,10 +15,10 @@
                             Folgende Mail wird an alle Adressen geschickt, die bei den EmpfängerInnen aufgelistet sind.
                         </small>
                     </p>
-                    <div class="alert alert-primary" role="alert">
+                    <div class="alert alert-primary" role="alert" id="fwInviteMailText" data-utcoffset="@ViewData["RegistrationDate"]">
                         <h5 class="alert-heading"><strong>Betreff:</strong> Einladung zur Abstimmung @ViewData["Title"]</h5>
                         Liebe Wahlberechtigte!<br />
-                        Sie sind eingeladen, an unserer Abstimmung <i>@ViewData["Title"]</i> teilzunehmen. Bitte registrieren Sie sich bis spätestens <script>formatDateTimeSecondsForMail(@ViewData["RegistrationDate"])</script>
+                        Sie sind eingeladen, an unserer Abstimmung <i>@ViewData["Title"]</i> teilzunehmen. Bitte registrieren Sie sich bis spätestens $datum$
                         @Html.ActionLink("hier", "Register", "Registration", new { votingId = ViewData["VotingId"] }, new { @class = "alert-link" }).<br />
                         Vielen Dank!
                     </div>
@@ -46,7 +38,7 @@
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-light" data-dismiss="modal">Abbrechen</button>
-                <button type="button" class="btn btn-primary" onclick="sendInvitations('@ViewData["VotingId"]');">OK</button>
+                <button type="button" class="btn btn-primary" id="fwBtnSendInvitations">OK</button>
             </div>
         </div>
     </div>

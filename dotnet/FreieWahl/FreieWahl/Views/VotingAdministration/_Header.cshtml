@@ -5,7 +5,9 @@
     <ul class="navbar-nav ml-auto">
         @if ((bool)ViewData["IsOverview"] == false)
         {
-            <a href="Overview"><i class="material-icons" style="background-color: #DCE4E7; font-size: 2rem; padding: .25rem; border-radius: 50%; margin-right: 1rem;">home</i></a>
+            <li class="nav-item">
+                <a href="Overview"><i class="material-icons mr-3 rounded-circle p-1" style="background-color: #DCE4E7; font-size: 2rem;">home</i></a>
+            </li>
         }
         <li class="nav-item dropleft">
             <a class="nav-link" href="#" id="fw-account" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
