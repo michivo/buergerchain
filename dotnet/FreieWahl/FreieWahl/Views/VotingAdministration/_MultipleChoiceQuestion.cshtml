@@ -21,29 +21,33 @@
     <div class="card-body">
         <h1 class="card-title" style="border-bottom: 1px solid #657F8C" id="question-@Model.Index-title">@Model.Text</h1>
         <p class="card-text border-bottom" id="question-@Model.Index-description">@Model.Description</p>
-        <div class="container">
-            <div class="row" id="question-@Model.Index-answers">
-                <div class="col-lg-6 col-12">
-                    @{ int answerCount = 0; }
-                    @foreach (var option in @Model.AnswerOptions)
-                    {
-                        <label style="display: block; position: relative; padding-left: 35px; margin-bottom: 12px;">
-                            <span id="fw-answer-title-@Model.Index-@answerCount">
-                                @option.Answer
-                            </span>
-                            @if (!string.IsNullOrEmpty(@option.Description))
-                            {<br />
-                                <span class="small text-primary border-bottom" id="fw-answer-description-@Model.Index-@answerCount">
-                                    @option.Description
+        @if (Model.Status != QuestionStatus.Locked)
+        {
+            <div class="container">
+                <div class="row" id="question-@Model.Index-answers">
+                    <div class="col-lg-6 col-12">
+                        @{ int answerCount = 0; }
+                        @foreach (var option in @Model.AnswerOptions)
+                        {
+                            <label style="display: block; position: relative; padding-left: 35px; margin-bottom: 12px;">
+                                <span id="fw-answer-title-@Model.Index-@answerCount">
+                                    @option.Answer
                                 </span>
-                            }
-                            <input type="checkbox" style="position: absolute; opacity: 0;"><span style="position: absolute; top: 0; left: 0; height: 23px; width: 23px; background-color: #eee; border: 3px solid #657f8C"></span>
-                        </label>
-                        answerCount++;
-                    }
+                                @if (!string.IsNullOrEmpty(@option.Description))
+                                {
+                                    <br/>
+                                    <span class="small text-primary border-bottom" id="fw-answer-description-@Model.Index-@answerCount">
+                                        @option.Description
+                                    </span>
+                                }
+                                <input type="checkbox" style="position: absolute; opacity: 0;"><span style="position: absolute; top: 0; left: 0; height: 23px; width: 23px; background-color: #eee; border: 3px solid #657f8C"></span>
+                            </label>
+                            answerCount++;
+                        }
+                    </div>
                 </div>
             </div>
-        </div>
+        }
         @if (Model.Status == QuestionStatus.InPreparation)
         {
             <button class="btn btn-success float-right mx-3 fwBtnUnlockQuestion" data-questionid="@Model.Index">Freischalten</button>
@@ -59,20 +63,15 @@
                         </div>
                     </div>
                     <div class="col-6 col-lg-3">
-                        <button class="btn btn-secondary float-right fwBtnLockQuestion">Abschließen</button>
+                        <button class="btn btn-secondary float-right fwBtnLockQuestion" data-questionid="@Model.Index">Abschließen</button>
                     </div>
                 </div>
             </div>
         }
         else if (Model.Status == QuestionStatus.Locked)
         {
-            <p>
-                <button class="btn btn-secondary w-100" type="button" data-toggle="collapse" data-target="#result-dropdown-@Model.Index" aria-expanded="false" aria-controls="collapseExample" onClick="loadQuestionResults('@Model.VotingId', @Model.Index)">
-                    Ergebnisse anzeigen
-                </button>
-            </p>
-            <div class="collapse" id="result-dropdown-@Model.Index" data-question-index="@Model.Index">
-                Lade Ergebnisse...
+            <div class="container fw-question-results" style="min-height: 400px" data-questionid="@Model.Index">
+
             </div>
         }
     </div>

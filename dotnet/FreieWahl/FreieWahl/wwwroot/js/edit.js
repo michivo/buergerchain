@@ -10,39 +10,115 @@ const Edit = (function () {
         mQuestions = questions;
     }
 
-    var findAnswer = function(key, answerOptions) {
-        const answerOption = answerOptions.find(function(answer) {
+    var findAnswer = function (key, answerOptions) {
+        const answerOption = answerOptions.find(function (answer) {
             return answer.id === key;
         });
 
         return answerOption;
     };
 
-    var showResults = function () {
-        const questionsWithResults = mQuestions.filter(function (question) {
-            return question.status === 2;
+    var renderDecisionQuestionResults = function (question) {
+        const targetDiv = $(`.fw-question-results[data-questionid=${question.index}]`);
+        if (targetDiv.length !== 1) {
+            return;
+        }
+
+        const keys = [];
+        const vals = [];
+        let totalNumVotes = 0;
+        question.votes.forEach(function (vote) {
+            if (vote.length > 1) {
+                console.log('Invalid vote is ignored!');
+                return;
+            }
+            let key;
+            if (vote.length === 0) {
+                key = 'Enthaltungen';
+            } else {
+                key = vote[0];
+            }
+            totalNumVotes += 1;
+            const keyIndex = keys.indexOf(key);
+            if (keyIndex === -1) {
+                keys.push(key);
+                vals.push(1);
+            } else {
+                vals[keyIndex] = vals[keyIndex] + 1;
+            }
         });
 
-        questionsWithResults.forEach(function (question) {
-            const targetDiv = $(`.fw-question-results[data-questionid=${question.index}]`);
-            if (targetDiv.length !== 1) {
+        const seriesData = [];
+        let idx = 0;
+        for (; idx < vals.length; idx++) {
+            if (keys[idx] === 'Enthaltungen') {
+                seriesData.push({ 'value': vals[idx], 'name': 'Enthaltungen' });
+            } else {
+                const answer = findAnswer(keys[idx], question.answerOptions);
+                seriesData.push({ 'value': vals[idx], 'name': answer.answer });
+            }
+        }
+
+        var chart = echarts.init(targetDiv[0]);
+
+        var option = {
+            title: {
+                text: 'Ergebnisse',
+                x: 'left'
+            },
+            tooltip: {
+                trigger: 'item',
+                formatter: "{b} : {c} ({d}%)"
+            },
+            legend: {
+                right: 0,
+                bottom: 0,
+                orient: 'vertical'
+            },
+            toolbox: {
+                show: true,
+                right: 40,
+                feature: {
+                    mark: { show: true },
+                    dataView: {
+                        show: true,
+                        readOnly: true,
+                        title: 'Rohdaten',
+                        lang: ['Rohdaten', 'Abbrechen', 'Neu laden']
+                    },
+                    saveAsImage: { show: true, title: 'Bild speichern' }
+                }
+            },
+            series: [
+                {
+                    name: question.text,
+                    type: 'pie',
+                    data: seriesData
+                }
+            ]
+        };
+
+        // use configuration item and data specified to show chart
+        chart.setOption(option);
+    }
+
+    var renderMultipleChoiceQuestionResults = function (question) {
+        const targetDiv = $(`.fw-question-results[data-questionid=${question.index}]`);
+        if (targetDiv.length !== 1) {
+            return;
+        }
+        const keys = [];
+        const vals = [];
+        let totalNumVotes = 0;
+        question.votes.forEach(function (vote) {
+            if (vote.length === 0) {
+                keys.push('Enthaltungen');
+                vals.push(1);
+                totalNumVotes++;
                 return;
             }
 
-            const keys = [];
-            const vals = [];
-            let totalNumVotes = 0;
-            question.votes.forEach(function (vote) {
-                if (vote.length > 1) {
-                    console.log('Invalid vote is ignored!');
-                    return;
-                }
-                let key;
-                if (vote.length === 0) {
-                    key = 'Enthaltungen';
-                } else {
-                    key = vote[0];
-                }
+            vote.forEach(function (key) {
                 totalNumVotes += 1;
                 const keyIndex = keys.indexOf(key);
                 if (keyIndex === -1) {
@@ -52,63 +128,192 @@ const Edit = (function () {
                     vals[keyIndex] = vals[keyIndex] + 1;
                 }
             });
+        });
 
-            const seriesData = [];
-            let idx = 0;
-            const legendData = [];
-            for (; idx < vals.length; idx++) {
-                if (keys[idx] === 'Enthaltungen') {
-                    seriesData.push({ 'value': vals[idx], 'name': 'Enthaltungen' });
-                    legendData.push({ name: `Enthaltungen: ${vals[idx]}/${totalNumVotes}` });
-                } else {
-                    const answer = findAnswer(keys[idx], question.answerOptions);
-                    seriesData.push({ 'value': vals[idx], 'name': answer.answer });
-                    legendData.push({ name: `${answer.answer}: ${vals[idx]}/${totalNumVotes}` });
+        const seriesData = [];
+        let idx = 0;
+        const legendData = [];
+        for (; idx < vals.length; idx++) {
+            if (keys[idx] === 'Enthaltungen') {
+                seriesData.push({ 'value': vals[idx], 'name': 'Enthaltungen' });
+            } else {
+                const answer = findAnswer(keys[idx], question.answerOptions);
+                seriesData.push({ 'value': vals[idx], 'name': answer.answer });
+            }
+        }
+
+        var chart = echarts.init(targetDiv[0]);
+
+        var option = {
+            title: {
+                text: 'Ergebnisse',
+                x: 'left'
+            },
+            tooltip: {
+                trigger: 'item',
+                formatter: "{b} : {c}"
+            },
+            legend: {
+                right: 0,
+                bottom: 0,
+                orient: 'vertical'
+            },
+            toolbox: {
+                show: true,
+                right: 40,
+                feature: {
+                    mark: { show: true },
+                    dataView: {
+                        show: true,
+                        readOnly: true,
+                        title: 'Rohdaten',
+                        lang: ['Rohdaten', 'Abbrechen', 'Neu laden']
+                    },
+                    saveAsImage: { show: true, title: 'Bild speichern' }
                 }
+            },
+            series: [
+                {
+                    name: question.text,
+                    type: 'pie',
+                    data: seriesData
+                }
+            ]
+        };
+
+        // use configuration item and data specified to show chart
+        chart.setOption(option);
+    }
+
+    var renderOrderingQuestionResults = function (question) {
+        const targetDiv = $(`.fw-question-results[data-questionid=${question.index}]`);
+        if (targetDiv.length !== 1) {
+            return;
+        }
+        const keys = [];
+        const vals = [];
+        let totalNumVotes = 0;
+        let maxNumVotes = 0;
+        question.votes.forEach(function (vote) {
+            if (vote.length > maxNumVotes) {
+                maxNumVotes = vote.length;
+            }
+        });
+
+        question.votes.forEach(function (vote) {
+            if (vote.length === 0) {
+                return;
             }
 
-            var chart = echarts.init(targetDiv[0]);
-
-            var option = {
-                title: {
-                    text: 'Ergebnisse',
-                    x: 'left'
-                },
-                tooltip: {
-                    trigger: 'item',
-                    formatter: "{b} : {c} ({d}%)"
-                },
-                legend: {
-                    right: 0,
-                    bottom: 0,
-                    orient: 'vertical',
-                    data: ['a', 'b', 'c']
-                },
-                toolbox: {
-                    show: true,
-                    right: 40,
-                    feature: {
-                        mark: { show: true },
-                        dataView: {
-                            show: true,
-                            readOnly: true,
-                            title: 'Rohdaten',
-                            lang: ['Rohdaten', 'Abbrechen', 'Neu laden']
-                        },
-                        saveAsImage: { show: true, title: 'Bild speichern' }
+            vote.forEach(function (key, index) {
+                totalNumVotes += 1;
+                let keyIndex = keys.indexOf(key);
+                if (keyIndex === -1) {
+                    keyIndex = keys.length;
+                    keys.push(key);
+                    const newVal = [];
+                    let idx = 0;
+                    for (; idx < maxNumVotes; idx++) {
+                        newVal.push(0);
                     }
-                },
-                series: [
-                    {
-                        name: question.text,
-                        type: 'pie',
-                        data: seriesData
-                    }
-                ]
-            };
+                    vals.push(newVal);
+                }
 
-            // use configuration item and data specified to show chart
-            chart.setOption(option);
+                vals[keyIndex][index] = vals[keyIndex][index] + 1;
+            });
+        });
+
+        const seriesData = [];
+        const labels = [];
+
+        let rankIdx = 0;
+        for (; rankIdx < maxNumVotes; rankIdx++) {
+            let optionIdx = 0;
+            const dataPoints = [];
+            for (; optionIdx < keys.length; optionIdx++) {
+                dataPoints.push(vals[optionIdx][rankIdx]);
+
+                if (rankIdx === 0) {
+                    labels.push(findAnswer(keys[optionIdx], question.answerOptions).answer);
+                }
+            }
+            seriesData.push({
+                name: `Reihung Platz ${rankIdx + 1}`,
+                type: 'bar',
+                data: dataPoints
+            });
+        }
+
+
+        var chart = echarts.init(targetDiv[0]);
+
+        var option = {
+            title: {
+                text: 'Ergebnisse',
+                x: 'left'
+            },
+            tooltip: {
+                trigger: 'axis',
+                axisPointer: {
+                    type: 'shadow'
+                }
+            },
+            legend: {
+
+            },
+            grid: {
+                left: 100
+            },
+            xAxis: {
+                type: 'value',
+                name: 'Stimmen',
+                axisLabel: {
+                    formatter: '{value}'
+                }
+            },
+            yAxis: {
+                type: 'category',
+                inverse: true,
+                data: labels
+            },
+            toolbox: {
+                show: true,
+                right: 40,
+                feature: {
+                    mark: { show: true },
+                    dataView: {
+                        show: true,
+                        readOnly: true,
+                        title: 'Rohdaten',
+                        lang: ['Rohdaten', 'Abbrechen', 'Neu laden']
+                    },
+                    saveAsImage: { show: true, title: 'Bild speichern' }
+                }
+            },
+            series: seriesData
+        };
+
+        // use configuration item and data specified to show chart
+        chart.setOption(option);
+    }
+
+
+    var showResults = function () {
+        const questionsWithResults = mQuestions.filter(function (question) {
+            return question.status === 2;
+        });
+
+        questionsWithResults.forEach(function (question) {
+            if (question.type === 1) {
+                renderDecisionQuestionResults(question);
+            }
+            else if (question.type === 2) {
+                renderMultipleChoiceQuestionResults(question);
+            }
+            else if (question.type === 3) {
+                renderOrderingQuestionResults(question);
+            }
+
         });
 
     }
