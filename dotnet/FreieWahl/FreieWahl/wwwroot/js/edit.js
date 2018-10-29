@@ -6,13 +6,118 @@ const Edit = (function () {
     let mGrantedRegistrationCount;
     let mQuestions;
 
-    var setQuestions = function(questions) {
+    var setQuestions = function (questions) {
         mQuestions = questions;
+    }
+
+    var findAnswer = function(key, answerOptions) {
+        const answerOption = answerOptions.find(function(answer) {
+            return answer.id === key;
+        });
+
+        return answerOption;
+    };
+
+    var showResults = function () {
+        const questionsWithResults = mQuestions.filter(function (question) {
+            return question.status === 2;
+        });
+
+        questionsWithResults.forEach(function (question) {
+            const targetDiv = $(`.fw-question-results[data-questionid=${question.index}]`);
+            if (targetDiv.length !== 1) {
+                return;
+            }
+
+            const keys = [];
+            const vals = [];
+            let totalNumVotes = 0;
+            question.votes.forEach(function (vote) {
+                if (vote.length > 1) {
+                    console.log('Invalid vote is ignored!');
+                    return;
+                }
+                let key;
+                if (vote.length === 0) {
+                    key = 'Enthaltungen';
+                } else {
+                    key = vote[0];
+                }
+                totalNumVotes += 1;
+                const keyIndex = keys.indexOf(key);
+                if (keyIndex === -1) {
+                    keys.push(key);
+                    vals.push(1);
+                } else {
+                    vals[keyIndex] = vals[keyIndex] + 1;
+                }
+            });
+
+            const seriesData = [];
+            let idx = 0;
+            const legendData = [];
+            for (; idx < vals.length; idx++) {
+                if (keys[idx] === 'Enthaltungen') {
+                    seriesData.push({ 'value': vals[idx], 'name': 'Enthaltungen' });
+                    legendData.push({ name: `Enthaltungen: ${vals[idx]}/${totalNumVotes}` });
+                } else {
+                    const answer = findAnswer(keys[idx], question.answerOptions);
+                    seriesData.push({ 'value': vals[idx], 'name': answer.answer });
+                    legendData.push({ name: `${answer.answer}: ${vals[idx]}/${totalNumVotes}` });
+                }
+            }
+
+            var chart = echarts.init(targetDiv[0]);
+
+            var option = {
+                title: {
+                    text: 'Ergebnisse',
+                    x: 'left'
+                },
+                tooltip: {
+                    trigger: 'item',
+                    formatter: "{b} : {c} ({d}%)"
+                },
+                legend: {
+                    right: 0,
+                    bottom: 0,
+                    orient: 'vertical',
+                    data: ['a', 'b', 'c']
+                },
+                toolbox: {
+                    show: true,
+                    right: 40,
+                    feature: {
+                        mark: { show: true },
+                        dataView: {
+                            show: true,
+                            readOnly: true,
+                            title: 'Rohdaten',
+                            lang: ['Rohdaten', 'Abbrechen', 'Neu laden']
+                        },
+                        saveAsImage: { show: true, title: 'Bild speichern' }
+                    }
+                },
+                series: [
+                    {
+                        name: question.text,
+                        type: 'pie',
+                        data: seriesData
+                    }
+                ]
+            };
+
+            // use configuration item and data specified to show chart
+            chart.setOption(option);
+        });
+
     }
 
     var updateQuestions = function () {
         $('#questionList').load(`QuestionList?id=${mVotingId}`);
+        showResults();
     }
+
 
     var resetNewQuestionModal = function () {
         $('#newQuestionTitle').val('');
@@ -80,7 +185,7 @@ const Edit = (function () {
 
 
     var editQuestion = function (questionIndex) {
-        const question = mQuestions.find(function(question) {
+        const question = mQuestions.find(function (question) {
             return question.index === questionIndex;
         });
 
@@ -186,10 +291,12 @@ const Edit = (function () {
         }
     }
 
-    var init = function (votingId) {
+    var init = function (votingId, questions) {
         mVotingId = votingId;
-        $('#questionList').on('click', ".fwBtnEditQuestion", function() {
-             editQuestion(parseInt($(this).attr("data-questionid")));
+        mQuestions = questions;
+
+        $('#questionList').on('click', ".fwBtnEditQuestion", function () {
+            editQuestion(parseInt($(this).attr("data-questionid")));
         });
         $('#questionList').on('click', ".fwBtnDeleteQuestion", function () {
             deleteQuestion(parseInt($(this).attr("data-questionid")));
@@ -205,6 +312,7 @@ const Edit = (function () {
         $('#questionList').on('click', "#fw-new-question-onboarding", createQuestion);
 
         updateResultCounts();
+        showResults();
         window.setInterval(updateResultCounts, 60000);
     }
 
@@ -361,8 +469,9 @@ const Registration = (function () {
         $('#inviteVotersModal').modal();
     }
 
-    var init = function (votingId) {
+    var init = function (votingId, questions) {
         mVotingId = votingId;
+
         $('#fwBtnShareLink').click(showInviteModal);
         $('#fwBtnGrantAll').click(grantAllRegistrations);
         $('#fwBtnDenyAll').click(denyAllRegistrations);
@@ -390,9 +499,9 @@ const Registration = (function () {
 //-----------------------------------
 // Setup edit screen
 //-----------------------------------
-function setupEditScreen(votingId) {
+function setupEditScreen(votingId, questions) {
     Registration.init(votingId);
-    Edit.init(votingId);
+    Edit.init(votingId, questions);
 
     $(document).on('click',
         '.dropdown-menu',

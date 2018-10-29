@@ -49,6 +49,19 @@ function blinkOnScroll() {
     });
 }
 
+function lazyLoad(url, name) {
+    const className = `.search-script-${name}`;
+    let isLoaded = document.querySelectorAll(className);
+    if (isLoaded.length > 0) {
+        return;
+    }
+
+    let myScript = document.createElement("script");
+    myScript.src = url;
+    myScript.className = className;
+    document.body.appendChild(myScript);
+}
+
 
 //----------------------------------- OVERVIEW FUNCTIONS
 

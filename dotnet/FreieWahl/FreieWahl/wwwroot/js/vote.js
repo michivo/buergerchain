@@ -42,7 +42,7 @@
             {
                 group: `options-group-${questionIdx}`,
                 onRemove: function() {
-                    if ($(`#selected-options-${questionIdx} div.fw-answer-title`).length == 0) {
+                    if ($(`#selected-options-${questionIdx} div.fw-answer-title`).length === 0) {
                         $(`#info-options-${questionIdx}`).show();
                     }
                     if ($(`#selected-options-${questionIdx} div.fw-answer-title`).length <= 3) {

@@ -10,6 +10,7 @@ using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
 using FreieWahl.Application.Registrations;
+using FreieWahl.Application.VotingResults;
 using FreieWahl.Common;
 using FreieWahl.Helpers;
 using FreieWahl.Mail;
@@ -27,6 +28,7 @@ namespace FreieWahl.Controllers
         private readonly IAuthorizationHandler _authorizationHandler;
         private readonly IRemoteTokenStore _remoteTokenStore;
         private readonly IUserDataStore _userDataStore;
+        private readonly IVotingResultManager _votingResults;
 
 
         public VotingAdministrationController(
@@ -35,7 +37,8 @@ namespace FreieWahl.Controllers
             IVotingTokenHandler tokenHandler, 
             IAuthorizationHandler authorizationHandler,
             IRemoteTokenStore remoteTokenStore, 
-            IUserDataStore userDataStore)
+            IUserDataStore userDataStore,
+            IVotingResultManager votingResults)
         {
             _votingStore = votingStore;
             _mailProvider = mailProvider;
@@ -43,6 +46,7 @@ namespace FreieWahl.Controllers
             _authorizationHandler = authorizationHandler;
             _remoteTokenStore = remoteTokenStore;
             _userDataStore = userDataStore;
+            _votingResults = votingResults;
         }
 
         public async Task<IActionResult> Overview()
@@ -160,27 +164,26 @@ namespace FreieWahl.Controllers
             return Ok();
         }
 
-        private long _GetId(string s)
-        {
-            long result = 0;
-            if (string.IsNullOrEmpty(s))
-                return result;
-
-            if (!long.TryParse(s, out result))
-                return 0;
-
-            return result;
-        }
-
         [HttpGet]
         public async Task<IActionResult> Edit(string id, bool isNew = false)
         {
+            var votingId = id.ToId();
+            if (votingId == null)
+            {
+                return BadRequest("Invalid voting id");
+            }
+
             var user = await _GetUserForGetRequest();
 
             if (user == null)
                 return Unauthorized();
 
-            var voting = await _votingStore.GetById(_GetId(id));
+            var voting = await _votingStore.GetById(votingId.Value);
+            List<Vote> votes = null;
+            if (voting.Questions.Any(x => x.Status == QuestionStatus.Locked))
+            {
+                votes = (await _votingResults.GetResults(votingId.Value)).ToList();
+            }
 
             return View(new EditVotingModel
             {
@@ -188,7 +191,7 @@ namespace FreieWahl.Controllers
                 Title = voting.Title,
                 Description = voting.Description,
                 ImageData = voting.ImageData,
-                Questions = voting.Questions.Select(q => new QuestionModel(q, id)).ToList(),
+                Questions = voting.Questions.Select(q => _CreateQuestionModel(q, id, votes)).ToList(),
                 UserInitials = _GetInitials(user.Name),
                 StartDate = voting.StartDate.ToSecondsSinceEpoch(),
                 EndDate = voting.EndDate.ToSecondsSinceEpoch(),
@@ -201,12 +204,23 @@ namespace FreieWahl.Controllers
         [HttpGet]
         public async Task<IActionResult> QuestionList(string id)
         {
+            var votingId = id.ToId();
+            if (votingId == null)
+            {
+                return BadRequest("Invalid voting id");
+            }
+
             var user = await _GetUserForGetRequest();
 
             if (user == null)
                 return Unauthorized();
 
-            var voting = await _votingStore.GetById(_GetId(id));
+            var voting = await _votingStore.GetById(votingId.Value);
+            List<Vote> votes = null;
+            if (voting.Questions.Any(x => x.Status == QuestionStatus.Locked))
+            {
+                votes = (await _votingResults.GetResults(votingId.Value)).ToList();
+            }
 
             return PartialView(new EditVotingModel
             {
@@ -214,7 +228,7 @@ namespace FreieWahl.Controllers
                 Title = voting.Title,
                 Description = voting.Description,
                 ImageData = voting.ImageData,
-                Questions = voting.Questions.Select(q => new QuestionModel(q, id)).ToList(),
+                Questions = voting.Questions.Select(x => _CreateQuestionModel(x, id, votes)).ToList(),
                 UserInitials = _GetInitials(user.Name),
                 StartDate = voting.StartDate.ToSecondsSinceEpoch(),
                 EndDate = voting.EndDate.ToSecondsSinceEpoch(),
@@ -222,12 +236,23 @@ namespace FreieWahl.Controllers
             });
         }
 
+        private static QuestionModel _CreateQuestionModel(Question q, string id, List<Vote> votes)
+        {
+            if(q.Status != QuestionStatus.Locked)
+                return new QuestionModel(q, id, new List<List<string>>());
+
+            return new QuestionModel(q, id, 
+                votes.Where(x => x.QuestionIndex == q.QuestionIndex)
+                    .Select(x => x.SelectedAnswerIds)
+                    .ToList());
+        }
+
         [HttpPost]
         public async Task<IActionResult> UpdateVoting(string id, string title, string desc, string imageData,
             string startDate, string endDate)
         {
-            var idVal = _GetId(id);
-            var operation = idVal == 0 ? Operation.Create : Operation.UpdateVoting;
+            var idVal = id.ToId();
+            var operation = (idVal == null || idVal.Value == 0) ? Operation.Create : Operation.UpdateVoting;
             UserInformation user = await
                 _authorizationHandler.GetAuthorizedUser(id, operation, Request.Cookies["session"]);
             if (user == null)
@@ -263,11 +288,15 @@ namespace FreieWahl.Controllers
             if ((QuestionType) type != QuestionType.Decision && (minNumAnswers > maxNumAnswers || minNumAnswers < 0))
                 return BadRequest("Invalid numer of min/max number of answers");
 
+            var votingId = id.ToId();
+            if (!votingId.HasValue)
+                return BadRequest("Invalid voting id");
+
 
             if (await _authorizationHandler.CheckAuthorization(id, Operation.UpdateQuestion, Request.Cookies["session"]) == false)
                 return Unauthorized();
 
-            var voting = await _votingStore.GetById(_GetId(id)); // TODO - handle missing voting
+            var voting = await _votingStore.GetById(votingId.Value); // TODO - handle missing voting
             var question = _GetQuestion(title, desc, answers, answerDescriptions);
             if (question.Status != QuestionStatus.InPreparation)
             {
@@ -293,8 +322,12 @@ namespace FreieWahl.Controllers
         {
             if (await _authorizationHandler.CheckAuthorization(id, Operation.UpdateQuestion, Request.Cookies["session"]) == false)
                 return Unauthorized();
+            var votingId = id.ToId();
+            var questionId = qid.ToId();
+            if (!votingId.HasValue || !questionId.HasValue)
+                return BadRequest("Invalid votingId/questionid");
 
-            await _votingStore.DeleteQuestion(_GetId(id), (int)_GetId(qid));// TODO: is cast ok here?
+            await _votingStore.DeleteQuestion(votingId.Value, (int)questionId.Value);
             return Ok(); // TODO err handling
         }
 
@@ -303,8 +336,11 @@ namespace FreieWahl.Controllers
         {
             if (await _authorizationHandler.CheckAuthorization(id, Operation.DeleteVoting, Request.Cookies["session"]) == false)
                 return Unauthorized();
+            var votingId = id.ToId();
+            if (!votingId.HasValue)
+                return BadRequest("Invalid voting id");
 
-            await _votingStore.Delete(_GetId(id));
+            await _votingStore.Delete(votingId.Value);
             // TODO error handling
             return Ok();
         }
@@ -418,7 +454,11 @@ namespace FreieWahl.Controllers
 
         private async Task<IActionResult> _UpdateVoting(string id, string title, string desc, string imageData)
         {
-            var voting = await _votingStore.GetById(_GetId(id));
+            var votingId = id.ToId();
+            if (!votingId.HasValue)
+                return BadRequest("Invalid voting id");
+
+            var voting = await _votingStore.GetById(votingId.Value);
             voting.Title = title;
             voting.Description = desc;
             if (!string.IsNullOrEmpty(imageData))

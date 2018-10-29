@@ -6,9 +6,14 @@ namespace FreieWahl.Models.VotingAdministration
 {
     public class QuestionModel
     {
-        public QuestionModel(Question q, string id)
+        public QuestionModel(Question q, string id) : this(q, id, new List<List<string>>())
+        {
+        }
+
+        public QuestionModel(Question q, string id, List<List<string>> votes)
         {
             VotingId = id;
+            Votes = votes;
             Text = q.QuestionText;
             Description = _GetDescription(q.Details);
             Index = q.QuestionIndex;
@@ -39,5 +44,6 @@ namespace FreieWahl.Models.VotingAdministration
         public int MaxNumAnswers { get; set; }
         public List<AnswerModel> AnswerOptions { get; set; }
         public int Index { get; set; }
+        public List<List<string>> Votes { get; set; }
     }
 }
