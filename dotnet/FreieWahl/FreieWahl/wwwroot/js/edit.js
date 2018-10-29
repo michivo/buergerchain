@@ -79,8 +79,12 @@ const Edit = (function () {
     }
 
 
-    var editQuestion = function (question) {
-        $('#modalQuestionOk').off('click').on('click', function () { saveQuestion(question.index); });
+    var editQuestion = function (questionIndex) {
+        const question = mQuestions.find(function(question) {
+            return question.index === questionIndex;
+        });
+
+        $('#modalQuestionOk').off('click').on('click', function () { saveQuestion(questionIndex); });
         $('#newQuestionTitle').val(question.text);
         $('#newQuestionDescription').val(question.description);
         $('#questionType').val(question.type);
