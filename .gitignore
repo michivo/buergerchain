@@ -18,3 +18,5 @@
 /tokenstore/privateconfig.json
 /tokenstore/.vs
 /tokenstore/credentials.json
+/dotnet/FreieWahl/FreieWahl/bower/lib
+/dotnet/FreieWahl/FreieWahl/node_modules
