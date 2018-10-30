@@ -41,15 +41,28 @@
 </head>
 <body>
     @RenderBody()
-<footer class="border-top mt-3 pb-1 border-top" style="height: 2.5rem;">
-    <div class="d-flex justify-content-between">
-        <div class="px-3">
-            @Html.ActionLink("Impressum", "Impressum", "Home", new { }, new { @class = "border-top border-bottom rounded px-2 py-1 mx-2 bg-light" }) @Html.ActionLink("Über uns", "About", "Home", new { }, new { @class = "border-top border-bottom rounded px-2 py-1 m-2 bg-light" })
-
+<footer class="border-top mt-3 border-top">
+    <nav class="navbar navbar-expand-lg navbar-light bg-light py-0" style="height: 2.5rem">
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarFooter" aria-controls="navbarFooter" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarFooter">
+            <ul class="navbar-nav">
+                <li class="nav-item">
+                    @Html.ActionLink("Impressum", "Impressum", "Home", new { }, new { @class = "nav-link" })
+                </li>
+                <li class="nav-item">
+                    @Html.ActionLink("Über uns", "About", "Home", new { }, new { @class = "nav-link" })
+                </li>
+            </ul>
+            <ul class="navbar-nav ml-auto">
+                <li class="nav-item">
+                    <a href="http://www.netidee.at" target="_blank" class="nav-link">supported by <img src="~/images/netidee_logo.png" height="30" width="119" alt="netidee Logo" /></a>
+                </li>
+            </ul>
         </div>
-        <div class="px-2">supported by <a href="http://www.netidee.at" target="_blank"><img src="~/images/netidee_logo.png" height="30" width="119" alt="netidee Logo"/></a></div>
-    </div>
-    
+    </nav>
+
 </footer>
     <environment names="Development">
         <script src="~/lib/jquery/dist/jquery.min.js"></script>
