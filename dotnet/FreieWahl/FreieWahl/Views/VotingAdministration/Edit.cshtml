@@ -116,13 +116,8 @@
 @section scripts {
     <script src="~/js/bootstrap-datepicker.min.js"></script>
     <script src="~/js/edit.js" asp-append-version="true"></script>
-    
-    <environment names="Development">
-        <script src="~/lib/echarts/dist/echarts-en.common.min.js"></script>
-    </environment>
-    <environment names="Staging,Production">
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/echarts/4.1.0/echarts-en.common.min.js" integrity="sha256-PXZ+rlU8rLmI+s7pWJJQjdzV4Y7dZ41gs6rAXpfZhjQ=" crossorigin="anonymous"></script>
-    </environment>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/echarts/4.1.0/echarts-en.common.min.js" integrity="sha256-PXZ+rlU8rLmI+s7pWJJQjdzV4Y7dZ41gs6rAXpfZhjQ=" crossorigin="anonymous"></script>
 
     <script>
         initApp();
