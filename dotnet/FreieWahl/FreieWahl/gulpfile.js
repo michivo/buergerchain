@@ -20,7 +20,8 @@ paths.concatCssDest = paths.webroot + "css/site.min.css";
 
 gulp.task("clean:js", done => rimraf(paths.concatJsDest, done));
 gulp.task("clean:css", done => rimraf(paths.concatCssDest, done));
-gulp.task("clean", gulp.series(["clean:js", "clean:css"]));
+gulp.task("clean:dist", done => rimraf(paths.webroot + "lib", done));
+gulp.task("clean", gulp.series(["clean:js", "clean:css", "clean:dist"]));
 
 gulp.task("min:js", () => {
     return gulp.src([paths.js, "!" + paths.minJs], { base: "." })
@@ -41,8 +42,23 @@ gulp.task("min", gulp.series(["min:js", "min:css"]));
 // A 'default' task is required by Gulp v4
 gulp.task("default", gulp.series(["min"]));
 
-gulp.task('copy', function (done) {
-    gulp.src('./bower/lib/jquery/dist/jquery.min.js')
+gulp.task('copy:jquery', function (done) {
+    return gulp.src('./bower/lib/jquery/dist/jquery.min.js')
         .pipe(gulp.dest('./wwwroot/lib/jquery'));
-    done();
+});
+
+gulp.task('copy', function (done) {
+    return gulp.src(
+        ['./bower/lib/jquery/dist/jquery.min.js',
+            './bower/lib/jquery-ui/jquery-ui.min.js',
+            './bower/lib/firebase/firebase-app.js',
+            './bower/lib/firebase/firebase-auth.js',
+            './bower/lib/bootstrap-datepicker/dist/css/bootstrap-datepicker3.standalone.min.css',
+            './bower/lib/bootstrap-datepicker/dist/js/bootstrap-datepicker.min.js',
+            './bower/lib/bootstrap-datepicker/dist/locales/bootstrap-datepicker.de.min.js',
+            './bower/lib/slick-carousel/slick/slick.css',
+            './bower/lib/slick-carousel/slick/slick-theme.css',
+            './bower/lib/slick-carousel/slick/slick.js',
+            './bower/lib/popper.js/dist/umd/popper.min.js'], { base: './bower/lib'})
+        .pipe(gulp.dest('./wwwroot/lib'));
 });

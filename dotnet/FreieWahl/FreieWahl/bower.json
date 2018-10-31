@@ -6,7 +6,8 @@
     "bootstrap-datepicker": "v1.8.0",
     "jquery-ui": "1.12.1",
     "slick-carousel": "v1.8.1",
-    "jQuery": "3.3.1"
+    "jQuery": "3.3.1",
+    "popper.js": "v1.14.4"
   },
   "resolutions": {
     "firebaseui": "v2.6.3",
