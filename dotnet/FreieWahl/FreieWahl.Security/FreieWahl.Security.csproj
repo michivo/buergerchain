@@ -7,6 +7,7 @@
   <ItemGroup>
     <PackageReference Include="AspNetCore.Firebase.Authentication" Version="2.0.1" />
     <PackageReference Include="Google.Cloud.Datastore.V1" Version="2.1.0" />
+    <PackageReference Include="Google.Cloud.Firestore" Version="1.0.0-beta13" />
     <PackageReference Include="Portable.BouncyCastle" Version="1.8.3.37" />
   </ItemGroup>
 
@@ -17,6 +18,9 @@
   <ItemGroup>
     <Reference Include="Google.Cloud.Datastore.V1">
       <HintPath>C:\Users\Michael\.nuget\packages\google.cloud.datastore.v1\2.1.0\lib\netstandard1.5\Google.Cloud.Datastore.V1.dll</HintPath>
+    </Reference>
+    <Reference Include="Google.Cloud.Firestore">
+      <HintPath>C:\Users\Michael\.nuget\packages\google.cloud.firestore\1.0.0-beta13\lib\netstandard1.5\Google.Cloud.Firestore.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.AspNetCore.WebUtilities">
       <HintPath>C:\Users\Michael\.nuget\packages\microsoft.aspnetcore.webutilities\2.0.0\lib\netstandard2.0\Microsoft.AspNetCore.WebUtilities.dll</HintPath>

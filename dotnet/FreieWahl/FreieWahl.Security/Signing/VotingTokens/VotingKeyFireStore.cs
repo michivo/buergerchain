@@ -4,22 +4,23 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Google.Cloud.Datastore.V1;
+using Google.Cloud.Firestore;
 using Org.BouncyCastle.Crypto;
 using Org.BouncyCastle.OpenSsl;
+using Query = Google.Cloud.Datastore.V1.Query;
 
 namespace FreieWahl.Security.Signing.VotingTokens
 {
     public class VotingKeyFireStore : IVotingKeyStore
     {
-        private readonly DatastoreDb _db;
-        private const string StoreKind = "VotingTokenKeys";
-        private readonly KeyFactory _keyFactory;
+        private readonly FirestoreDb _db;
+        private readonly string _collection = "VotingTokenKeys";
         private readonly Dictionary<string, Dictionary<int, AsymmetricCipherKeyPair>> _keyCache;
 
-        public VotingKeyFireStore(string projectId, string prefix = "", DatastoreClient client = null)
+        public VotingKeyFireStore(string projectId, string prefix = "")
         {
-            _db = DatastoreDb.Create(projectId);
-            _keyFactory = new KeyFactory(projectId, string.Empty, StoreKind);
+            _collection = prefix + _collection;
+            _db = FirestoreDb.Create(projectId);
             _keyCache = new Dictionary<string, Dictionary<int, AsymmetricCipherKeyPair>>();
         }
 
@@ -36,7 +37,7 @@ namespace FreieWahl.Security.Signing.VotingTokens
                 }
                 return new Entity()
                 {
-                    Key = _keyFactory.CreateIncompleteKey(),
+                    //Key = _keyFactory.CreateIncompleteKey(),
                     ["PrivateKey1"] = privateKeyPart1,
                     ["PrivateKey2"] = privateKeyPart2,
                     ["VotingId"] = votingId,
@@ -45,7 +46,7 @@ namespace FreieWahl.Security.Signing.VotingTokens
             });
 
             // TODO: what if entries with the same voting id already exist?
-            await _db.InsertAsync(entities.ToArray()).ConfigureAwait(false);
+            //await _db.InsertAsync(entities.ToArray()).ConfigureAwait(false);
             _keyCache[votingId] = keys;
         }
 
@@ -66,30 +67,31 @@ namespace FreieWahl.Security.Signing.VotingTokens
                 return _keyCache[votingId][index];
             }
 
-            var query = new Query(StoreKind)
-            {
-                Filter = Filter.And(Filter.Equal("VotingId", votingId),
-                    Filter.Equal("KeyIndex", index)),
-                Limit = 1
-            };
+            //var query = new Query(StoreKind)
+            //{
+            //    Filter = Filter.And(Filter.Equal("VotingId", votingId),
+            //        Filter.Equal("KeyIndex", index)),
+            //    Limit = 1
+            //};
 
-            var queryResult = _db.RunQuery(query);
-            if (queryResult.Entities.Count != 1)
-            {
-                throw new InvalidOperationException(
-                    "Error getting query results, no key pair for given voting id and index");
-            }
+            //var queryResult = _db.RunQuery(query);
+            //if (queryResult.Entities.Count != 1)
+            //{
+            //    throw new InvalidOperationException(
+            //        "Error getting query results, no key pair for given voting id and index");
+            //}
 
-            var entity = queryResult.Entities.Single();
-            var privateKey = entity["PrivateKey1"].StringValue + entity["PrivateKey2"].StringValue;
+            //var entity = queryResult.Entities.Single();
+            //var privateKey = entity["PrivateKey1"].StringValue + entity["PrivateKey2"].StringValue;
 
-            var privateKeyReader = new PemReader(new StringReader(privateKey));
-            var privateKeyObj = privateKeyReader.ReadObject();
+            //var privateKeyReader = new PemReader(new StringReader(privateKey));
+            //var privateKeyObj = privateKeyReader.ReadObject();
 
-            var result = (AsymmetricCipherKeyPair)privateKeyObj;
-            _AddToCache(votingId, index, result);
+            //var result = (AsymmetricCipherKeyPair)privateKeyObj;
+            //_AddToCache(votingId, index, result);
 
-            return result;
+            //return result;
+            return null;
         }
 
         private void _AddToCache(string votingId, int index, AsymmetricCipherKeyPair result)
