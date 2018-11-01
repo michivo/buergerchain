@@ -262,7 +262,7 @@ const Edit = (function () {
 
             },
             grid: {
-                left: 100
+                left: 200
             },
             xAxis: {
                 type: 'value',
@@ -496,6 +496,17 @@ const Edit = (function () {
         }
     }
 
+    var unlockQuestion = function(questionIndex) {
+        $.post({
+            url: 'UnlockQuestion',
+            data: { "votingId": mVotingId, "questionIndex": questionIndex },
+            success: function (data) {
+                updateQuestions();
+            }
+            // error: todo
+        });
+    }
+
     var init = function (votingId, questions) {
         mVotingId = votingId;
         mQuestions = questions;
@@ -689,8 +700,8 @@ const Registration = (function () {
         $('#openRegistrationsList').on('click', '.fwBtnGrantRegistration', function () {
             grantRegistration([$(this).attr('data-registration-id')]);
         });
-        $('#denyRegistrationsList').on('click', '.fwBtnDenyRegistration', function () {
-            grantRegistration([$(this).attr('data-registration-id')]);
+        $('#openRegistrationsList').on('click', '.fwBtnDenyRegistration', function () {
+            denyRegistration([$(this).attr('data-registration-id')]);
         });
 
         updateRegistrations();

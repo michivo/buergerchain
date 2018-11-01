@@ -112,18 +112,14 @@ namespace FreieWahl.Controllers
             if (!isAuthorized)
                 return Unauthorized();
 
-            var id = votingId.ToId();
-            if (id == null)
-                return BadRequest();
-
-            var voting = await _votingStore.GetById(id.Value);
+            var voting = await _votingStore.GetById(votingId);
             var question = voting.Questions.SingleOrDefault(x => x.QuestionIndex == questionIndex);
 
             if (question == null || question.Status != QuestionStatus.InPreparation)
                 return BadRequest();
 
             question.Status = QuestionStatus.OpenForVoting;
-            await _votingStore.UpdateQuestion(id.Value, question);
+            await _votingStore.UpdateQuestion(votingId, question);
 
             return Ok();
         }
@@ -135,18 +131,14 @@ namespace FreieWahl.Controllers
             if (!isAuthorized)
                 return Unauthorized();
 
-            var id = votingId.ToId();
-            if (id == null)
-                return BadRequest();
-
-            var voting = await _votingStore.GetById(id.Value);
+            var voting = await _votingStore.GetById(votingId);
             var question = voting.Questions.SingleOrDefault(x => x.QuestionIndex == questionIndex);
 
             if (question == null || question.Status != QuestionStatus.OpenForVoting)
                 return BadRequest();
 
             question.Status = QuestionStatus.Locked;
-            await _votingStore.UpdateQuestion(id.Value, question);
+            await _votingStore.UpdateQuestion(votingId, question);
 
             return Ok();
         }
@@ -167,22 +159,16 @@ namespace FreieWahl.Controllers
         [HttpGet]
         public async Task<IActionResult> Edit(string id, bool isNew = false)
         {
-            var votingId = id.ToId();
-            if (votingId == null)
-            {
-                return BadRequest("Invalid voting id");
-            }
-
             var user = await _GetUserForGetRequest();
 
             if (user == null)
                 return Unauthorized();
 
-            var voting = await _votingStore.GetById(votingId.Value);
+            var voting = await _votingStore.GetById(id);
             List<Vote> votes = null;
             if (voting.Questions.Any(x => x.Status == QuestionStatus.Locked))
             {
-                votes = (await _votingResults.GetResults(votingId.Value)).ToList();
+                votes = (await _votingResults.GetResults(id)).ToList();
             }
 
             return View(new EditVotingModel
@@ -204,22 +190,16 @@ namespace FreieWahl.Controllers
         [HttpGet]
         public async Task<IActionResult> QuestionList(string id)
         {
-            var votingId = id.ToId();
-            if (votingId == null)
-            {
-                return BadRequest("Invalid voting id");
-            }
-
             var user = await _GetUserForGetRequest();
 
             if (user == null)
                 return Unauthorized();
 
-            var voting = await _votingStore.GetById(votingId.Value);
+            var voting = await _votingStore.GetById(id);
             List<Vote> votes = null;
             if (voting.Questions.Any(x => x.Status == QuestionStatus.Locked))
             {
-                votes = (await _votingResults.GetResults(votingId.Value)).ToList();
+                votes = (await _votingResults.GetResults(id)).ToList();
             }
 
             return PartialView(new EditVotingModel
@@ -261,20 +241,12 @@ namespace FreieWahl.Controllers
             var startTimeValue = DateTime.Parse(startDate, null, DateTimeStyles.RoundtripKind);
             var endTimeValue = DateTime.Parse(endDate, null, DateTimeStyles.RoundtripKind);
 
-            if (idVal != 0)
+            if (idVal.HasValue && idVal.Value != 0)
             {
                 return await _UpdateVoting(id, title, desc, imageData);
             }
 
             return await _InsertVoting(title, desc, user, imageData, startTimeValue, endTimeValue);
-        }
-
-        private DateTime _GetDateTime(string date, string time)
-        {
-            if (!string.IsNullOrEmpty(time) && time.Count(x => x == ':') == 1)
-                time += ":00";
-            var result = DateTime.Parse(date + " " + time);
-            return result;
         }
 
         [HttpPost]
@@ -288,15 +260,10 @@ namespace FreieWahl.Controllers
             if ((QuestionType) type != QuestionType.Decision && (minNumAnswers > maxNumAnswers || minNumAnswers < 0))
                 return BadRequest("Invalid numer of min/max number of answers");
 
-            var votingId = id.ToId();
-            if (!votingId.HasValue)
-                return BadRequest("Invalid voting id");
-
-
             if (await _authorizationHandler.CheckAuthorization(id, Operation.UpdateQuestion, Request.Cookies["session"]) == false)
                 return Unauthorized();
 
-            var voting = await _votingStore.GetById(votingId.Value); // TODO - handle missing voting
+            var voting = await _votingStore.GetById(id); // TODO - handle missing voting
             var question = _GetQuestion(title, desc, answers, answerDescriptions);
             if (question.Status != QuestionStatus.InPreparation)
             {
@@ -322,12 +289,11 @@ namespace FreieWahl.Controllers
         {
             if (await _authorizationHandler.CheckAuthorization(id, Operation.UpdateQuestion, Request.Cookies["session"]) == false)
                 return Unauthorized();
-            var votingId = id.ToId();
             var questionId = qid.ToId();
-            if (!votingId.HasValue || !questionId.HasValue)
+            if (!questionId.HasValue)
                 return BadRequest("Invalid votingId/questionid");
 
-            await _votingStore.DeleteQuestion(votingId.Value, (int)questionId.Value);
+            await _votingStore.DeleteQuestion(id, (int)questionId.Value);
             return Ok(); // TODO err handling
         }
 
@@ -336,11 +302,8 @@ namespace FreieWahl.Controllers
         {
             if (await _authorizationHandler.CheckAuthorization(id, Operation.DeleteVoting, Request.Cookies["session"]) == false)
                 return Unauthorized();
-            var votingId = id.ToId();
-            if (!votingId.HasValue)
-                return BadRequest("Invalid voting id");
 
-            await _votingStore.Delete(votingId.Value);
+            await _votingStore.Delete(id);
             // TODO error handling
             return Ok();
         }
@@ -351,11 +314,7 @@ namespace FreieWahl.Controllers
             if (await _authorizationHandler.CheckAuthorization(votingId, Operation.Invite, Request.Cookies["session"]) == false)
                 return Unauthorized();
 
-            var id = votingId.ToId();
-            if (!id.HasValue)
-                return BadRequest();
-
-            var voting = await _votingStore.GetById(id.Value);
+            var voting = await _votingStore.GetById(votingId);
             var registrationUrl = _GetRegistrationUrl(votingId);
             var registrationUrlLink = "<a href=\"" + registrationUrl + "\">" + registrationUrl + "</a>";
             var dateString = voting.StartDate.ToString("HH:mm") + " am " + voting.StartDate.ToString("dd.MM.yyyy");
@@ -454,11 +413,7 @@ namespace FreieWahl.Controllers
 
         private async Task<IActionResult> _UpdateVoting(string id, string title, string desc, string imageData)
         {
-            var votingId = id.ToId();
-            if (!votingId.HasValue)
-                return BadRequest("Invalid voting id");
-
-            var voting = await _votingStore.GetById(votingId.Value);
+            var voting = await _votingStore.GetById(id);
             voting.Title = title;
             voting.Description = desc;
             if (!string.IsNullOrEmpty(imageData))

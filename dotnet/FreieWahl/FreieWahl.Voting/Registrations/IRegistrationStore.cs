@@ -9,16 +9,14 @@ namespace FreieWahl.Voting.Registrations
 
         Task AddCompletedRegistration(CompletedRegistration openRegistration);
 
-        Task<OpenRegistration> GetOpenRegistration(long id);
+        Task RemoveOpenRegistration(string id);
 
-        Task RemoveOpenRegistration(long id);
-
-        Task<IReadOnlyList<OpenRegistration>> GetOpenRegistrationsForVoting(long votingId);
+        Task<IReadOnlyList<OpenRegistration>> GetOpenRegistrationsForVoting(string votingId);
 
         Task<OpenRegistration> GetOpenRegistration(string registrationStoreId);
 
-        Task<IReadOnlyList<CompletedRegistration>> GetCompletedRegistrations(long votingId);
+        Task<IReadOnlyList<CompletedRegistration>> GetCompletedRegistrations(string votingId);
 
-        Task<bool> IsRegistrationUnique(string dataSigneeId, long votingId);
+        Task<bool> IsRegistrationUnique(string dataSigneeId, string votingId);
     }
 }

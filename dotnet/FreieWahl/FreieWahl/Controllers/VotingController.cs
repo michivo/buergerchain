@@ -35,11 +35,7 @@ namespace FreieWahl.Controllers
 
         public async Task<IActionResult> Register(string votingId)
         {
-            var id = votingId.ToId();
-            if (!id.HasValue)
-                return BadRequest("Invalid votingId");
-
-            var voting = await _votingStore.GetById(id.Value);
+            var voting = await _votingStore.GetById(votingId);
             ViewData["VotingId"] = votingId;
             ViewData["RegistrationStoreId"] = Guid.NewGuid().ToString("D");
             ViewData["VotingTitle"] = voting.Title;
@@ -54,11 +50,7 @@ namespace FreieWahl.Controllers
         [HttpGet]
         public async Task<IActionResult> Vote(string votingId, string voterId)
         {
-            var id = votingId.ToId();
-            if (id.HasValue == false)
-                return BadRequest("Invalid voting id");
-
-            var voting = await _votingStore.GetById(id.Value);
+            var voting = await _votingStore.GetById(votingId);
             if (voting == null)
             {
                 return BadRequest("No voting with the given id");
@@ -87,19 +79,13 @@ namespace FreieWahl.Controllers
 
         public async Task<IActionResult> GetQuestion(string votingId, string voterId, int questionIndex, string token)
         {
-            var id = votingId.ToId();
-            if (!id.HasValue)
-            {
-                return BadRequest("Invalid voting id!");
-            }
-
-            var voting = await _votingStore.GetById(id.Value);
+            var voting = await _votingStore.GetById(votingId);
             if (voting == null)
             {
                 return BadRequest("No voting with the given id");
             }
 
-            var votes = await _votingResultManager.GetResults(id.Value, new[] { token });
+            var votes = await _votingResultManager.GetResults(votingId, new[] { token });
             var vote = votes.SingleOrDefault();
             var answerIds = vote?.SelectedAnswerIds ?? new List<string>();
 
@@ -123,13 +109,7 @@ namespace FreieWahl.Controllers
 
         public async Task<IActionResult> GetResults(string votingId, int questionIndex)
         {
-            var id = votingId.ToId();
-            if (!id.HasValue)
-            {
-                return BadRequest("Invalid voting id!");
-            }
-
-            var results = await _votingResultManager.GetResults(id.Value, questionIndex);
+            var results = await _votingResultManager.GetResults(votingId, questionIndex);
             var model = new QuestionResultModel()
             {
                 SelectedAnswerIds = results.Select(x => x.SelectedAnswerIds.ToArray()).ToArray()
@@ -139,19 +119,13 @@ namespace FreieWahl.Controllers
 
         public async Task<IActionResult> GetQuestions(string votingId, string voterId, string[] tokens)
         {
-            var id = votingId.ToId();
-            if (!id.HasValue)
-            {
-                return BadRequest("Invalid voting id!");
-            }
-
-            var voting = await _votingStore.GetById(id.Value);
+            var voting = await _votingStore.GetById(votingId);
             if (voting == null)
             {
                 return BadRequest("No voting with the given id");
             }
 
-            var votes = await _votingResultManager.GetResults(id.Value, tokens);
+            var votes = await _votingResultManager.GetResults(votingId, tokens);
 
             var questions = voting.Questions
                 .Where(x => x.Status == QuestionStatus.OpenForVoting)
@@ -168,11 +142,7 @@ namespace FreieWahl.Controllers
         [HttpPost]
         public async Task<IActionResult> GetNumberOfAnswers(string votingId, int[] questionIndices)
         {
-            var id = votingId.ToId();
-            if (!id.HasValue)
-                return BadRequest();
-
-            var results = await _votingResultManager.GetResults(id.Value);
+            var results = await _votingResultManager.GetResults(votingId);
             var answerCounts = results.Where(x => questionIndices.Contains(x.QuestionIndex))
                 .GroupBy(x => x.QuestionIndex)
                 .OrderBy(x => x.Key)
@@ -208,11 +178,7 @@ namespace FreieWahl.Controllers
         [HttpGet]
         public async Task<IActionResult> CastVote(string votingId, string voterId, int questionIndex)
         {
-            var id = votingId.ToId();
-            if (id.HasValue == false)
-                return BadRequest("Invalid voting id");
-
-            var voting = await _votingStore.GetById(id.Value);
+            var voting = await _votingStore.GetById(votingId);
             if (voting == null)
             {
                 return BadRequest("No voting with the given id");
@@ -242,8 +208,7 @@ namespace FreieWahl.Controllers
         public async Task<IActionResult> SubmitVote(string votingId, int questionIndex, string[] answerIds,
             string signedToken, string token)
         {
-            var votingIdVal = long.Parse(votingId);
-            await _votingResultManager.StoreVote(votingIdVal, questionIndex, answerIds.ToList(), token,
+            await _votingResultManager.StoreVote(votingId, questionIndex, answerIds.ToList(), token,
                 signedToken);
             return Ok();
         }

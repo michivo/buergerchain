@@ -1,12 +1,16 @@
 ﻿using System;
 using FreieWahl.Voting.Common;
+using Google.Cloud.Firestore;
 
 namespace FreieWahl.Voting.Models
 {
+    [FirestoreData]
     public class QuestionDetail : IEquatable<QuestionDetail>
     {
+        [FirestoreProperty]
         public QuestionDetailType DetailType { get; set; }
 
+        [FirestoreProperty]
         public string DetailValue { get; set; }
 
         public bool Equals(QuestionDetail other)

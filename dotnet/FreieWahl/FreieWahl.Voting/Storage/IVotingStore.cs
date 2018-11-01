@@ -10,24 +10,24 @@ namespace FreieWahl.Voting.Storage
 
         Task Update(StandardVoting voting);
 
-        Task<StandardVoting> GetById(long id);
+        Task<StandardVoting> GetById(string id);
 
         Task<IEnumerable<StandardVoting>> GetForUserId(string userId);
 
         Task<IEnumerable<StandardVoting>> GetAll();
 
-        void ClearAll();
+        Task ClearAll();
 
-        Task AddQuestion(long votingId, Question question);
+        Task AddQuestion(string votingId, Question question);
 
-        Task DeleteQuestion(long votingId, int questionIndex);
+        Task DeleteQuestion(string votingId, int questionIndex);
 
-        Task ClearQuestions(long votingId);
+        Task ClearQuestions(string votingId);
 
-        Task UpdateQuestion(long votingId, Question question);
+        Task UpdateQuestion(string votingId, Question question);
 
-        Task UpdateState(long votingId, VotingState state);
+        Task UpdateState(string votingId, VotingState state);
 
-        Task Delete(long votingId);
+        Task Delete(string votingId);
     }
 }

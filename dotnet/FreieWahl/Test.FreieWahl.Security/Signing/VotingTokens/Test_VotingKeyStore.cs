@@ -63,10 +63,10 @@ namespace Test.FreieWahl.Security.Signing.VotingTokens
                 {2, keys2 }
             };
 
-            await _votingStore.StoreKeyPairs(1234, keyDict);
+            await _votingStore.StoreKeyPairs("1234", keyDict);
 
-            var readKeys1 = _votingStore.GetKeyPair(1234, 1);
-            var readKeys2 = _votingStore.GetKeyPair(1234, 2);
+            var readKeys1 = _votingStore.GetKeyPair("1234", 1);
+            var readKeys2 = _votingStore.GetKeyPair("1234", 2);
             var private1 = (RsaPrivateCrtKeyParameters) readKeys1.Private;
             var private2 = (RsaPrivateCrtKeyParameters) readKeys2.Private;
 

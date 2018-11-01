@@ -4,7 +4,7 @@ namespace FreieWahl.Voting.Models
 {
     public class Vote
     {
-        public long VotingId { get; set; }
+        public string VotingId { get; set; }
 
         public int QuestionIndex { get; set; }
 

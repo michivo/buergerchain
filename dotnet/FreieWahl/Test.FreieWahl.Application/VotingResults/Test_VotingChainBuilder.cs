@@ -77,7 +77,7 @@ namespace Test.FreieWahl.Application.VotingResults
             {
                 QuestionIndex = 234,
                 PreviousBlockSignature = genesis,
-                VotingId = 123456,
+                VotingId = "123456",
                 SignedToken = "Foobar",
                 Token = "Barfoo",
                 TimestampData = "Ruffruff",
@@ -87,7 +87,7 @@ namespace Test.FreieWahl.Application.VotingResults
             {
                 QuestionIndex = 234,
                 PreviousBlockSignature = genesis,
-                VotingId = 123456,
+                VotingId = "123456",
                 SignedToken = "Foobar",
                 Token = "Barfoo",
                 TimestampData = "Ruffruff",
@@ -98,7 +98,7 @@ namespace Test.FreieWahl.Application.VotingResults
             {
                 QuestionIndex = 234,
                 PreviousBlockSignature = genesis,
-                VotingId = 123456,
+                VotingId = "123456",
                 SignedToken = "Foobar",
                 Token = "Barfoo",
                 TimestampData = "Ruffruff",
@@ -147,7 +147,7 @@ namespace Test.FreieWahl.Application.VotingResults
             {
                 QuestionIndex = 234,
                 PreviousBlockSignature = genesis,
-                VotingId = 123456,
+                VotingId = "123456",
                 SignedToken = "Foobar",
                 Token = "Barfoo",
                 TimestampData = "Ruffruff",
@@ -160,7 +160,7 @@ namespace Test.FreieWahl.Application.VotingResults
             {
                 QuestionIndex = 234,
                 PreviousBlockSignature = nextSig,
-                VotingId = 123457,
+                VotingId = "123457",
                 SignedToken = "Foobar",
                 Token = "Barfoo",
                 TimestampData = "Ruffruff",
@@ -173,7 +173,7 @@ namespace Test.FreieWahl.Application.VotingResults
             {
                 QuestionIndex = 234,
                 PreviousBlockSignature = nextSig,
-                VotingId = 123458,
+                VotingId = "123458",
                 SignedToken = "Foaobar",
                 Token = "Barfoo",
                 TimestampData = "Ruffruff",

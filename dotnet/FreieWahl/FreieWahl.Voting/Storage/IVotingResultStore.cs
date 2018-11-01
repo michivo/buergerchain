@@ -8,10 +8,10 @@ namespace FreieWahl.Voting.Storage
     {
         Task StoreVote(Vote v);
 
-        Task<IReadOnlyCollection<Vote>> GetVotes(long votingId);
+        Task<IReadOnlyCollection<Vote>> GetVotes(string votingId);
 
-        Task<IReadOnlyCollection<Vote>> GetVotes(long votingId, int questionIndex);
+        Task<IReadOnlyCollection<Vote>> GetVotes(string votingId, int questionIndex);
         
-        Task<Vote> GetLastVote(long votingId, int questionIndex);
+        Task<Vote> GetLastVote(string votingId, int questionIndex);
     }
 }

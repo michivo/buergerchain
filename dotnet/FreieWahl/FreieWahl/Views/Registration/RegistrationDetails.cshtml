@@ -21,7 +21,7 @@
                     <div class="d-flex flex-column justify-content-between">
                         <div class="bg-light text-primary d-flex flex-row align-items-center" style="font-size:1.5rem;font-weight:100">
                             <div><i class="material-icons text-primary mx-2" style="font-size: 3rem;">date_range</i></div>
-                            <div class="px-2">Start: @ViewData["StartDate"]<br />Ende: @ViewData["EndDate"]</div>
+                            <div class="px-2" id="fwDateInfo"></div>
                         </div>
                     </div>
                 </div>
@@ -80,34 +80,49 @@
     </div>
 </div>
 
-<script>
-    function saveRegistration() {
-        var mail = $('#inputEmail').val();
-        var pwd = $('#inputPassword').val();
-        $('#inputEmail').disabled = true;
-        $('#inputPassword').disabled = true;
+@section scripts
+{
+    <script>
+        function saveRegistration() {
+            var mail = $('#inputEmail').val();
+            var pwd = $('#inputPassword').val();
+            $('#inputEmail').disabled = true;
+            $('#inputPassword').disabled = true;
 
-        $.ajax({
-            url: '@ViewData["RegistrationStoreSaveRegUrl"]',
-            data: { "id": '@ViewData["RegistrationStoreId"]', "tokenCount": @ViewData["TokenCount"], "mail": mail, "password": pwd, "votingId": '@ViewData["VotingId"]' },
-            type: 'POST',
-            datatype: 'json',
-            success: function(x) {
-                showRegistrationSuccess();
-            },
-            error: function (x) {
-                window.location.href = 'RegistrationError?reason=error&votingId=@ViewData["VotingId"]';
-            }
-        });
-    }
+            $.ajax({
+                url: '@ViewData["RegistrationStoreSaveRegUrl"]',
+                data: { "id": '@ViewData["RegistrationStoreId"]', "tokenCount": @ViewData["TokenCount"],
+                    "mail": mail,
+                    "password": pwd,
+                    "votingId": '@ViewData["VotingId"]'
+                },
+                type: 'POST',
+                datatype: 'json',
+                success: function(x) {
+                    showRegistrationSuccess();
+                },
+                error: function(x) {
+                    window.location.href = 'RegistrationError?reason=error&votingId=@ViewData["VotingId"]';
+                }
+            });
+        }
 
-    function showRegistrationSuccess() {
-        $('#detailsInput').hide();
-        $('#registrationSuccess').show();
-        $('#progressStatusContact').addClass('text-lightgray');
-        $('#progressStatusContact').removeClass('text-primary');
-        $('#progressStatusDone').remove('text-lightgray');
-        $('#progressStatusDone').addClass('text-primary');
-        $('#registrationProgress').css('width', '100%').attr('aria-valuenow', 100);
-    }
-</script>
+        function showRegistrationSuccess() {
+            $('#detailsInput').hide();
+            $('#registrationSuccess').show();
+            $('#progressStatusContact').addClass('text-lightgray');
+            $('#progressStatusContact').removeClass('text-primary');
+            $('#progressStatusDone').remove('text-lightgray');
+            $('#progressStatusDone').addClass('text-primary');
+            $('#registrationProgress').css('width', '100%').attr('aria-valuenow', 100);
+        }
+
+        function init() {
+            const startDate = formatDateTimeSeconds(@ViewData["StartDate"], false);
+            const endDate = formatDateTimeSeconds(@ViewData["EndDate"], false);
+            $('#fwDateInfo').html(`Start: ${startDate}<br />Ende: ${endDate}`);
+        }
+
+        init();
+    </script>
+}

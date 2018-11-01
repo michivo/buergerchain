@@ -6,8 +6,8 @@ namespace FreieWahl.Security.Signing.VotingTokens
 {
     public interface IVotingKeyStore
     {
-        Task StoreKeyPairs(long votingId, Dictionary<int, AsymmetricCipherKeyPair> keys);
+        Task StoreKeyPairs(string votingId, Dictionary<int, AsymmetricCipherKeyPair> keys);
 
-        AsymmetricCipherKeyPair GetKeyPair(long votingId, int index);
+        AsymmetricCipherKeyPair GetKeyPair(string votingId, int index);
     }
 }

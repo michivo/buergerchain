@@ -23,8 +23,8 @@ namespace FreieWahl.Application.VotingResults
         private readonly IVotingChainBuilder _votingChainBuilder;
         private readonly IVotingStore _votingStore;
         private readonly SHA256Managed _hasher;
-        private readonly Dictionary<long, Dictionary<int, Vote>> _lastVoteCache;
-        private readonly Dictionary<long, Dictionary<int, SemaphoreSlim>> _voteStoreLocks;
+        private readonly Dictionary<string, Dictionary<int, Vote>> _lastVoteCache;
+        private readonly Dictionary<string, Dictionary<int, SemaphoreSlim>> _voteStoreLocks;
 
         public VotingResultManager(ITimestampService timestampService,
             IVotingTokenHandler votingTokenHandler, IVotingResultStore votingResultStore,
@@ -37,11 +37,11 @@ namespace FreieWahl.Application.VotingResults
             _votingChainBuilder = votingChainBuilder;
             _votingStore = votingStore;
             _hasher = new SHA256Managed();
-            _lastVoteCache = new Dictionary<long, Dictionary<int, Vote>>();
-            _voteStoreLocks = new Dictionary<long, Dictionary<int, SemaphoreSlim>>();
+            _lastVoteCache = new Dictionary<string, Dictionary<int, Vote>>();
+            _voteStoreLocks = new Dictionary<string, Dictionary<int, SemaphoreSlim>>();
         }
 
-        public async Task StoreVote(long votingId, int questionIndex, List<string> answers, string token, string signedToken)
+        public async Task StoreVote(string votingId, int questionIndex, List<string> answers, string token, string signedToken)
         {
             if (_votingTokenHandler.Verify(signedToken, token, votingId, questionIndex) == false)
                 throw new InvalidOperationException("Token and signature do not match");
@@ -72,7 +72,7 @@ namespace FreieWahl.Application.VotingResults
             }
         }
 
-        private SemaphoreSlim _GetSemaphore(long votingId, int questionIndex)
+        private SemaphoreSlim _GetSemaphore(string votingId, int questionIndex)
         {
             if(!_voteStoreLocks.ContainsKey(votingId))
                 _voteStoreLocks.Add(votingId, new Dictionary<int, SemaphoreSlim>());
@@ -97,7 +97,7 @@ namespace FreieWahl.Application.VotingResults
             return Convert.ToBase64String(encData);
         }
 
-        private async Task<string> _GetLastVoteSignature(long votingId, int questionIndex)
+        private async Task<string> _GetLastVoteSignature(string votingId, int questionIndex)
         {
             if (_lastVoteCache.ContainsKey(votingId) == false)
                 _lastVoteCache.Add(votingId, new Dictionary<int, Vote>());
@@ -116,38 +116,40 @@ namespace FreieWahl.Application.VotingResults
             return _votingChainBuilder.GetGenesisValue(question);
         }
 
-        public void CompleteVoting(long votingId)
+        public void CompleteVoting(string votingId)
         {
             _lastVoteCache.Remove(votingId);
         }
 
-        public void CompleteQuestion(long votingId, int questionIndex)
+        public void CompleteQuestion(string votingId, int questionIndex)
         {
             if (_lastVoteCache.ContainsKey(votingId))
                 _lastVoteCache[votingId].Remove(questionIndex);
         }
 
-        public Task<IReadOnlyCollection<Vote>> GetResults(long votingId)
+        public Task<IReadOnlyCollection<Vote>> GetResults(string votingId)
         {
             return _votingResultStore.GetVotes(votingId);
         }
 
-        public Task<IReadOnlyCollection<Vote>> GetResults(long votingId, int questionIndex)
+        public Task<IReadOnlyCollection<Vote>> GetResults(string votingId, int questionIndex)
         {
             return _votingResultStore.GetVotes(votingId, questionIndex);
         }
 
-        public async Task<IReadOnlyCollection<Vote>> GetResults(long votingId, string[] tokens)
+        public async Task<IReadOnlyCollection<Vote>> GetResults(string votingId, string[] tokens)
         {
             var allVotes = await _votingResultStore.GetVotes(votingId).ConfigureAwait(false);
             return allVotes.Where(x => tokens.Contains(x.Token)).ToList();
         }
 
-        private byte[] _GetRawData(long votingId, int questionIndex, List<string> answers, string token, string signedToken)
+        private byte[] _GetRawData(string votingId, int questionIndex, List<string> answers, string token, string signedToken)
         {
             var result = new List<byte>();
-            result.AddRange(BitConverter.GetBytes(1)); // version
-            result.AddRange(BitConverter.GetBytes(votingId)); // voting id
+            result.AddRange(BitConverter.GetBytes(2)); // version
+            var idBytes = Encoding.ASCII.GetBytes(votingId);
+            result.AddRange(BitConverter.GetBytes(idBytes.Length));
+            result.AddRange(idBytes);
             result.AddRange(BitConverter.GetBytes(questionIndex)); // question index
             result.AddRange(BitConverter.GetBytes(answers.Count)); // # answers
             foreach (var answer in answers)

@@ -6,16 +6,16 @@ namespace FreieWahl.Application.VotingResults
 {
     public interface IVotingResultManager
     {
-        Task StoreVote(long votingId, int questionIndex, List<string> answers, string token, string signedToken);
+        Task StoreVote(string votingId, int questionIndex, List<string> answers, string token, string signedToken);
 
-        void CompleteVoting(long votingId);
+        void CompleteVoting(string votingId);
 
-        void CompleteQuestion(long votingId, int questionIndex);
+        void CompleteQuestion(string votingId, int questionIndex);
 
-        Task<IReadOnlyCollection<Vote>> GetResults(long votingId, string[] tokens);
+        Task<IReadOnlyCollection<Vote>> GetResults(string votingId, string[] tokens);
 
-        Task<IReadOnlyCollection<Vote>> GetResults(long votingId);
+        Task<IReadOnlyCollection<Vote>> GetResults(string votingId);
 
-        Task<IReadOnlyCollection<Vote>> GetResults(long votingId, int questionIndex);
+        Task<IReadOnlyCollection<Vote>> GetResults(string votingId, int questionIndex);
     }
 }

@@ -18,16 +18,16 @@ namespace FreieWahl.Application.Authentication
             _logger = LogFactory.CreateLogger("FreieWahl.Security.TimeStamps.TimestampService");
         }
 
-        public async Task<bool> IsAuthorized(string userId, long? votingId, Operation operation)
+        public async Task<bool> IsAuthorized(string userId, string votingId, Operation operation)
         {
             try
             {
-                if (votingId == null && (operation == Operation.Create || operation == Operation.List || operation == Operation.EditUser))
+                if (string.IsNullOrEmpty(votingId) && (operation == Operation.Create || operation == Operation.List || operation == Operation.EditUser))
                     return !string.IsNullOrEmpty(userId);
-                if (votingId == null)
+                if (string.IsNullOrEmpty(votingId))
                     return false;
 
-                var voting = await _votingStore.GetById(votingId.Value).ConfigureAwait(false);
+                var voting = await _votingStore.GetById(votingId).ConfigureAwait(false);
                 if (!string.IsNullOrEmpty(userId) && voting.Creator.Equals(userId, StringComparison.OrdinalIgnoreCase))
                     return true;
             }

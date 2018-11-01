@@ -1,4 +1,4 @@
-﻿/// <binding BeforeBuild='clean' Clean='clean' />
+﻿/// <binding AfterBuild='copy' Clean='clean' />
 "use strict";
 
 const gulp = require("gulp"),
@@ -21,7 +21,7 @@ paths.concatCssDest = paths.webroot + "css/site.min.css";
 gulp.task("clean:js", done => rimraf(paths.concatJsDest, done));
 gulp.task("clean:css", done => rimraf(paths.concatCssDest, done));
 gulp.task("clean:dist", done => rimraf(paths.webroot + "lib", done));
-gulp.task("clean", gulp.series(["clean:js", "clean:css", "clean:dist"]));
+gulp.task("clean", gulp.series(["clean:js", "clean:css" ]));
 
 gulp.task("min:js", () => {
     return gulp.src([paths.js, "!" + paths.minJs], { base: "." })
@@ -59,6 +59,7 @@ gulp.task('copy', function (done) {
             './bower/lib/slick-carousel/slick/slick.css',
             './bower/lib/slick-carousel/slick/slick-theme.css',
             './bower/lib/slick-carousel/slick/slick.js',
+            './bower/lib/slick-carousel/slick/slick.min.js',
             './bower/lib/popper.js/dist/umd/popper.min.js'], { base: './bower/lib'})
         .pipe(gulp.dest('./wwwroot/lib'));
 });

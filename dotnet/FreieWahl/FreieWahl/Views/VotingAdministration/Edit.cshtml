@@ -5,7 +5,7 @@
 
 @await Html.PartialAsync("_InviteVoters", new ViewDataDictionary(ViewData) { { "Title", Model.Title }, { "VotingId", Model.VotingId }, { "RegistrationDate", Model.StartDate } })
 
-await @Html.PartialAsync("_NewQuestionModal")
+@await Html.PartialAsync("_NewQuestionModal")
 
 <div class="container-fluid fw-banner py-3">
     <div class="row justify-content-between">

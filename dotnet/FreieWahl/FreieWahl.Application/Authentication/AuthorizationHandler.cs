@@ -55,11 +55,7 @@ namespace FreieWahl.Application.Authentication
                 return null;
             }
 
-            long? idVal = string.IsNullOrEmpty(votingId) ? (long?)null : long.Parse(votingId);
-            if (idVal.HasValue && idVal.Value == 0)
-                idVal = null;
-
-            var authorized = await _authManager.IsAuthorized(user.UserId, idVal, operation).ConfigureAwait(false);
+            var authorized = await _authManager.IsAuthorized(user.UserId, votingId, operation).ConfigureAwait(false);
             if (!authorized)
             {
                 _logger.LogWarning("User tried to open voting without being authorized");

@@ -30,7 +30,7 @@ namespace FreieWahl.Voting.Storage
             return _db.InsertAsync(entity);
         }
 
-        public async Task<Vote> GetLastVote(long votingId, int questionIndex)
+        public async Task<Vote> GetLastVote(string votingId, int questionIndex)
         {
             var query = new Query(StoreKind)
             {
@@ -69,7 +69,7 @@ namespace FreieWahl.Voting.Storage
             return new Vote()
             {
                 PreviousBlockSignature = entity["PreviousBlockSignature"].StringValue,
-                VotingId = entity["VotingId"].IntegerValue,
+                VotingId = entity["VotingId"].StringValue,
                 Token = entity["Token"].StringValue,
                 SignedToken = entity["SignedToken"].StringValue,
                 TimestampData = entity["TimestampData"].StringValue,
@@ -78,7 +78,7 @@ namespace FreieWahl.Voting.Storage
             };
         }
 
-        public async Task<IReadOnlyCollection<Vote>> GetVotes(long votingId)
+        public async Task<IReadOnlyCollection<Vote>> GetVotes(string votingId)
         {
             var query = new Query(StoreKind)
             {
@@ -90,7 +90,7 @@ namespace FreieWahl.Voting.Storage
             return results.Entities.Select(_FromEntity).ToList();
         }
 
-        public async Task<IReadOnlyCollection<Vote>> GetVotes(long votingId, int questionIndex)
+        public async Task<IReadOnlyCollection<Vote>> GetVotes(string votingId, int questionIndex)
         {
             var query = new Query(StoreKind)
             {

@@ -78,11 +78,8 @@ namespace FreieWahl.Controllers
                 _logger.LogInformation("Received signed data: " + data.Data);
 
                 dataContent = data.Data;
-                var votingId = dataContent.ToId();
-                if (votingId == null)
-                    return BadRequest();
 
-                if (!await _registrationStore.IsRegistrationUnique(data.SigneeId, votingId.Value))
+                if (!await _registrationStore.IsRegistrationUnique(data.SigneeId, dataContent))
                 {
                     return new ContentResult
                     {
@@ -95,11 +92,11 @@ namespace FreieWahl.Controllers
 
                 await _registrationStore.AddOpenRegistration(new OpenRegistration
                 {
-                    VotingId = votingId.Value,
+                    VotingId = dataContent,
                     VoterIdentity = data.SigneeId,
                     VoterName = data.SigneeName,
                     RegistrationTime = DateTime.UtcNow,
-                    RegistrationStoreId = regUid
+                    Id = regUid
                 });
 
                 return new ContentResult
@@ -142,11 +139,11 @@ namespace FreieWahl.Controllers
 
                 await _registrationStore.AddOpenRegistration(new OpenRegistration
                 {
-                    VotingId = votingId.ToId().Value,
+                    VotingId = votingId,
                     VoterIdentity = rnd.Next(1000000000).ToString(),
                     VoterName = fullName,
                     RegistrationTime = DateTime.UtcNow,
-                    RegistrationStoreId = regId
+                    Id = regId
                 });
 
                 var request = WebRequest.CreateHttp("https://tokenstore-210111.appspot.com/saveRegistrationDetails");
@@ -208,10 +205,9 @@ namespace FreieWahl.Controllers
 
         public async Task<IActionResult> RegistrationError(string reason, string votingId)
         {
-            var id = votingId.ToId();
-            if (id.HasValue)
+            var voting = await _votingStore.GetById(votingId);
+            if (voting != null)
             {
-                var voting = await _votingStore.GetById(id.Value);
                 ViewData["RegistrationStoreId"] = Guid.NewGuid().ToString("D");
                 ViewData["VotingTitle"] = voting.Title;
                 ViewData["VotingDescription"] = voting.Description;
@@ -237,15 +233,9 @@ namespace FreieWahl.Controllers
         [HttpPost]
         public async Task<IActionResult> GrantRegistration(string[] registrationIds, int utcOffsetMinutes, string timezoneName)
         {
-            var regIds = registrationIds.Select(x => x.ToId()).ToList();
-            if (regIds.Any(x => x == null))
+            foreach (var regId in registrationIds)
             {
-                return BadRequest();
-            }
-
-            foreach (var regId in regIds)
-            {
-                var registration = await _registrationStore.GetOpenRegistration(regId.Value);
+                var registration = await _registrationStore.GetOpenRegistration(regId);
                 string vid = registration.VotingId.ToString(CultureInfo.InvariantCulture);
                 var user = await _authHandler.GetAuthorizedUser(vid,
                     Operation.GrantRegistration, Request.Cookies["session"]);
@@ -256,7 +246,7 @@ namespace FreieWahl.Controllers
 
                 var link = Url.Action("Vote", "Voting", new { }, HttpContext.Request.Scheme);
 
-                await _registrationHandler.GrantRegistration(regId.Value, user.UserId, link, 
+                await _registrationHandler.GrantRegistration(regId, user.UserId, link,
                     TimeSpan.FromMinutes(utcOffsetMinutes), timezoneName);
             }
             return Ok();
@@ -265,15 +255,9 @@ namespace FreieWahl.Controllers
         [HttpPost]
         public async Task<IActionResult> DenyRegistration(string[] registrationIds)
         {
-            var regIds = registrationIds.Select(x => x.ToId()).ToList();
-            if (regIds.Any(x => x == null))
+            foreach (var regId in registrationIds)
             {
-                return BadRequest();
-            }
-
-            foreach (var regId in regIds)
-            {
-                var registration = await _registrationStore.GetOpenRegistration(regId.Value);
+                var registration = await _registrationStore.GetOpenRegistration(regId);
                 string vid = registration.VotingId.ToString(CultureInfo.InvariantCulture);
                 var user = await _authHandler.GetAuthorizedUser(vid,
                     Operation.GrantRegistration, Request.Cookies["session"]);
@@ -283,7 +267,7 @@ namespace FreieWahl.Controllers
                 }
 
 
-                await _registrationHandler.DenyRegistration(regId.Value, user.UserId);
+                await _registrationHandler.DenyRegistration(regId, user.UserId);
             }
 
             return Ok();
@@ -292,25 +276,19 @@ namespace FreieWahl.Controllers
         [HttpPost]
         public async Task<IActionResult> GetRegistrations(string votingId)
         {
-            var votingIdVal = votingId.ToId();
-            if (votingIdVal == null)
-            {
-                return BadRequest("Invalid voting id");
-            }
-
             if (await _authHandler.CheckAuthorization(votingId,
                     Operation.GrantRegistration, Request.Cookies["session"]) == false)
             {
                 return Unauthorized();
             }
 
-            var registrations = await _registrationStore.GetOpenRegistrationsForVoting(votingIdVal.Value);
+            var registrations = await _registrationStore.GetOpenRegistrationsForVoting(votingId);
             var result = registrations.Select(x =>
                 new
                 {
                     x.VoterName,
                     x.VoterIdentity,
-                    RegistrationId = x.RegistrationId.ToString(CultureInfo.InvariantCulture)
+                    RegistrationId = x.Id
                 }
             ).ToArray();
 
@@ -320,19 +298,13 @@ namespace FreieWahl.Controllers
         [HttpPost]
         public async Task<IActionResult> GetCompletedRegistrations(string votingId)
         {
-            var votingIdVal = votingId.ToId();
-            if (votingIdVal == null)
-            {
-                return BadRequest("Invalid voting id");
-            }
-
             if (await _authHandler.CheckAuthorization(votingId,
                     Operation.GrantRegistration, Request.Cookies["session"]) == false)
             {
                 return Unauthorized();
             }
 
-            var completedRegistrations = await _registrationStore.GetCompletedRegistrations(votingIdVal.Value);
+            var completedRegistrations = await _registrationStore.GetCompletedRegistrations(votingId);
 
             var result = completedRegistrations.Select(x =>
                 new

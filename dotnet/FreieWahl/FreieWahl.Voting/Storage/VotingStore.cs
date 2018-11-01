@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
 using FreieWahl.Common;
@@ -34,10 +35,10 @@ namespace FreieWahl.Voting.Storage
             var entity = ToEntity(voting);
             entity.Key = _keyFactory.CreateIncompleteKey();
             var key = await _db.InsertAsync(entity).ConfigureAwait(false);
-            voting.Id = key.Path.First().Id;
+            voting.Id = key.Path.First().Id.ToString(CultureInfo.InvariantCulture);
         }
 
-        public async Task AddQuestion(long votingId, Question question)
+        public async Task AddQuestion(string votingId, Question question)
         {
             var voting = await _GetVoting(votingId);
             question.QuestionIndex = voting.CurrentQuestionIndex;
@@ -46,7 +47,7 @@ namespace FreieWahl.Voting.Storage
             await _db.UpdateAsync(ToEntity(voting));
         }
 
-        public async Task DeleteQuestion(long votingId, int questionIndex)
+        public async Task DeleteQuestion(string votingId, int questionIndex)
         {
             var voting = await _GetVoting(votingId);
             if (voting.Questions.All(x => x.QuestionIndex != questionIndex))
@@ -58,7 +59,7 @@ namespace FreieWahl.Voting.Storage
             await _db.UpdateAsync(ToEntity(voting));
         }
 
-        public async Task ClearQuestions(long votingId)
+        public async Task ClearQuestions(string votingId)
         {
             var voting = await _GetVoting(votingId);
             voting.Questions = new List<Question>();
@@ -66,7 +67,7 @@ namespace FreieWahl.Voting.Storage
             await _db.UpdateAsync(ToEntity(voting));
         }
 
-        public async Task UpdateQuestion(long votingId, Question question)
+        public async Task UpdateQuestion(string votingId, Question question)
         {
             var voting = await _GetVoting(votingId);
             for (int i = 0; i < voting.Questions.Count; i++)
@@ -82,16 +83,21 @@ namespace FreieWahl.Voting.Storage
             throw new InvalidOperationException("Tried to update inexistent question");
         }
 
-        public async Task UpdateState(long votingId, VotingState state)
+        public async Task UpdateState(string votingId, VotingState state)
         {
             var voting = await _GetVoting(votingId);
             voting.State = state;
             await _db.UpdateAsync(ToEntity(voting));
         }
 
-        public Task Delete(long votingId)
+        public Task Delete(string votingId)
         {
-            var key = _keyFactory.CreateKey(votingId);
+            var id = votingId.ToId();
+            if (!id.HasValue)
+            {
+                throw new ArgumentException("Invalid voting id " + votingId);
+            }
+            var key = _keyFactory.CreateKey(id.Value);
             return _db.DeleteAsync(key);
         }
 
@@ -130,9 +136,14 @@ namespace FreieWahl.Voting.Storage
             }
         }
 
-        private async Task<StandardVoting> _GetVoting(long votingId)
+        private async Task<StandardVoting> _GetVoting(string votingId)
         {
-            var key = _keyFactory.CreateKey(votingId);
+            var idVal = votingId.ToId();
+            if (!idVal.HasValue)
+            {
+                throw new InvalidOperationException("Invalid voting id!");
+            }
+            var key = _keyFactory.CreateKey(idVal.Value);
             var result = await _db.LookupAsync(key).ConfigureAwait(false);
             if (result == null)
             {
@@ -142,7 +153,7 @@ namespace FreieWahl.Voting.Storage
             return FromEntity(result);
         }
 
-        public Task<StandardVoting> GetById(long id)
+        public Task<StandardVoting> GetById(string id)
         {
             return _GetVoting(id);
         }
@@ -160,15 +171,15 @@ namespace FreieWahl.Voting.Storage
             return results.Entities.Select(FromEntity);
         }
 
-        public void ClearAll()
+        public async Task ClearAll()
         {
             if (_db.NamespaceId != TestNamespace)
             {
                 throw new InvalidOperationException("ClearAll is only allowed in the test environment!");
             }
 
-            var query = _db.RunQuery(new Query(StoreKind));
-            _db.Delete(query.Entities);
+            var query = await _db.RunQueryAsync(new Query(StoreKind));
+            await _db.DeleteAsync(query.Entities);
         }
 
         public async Task<IEnumerable<StandardVoting>> GetAll()
@@ -198,7 +209,7 @@ namespace FreieWahl.Voting.Storage
 
             return new StandardVoting()
             {
-                Id = entity.Key.Path.First().Id,
+                Id = entity.Key.Path.First().Id.ToString(CultureInfo.InvariantCulture),
                 Title = entity["Title"].StringValue,
                 Creator = entity["Creator"].StringValue,
                 Description = entity["Description"]?.StringValue ?? string.Empty,
@@ -225,10 +236,15 @@ namespace FreieWahl.Voting.Storage
         {
             var mimeType = standardVoting.ImageData.GetMimeType();
             var rawData = standardVoting.ImageData.GetImageData();
+            var id = string.IsNullOrEmpty(standardVoting.Id) ?  0 : standardVoting.Id.ToId();
+            if (!id.HasValue)
+            {
+                throw new InvalidOperationException("Invalid id " + standardVoting.Id);
+            }
 
             var result = new Entity
             {
-                Key = _keyFactory.CreateKey(standardVoting.Id),
+                Key = _keyFactory.CreateKey(id.Value),
                 ["Title"] = standardVoting.Title,
                 ["Creator"] = standardVoting.Creator,
                 ["DateCreated"] = standardVoting.DateCreated.ToUniversalTime(),

@@ -92,7 +92,7 @@ namespace FreieWahl.Application.Registrations
                 tokens.Select(x => (string)x).ToList());
         }
 
-        public async Task InsertPublicKeys(long votingIdVal, IEnumerable<RsaKeyParameters> publicKeys)
+        public async Task InsertPublicKeys(string votingIdVal, IEnumerable<RsaKeyParameters> publicKeys)
         {
             var request = WebRequest.CreateHttp(_remoteUrl + "setKeys");
             request.ContentType = "application/json";
@@ -103,7 +103,7 @@ namespace FreieWahl.Application.Registrations
                 var publicKeyStructures = publicKeys as RsaKeyParameters[] ?? publicKeys.ToArray();
                 var resultData = new
                 {
-                    votingId = votingIdVal.ToString(CultureInfo.InvariantCulture),
+                    votingId = votingIdVal,
                     exponents = publicKeyStructures.Select(x => x.Exponent.ToString(16)).ToArray(),
                     moduli = publicKeyStructures.Select(x => x.Modulus.ToString(16)).ToArray()
                 };

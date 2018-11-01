@@ -16,16 +16,16 @@ namespace FreieWahl.Security.Signing.VotingTokens
         public static readonly string TestNamespace = "test";
         public static readonly string DevNamespace = "dev";
         private readonly KeyFactory _keyFactory;
-        private readonly Dictionary<long, Dictionary<int, AsymmetricCipherKeyPair>> _keyCache;
+        private readonly Dictionary<string, Dictionary<int, AsymmetricCipherKeyPair>> _keyCache;
 
         public VotingKeyStore(string projectId, string namespaceId = "", DatastoreClient client = null)
         {
             _db = DatastoreDb.Create(projectId, namespaceId, client);
             _keyFactory = new KeyFactory(projectId, namespaceId, StoreKind);
-            _keyCache = new Dictionary<long, Dictionary<int, AsymmetricCipherKeyPair>>();
+            _keyCache = new Dictionary<string, Dictionary<int, AsymmetricCipherKeyPair>>();
         }
 
-        public async Task StoreKeyPairs(long votingId, Dictionary<int, AsymmetricCipherKeyPair> keys)
+        public async Task StoreKeyPairs(string votingId, Dictionary<int, AsymmetricCipherKeyPair> keys)
         {
             var entities = keys.Select(x =>
             {
@@ -61,7 +61,7 @@ namespace FreieWahl.Security.Signing.VotingTokens
             return textWriter.ToString();
         }
 
-        public AsymmetricCipherKeyPair GetKeyPair(long votingId, int index)
+        public AsymmetricCipherKeyPair GetKeyPair(string votingId, int index)
         {
             if (_keyCache.ContainsKey(votingId) && _keyCache[votingId].ContainsKey(index))
             {
@@ -94,7 +94,7 @@ namespace FreieWahl.Security.Signing.VotingTokens
             return result;
         }
 
-        private void _AddToCache(long votingId, int index, AsymmetricCipherKeyPair result)
+        private void _AddToCache(string votingId, int index, AsymmetricCipherKeyPair result)
         {
             if (_keyCache.ContainsKey(votingId) == false)
             {

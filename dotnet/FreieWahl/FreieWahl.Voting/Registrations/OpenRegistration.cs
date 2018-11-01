@@ -4,9 +4,7 @@ namespace FreieWahl.Voting.Registrations
 {
     public class OpenRegistration
     {
-        public long RegistrationId { get; set; }
-
-        public long VotingId { get; set; }
+        public string VotingId { get; set; }
 
         public string VoterName { get; set; }
 
@@ -14,6 +12,6 @@ namespace FreieWahl.Voting.Registrations
 
         public DateTime RegistrationTime { get; set; }
 
-        public string RegistrationStoreId { get; set; }
+        public string Id { get; set; }
     }
 }

@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
 using Google.Cloud.Datastore.V1;
@@ -38,8 +39,7 @@ namespace FreieWahl.Voting.Registrations
 
             var entity = _MapToEntity(openRegistration);
 
-            var key = await _db.InsertAsync(entity).ConfigureAwait(false);
-            openRegistration.RegistrationId = key.Path.First().Id;
+            await _db.InsertAsync(entity).ConfigureAwait(false);
         }
 
         public async Task AddCompletedRegistration(CompletedRegistration completedRegistration)
@@ -65,16 +65,15 @@ namespace FreieWahl.Voting.Registrations
         {
             return new Entity()
             {
-                Key = _openKeyFactory.CreateIncompleteKey(),
+                Key = _openKeyFactory.CreateKey(openRegistration.Id),
                 ["VotingId"] = openRegistration.VotingId,
                 ["VoterId"] = openRegistration.VoterIdentity,
                 ["VoterName"] = openRegistration.VoterName,
                 ["RegistrationTime"] = Timestamp.FromDateTime(openRegistration.RegistrationTime),
-                ["RegistrationStoreId"] = openRegistration.RegistrationStoreId
             };
         }
 
-        public async Task<IReadOnlyList<OpenRegistration>> GetOpenRegistrationsForVoting(long votingId)
+        public async Task<IReadOnlyList<OpenRegistration>> GetOpenRegistrationsForVoting(string votingId)
         {
             Query q = new Query(StoreKind)
             {
@@ -88,22 +87,15 @@ namespace FreieWahl.Voting.Registrations
 
         public async Task<OpenRegistration> GetOpenRegistration(string registrationStoreId)
         {
-            Query q = new Query(StoreKind)
-            {
-                Filter = Filter.Equal("RegistrationStoreId", registrationStoreId),
-                Limit = 1
-            };
+            var result = await _db.LookupAsync(_openKeyFactory.CreateKey(registrationStoreId));
 
-            var results = await _db.RunQueryAsync(q);
-            if (results.Entities.Count == 0)
-            {
+            if (result == null)
                 return null;
-            }
 
-            return _FromEntity(results.Entities.Single());
+            return _FromEntity(result);
         }
 
-        public async Task<IReadOnlyList<CompletedRegistration>> GetCompletedRegistrations(long votingId)
+        public async Task<IReadOnlyList<CompletedRegistration>> GetCompletedRegistrations(string votingId)
         {
             Query q = new Query(CompletedStoreKind)
             {
@@ -114,7 +106,7 @@ namespace FreieWahl.Voting.Registrations
             return results.Entities.Select(_FromCompletedEntity).ToList();
         }
 
-        public async Task<bool> IsRegistrationUnique(string dataSigneeId, long votingId)
+        public async Task<bool> IsRegistrationUnique(string dataSigneeId, string votingId)
         {
             Query q = new Query(CompletedStoreKind)
             {
@@ -130,7 +122,7 @@ namespace FreieWahl.Voting.Registrations
             return new CompletedRegistration
             {
                 VoterIdentity = entity["VoterId"].StringValue,
-                VotingId = entity["VotingId"].IntegerValue,
+                VotingId = entity["VotingId"].StringValue,
                 VoterName = entity["VoterName"].StringValue,
                 RegistrationTime = entity["RegistrationTime"].TimestampValue.ToDateTime(),
                 DecisionTime = entity["DecisionTime"].TimestampValue.ToDateTime(),
@@ -154,27 +146,19 @@ namespace FreieWahl.Voting.Registrations
             };
         }
 
-        public async Task<OpenRegistration> GetOpenRegistration(long id)
-        {
-            var entity = await _db.LookupAsync(_openKeyFactory.CreateKey(id));
-
-            return _FromEntity(entity);
-        }
-
         private static OpenRegistration _FromEntity(Entity entity)
         {
             return new OpenRegistration
             {
-                RegistrationId = entity.Key.Path.First().Id,
+                Id = entity.Key.Path.First().Name,
                 VoterIdentity = entity["VoterId"].StringValue,
-                VotingId = entity["VotingId"].IntegerValue,
+                VotingId = entity["VotingId"].StringValue,
                 VoterName = entity["VoterName"].StringValue,
                 RegistrationTime = entity["RegistrationTime"].TimestampValue.ToDateTime(),
-                RegistrationStoreId = entity["RegistrationStoreId"].StringValue
             };
         }
 
-        public Task RemoveOpenRegistration(long id)
+        public Task RemoveOpenRegistration(string id)
         {
             return _db.DeleteAsync(_openKeyFactory.CreateKey(id));
         }

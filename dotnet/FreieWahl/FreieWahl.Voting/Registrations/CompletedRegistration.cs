@@ -8,7 +8,7 @@ namespace FreieWahl.Voting.Registrations
 
         public string VoterIdentity { get; set; }
 
-        public long VotingId { get; set; }
+        public string VotingId { get; set; }
 
         public string AdminUserId { get; set; }
 

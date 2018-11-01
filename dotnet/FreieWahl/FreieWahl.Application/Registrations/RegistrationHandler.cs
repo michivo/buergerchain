@@ -30,16 +30,16 @@ namespace FreieWahl.Application.Registrations
             _votingStore = votingStore;
         }
 
-        public async Task GrantRegistration(long registrationId, string userId, string votingUrl, TimeSpan utcOffset, string timezoneName)
+        public async Task GrantRegistration(string registrationId, string userId, string votingUrl, TimeSpan utcOffset, string timezoneName)
         {
             var registration = await _store.GetOpenRegistration(registrationId);
-            var challenge = await _remoteTokenStore.GetChallenge(registration.RegistrationStoreId);
+            var challenge = await _remoteTokenStore.GetChallenge(registration.Id);
             var signedChallenge = _signatureProvider.SignData(Encoding.UTF8.GetBytes(challenge.Challenge));
             var signedChallengeString = Convert.ToBase64String(signedChallenge);
             var signedTokens = _SignTokens(registration, challenge.Tokens);
             var voting = await _votingStore.GetById(registration.VotingId);
 
-            await _remoteTokenStore.GrantRegistration(registration.RegistrationStoreId, 
+            await _remoteTokenStore.GrantRegistration(registration.Id, 
                 voting, signedChallengeString, signedTokens, votingUrl, utcOffset, timezoneName);
 
             var completedReg = new CompletedRegistration
@@ -69,7 +69,7 @@ namespace FreieWahl.Application.Registrations
             return result;
         }
 
-        public async Task DenyRegistration(long registrationId, string userId)
+        public async Task DenyRegistration(string registrationId, string userId)
         {
             var registration = await _store.GetOpenRegistration(registrationId);
             var completedReg = new CompletedRegistration()

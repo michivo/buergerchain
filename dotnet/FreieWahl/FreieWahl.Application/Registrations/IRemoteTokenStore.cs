@@ -18,6 +18,6 @@ namespace FreieWahl.Application.Registrations
 
         Task<RegistrationChallenge> GetChallenge(string registrationId);
 
-        Task InsertPublicKeys(long votingId, IEnumerable<RsaKeyParameters> publicKeys);
+        Task InsertPublicKeys(string votingId, IEnumerable<RsaKeyParameters> publicKeys);
     }
 }

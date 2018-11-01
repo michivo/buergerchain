@@ -2,9 +2,11 @@
 using System.Collections.Generic;
 using System.Linq;
 using FreieWahl.Voting.Common;
+using Google.Cloud.Firestore;
 
 namespace FreieWahl.Voting.Models
 {
+    [FirestoreData]
     public class Question : IEquatable<Question>
     {
         private List<QuestionDetail> _details;
@@ -16,6 +18,7 @@ namespace FreieWahl.Voting.Models
             AnswerOptions = new List<AnswerOption>();
         }
 
+        [FirestoreProperty]
         public string QuestionText { get; set; }
 
         public List<QuestionDetail> Details
@@ -24,20 +27,26 @@ namespace FreieWahl.Voting.Models
             set => _details = value ?? new List<QuestionDetail>();
         }
 
+        [FirestoreProperty]
         public List<AnswerOption> AnswerOptions
         {
             get => _answerOptions;
             set => _answerOptions = value ?? new List<AnswerOption>();
         }
 
+        [FirestoreProperty]
         public QuestionStatus Status { get; set; }
-
+        
+        [FirestoreProperty]
         public int QuestionIndex { get; set; }
 
+        [FirestoreProperty]
         public int MinNumAnswers { get; set; }
 
+        [FirestoreProperty]
         public int MaxNumAnswers { get; set; } // TODO extend tests
 
+        [FirestoreProperty]
         public QuestionType QuestionType { get; set; }
 
         public bool Equals(Question other)

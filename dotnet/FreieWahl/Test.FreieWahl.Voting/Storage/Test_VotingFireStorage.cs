@@ -9,15 +9,15 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 namespace Test.FreieWahl.Voting.Storage
 {
     [TestClass]
-    public class TestVotingStorage
+    public class TestVotingFireStorage
     {
-        private static readonly string ProjectId = "freiewahl-data";
-        private VotingStore _votingStore;
+        private static readonly string ProjectId = "freiewahl-application";
+        private VotingFireStore _votingStore;
 
         [TestInitialize]
         public async Task Init()
         {
-            _votingStore = new VotingStore(ProjectId, VotingStore.TestNamespace);
+            _votingStore = new VotingFireStore(ProjectId, "test");
             await Task.Delay(500);
             await _votingStore.ClearAll();
             await Task.Delay(500);

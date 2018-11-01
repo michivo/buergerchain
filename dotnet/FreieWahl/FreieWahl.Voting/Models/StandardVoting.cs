@@ -3,11 +3,13 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using FreieWahl.Voting.Common;
+using Google.Cloud.Firestore;
 using Microsoft.AspNetCore.Mvc;
 
 namespace FreieWahl.Voting.Models
 {
     [Bind("Title", "Creator", "Description", "DateCreated")]
+    [FirestoreData]
     public class StandardVoting : IEquatable<StandardVoting>
     {
         private List<Question> _questions;
@@ -18,20 +20,39 @@ namespace FreieWahl.Voting.Models
         }
 
         [Key]
-        public long Id { get; set; }
+        public string Id { get; set; }
 
+        [FirestoreProperty]
         public string Title { get; set; }
 
+        [FirestoreProperty]
         public string Description { get; set; }
 
+        [FirestoreProperty]
         public string Creator { get; set; }
 
         public VotingVisibility Visibility { get; set; }
 
+        [FirestoreProperty]
+        internal int FireVisibility
+        {
+            get => (int) Visibility;
+            set => Visibility = (VotingVisibility) value;
+        }
+
         public VotingState State { get; set; }
 
+        [FirestoreProperty]
+        public int FireState
+        {
+            get => (int)State;
+            set => State = (VotingState)value;
+        }
+
+        [FirestoreProperty]
         public int CurrentQuestionIndex { get; set; }
 
+        [FirestoreProperty]
         public string ImageData { get; set; }
 
         [DataType(DataType.Date)]
@@ -43,6 +64,7 @@ namespace FreieWahl.Voting.Models
         [DataType(DataType.Date)]
         public DateTime EndDate { get; set; }
 
+        [FirestoreProperty]
         public List<Question> Questions
         {
             get => _questions;
@@ -64,7 +86,7 @@ namespace FreieWahl.Voting.Models
                    StartDate.EqualsDefault(other.StartDate) &&
                    EndDate.EqualsDefault(other.EndDate) &&
                    Questions.SequenceEqual(other.Questions) &&
-                   ImageData.Equals(other.ImageData);
+                   (string.IsNullOrEmpty(ImageData) && string.IsNullOrEmpty(other.ImageData) || ImageData.Equals(other.ImageData));
         }
 
         public override bool Equals(object obj)

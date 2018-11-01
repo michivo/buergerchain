@@ -23,7 +23,7 @@
                     <div class="d-flex flex-column justify-content-between">
                         <div class="bg-light text-primary d-flex flex-row align-items-center" style="font-size:1.5rem;font-weight:100">
                             <div><i class="material-icons text-primary mx-2" style="font-size: 3rem;">date_range</i></div>
-                            <div class="px-2">Start: @ViewData["StartDate"]<br />Ende: @ViewData["EndDate"]</div>
+                            <div class="px-2" id="fwDateInfo"></div>
                         </div>
                     </div>
                 </div>
@@ -66,3 +66,16 @@
         </div>
     </div>
 </div>
+
+@section scripts
+{
+    <script>
+        function init() {
+            const startDate = formatDateTimeSeconds(@ViewData["StartDate"], false);
+            const endDate = formatDateTimeSeconds(@ViewData["EndDate"], false);
+            $('#fwDateInfo').html(`Start: ${startDate}<br />Ende: ${endDate}`);
+        }
+
+        init();
+    </script>
+}

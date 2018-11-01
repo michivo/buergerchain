@@ -20,9 +20,6 @@ using FreieWahl.Voting.Registrations;
 using FreieWahl.Voting.Storage;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.HttpsPolicy;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -80,6 +77,7 @@ namespace FreieWahl
                 return new TimestampService(timestampServers, logger);
             });
             services.AddSingleton<IVotingStore>(p => new VotingStore(Configuration["Datastore:ProjectId"]));
+            //services.AddSingleton<IVotingStore>(p => new VotingFireStore("freiewahl-application"));
             services.AddSingleton<IAuthenticationManager, AuthenticationManager>();
             services.AddSingleton<IMailProvider>(p => new SendGridMailProvider(Configuration["SendGrid:ApiKey"],
                 Configuration["SendGrid:FromMail"], Configuration["SendGrid:FromName"]));
@@ -139,7 +137,6 @@ namespace FreieWahl
                 app.UseGoogleExceptionLogging();
                 // Send logs to Stackdriver Logging.
                 loggerFactory.AddGoogle(GetProjectId());
-                app.UseHsts();
             }
             
             app.UseAuthentication();

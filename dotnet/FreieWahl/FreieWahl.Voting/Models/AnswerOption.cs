@@ -3,9 +3,11 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using FreieWahl.Voting.Common;
+using Google.Cloud.Firestore;
 
 namespace FreieWahl.Voting.Models
 {
+    [FirestoreData]
     public class AnswerOption : IEquatable<AnswerOption>
     {
         private List<AnswerDetail> _details;
@@ -16,10 +18,13 @@ namespace FreieWahl.Voting.Models
             Id = Guid.NewGuid().ToString("D", CultureInfo.InvariantCulture);
         }
 
+        [FirestoreProperty]
         public string Id { get; set; }
 
+        [FirestoreProperty]
         public string AnswerText { get; set; }
 
+        [FirestoreProperty]
         public List<AnswerDetail> Details
         {
             get => _details;

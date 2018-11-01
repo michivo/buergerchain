@@ -30,20 +30,20 @@ namespace Test.FreieWahl.Voting.Registrations
             {
                 VoterName = "Michael Faschinger",
                 VoterIdentity = "schwurbelschwarbel",
-                VotingId = 4294967297123456789L,
+                VotingId = "4294967297123456789",
                 RegistrationTime = DateTime.UtcNow
             };
 
             await _votingStore.AddOpenRegistration(registration);
 
-            Assert.AreNotEqual(0L, registration.RegistrationId);
+            Assert.IsFalse(string.IsNullOrEmpty(registration.Id));
 
-            var readRegistration = await _votingStore.GetOpenRegistration(registration.RegistrationId);
+            var readRegistration = await _votingStore.GetOpenRegistration(registration.Id);
 
             Assert.AreEqual(registration.VotingId, readRegistration.VotingId);
             Assert.AreEqual(registration.VoterName, readRegistration.VoterName);
             Assert.AreEqual(registration.VoterIdentity, readRegistration.VoterIdentity);
-            Assert.AreEqual(registration.RegistrationId, readRegistration.RegistrationId);
+            Assert.AreEqual(registration.Id, readRegistration.Id);
             Assert.AreEqual(registration.RegistrationTime.Year, readRegistration.RegistrationTime.Year);
             Assert.AreEqual(registration.RegistrationTime.DayOfYear, readRegistration.RegistrationTime.DayOfYear);
             Assert.AreEqual(registration.RegistrationTime.Hour, readRegistration.RegistrationTime.Hour);
