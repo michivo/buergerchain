@@ -76,8 +76,8 @@ namespace FreieWahl
                 var logger = LogFactory.CreateLogger("FreieWahl.Security.TimeStamps.TimestampService");
                 return new TimestampService(timestampServers, logger);
             });
-            services.AddSingleton<IVotingStore>(p => new VotingStore(Configuration["Datastore:ProjectId"]));
-            //services.AddSingleton<IVotingStore>(p => new VotingFireStore("freiewahl-application"));
+            //services.AddSingleton<IVotingStore>(p => new VotingStore(Configuration["Datastore:ProjectId"]));
+            services.AddSingleton<IVotingStore>(p => new VotingFireStore("freiewahl-application"));
             services.AddSingleton<IAuthenticationManager, AuthenticationManager>();
             services.AddSingleton<IMailProvider>(p => new SendGridMailProvider(Configuration["SendGrid:ApiKey"],
                 Configuration["SendGrid:FromMail"], Configuration["SendGrid:FromName"]));

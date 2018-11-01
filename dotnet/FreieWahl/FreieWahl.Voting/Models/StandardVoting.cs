@@ -22,49 +22,26 @@ namespace FreieWahl.Voting.Models
         [Key]
         public string Id { get; set; }
 
-        [FirestoreProperty]
         public string Title { get; set; }
 
-        [FirestoreProperty]
         public string Description { get; set; }
 
-        [FirestoreProperty]
         public string Creator { get; set; }
 
         public VotingVisibility Visibility { get; set; }
 
-        [FirestoreProperty]
-        internal int FireVisibility
-        {
-            get => (int) Visibility;
-            set => Visibility = (VotingVisibility) value;
-        }
-
         public VotingState State { get; set; }
 
-        [FirestoreProperty]
-        public int FireState
-        {
-            get => (int)State;
-            set => State = (VotingState)value;
-        }
-
-        [FirestoreProperty]
         public int CurrentQuestionIndex { get; set; }
 
-        [FirestoreProperty]
         public string ImageData { get; set; }
 
-        [DataType(DataType.Date)]
         public DateTime DateCreated { get; set; }
 
-        [DataType(DataType.Date)]
         public DateTime StartDate { get; set; }
 
-        [DataType(DataType.Date)]
         public DateTime EndDate { get; set; }
 
-        [FirestoreProperty]
         public List<Question> Questions
         {
             get => _questions;
