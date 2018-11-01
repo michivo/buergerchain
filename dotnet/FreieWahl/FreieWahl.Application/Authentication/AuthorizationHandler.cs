@@ -4,10 +4,8 @@ using System.Net;
 using System.Threading.Tasks;
 using FreieWahl.Security.Authentication;
 using FreieWahl.Security.UserHandling;
-using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 
 namespace FreieWahl.Application.Authentication
 {

@@ -1,13 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
-using System.Linq;
 using System.Threading.Tasks;
-using Google.Cloud.Datastore.V1;
 using Google.Cloud.Firestore;
 using Org.BouncyCastle.Crypto;
 using Org.BouncyCastle.OpenSsl;
-using Query = Google.Cloud.Datastore.V1.Query;
 
 namespace FreieWahl.Security.Signing.VotingTokens
 {
@@ -26,31 +24,19 @@ namespace FreieWahl.Security.Signing.VotingTokens
 
         public async Task StoreKeyPairs(string votingId, Dictionary<int, AsymmetricCipherKeyPair> keys)
         {
-            var entities = keys.Select(x =>
-            {
-                var privateKey = GetPrivateKey(x.Value);
-                var privateKeyPart1 = privateKey.Substring(0, 1500);
-                var privateKeyPart2 = string.Empty;
-                if (privateKey.Length > 1500)
-                {
-                    privateKeyPart2 = privateKey.Substring(1500);
-                }
-                return new Entity()
-                {
-                    //Key = _keyFactory.CreateIncompleteKey(),
-                    ["PrivateKey1"] = privateKeyPart1,
-                    ["PrivateKey2"] = privateKeyPart2,
-                    ["VotingId"] = votingId,
-                    ["KeyIndex"] = x.Key
-                };
-            });
+            var docRef = _db.Collection(_collection).Document(votingId);
+            var keyCollection = docRef.Collection("Keys");
 
-            // TODO: what if entries with the same voting id already exist?
-            //await _db.InsertAsync(entities.ToArray()).ConfigureAwait(false);
+            foreach (var key in keys)
+            {
+                var keyDoc = keyCollection.Document(key.Key.ToString(CultureInfo.InvariantCulture));
+                await keyDoc.SetAsync(new Dictionary<string, object> { { "Key", GetPrivateKey(key.Value) } });
+            }
+
             _keyCache[votingId] = keys;
         }
 
-        private string GetPrivateKey(AsymmetricCipherKeyPair keys)
+        private static string GetPrivateKey(AsymmetricCipherKeyPair keys)
         {
             TextWriter textWriter = new StringWriter();
             PemWriter pemWriter = new PemWriter(textWriter);
@@ -60,38 +46,31 @@ namespace FreieWahl.Security.Signing.VotingTokens
             return textWriter.ToString();
         }
 
-        public AsymmetricCipherKeyPair GetKeyPair(string votingId, int index)
+        public async Task<AsymmetricCipherKeyPair> GetKeyPair(string votingId, int index)
         {
             if (_keyCache.ContainsKey(votingId) && _keyCache[votingId].ContainsKey(index))
             {
                 return _keyCache[votingId][index];
             }
 
-            //var query = new Query(StoreKind)
-            //{
-            //    Filter = Filter.And(Filter.Equal("VotingId", votingId),
-            //        Filter.Equal("KeyIndex", index)),
-            //    Limit = 1
-            //};
+            var docRef = _db.Collection(_collection).Document(votingId).Collection("Keys")
+                .Document(index.ToString(CultureInfo.InvariantCulture));
 
-            //var queryResult = _db.RunQuery(query);
-            //if (queryResult.Entities.Count != 1)
-            //{
-            //    throw new InvalidOperationException(
-            //        "Error getting query results, no key pair for given voting id and index");
-            //}
+            var key = await docRef.GetSnapshotAsync();
+            if (!key.Exists)
+            {
+                throw new InvalidOperationException("No key for the given voting id and index!" + votingId + " " + index);
+            }
 
-            //var entity = queryResult.Entities.Single();
-            //var privateKey = entity["PrivateKey1"].StringValue + entity["PrivateKey2"].StringValue;
+            var privateKey = key.GetValue<string>("Key");
 
-            //var privateKeyReader = new PemReader(new StringReader(privateKey));
-            //var privateKeyObj = privateKeyReader.ReadObject();
+            var privateKeyReader = new PemReader(new StringReader(privateKey));
+            var privateKeyObj = privateKeyReader.ReadObject();
 
-            //var result = (AsymmetricCipherKeyPair)privateKeyObj;
-            //_AddToCache(votingId, index, result);
+            var result = (AsymmetricCipherKeyPair)privateKeyObj;
+            _AddToCache(votingId, index, result);
 
-            //return result;
-            return null;
+            return result;
         }
 
         private void _AddToCache(string votingId, int index, AsymmetricCipherKeyPair result)

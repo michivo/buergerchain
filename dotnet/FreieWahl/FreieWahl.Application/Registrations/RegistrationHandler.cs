@@ -36,7 +36,7 @@ namespace FreieWahl.Application.Registrations
             var challenge = await _remoteTokenStore.GetChallenge(registration.Id);
             var signedChallenge = _signatureProvider.SignData(Encoding.UTF8.GetBytes(challenge.Challenge));
             var signedChallengeString = Convert.ToBase64String(signedChallenge);
-            var signedTokens = _SignTokens(registration, challenge.Tokens);
+            var signedTokens = await _SignTokens(registration, challenge.Tokens);
             var voting = await _votingStore.GetById(registration.VotingId);
 
             await _remoteTokenStore.GrantRegistration(registration.Id, 
@@ -57,12 +57,12 @@ namespace FreieWahl.Application.Registrations
             await _store.AddCompletedRegistration(completedReg);
         }
 
-        private List<string> _SignTokens(OpenRegistration registration, List<string> challengeTokens)
+        private async Task<List<string>> _SignTokens(OpenRegistration registration, List<string> challengeTokens)
         {
             var result = new List<string>();
             for (int i = 0; i < challengeTokens.Count; i++)
             {
-                var signedToken = _votingTokenHandler.Sign(challengeTokens[i], registration.VotingId, i);
+                var signedToken = await _votingTokenHandler.Sign(challengeTokens[i], registration.VotingId, i);
                 result.Add(signedToken);
             }
 

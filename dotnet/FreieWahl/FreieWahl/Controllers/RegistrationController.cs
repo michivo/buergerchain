@@ -283,6 +283,7 @@ namespace FreieWahl.Controllers
             }
 
             var registrations = await _registrationStore.GetOpenRegistrationsForVoting(votingId);
+
             var result = registrations.Select(x =>
                 new
                 {

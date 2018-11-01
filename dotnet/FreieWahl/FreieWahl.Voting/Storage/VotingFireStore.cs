@@ -29,7 +29,7 @@ namespace FreieWahl.Voting.Storage
         public Task Update(StandardVoting voting)
         {
             var docRef = _db.Collection(_collection).Document(voting.Id);
-            return docRef.SetAsync(voting);
+            return docRef.SetAsync(_ToDictionary(voting));
         }
 
         public async Task<StandardVoting> GetById(string id)
@@ -166,19 +166,42 @@ namespace FreieWahl.Voting.Storage
             return votingRef.UpdateAsync("Questions", FieldValue.ArrayUnion(_ToDictionary(question)));
         }
 
-        public Task DeleteQuestion(string votingId, int questionIndex)
+        public async Task DeleteQuestion(string votingId, int questionIndex)
         {
-            throw new NotImplementedException();
+            var docReference = _db.Collection(_collection).Document(votingId);
+            var doc = await docReference.GetSnapshotAsync().ConfigureAwait(false);
+            if(!doc.Exists)
+                return;
+
+            var voting = _VotingFromDictionary(doc.ToDictionary(), doc.Id);
+            voting.Questions.RemoveAll(x => x.QuestionIndex == questionIndex);
+
+            await docReference.SetAsync(_ToDictionary(voting)).ConfigureAwait(false);
         }
 
         public Task ClearQuestions(string votingId)
         {
-            throw new NotImplementedException();
+            var doc = _db.Collection(_collection).Document(votingId);
+            var updates = new Dictionary<string, object>
+            {
+                { "Questions", new ArrayList()}
+            };
+            return doc.UpdateAsync(updates);
         }
 
-        public Task UpdateQuestion(string votingId, Question question)
+        public async Task UpdateQuestion(string votingId, Question question)
         {
-            throw new NotImplementedException();
+            var docReference = _db.Collection(_collection).Document(votingId);
+            var doc = await docReference.GetSnapshotAsync().ConfigureAwait(false);
+            if (!doc.Exists)
+                return;
+
+            var voting = _VotingFromDictionary(doc.ToDictionary(), doc.Id);
+            voting.Questions.RemoveAll(x => x.QuestionIndex == question.QuestionIndex);
+            voting.Questions.Add(question);
+            voting.Questions = voting.Questions.OrderBy(x => x.QuestionIndex).ToList();
+
+            await docReference.SetAsync(_ToDictionary(voting)).ConfigureAwait(false);
         }
 
         public Task UpdateState(string votingId, VotingState state)
@@ -186,7 +209,7 @@ namespace FreieWahl.Voting.Storage
             DocumentReference votingRef = _db.Collection(_collection).Document(votingId);
             Dictionary<string, object> updates = new Dictionary<string, object>
             {
-                { "State", state }
+                { "State", (int)state }
             };
             return votingRef.UpdateAsync(updates);
         }

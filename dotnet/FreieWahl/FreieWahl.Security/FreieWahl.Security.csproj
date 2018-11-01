@@ -12,36 +12,20 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\FreieWahl.Common\FreieWahl.Common.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
     <Reference Include="Google.Cloud.Datastore.V1">
       <HintPath>C:\Users\Michael\.nuget\packages\google.cloud.datastore.v1\2.1.0\lib\netstandard1.5\Google.Cloud.Datastore.V1.dll</HintPath>
     </Reference>
     <Reference Include="Google.Cloud.Firestore">
       <HintPath>C:\Users\Michael\.nuget\packages\google.cloud.firestore\1.0.0-beta13\lib\netstandard1.5\Google.Cloud.Firestore.dll</HintPath>
     </Reference>
-    <Reference Include="Microsoft.AspNetCore.WebUtilities">
-      <HintPath>C:\Users\Michael\.nuget\packages\microsoft.aspnetcore.webutilities\2.0.0\lib\netstandard2.0\Microsoft.AspNetCore.WebUtilities.dll</HintPath>
-    </Reference>
     <Reference Include="Microsoft.Extensions.Logging.Abstractions">
       <HintPath>C:\Program Files\dotnet\sdk\NuGetFallbackFolder\microsoft.extensions.logging.abstractions\2.0.0\lib\netstandard2.0\Microsoft.Extensions.Logging.Abstractions.dll</HintPath>
-    </Reference>
-    <Reference Include="Microsoft.IdentityModel.Protocols">
-      <HintPath>C:\Program Files\dotnet\sdk\NuGetFallbackFolder\microsoft.identitymodel.protocols\2.1.4\lib\netstandard1.4\Microsoft.IdentityModel.Protocols.dll</HintPath>
-    </Reference>
-    <Reference Include="Microsoft.IdentityModel.Protocols.OpenIdConnect">
-      <HintPath>C:\Program Files\dotnet\sdk\NuGetFallbackFolder\microsoft.identitymodel.protocols.openidconnect\2.1.4\lib\netstandard1.4\Microsoft.IdentityModel.Protocols.OpenIdConnect.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.IdentityModel.Tokens">
       <HintPath>C:\Program Files\dotnet\sdk\NuGetFallbackFolder\microsoft.identitymodel.tokens\5.1.4\lib\netstandard1.4\Microsoft.IdentityModel.Tokens.dll</HintPath>
     </Reference>
     <Reference Include="System.IdentityModel.Tokens.Jwt">
       <HintPath>C:\Program Files\dotnet\sdk\NuGetFallbackFolder\system.identitymodel.tokens.jwt\5.1.4\lib\netstandard1.4\System.IdentityModel.Tokens.Jwt.dll</HintPath>
-    </Reference>
-    <Reference Include="System.Security">
-      <HintPath>C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.6.2\System.Security.dll</HintPath>
     </Reference>
   </ItemGroup>
 

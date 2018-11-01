@@ -56,9 +56,9 @@ namespace FreieWahl.Security.Signing.VotingTokens
             return publicKeys;
         }
 
-        public string Sign(string token, string votingId, int tokenIndex)
+        public async Task<string> Sign(string token, string votingId, int tokenIndex)
         {
-            var keyPair = _keyStore.GetKeyPair(votingId, tokenIndex);
+            var keyPair = await _keyStore.GetKeyPair(votingId, tokenIndex);
             var privateKey = (RsaPrivateCrtKeyParameters) keyPair.Private;
             BigInteger tokenInt = new BigInteger(token, 16);
             var signed = tokenInt.ModPow(privateKey.Exponent, privateKey.Modulus);
@@ -71,9 +71,9 @@ namespace FreieWahl.Security.Signing.VotingTokens
               0, 0, 0, 0, 0, 0, 0, 0,
               0, 0, 0, 0, 0, 0, 0, 0 });
 
-        public bool Verify(string signature, string origMessage, string votingId, int tokenIndex)
+        public async Task<bool> Verify(string signature, string origMessage, string votingId, int tokenIndex)
         {
-            var keyPair = _keyStore.GetKeyPair(votingId, tokenIndex);
+            var keyPair = await _keyStore.GetKeyPair(votingId, tokenIndex);
             var sigInt = new BigInteger(signature, 16);
             var publicKey = (RsaKeyParameters) keyPair.Public;
 

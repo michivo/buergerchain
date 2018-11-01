@@ -2,7 +2,6 @@
 using System.IO;
 using System.Net;
 using System.Threading.Tasks;
-using FirebaseAdmin.Auth;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 

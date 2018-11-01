@@ -76,21 +76,23 @@ namespace FreieWahl
                 var logger = LogFactory.CreateLogger("FreieWahl.Security.TimeStamps.TimestampService");
                 return new TimestampService(timestampServers, logger);
             });
-            //services.AddSingleton<IVotingStore>(p => new VotingStore(Configuration["Datastore:ProjectId"]));
-            services.AddSingleton<IVotingStore>(p => new VotingFireStore("freiewahl-application"));
+            services.AddSingleton<IVotingStore>(p => new VotingFireStore(Configuration["Google:ProjectId"]));
             services.AddSingleton<IAuthenticationManager, AuthenticationManager>();
             services.AddSingleton<IMailProvider>(p => new SendGridMailProvider(Configuration["SendGrid:ApiKey"],
                 Configuration["SendGrid:FromMail"], Configuration["SendGrid:FromName"]));
             services.AddSingleton<ISignatureHandler>(p => new SignatureHandler(new[] { cert }));
-            services.AddSingleton<IVotingKeyStore>(p => new VotingKeyStore(Configuration["Datastore:ProjectId"]));
+            //services.AddSingleton<IVotingKeyStore>(p => new VotingKeyStore(Configuration["Datastore:ProjectId"]));
+            services.AddSingleton<IVotingKeyStore>(p => new VotingKeyFireStore(Configuration["Google:ProjectId"]));
             services.AddSingleton<IRegistrationHandler, RegistrationHandler>();
             services.AddSingleton<IAuthorizationHandler, AuthorizationHandler>();
             services.AddSingleton<IRemoteTokenStore>(p => new RemoteTokenStore(Configuration["RemoteTokenStore:Url"]));
-            services.AddSingleton<IRegistrationStore>(p => new RegistrationStore(Configuration["Datastore:ProjectId"]));
+            //services.AddSingleton<IRegistrationStore>(p => new RegistrationStore(Configuration["Datastore:ProjectId"]));
+            services.AddSingleton<IRegistrationStore>(p => new RegistrationFireStore(Configuration["Google:ProjectId"]));
             services.AddSingleton<ISignatureProvider, SignatureProvider>();
             services.AddSingleton<IVotingResultManager, VotingResultManager>();
             services.AddSingleton<IVotingChainBuilder, VotingChainBuilder>();
-            services.AddSingleton<IVotingResultStore>(p => new VotingResultStore(Configuration["Datastore:ProjectId"]));
+            //services.AddSingleton<IVotingResultStore>(p => new VotingResultStore(Configuration["Datastore:ProjectId"]));
+            services.AddSingleton<IVotingResultStore>(p => new VotingResultFireStore(Configuration["Google:ProjectId"]));
             services.AddSingleton<ISessionCookieProvider>(p =>
                 new SessionCookieProvider(Configuration["SessionCookies:ProviderUrl"]));
             var sp = services.BuildServiceProvider();

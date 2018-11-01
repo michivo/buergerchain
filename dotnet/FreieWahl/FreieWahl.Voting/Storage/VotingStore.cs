@@ -5,7 +5,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using FreieWahl.Common;
 using FreieWahl.Voting.Models;
-using Google.Api.Gax.Grpc;
 using Google.Cloud.Datastore.V1;
 using Grpc.Core;
 

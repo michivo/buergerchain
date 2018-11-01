@@ -43,7 +43,7 @@ namespace FreieWahl.Application.VotingResults
 
         public async Task StoreVote(string votingId, int questionIndex, List<string> answers, string token, string signedToken)
         {
-            if (_votingTokenHandler.Verify(signedToken, token, votingId, questionIndex) == false)
+            if (await _votingTokenHandler.Verify(signedToken, token, votingId, questionIndex) == false)
                 throw new InvalidOperationException("Token and signature do not match");
             var data = _GetRawData(votingId, questionIndex, answers, token, signedToken);
             var timeStamp = await _timestampService.GetToken(data);
