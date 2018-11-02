@@ -10,6 +10,7 @@ namespace FreieWahl.Security.Signing.Buergerkarte
     public class SignatureHandler : ISignatureHandler
     {
         private readonly X509Certificate2[] _trustedRootCertificates;
+
         //static DerObjectIdentifier sFullNameIdentifier = new DerId
 
         public SignatureHandler(X509Certificate2[] trustedRootCertificates)
@@ -36,8 +37,8 @@ namespace FreieWahl.Security.Signing.Buergerkarte
             }
             var signers = cms.GetSignerInfos().GetSigners().Cast<SignerInformation>().ToList();
 
-            if(signers.Count > 1)
-                throw new Exception("CMS should be signed by exactly one signer");
+            if (signers.Count > 1)
+                throw new Exception("CMS should be signed by exactly one signee");
 
             var certs = cms.GetCertificates("Collection");
             var matches = certs.GetMatches(signers[0].SignerID);
@@ -45,14 +46,14 @@ namespace FreieWahl.Security.Signing.Buergerkarte
             var fullName = signerCert.SubjectDN.GetValueList(new DerObjectIdentifier("2.5.4.3")).Cast<string>().Single(); // id-at-commonName
             var serial = signerCert.SubjectDN.GetValueList(new DerObjectIdentifier("2.5.4.5")).Cast<string>().Single(); // id-at-serialNumber
 
-            // var leafCert = new X509Certificate2(signerCert.GetEncoded()); // checking cert is easier with .net
-            // var rootIssuer = _CheckIssuer(leafCert);
-            // var root = _GetRootCertificate(rootIssuer); // TODO - does not work in app engine, cert chain misses cert
+            var leafCert = new X509Certificate2(signerCert.GetEncoded()); // checking cert is easier with .net
+            var rootIssuer = _CheckIssuer(leafCert);
+            var root = _GetRootCertificate(rootIssuer);
 
-            return new SignedData(fullName, serial, null, content);
+            return new SignedData(fullName, serial, root, content);
         }
 
-        private static X509Certificate2 _CheckIssuer(X509Certificate2 leafCert)
+        private X509Certificate2 _CheckIssuer(X509Certificate2 leafCert)
         {
             if (leafCert.Subject == leafCert.Issuer)
             {
@@ -61,6 +62,7 @@ namespace FreieWahl.Security.Signing.Buergerkarte
 
             X509Chain chain = new X509Chain();
             chain.ChainPolicy.RevocationMode = X509RevocationMode.NoCheck;
+            chain.ChainPolicy.ExtraStore.AddRange(_trustedRootCertificates);
             chain.Build(leafCert);
             X509Certificate2 issuer = chain.ChainElements[chain.ChainElements.Count - 1].Certificate;
             chain.Reset();

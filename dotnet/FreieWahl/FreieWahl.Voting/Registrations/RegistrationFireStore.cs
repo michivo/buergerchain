@@ -22,6 +22,18 @@ namespace FreieWahl.Voting.Registrations
 
         public async Task AddOpenRegistration(OpenRegistration openRegistration)
         {
+            var duplicateQuery = _db.Collection(_openCollection)
+                .WhereEqualTo("VotingId", openRegistration.VotingId)
+                .WhereEqualTo("VoterIdentity", openRegistration.VoterIdentity);
+            var duplicates = await duplicateQuery.GetSnapshotAsync();
+            if (duplicates.Count > 0)
+            {
+                foreach (var duplicate in duplicates)
+                {
+                    await _db.Collection(_openCollection).Document(duplicate.Id).DeleteAsync().ConfigureAwait(false);
+                }
+            }
+
             var doc = _db.Collection(_openCollection).Document(openRegistration.Id);
             await doc.SetAsync(new Dictionary<string, object>
             {
@@ -34,19 +46,7 @@ namespace FreieWahl.Voting.Registrations
 
         public async Task AddCompletedRegistration(CompletedRegistration completedRegistration)
         {
-            var duplicateQuery = _db.Collection(_closedCollection)
-                .WhereEqualTo("VotingId", completedRegistration.VotingId)
-                .WhereEqualTo("VoterIdentity", completedRegistration.VoterIdentity);
-            var duplicates = await duplicateQuery.GetSnapshotAsync();
-            if (duplicates.Count > 0)
-            {
-                foreach (var duplicate in duplicates)
-                {
-                    await _db.Collection(_closedCollection).Document(duplicate.Id).DeleteAsync().ConfigureAwait(false);
-                }
-            }
-
-            await _db.Collection(_closedCollection).AddAsync(new Dictionary<string, object>
+            var newDoc = await _db.Collection(_closedCollection).AddAsync(new Dictionary<string, object>
             {
                 {"VotingId", completedRegistration.VotingId},
                 {"VoterIdentity", completedRegistration.VoterIdentity},
@@ -56,6 +56,20 @@ namespace FreieWahl.Voting.Registrations
                 {"AdminUserId", completedRegistration.AdminUserId },
                 {"Decision", (int)completedRegistration.Decision }
             }).ConfigureAwait(false);
+
+            var duplicateQuery = _db.Collection(_closedCollection)
+                .WhereEqualTo("VotingId", completedRegistration.VotingId)
+                .WhereEqualTo("VoterIdentity", completedRegistration.VoterIdentity);
+            var duplicates = await duplicateQuery.GetSnapshotAsync();
+            if (duplicates.Count > 1)
+            { 
+                foreach (var duplicate in duplicates)
+                {
+                    if (duplicate.Id.Equals(newDoc.Id))
+                        continue;
+                    await _db.Collection(_closedCollection).Document(duplicate.Id).DeleteAsync().ConfigureAwait(false);
+                }
+            }
         }
 
         public async Task<IReadOnlyList<OpenRegistration>> GetOpenRegistrationsForVoting(string votingId)

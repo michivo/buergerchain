@@ -64,9 +64,13 @@ namespace FreieWahl
                 });
 
             var buergerkarteRootCa5 = Configuration["Buergerkarte:RootCertificate"];
+            var buergerkarteMobile05 = Configuration["Buergerkarte:CertificateMobile05"];
 
             var certRaw = Convert.FromBase64String(buergerkarteRootCa5);
             X509Certificate2 cert = new X509Certificate2(certRaw);
+            var certRawMob = Convert.FromBase64String(buergerkarteMobile05);
+            X509Certificate2 certMobile = new X509Certificate2(certRawMob);
+
             services.AddSingleton<IConfiguration>(Configuration);
             services.AddSingleton<IJwtAuthentication, FirebaseJwtAuthentication>();
             services.AddSingleton<IUserHandler, UserHandler>();
@@ -80,7 +84,7 @@ namespace FreieWahl
             services.AddSingleton<IAuthenticationManager, AuthenticationManager>();
             services.AddSingleton<IMailProvider>(p => new SendGridMailProvider(Configuration["SendGrid:ApiKey"],
                 Configuration["SendGrid:FromMail"], Configuration["SendGrid:FromName"]));
-            services.AddSingleton<ISignatureHandler>(p => new SignatureHandler(new[] { cert }));
+            services.AddSingleton<ISignatureHandler>(p => new SignatureHandler(new[] { cert, certMobile }));
             //services.AddSingleton<IVotingKeyStore>(p => new VotingKeyStore(Configuration["Datastore:ProjectId"]));
             services.AddSingleton<IVotingKeyStore>(p => new VotingKeyFireStore(Configuration["Google:ProjectId"]));
             services.AddSingleton<IRegistrationHandler, RegistrationHandler>();

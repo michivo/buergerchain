@@ -547,6 +547,7 @@ const Registration = (function () {
     let mVotingId;
     let grantRegistration;
     let denyRegistration;
+    let currentUpdateRequest;
 
     var showCompletedRegistrations = function (registrations) {
         const grantedList = $("#grantedRegistrationsList");
@@ -589,14 +590,21 @@ const Registration = (function () {
     }
 
     var updateRegistrations = function () {
-        $.ajax({
+        if (currentUpdateRequest) {
+            currentUpdateRequest.abort();
+        }
+        currentUpdateRequest = $.ajax({
             url: '../Registration/GetRegistrations',
             data: { "votingId": mVotingId },
             type: 'POST',
             datatype: 'json',
             success: function (data) {
                 showRegistrations(data);
-            } // TODO error
+                currentUpdateRequest = null;
+            }, // TODO error
+            error: function(err) {
+                currentUpdateRequest = null;
+            }
         });
 
         $.ajax({
