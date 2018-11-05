@@ -117,24 +117,26 @@ app.post('/setKeys', wrapAsync(async function (req, res) {
 
 app.post('/getTokens', wrapAsync(async function (req, res) {
   const voterId = req.body.voterId;
-  let questionIndices = req.body.questionIndices;
-  if (questionIndices.length === 0) {
-    res.json({ 'tokens': [] }).end;
-  }
-  if (typeof questionIndices[0] === "string" || questionIndices[0] instanceof String) {
-    questionIndices = questionIndices.map(x => parseInt(x));
-  }
-
   const password = await dbwrapper.getPasswordHash(voterId);
   const hashedPassword = getPasswordHash(req.body.password);
   if (hashedPassword != password) {
     res.status(401).send("Invalid password").end;
+    return;
   }
-  else {
-    const tokens = await dbwrapper.getVotingTokens(voterId);
-    const filteredTokens = tokens.filter(token => questionIndices.includes(token.tokenIndex));
-    res.json({ 'tokens': filteredTokens }).end;
+
+  let questionIndices = req.body.questionIndices;
+  if (!questionIndices || questionIndices.length === 0) {    
+    res.json({ 'tokens': [] }).end;
+    return;
   }
+  
+  if (typeof questionIndices[0] === "string" || questionIndices[0] instanceof String) {
+    questionIndices = questionIndices.map(x => parseInt(x));
+  }
+
+  const tokens = await dbwrapper.getVotingTokens(voterId);
+  const filteredTokens = tokens.filter(token => questionIndices.includes(token.tokenIndex));
+  res.json({ 'tokens': filteredTokens }).end;
 }));
 
 app.post('/getToken', wrapAsync(async function (req, res) {

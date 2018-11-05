@@ -7,11 +7,13 @@ using System.Threading.Tasks;
 using System.Xml;
 using FreieWahl.Application.Authentication;
 using FreieWahl.Application.Registrations;
+using FreieWahl.Application.Voting;
 using FreieWahl.Common;
 using FreieWahl.Helpers;
 using FreieWahl.Security.Signing.Buergerkarte;
 using FreieWahl.Voting.Registrations;
 using FreieWahl.Voting.Storage;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
@@ -27,7 +29,8 @@ namespace FreieWahl.Controllers
         private readonly IRegistrationStore _registrationStore;
         private readonly IAuthorizationHandler _authHandler;
         private readonly IRegistrationHandler _registrationHandler;
-        private readonly IVotingStore _votingStore;
+        private readonly IVotingManager _votingManager;
+        private readonly IHostingEnvironment _environment;
         private readonly string _regUrl;
         private readonly int _tokenCount;
         private readonly string _redirectUrl;
@@ -39,14 +42,16 @@ namespace FreieWahl.Controllers
             IAuthorizationHandler authHandler,
             IRegistrationHandler registrationHandler,
             IConfiguration configuration,
-            IVotingStore votingStore)
+            IVotingManager votingManager,
+            IHostingEnvironment environment)
         {
             _logger = logger;
             _signatureHandler = signatureHandler;
             _registrationStore = registrationStore;
             _authHandler = authHandler;
             _registrationHandler = registrationHandler;
-            _votingStore = votingStore;
+            _votingManager = votingManager;
+            _environment = environment;
             _regUrl = configuration["RemoteTokenStore:Url"];
             _tokenCount = int.Parse(configuration["VotingSettings:MaxNumQuestions"]);
             _redirectUrl = configuration["Registration:RedirectUrl"];
@@ -126,6 +131,11 @@ namespace FreieWahl.Controllers
 
         public async Task<IActionResult> FakeRegistrations(string votingId, int count)
         {
+            if (!_environment.IsDevelopment())
+            {
+                return NotFound();
+            }
+
             string[] firstNames = { "Anton", "Berta", "Christoph", "Dora", "Emil", "Franz", "Greta", "Heinz", "Ida", "Jörg", "Karl", "Leo", "Michael", "Norbert", "Oskar", "Paula", "Rosi", "Susi", "Thomas", "Uwe", "Viktor", "Werner", "Xaver", "Zacharias" };
             string[] lastNames = { "Almer", "Brunner", "Degen", "Eisenberger", "Faschinger", "Gruber", "Huber", "Jaklitsch", "Konrad", "Lechner", "Maier", "Nachbagauer", "Ortner", "Pospisil", "Rüdiger", "Schiffkowitz", "Timischl", "Unterasinger", "Vogel", "Wiener", "Richter" };
             Random rnd = new Random();
@@ -189,7 +199,7 @@ namespace FreieWahl.Controllers
             var registration = await _registrationStore.GetOpenRegistration(regUid);
             var id = registration.VotingId;
 
-            var voting = await _votingStore.GetById(id);
+            var voting = await _votingManager.GetById(id);
             ViewData["RegistrationStoreId"] = Guid.NewGuid().ToString("D");
             ViewData["VotingTitle"] = voting.Title;
             ViewData["VotingDescription"] = voting.Description;
@@ -205,7 +215,7 @@ namespace FreieWahl.Controllers
 
         public async Task<IActionResult> RegistrationError(string reason, string votingId)
         {
-            var voting = await _votingStore.GetById(votingId);
+            var voting = await _votingManager.GetById(votingId);
             if (voting != null)
             {
                 ViewData["RegistrationStoreId"] = Guid.NewGuid().ToString("D");

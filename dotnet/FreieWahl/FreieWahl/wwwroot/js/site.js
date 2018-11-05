@@ -174,6 +174,7 @@ function previewAndUploadFile(type) {
         canvas.height = height;
         context.drawImage(img, 0, 0, width, height);
         $('#fw-' + type + '-img-dummy').hide();
+        $('#fw-' + type + '-img').hide();
         $('#fw-' + type + '-img-real').show();
         if (type === 'user')
             uploadFile();
@@ -198,6 +199,8 @@ function uploadFile() {
 }
 
 function updateImage(data) {
+    $('#fw-' + type + '-img').show();
+    $('#fw-' + type + '-img-real').hide();
 }
 
 function fwValidate(elementId, validationId, regex) {

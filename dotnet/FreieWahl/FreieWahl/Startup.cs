@@ -5,6 +5,7 @@ using System.IO;
 using System.Security.Cryptography.X509Certificates;
 using FreieWahl.Application.Authentication;
 using FreieWahl.Application.Registrations;
+using FreieWahl.Application.Voting;
 using FreieWahl.Application.VotingResults;
 using FreieWahl.Common;
 using FreieWahl.Mail;
@@ -97,12 +98,13 @@ namespace FreieWahl
             services.AddSingleton<IVotingChainBuilder, VotingChainBuilder>();
             //services.AddSingleton<IVotingResultStore>(p => new VotingResultStore(Configuration["Datastore:ProjectId"]));
             services.AddSingleton<IVotingResultStore>(p => new VotingResultFireStore(Configuration["Google:ProjectId"]));
+            services.AddSingleton<IVotingManager, VotingManager>();
             services.AddSingleton<ISessionCookieProvider>(p =>
                 new SessionCookieProvider(Configuration["SessionCookies:ProviderUrl"]));
             var sp = services.BuildServiceProvider();
             services.AddSingleton<IVotingTokenHandler>(p => new VotingTokenHandler(sp.GetService<IVotingKeyStore>(),
                 int.Parse(Configuration["VotingSettings:MaxNumQuestions"])));
-            services.AddSingleton<IUserDataStore>(p => new UserDataStore(Configuration["Datastore:ProjectId"]));
+            services.AddSingleton<IUserDataStore>(p => new UserDataFireStore(Configuration["Google:ProjectId"], Configuration["Buckets:UserImages"]));
         }
 
         private List<TimestampServer> _GetTimestampServers()

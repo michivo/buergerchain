@@ -6,6 +6,7 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using FreieWahl.Application.Voting;
 using FreieWahl.Security.Signing.VotingTokens;
 using FreieWahl.Security.TimeStamps;
 using FreieWahl.Voting.Models;
@@ -21,7 +22,7 @@ namespace FreieWahl.Application.VotingResults
         private readonly IVotingTokenHandler _votingTokenHandler;
         private readonly IVotingResultStore _votingResultStore;
         private readonly IVotingChainBuilder _votingChainBuilder;
-        private readonly IVotingStore _votingStore;
+        private readonly IVotingManager _votingManager;
         private readonly SHA256Managed _hasher;
         private readonly Dictionary<string, Dictionary<int, Vote>> _lastVoteCache;
         private readonly Dictionary<string, Dictionary<int, SemaphoreSlim>> _voteStoreLocks;
@@ -29,13 +30,13 @@ namespace FreieWahl.Application.VotingResults
         public VotingResultManager(ITimestampService timestampService,
             IVotingTokenHandler votingTokenHandler, IVotingResultStore votingResultStore,
             IVotingChainBuilder votingChainBuilder,
-            IVotingStore votingStore)
+            IVotingManager votingManager)
         {
             _timestampService = timestampService;
             _votingTokenHandler = votingTokenHandler;
             _votingResultStore = votingResultStore;
             _votingChainBuilder = votingChainBuilder;
-            _votingStore = votingStore;
+            _votingManager = votingManager;
             _hasher = new SHA256Managed();
             _lastVoteCache = new Dictionary<string, Dictionary<int, Vote>>();
             _voteStoreLocks = new Dictionary<string, Dictionary<int, SemaphoreSlim>>();
@@ -45,6 +46,7 @@ namespace FreieWahl.Application.VotingResults
         {
             if (await _votingTokenHandler.Verify(signedToken, token, votingId, questionIndex) == false)
                 throw new InvalidOperationException("Token and signature do not match");
+
             var data = _GetRawData(votingId, questionIndex, answers, token, signedToken);
             var timeStamp = await _timestampService.GetToken(data);
             var timeStampString = _TokenToString(timeStamp);
@@ -111,7 +113,7 @@ namespace FreieWahl.Application.VotingResults
                 return _votingChainBuilder.GetSignature(lastVote);
             }
 
-            var vote = await _votingStore.GetById(votingId);
+            var vote = await _votingManager.GetById(votingId);
             var question = vote.Questions[questionIndex];
             return _votingChainBuilder.GetGenesisValue(question);
         }

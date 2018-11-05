@@ -11,13 +11,13 @@
                 <div id="fw-user-img-content" class="fw-user-img" style="cursor: pointer" onclick="showFileSelector('#fw-user-img-upload')">
                     @if (!string.IsNullOrEmpty(Model.Image))
                     {
-                        <img src="@Model.Image" style="max-height: 300px; max-width: 300px" />
+                        <img src="@Model.Image" style="max-height: 300px; max-width: 300px" id="fw-user-img" />
                     }
                     else
                     {
                         <i class="material-icons fw-user-img" id="fw-user-img-dummy">account_circle</i>
-                        <canvas id="fw-user-img-real" style="display: none;" width="300" height="300"></canvas>
                     }
+                    <canvas id="fw-user-img-real" style="display: none;" width="300" height="300"></canvas>
                     <div id="fw-user-img-selector" style="position: absolute; top: 0; left: 1rem; color: white; display: flex; align-content: center; padding: .1rem; border: 1px solid rgba(255, 255, 255, 0); height: 2rem">
                         <i id="fw-user-img-icon" class="material-icons" style="font-size: 2rem; text-shadow: 0px 1px 1px #657f8C">
                             photo_camera

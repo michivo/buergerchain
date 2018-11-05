@@ -77,6 +77,8 @@
             const questionidx = id.substr(startIdx + 1, endIdx - startIdx - 1);
             setupOrderingQuestion(questionidx);
         });
+
+        $('.alert').alert();
     };
 
     var loadQuestions = function(data) {
@@ -117,6 +119,24 @@
         });
     };
 
+    var showErrorForVote = function (message, index) {
+        const elementId = `#question-error-${index}`;
+        $(elementId + ' > span').text(message.responseText);
+        $(elementId).removeClass('hide');
+        $(elementId).addClass('show');
+        $(`#submit-question-${index}`).hide();
+        $(`#abstain-question-${index}`).hide();
+        $(elementId).on('closed.bs.alert',
+            function() {
+                $(`#submit-question-${index}`).removeClass("disabled");
+                $(`#abstain-question-${index}`).removeClass("disabled");
+                $(`#submit-question-${index}`).text("Stimme abgeben");
+                $(`#abstain-question-${index}`).text("Enthalten");
+                $(`#submit-question-${index}`).show();
+                $(`#abstain-question-${index}`).show();
+            });
+    }
+
     var submitVoteWithToken = function (index, answerIds, token, signedToken) {
         $.ajax({
             url: "SubmitVote",
@@ -134,8 +154,7 @@
                 updateQuestion(index);
             },
             error: function (x) {
-                alert(JSON.stringify(x));
-                // error: todo
+                showErrorForVote(x, index);
             }
         });
     };
@@ -150,8 +169,7 @@
                 submitVoteWithToken(index, answerIds, data.token, data.unblindedToken);
             },
             error: function(x) {
-                alert(JSON.stringify(x));
-                // error: todo
+                showErrorForVote(x, index);
             }
         });
     };
@@ -166,6 +184,7 @@
     var getTokens = function() {
         const pwd = $('#voterPassword').val();
         mPassword = pwd;
+        // TODO: if there are no questions, only check pwd!
         $.ajax({
             url: mGetTokensUrl,
             data: { "voterId": mVoterId, "password": pwd, "questionIndices": mQuestionIndices },

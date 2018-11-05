@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
+using FreieWahl.Application.Voting;
 using FreieWahl.Application.VotingResults;
 using FreieWahl.Common;
 using FreieWahl.Helpers;
@@ -18,16 +19,16 @@ namespace FreieWahl.Controllers
     [ForwardedRequireHttps]
     public class VotingController : Controller
     {
-        private readonly IVotingStore _votingStore;
+        private readonly IVotingManager _votingManager;
         private readonly IVotingResultManager _votingResultManager;
         private readonly string _regUrl;
 
         public VotingController(
-            IVotingStore votingStore,
+            IVotingManager votingManager,
             IConfiguration configuration,
             IVotingResultManager votingResultManager)
         {
-            _votingStore = votingStore;
+            _votingManager = votingManager;
             _votingResultManager = votingResultManager;
 
             _regUrl = configuration["RemoteTokenStore:Url"];
@@ -35,7 +36,7 @@ namespace FreieWahl.Controllers
 
         public async Task<IActionResult> Register(string votingId)
         {
-            var voting = await _votingStore.GetById(votingId);
+            var voting = await _votingManager.GetById(votingId);
             ViewData["VotingId"] = votingId;
             ViewData["RegistrationStoreId"] = Guid.NewGuid().ToString("D");
             ViewData["VotingTitle"] = voting.Title;
@@ -50,10 +51,15 @@ namespace FreieWahl.Controllers
         [HttpGet]
         public async Task<IActionResult> Vote(string votingId, string voterId)
         {
-            var voting = await _votingStore.GetById(votingId);
+            var voting = await _votingManager.GetById(votingId);
             if (voting == null)
             {
                 return BadRequest("No voting with the given id");
+            }
+
+            if (voting.State == VotingState.Closed)
+            {
+                return BadRequest("Voting has already been closed!");
             }
 
             var questions = voting.Questions
@@ -79,7 +85,7 @@ namespace FreieWahl.Controllers
 
         public async Task<IActionResult> GetQuestion(string votingId, string voterId, int questionIndex, string token)
         {
-            var voting = await _votingStore.GetById(votingId);
+            var voting = await _votingManager.GetById(votingId);
             if (voting == null)
             {
                 return BadRequest("No voting with the given id");
@@ -119,7 +125,7 @@ namespace FreieWahl.Controllers
 
         public async Task<IActionResult> GetQuestions(string votingId, string voterId, string[] tokens)
         {
-            var voting = await _votingStore.GetById(votingId);
+            var voting = await _votingManager.GetById(votingId);
             if (voting == null)
             {
                 return BadRequest("No voting with the given id");
@@ -175,42 +181,41 @@ namespace FreieWahl.Controllers
             };
         }
 
-        [HttpGet]
-        public async Task<IActionResult> CastVote(string votingId, string voterId, int questionIndex)
-        {
-            var voting = await _votingStore.GetById(votingId);
-            if (voting == null)
-            {
-                return BadRequest("No voting with the given id");
-            }
-
-            var question = voting.Questions.FirstOrDefault(x =>
-                x.Status == QuestionStatus.OpenForVoting && x.QuestionIndex == questionIndex);
-            if (question == null)
-            {
-                return BadRequest("No question with the given id is ready for voting");
-            }
-
-            var model = question.AnswerOptions.Select(x => new FreieWahl.Models.Voting.AnswerOption
-            {
-                Text = x.AnswerText,
-                Description = "yadda yadda ", // TODO
-                Id = x.Id
-            });
-            ViewData["VoterId"] = voterId;
-            ViewData["VotingId"] = votingId;
-            ViewData["QuestionIndex"] = questionIndex;
-            ViewData["RegistrationStoreGetTokenUrl"] = _regUrl + "getToken";
-            return View(model);
-        }
-
         [HttpPost]
         public async Task<IActionResult> SubmitVote(string votingId, int questionIndex, string[] answerIds,
             string signedToken, string token)
         {
-            await _votingResultManager.StoreVote(votingId, questionIndex, answerIds.ToList(), token,
-                signedToken);
-            return Ok();
+            var voting = await _votingManager.GetById(votingId);
+            if (voting == null)
+            {
+                return BadRequest("There is no voting with the given id");
+            }
+            if (voting.State == VotingState.Closed)
+            {
+                return BadRequest("Voting has already been closed!");
+            }
+
+            var question = voting.Questions.SingleOrDefault(x => x.QuestionIndex == questionIndex);
+            if (question == null)
+            {
+                return BadRequest("There is no question with the given index!");
+            }
+
+            if (question.Status != QuestionStatus.OpenForVoting)
+            {
+                return BadRequest("The given question is no open for voting!");
+            }
+
+            try
+            {
+                await _votingResultManager.StoreVote(votingId, questionIndex, answerIds.ToList(), token,
+                    signedToken);
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                return BadRequest("Voting token could not be verified or vote could not be stored.");
+            }
         }
     }
 }

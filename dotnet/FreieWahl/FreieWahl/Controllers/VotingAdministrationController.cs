@@ -10,6 +10,7 @@ using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
 using FreieWahl.Application.Registrations;
+using FreieWahl.Application.Voting;
 using FreieWahl.Application.VotingResults;
 using FreieWahl.Common;
 using FreieWahl.Helpers;
@@ -22,7 +23,7 @@ namespace FreieWahl.Controllers
     [ForwardedRequireHttps] 
     public class VotingAdministrationController : Controller
     {
-        private readonly IVotingStore _votingStore;
+        private readonly IVotingManager _votingManager;
         private readonly IMailProvider _mailProvider;
         private readonly IVotingTokenHandler _tokenHandler;
         private readonly IAuthorizationHandler _authorizationHandler;
@@ -32,7 +33,7 @@ namespace FreieWahl.Controllers
 
 
         public VotingAdministrationController(
-            IVotingStore votingStore,
+            IVotingManager votingManager,
             IMailProvider mailProvider,
             IVotingTokenHandler tokenHandler, 
             IAuthorizationHandler authorizationHandler,
@@ -40,7 +41,7 @@ namespace FreieWahl.Controllers
             IUserDataStore userDataStore,
             IVotingResultManager votingResults)
         {
-            _votingStore = votingStore;
+            _votingManager = votingManager;
             _mailProvider = mailProvider;
             _tokenHandler = tokenHandler;
             _authorizationHandler = authorizationHandler;
@@ -94,7 +95,7 @@ namespace FreieWahl.Controllers
             if (user == null)
                 return Unauthorized();
             
-            var votingsForUser = await _votingStore.GetForUserId(user.UserId);
+            var votingsForUser = await _votingManager.GetForUserId(user.UserId);
             var resultForSerialization = votingsForUser.Select(x => new
             {
                 x.Title,
@@ -112,14 +113,14 @@ namespace FreieWahl.Controllers
             if (!isAuthorized)
                 return Unauthorized();
 
-            var voting = await _votingStore.GetById(votingId);
+            var voting = await _votingManager.GetById(votingId);
             var question = voting.Questions.SingleOrDefault(x => x.QuestionIndex == questionIndex);
 
             if (question == null || question.Status != QuestionStatus.InPreparation)
                 return BadRequest();
 
             question.Status = QuestionStatus.OpenForVoting;
-            await _votingStore.UpdateQuestion(votingId, question);
+            await _votingManager.UpdateQuestion(votingId, question);
 
             return Ok();
         }
@@ -131,14 +132,14 @@ namespace FreieWahl.Controllers
             if (!isAuthorized)
                 return Unauthorized();
 
-            var voting = await _votingStore.GetById(votingId);
+            var voting = await _votingManager.GetById(votingId);
             var question = voting.Questions.SingleOrDefault(x => x.QuestionIndex == questionIndex);
 
             if (question == null || question.Status != QuestionStatus.OpenForVoting)
                 return BadRequest();
 
             question.Status = QuestionStatus.Locked;
-            await _votingStore.UpdateQuestion(votingId, question);
+            await _votingManager.UpdateQuestion(votingId, question);
 
             return Ok();
         }
@@ -164,7 +165,7 @@ namespace FreieWahl.Controllers
             if (user == null)
                 return Unauthorized();
 
-            var voting = await _votingStore.GetById(id);
+            var voting = await _votingManager.GetById(id);
             List<Vote> votes = null;
             if (voting.Questions.Any(x => x.Status == QuestionStatus.Locked))
             {
@@ -195,7 +196,7 @@ namespace FreieWahl.Controllers
             if (user == null)
                 return Unauthorized();
 
-            var voting = await _votingStore.GetById(id);
+            var voting = await _votingManager.GetById(id);
             List<Vote> votes = null;
             if (voting.Questions.Any(x => x.Status == QuestionStatus.Locked))
             {
@@ -263,7 +264,7 @@ namespace FreieWahl.Controllers
             if (await _authorizationHandler.CheckAuthorization(id, Operation.UpdateQuestion, Request.Cookies["session"]) == false)
                 return Unauthorized();
 
-            var voting = await _votingStore.GetById(id); // TODO - handle missing voting
+            var voting = await _votingManager.GetById(id); // TODO - handle missing voting
             var question = _GetQuestion(title, desc, answers, answerDescriptions);
             if (question.Status != QuestionStatus.InPreparation)
             {
@@ -276,11 +277,11 @@ namespace FreieWahl.Controllers
             question.MaxNumAnswers = question.QuestionType == QuestionType.Decision ? 1 : maxNumAnswers;
             if (question.QuestionIndex == 0)
             {
-                await _votingStore.AddQuestion(voting.Id, question);
+                await _votingManager.AddQuestion(voting.Id, question);
                 return Ok();
             }
 
-            await _votingStore.UpdateQuestion(voting.Id, question);
+            await _votingManager.UpdateQuestion(voting.Id, question);
             return Ok(); // TODO err handling
         }
 
@@ -293,7 +294,7 @@ namespace FreieWahl.Controllers
             if (!questionId.HasValue)
                 return BadRequest("Invalid votingId/questionid");
 
-            await _votingStore.DeleteQuestion(id, (int)questionId.Value);
+            await _votingManager.DeleteQuestion(id, (int)questionId.Value);
             return Ok(); // TODO err handling
         }
 
@@ -303,7 +304,7 @@ namespace FreieWahl.Controllers
             if (await _authorizationHandler.CheckAuthorization(id, Operation.DeleteVoting, Request.Cookies["session"]) == false)
                 return Unauthorized();
 
-            await _votingStore.Delete(id);
+            await _votingManager.Delete(id);
             // TODO error handling
             return Ok();
         }
@@ -314,7 +315,7 @@ namespace FreieWahl.Controllers
             if (await _authorizationHandler.CheckAuthorization(votingId, Operation.Invite, Request.Cookies["session"]) == false)
                 return Unauthorized();
 
-            var voting = await _votingStore.GetById(votingId);
+            var voting = await _votingManager.GetById(votingId);
             var registrationUrl = _GetRegistrationUrl(votingId);
             var registrationUrlLink = "<a href=\"" + registrationUrl + "\">" + registrationUrl + "</a>";
             var dateString = voting.StartDate.ToString("HH:mm") + " am " + voting.StartDate.ToString("dd.MM.yyyy");
@@ -394,7 +395,7 @@ namespace FreieWahl.Controllers
                 EndDate = endDate
             };
 
-            await _votingStore.Insert(voting).ConfigureAwait(false);
+            await _votingManager.Insert(voting).ConfigureAwait(false);
 
             // not awaited intentionally! this might take a few minutes, we do not need to wait for it to finish
 #pragma warning disable 4014
@@ -404,7 +405,7 @@ namespace FreieWahl.Controllers
 
                     var keys = t.Result;
                     _remoteTokenStore.InsertPublicKeys(voting.Id, keys);
-                    _votingStore.UpdateState(voting.Id, VotingState.Ready);
+                    _votingManager.UpdateState(voting.Id, VotingState.Ready);
                 });
 #pragma warning restore 4014
 
@@ -413,13 +414,13 @@ namespace FreieWahl.Controllers
 
         private async Task<IActionResult> _UpdateVoting(string id, string title, string desc, string imageData)
         {
-            var voting = await _votingStore.GetById(id);
+            var voting = await _votingManager.GetById(id);
             voting.Title = title;
             voting.Description = desc;
             if (!string.IsNullOrEmpty(imageData))
                 voting.ImageData = imageData;
 
-            await _votingStore.Update(voting).ConfigureAwait(false);
+            await _votingManager.Update(voting).ConfigureAwait(false);
 
             return Ok();
         }
