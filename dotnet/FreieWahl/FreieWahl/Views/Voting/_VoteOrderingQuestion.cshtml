@@ -4,43 +4,51 @@
     <div class="card-header position-relative p-0 fw-voting-question-header" id="header-question-@Model.Index">
         <div class="bg-white rounded-circle text-secondary text-center fw-voting-question-symbol">?</div>
         <button class="btn collapsed btn-secondary w-100 text-left fw-voting-question-toggler" data-toggle="collapse" data-target="#body-question-@Model.Index"
-                aria-expanded="false" aria-controls="body-question-@Model.Index" id="question-@Model.Index-title">@Model.Text</button>
-    </div>
-    <div id="body-question-@Model.Index" class="collapse" data-parent="#votingQuestions" aria-labelledby="header-question-@Model.Index">
-        <div class="card-body">
-            @if (!string.IsNullOrEmpty(Model.Description))
-            {
-                <p class="card-text" style="border-bottom: 1px solid #C0C0C0" id="question-@Model.Index-description">@Model.Description</p>
-            }
-            <div class="container">
-                <div class="row ordering-question-list" id="question-@Model.Index-answers">
-                    <div class="col-lg-5 col-12 sortable" id="options-@Model.Index">
-                        @foreach (var answer in Model.AnswerOptions)
-                        {
-                            <div class="my-2 border w-100 fw-answer-title px-2 rounded" id="answer-@Model.Index-@answer.Id">
-                                <span>@answer.Answer</span>
-                                <br />
-                                @if (!string.IsNullOrEmpty(answer.Description))
-                                {
-                                    <span class="small text-primary fw-answer-description">@answer.Description</span>
-                                }
+                aria-expanded="false" aria-controls="body-question-@Model.Index" id="question-@Model.Index-title">
+            @Model.Text
+            </button>
+        </div>
+        <div id="body-question-@Model.Index" class="collapse" data-parent="#votingQuestions" aria-labelledby="header-question-@Model.Index">
+            <div class="card-body">
+                @if (!string.IsNullOrEmpty(Model.Description))
+                {
+                    <p class="card-text" style="border-bottom: 1px solid #C0C0C0" id="question-@Model.Index-description">@Model.Description</p>
+                }
+                <div class="container">
+                    <div class="row ordering-question-list" id="question-@Model.Index-answers">
+                        <div class="col-lg-5 col-12 sortable" id="options-@Model.Index">
+                            @foreach (var answer in Model.AnswerOptions)
+                            {
+                                <div class="my-2 border w-100 fw-answer-title px-2 rounded" id="answer-@Model.Index-@answer.Id">
+                                    <span>@answer.Answer</span>
+                                    <br />
+                                    @if (!string.IsNullOrEmpty(answer.Description))
+                                    {
+                                        <span class="small text-primary fw-answer-description">@answer.Description</span>
+                                    }
+                                </div>
+                            }
+                        </div>
+                        <div class="col align-self-center">
+                            <i class="material-icons text-primary m-0" style="font-size: 2.5rem">swap_horiz</i>
+                        </div>
+                        <div class="col-lg-6 col-12 p-1" style="position:relative;border:2px solid #C0C0C0;min-height: 5rem">
+                            <div class="text-primary p-4 fw-options-info" style="z-index:1;position: absolute;color:#657f8C"
+                                 id="info-options-@Model.Index">Ziehen Sie bis zu@Model.MaxNumAnswersAntworten hierher.</div>
+                            <div class="w-100 fw-selected-options" style="z-index:10;height: 100%" id="selected-options-@Model.Index">
                             </div>
-                        }
-                    </div>
-                    <div class="col align-self-center">
-                        <i class="material-icons text-primary m-0" style="font-size: 2.5rem">swap_horiz</i>
-                    </div>
-                    <div class="col-lg-6 col-12 p-1" style="position:relative;border:2px solid #C0C0C0;min-height: 5rem">
-                        <div class="text-primary p-4 fw-options-info" style="z-index:1;position: absolute;color:#657f8C"
-                             id="info-options-@Model.Index">Ziehen Sie bis zu @Model.MaxNumAnswers Antworten hierher.</div>
-                        <div class="w-100 fw-selected-options" style="z-index:10;height: 100%" id="selected-options-@Model.Index">
                         </div>
                     </div>
                 </div>
             </div>
+            <div class="alert alert-danger alert-dismissible fade hide mx-3" role="alert" id="question-error-@Model.Index">
+                <span>&nbsp;</span>
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="alert alert-danger d-none mx-3 mb-0" id="alert-question-@Model.Index" role="alert">Sie dürfen maximal @Model.MaxNumAnswers Optionen wählen!</div>
+            <button class="btn btn-secondary mx-3 mb-2 float-right" id="submit-question-@Model.Index" onclick="Vote.submitOrderingQuestionVote(@Model.Index)">Stimme abgeben</button>
+            <button class="btn btn-light text-secondary mx-3 mb-2 float-right" id="abstain-question-@Model.Index" onclick="Vote.abstainQuestionVote(@Model.Index)">Enthalten</button>
         </div>
-        <div class="alert alert-danger d-none mx-3 mb-0" id="alert-question-@Model.Index" role="alert">Sie dürfen maximal @Model.MaxNumAnswers Optionen wählen!</div>
-        <button class="btn btn-secondary mx-3 mb-2 float-right" id="submit-question-@Model.Index" onclick="Vote.submitOrderingQuestionVote(@Model.Index)">Stimme abgeben</button>
-        <button class="btn btn-light text-secondary mx-3 mb-2 float-right" id="abstain-question-@Model.Index" onclick="Vote.abstainQuestionVote(@Model.Index)">Enthalten</button>
     </div>
-</div>

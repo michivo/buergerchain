@@ -78,7 +78,9 @@
             setupOrderingQuestion(questionidx);
         });
 
-        $('.alert').alert();
+        $('.alert button.close').on('click', function() {
+            alert('close');
+        });
     };
 
     var loadQuestions = function(data) {
@@ -194,7 +196,13 @@
                 mTokenData = data.tokens;
                 loadQuestions(data);
             },
-            error: function(x) {
+            error: function (x) {
+                if (x.status === 401) {
+                    $('#alert-wrong-password').removeClass('hide');
+                    $('#alert-wrong-password').removeClass('d-none');
+                    $('#alert-wrong-password').addClass('show');
+                    return;
+                }
                 alert(JSON.stringify(x));
                 // error: todo
             }
@@ -256,9 +264,12 @@
         mGetTokensUrl = getAllTokensUrl;
         mGetSignedTokenUrl = getSignedTokenUrl;
         mQuestionIndices = questionIndices;
-    };
 
-    console.log('hello');
+        $('.alert button.close').on('click', function () {
+            $(this).parent().addClass('d-none');
+            $(this).parent().removeClass('show');
+        });
+    };
 
     return {
         init: init,

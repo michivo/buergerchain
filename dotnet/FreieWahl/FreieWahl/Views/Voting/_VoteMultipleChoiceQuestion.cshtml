@@ -24,6 +24,11 @@
                 }
             </div>
         </div>
+        <div class="alert alert-danger alert-dismissible fade hide mx-3" role="alert" id="question-error-@Model.Index"><span>&nbsp;</span>          
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
         <button class="btn btn-secondary mx-3 mb-2 float-right" id="submit-question-@Model.Index" onclick="Vote.submitMultipleChoiceQuestionVote(@Model.Index)">Stimme abgeben</button>
         <button class="btn btn-light text-secondary mx-3 mb-2 float-right" id="abstain-question-@Model.Index" onclick="Vote.abstainQuestionVote(@Model.Index)">Enthalten</button>
     </div>
