@@ -25,7 +25,7 @@ namespace FreieWahl.Voting.Storage
             var refId = await _db.Collection(_collection).AddAsync(dict).ConfigureAwait(false);
             voting.Id = refId.Id;
         }
-        
+
         public Task Update(StandardVoting voting)
         {
             var docRef = _db.Collection(_collection).Document(voting.Id);
@@ -73,33 +73,33 @@ namespace FreieWahl.Voting.Storage
         {
             var result = new StandardVoting()
             {
-                Creator = (string) document["Creator"],
-                ImageData = (string) document["ImageData"],
+                Creator = (string)document["Creator"],
+                ImageData = (string)document["ImageData"],
                 Id = id,
                 CurrentQuestionIndex = Convert.ToInt32(document["CurrentQuestionIndex"]),
-                StartDate = ((Timestamp) document["StartDate"]).ToDateTime(),
-                EndDate = ((Timestamp) document["EndDate"]).ToDateTime(),
-                DateCreated = ((Timestamp) document["DateCreated"]).ToDateTime(),
-                Description = (string) document["Description"],
-                Title = (string) document["Title"],
+                StartDate = ((Timestamp)document["StartDate"]).ToDateTime(),
+                EndDate = ((Timestamp)document["EndDate"]).ToDateTime(),
+                DateCreated = ((Timestamp)document["DateCreated"]).ToDateTime(),
+                Description = (string)document["Description"],
+                Title = (string)document["Title"],
                 State = (VotingState)Convert.ToInt32(document["State"]),
                 Visibility = (VotingVisibility)Convert.ToInt32(document["Visibility"]),
-                Questions = ((IEnumerable<object>) document["Questions"]).Select(_QuestionFromObject).ToList()
+                Questions = ((IEnumerable<object>)document["Questions"]).Select(_QuestionFromObject).ToList()
             };
             return result;
         }
 
         private Question _QuestionFromObject(object document)
         {
-            var dict = (Dictionary<string, object>) document;
+            var dict = (Dictionary<string, object>)document;
             var result = new Question
             {
                 QuestionIndex = Convert.ToInt32(dict["QuestionIndex"]),
-                QuestionType = (QuestionType) Convert.ToInt32(dict["QuestionType"]),
+                QuestionType = (QuestionType)Convert.ToInt32(dict["QuestionType"]),
                 MinNumAnswers = Convert.ToInt32(dict["MinNumAnswers"]),
                 MaxNumAnswers = Convert.ToInt32(dict["MaxNumAnswers"]),
-                QuestionText = (string) dict["QuestionText"],
-                Status = (QuestionStatus) Convert.ToInt32(dict["Status"]),
+                QuestionText = (string)dict["QuestionText"],
+                Status = (QuestionStatus)Convert.ToInt32(dict["Status"]),
                 AnswerOptions = ((IEnumerable<object>)dict["AnswerOptions"]).Select(_AnswerFromObject).ToList(),
                 Details = ((IEnumerable<object>)dict["Details"]).Select(_DetailFromObject).ToList()
             };
@@ -112,8 +112,8 @@ namespace FreieWahl.Voting.Storage
             var dict = (Dictionary<string, object>)document;
             return new QuestionDetail
             {
-                DetailValue = (string) dict["DetailValue"],
-                DetailType = (QuestionDetailType) Convert.ToInt32(dict["DetailType"]),
+                DetailValue = (string)dict["DetailValue"],
+                DetailType = (QuestionDetailType)Convert.ToInt32(dict["DetailType"]),
             };
         }
 
@@ -159,18 +159,22 @@ namespace FreieWahl.Voting.Storage
             }
         }
 
-        public Task AddQuestion(string votingId, Question question)
+        public async Task AddQuestion(string votingId, Question question)
         {
             DocumentReference votingRef = _db.Collection(_collection).Document(votingId);
+            var currentVoting = await votingRef.GetSnapshotAsync().ConfigureAwait(false);
+            var questionIndex = currentVoting.GetValue<int>("CurrentQuestionIndex");
+            question.QuestionIndex = questionIndex;
 
-            return votingRef.UpdateAsync("Questions", FieldValue.ArrayUnion(_ToDictionary(question)));
+            await votingRef.UpdateAsync("Questions", FieldValue.ArrayUnion(_ToDictionary(question))).ConfigureAwait(false);
+            await votingRef.UpdateAsync("CurrentQuestionIndex", questionIndex + 1).ConfigureAwait(false);
         }
 
         public async Task DeleteQuestion(string votingId, int questionIndex)
         {
             var docReference = _db.Collection(_collection).Document(votingId);
             var doc = await docReference.GetSnapshotAsync().ConfigureAwait(false);
-            if(!doc.Exists)
+            if (!doc.Exists)
                 return;
 
             var voting = _VotingFromDictionary(doc.ToDictionary(), doc.Id);

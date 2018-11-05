@@ -8,15 +8,16 @@
         ],
         credentialHelper: firebaseui.auth.CredentialHelper.NONE,
         // Terms of service url.
-        tosUrl: 'TermsOfUse',
-        // Privacy policy url.
-        // privacyPolicyUrl: 'PrivacyPolicy',
+        tosUrl: "Home/Impressum", // TODO - proper terms of service
+        privacyPolicyUrl: "Home/Impressum#datenschutz",
         callbacks: {
             signInSuccessWithAuthResult: function (authResult, redirectUrl) {
+                $('#login-overlay-loading').removeClass("d-none");
                 // User successfully signed in.
                 // Return type determines whether we continue the redirect automatically
                 // or whether we leave that to developer to handle.
                 const loggedInUser = authResult.user;
+
                 loggedInUser.getIdToken(true).then(function (idToken) {
                     $.ajax({
                         url: 'Home/SessionLogin',
@@ -27,6 +28,7 @@
                         type: 'POST',
                         datatype: 'json',
                         error: function (err) { // TODO
+                            $('#login-overlay-loading').addClass("d-none");
                         },
                         success: function (data) {
                             window.location.replace("VotingAdministration/Overview");

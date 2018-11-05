@@ -186,7 +186,7 @@
     var getTokens = function() {
         const pwd = $('#voterPassword').val();
         mPassword = pwd;
-        // TODO: if there are no questions, only check pwd!
+        
         $.ajax({
             url: mGetTokensUrl,
             data: { "voterId": mVoterId, "password": pwd, "questionIndices": mQuestionIndices },
@@ -198,13 +198,13 @@
             },
             error: function (x) {
                 if (x.status === 401) {
-                    $('#alert-wrong-password').removeClass('hide');
-                    $('#alert-wrong-password').removeClass('d-none');
-                    $('#alert-wrong-password').addClass('show');
-                    return;
+                    $('#alert-wrong-password > span').text('Falsches Passwort!');
+                } else {
+                    $('#alert-wrong-password > span').text('Unerwarteter Fehler: ' + x.responseText);
                 }
-                alert(JSON.stringify(x));
-                // error: todo
+                $('#alert-wrong-password').removeClass('d-none');
+                $('#alert-wrong-password').removeClass('hide');
+                $('#alert-wrong-password').addClass('show');
             }
         });
     };

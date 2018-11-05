@@ -348,6 +348,8 @@ img.fw-card-svg {
 [contenteditable=true]:empty::before {
   content: attr(placeholder);
   color: $fw-gray;
+  display: block;
+  left:1px;
 }
 
 .fw-checkcontainer {

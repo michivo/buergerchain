@@ -433,10 +433,6 @@ const Edit = (function () {
         });
     }
 
-    var loadQuestionResults = function (questionIndex) {
-        $(`#result-dropdown-${questionIndex}`).load(`../Voting/GetResults?votingId=${mVotingId}&questionIndex=${questionIndex}`);
-    }
-
     var showResultCounts = function (data) {
         $.each(data,
             function (index, value) {
@@ -480,6 +476,7 @@ const Edit = (function () {
 
 
     var createQuestion = function () {
+        resetNewQuestionModal();
         $('#shareLinkText').popover('hide');
         $('#fwBtnShareLink').popover('hide');
         $('#shareLinkText').popover('dispose');
@@ -733,17 +730,6 @@ function setupEditScreen(votingId, questions) {
             e.stopPropagation();
         });
 
-    $('.answerOptionText').click(function () {
-        if ($(this).text() === '...') {
-            document.execCommand('selectAll', false, null);
-        }
-    });
-
-    $('.answerOptionDescription').click(function () {
-        if ($(this).text() === '...') {
-            document.execCommand('selectAll', false, null);
-        }
-    });
     $('#modalQuestionOk').off('click').on('click', function () { saveQuestion(votingId, 0); });
 
     $(window).on('scroll', blinkOnScroll);
@@ -759,6 +745,7 @@ function setupEditScreen(votingId, questions) {
     $('.table-add').click(function () {
         const $clone = $('#answersTable').find('tr.hide').clone(true).removeClass('hide table-line');
         $clone.addClass('answer-line');
+        $clone.find('br').remove();
         $('#answersTable').find('table').append($clone);
     });
 

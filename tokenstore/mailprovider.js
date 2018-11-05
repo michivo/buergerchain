@@ -7,6 +7,7 @@ function sendInvitation(email, votingTitle, startDate, endDate, link) {
   const msg = {
     to: email,
     from: privateConfig.MAIL_FROM,
+    fromname: privateConfig.MAIL_FROM_NAME,
     subject: 'Erfolgreiche Registrierung für Abstimmung ' + votingTitle,
     html: `LiebeR WahlberechtigteR,<br /> Ihre Registrierung für die Abstimmung <strong>${votingTitle}</strong> war erfolgreich.` +
       `Sie können zwischen ${startDate} und ${endDate} unter <a href="${link}">${link}</a> an der Abstimmung teilnehmen.<br />` +

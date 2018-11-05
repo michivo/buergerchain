@@ -12,8 +12,8 @@
                     <i class="material-icons text-white" style="font-size: 2.5rem">more_vert</i>
                 </a>
                 <div class="dropdown-menu" aria-labelledby="question-@Model.Index-menu">
-                    <button class="dropdown-item" type="button" onclick='editQuestion(@Json.Serialize(Model))'>Bearbeiten</button>
-                    <button class="dropdown-item" type="button" onclick="deleteQuestion('@Model.VotingId', @Model.Index)">Frage löschen</button>
+                    <button class="dropdown-item fwBtnEditQuestion" type="button" data-questionid="@Model.Index">Bearbeiten</button>
+                    <button class="dropdown-item fwBtnDeleteQuestion" type="button" data-questionid="@Model.Index">Frage löschen</button>
                 </div>
             </div>
         }
