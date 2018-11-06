@@ -1,17 +1,13 @@
-﻿@{
-    ViewData["Title"] = "Contact";
+﻿@section stylesheets {
+    <script src='https://www.google.com/recaptcha/api.js?render=6LcgCnkUAAAAAPz9NtANNeS0_8Fvx8uBx1eIbxXl'></script>
 }
-<h2>@ViewData["Title"].</h2>
-<h3>@ViewData["Message"]</h3>
 
-<address>
-    One Microsoft Way<br />
-    Redmond, WA 98052-6399<br />
-    <abbr title="Phone">P:</abbr>
-    425.555.0100
-</address>
-
-<address>
-    <strong>Support:</strong> <a href="mailto:Support@example.com">Support@example.com</a><br />
-    <strong>Marketing:</strong> <a href="mailto:Marketing@example.com">Marketing@example.com</a>
-</address>
+<nav class="navbar navbar-dark fixed-top navbar-expand-md">
+    <a class="navbar-brand" href="@Url.Action("Index")">
+        <span id="fw-brand-1">freie</span><span id="fw-brand-2">Wahl</span>
+    </a>
+    <!-- TODO: proper header when logged in! -->
+</nav>
+<div class="container pt-4">
+    <h2>Über mich</h2>
+</div>

@@ -43,4 +43,10 @@
     <ProjectReference Include="..\FreieWahl.Voting\FreieWahl.Voting.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Content Update="Views\Home\Contact.cshtml">
+      <Pack>$(IncludeRazorContentInPack)</Pack>
+    </Content>
+  </ItemGroup>
+
 </Project>

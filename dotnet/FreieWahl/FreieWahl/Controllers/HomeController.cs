@@ -1,10 +1,18 @@
-﻿using System.Threading.Tasks;
+﻿using System.Collections.Generic;
+using System.Globalization;
+using System.IO;
+using System.Net;
+using System.Net.Http;
+using System.Threading.Tasks;
 using FreieWahl.Application.Authentication;
 using FreieWahl.Helpers;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 
 namespace FreieWahl.Controllers
@@ -13,20 +21,23 @@ namespace FreieWahl.Controllers
     public class HomeController : Controller
     {
         private readonly ILogger _logger;
-        
+
         private readonly IAuthorizationHandler _authorizationHandler;
         private readonly ISessionCookieProvider _sessionCookieProvider;
         private readonly IHostingEnvironment _env;
+        private readonly string _privateKey;
 
         public HomeController(ILogger<HomeController> logger,
             IAuthorizationHandler authorizationHandler,
             ISessionCookieProvider sessionCookieProvider,
-            IHostingEnvironment env)
+            IHostingEnvironment env,
+            IConfiguration configuration)
         {
             _logger = logger;
             _authorizationHandler = authorizationHandler;
             _sessionCookieProvider = sessionCookieProvider;
             _env = env;
+            _privateKey = configuration["Google:RecaptchaKey"];
         }
 
         public async Task<IActionResult> Index(string source)
@@ -68,13 +79,26 @@ namespace FreieWahl.Controllers
 
         public IActionResult About()
         {
-            ViewData["Message"] = "nuttin";
+            return View();
+        }
+
+        public IActionResult Contact()
+        {
             return View();
         }
 
         public IActionResult Impressum()
         {
-            ViewData["Message"] = "Your contact page.";
+            return View();
+        }
+
+        public IActionResult TermsOfUse()
+        {
+            return View();
+        }
+
+        public IActionResult Privacy()
+        {
             return View();
         }
 
@@ -83,6 +107,33 @@ namespace FreieWahl.Controllers
             // Log messages with different log levels.
             _logger.LogError("Error page hit!");
             return View();
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> CheckRecaptcha(string recaptcha)
+        {
+            var client = new HttpClient();
+
+            var values = new Dictionary<string, string>
+            {
+                { "secret", _privateKey },
+                { "response", recaptcha }
+            };
+
+            var content = new FormUrlEncodedContent(values);
+
+            var response = await client.PostAsync("https://www.google.com/recaptcha/api/siteverify", content);
+
+            var result = await response.Content.ReadAsStringAsync();
+            var jResult = JObject.Parse(result);
+            var success = jResult["success"].Value<bool>();
+            var score = jResult["score"].Value<double>();
+            if (success && score > .5)
+            {
+                return Ok();
+            }
+
+            return Unauthorized();
         }
     }
 }

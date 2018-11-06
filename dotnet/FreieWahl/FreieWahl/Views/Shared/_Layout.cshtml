@@ -34,6 +34,7 @@
         <link rel="stylesheet" type="text/css" href="~/lib/bootstrap-datepicker/dist/css/bootstrap-datepicker3.standalone.min.css">
 
     </environment>
+
     @RenderSection("stylesheets", required: false)
     <script>
         window.addEventListener('load', initApp);
@@ -49,10 +50,19 @@
         <div class="collapse navbar-collapse" id="navbarFooter">
             <ul class="navbar-nav">
                 <li class="nav-item">
-                    @Html.ActionLink("Impressum", "Impressum", "Home", new { }, new { @class = "nav-link" })
+                    @Html.ActionLink("Impressum", "Impressum", "Home", new { }, new { @class = "nav-link border-left border-right" })
                 </li>
                 <li class="nav-item">
-                    @Html.ActionLink("Über uns", "About", "Home", new { }, new { @class = "nav-link" })
+                    @Html.ActionLink("Datenschutz", "Privacy", "Home", new { }, new { @class = "nav-link border-left border-right" })
+                </li>
+                <li class="nav-item">
+                    @Html.ActionLink("Nutzungsbedingungen", "TermsOfUse", "Home", new { }, new { @class = "nav-link border-left border-right" })
+                </li>
+                <li class="nav-item">
+                    @Html.ActionLink("Kontakt", "Contact", "Home", new { }, new { @class = "nav-link border-left border-right" })
+                </li>
+                <li class="nav-item">
+                    @Html.ActionLink("Über uns", "About", "Home", new { }, new { @class = "nav-link border-left border-right" })
                 </li>
             </ul>
             <ul class="navbar-nav ml-auto">

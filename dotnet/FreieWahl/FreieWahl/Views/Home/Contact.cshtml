@@ -1,0 +1,84 @@
+﻿@section stylesheets {
+    <script src='https://www.google.com/recaptcha/api.js?render=6LcgCnkUAAAAAPz9NtANNeS0_8Fvx8uBx1eIbxXl'></script>
+}
+
+<nav class="navbar navbar-dark fixed-top navbar-expand-md">
+    <a class="navbar-brand" href="@Url.Action("Index")">
+        <span id="fw-brand-1">freie</span><span id="fw-brand-2">Wahl</span>
+    </a>
+    <!-- TODO: proper header when logged in! -->
+</nav>
+<div class="container pt-4">
+    <form id="contact-form" method="post" action="@Url.Action("Contact")" role="form">
+
+        <div class="messages"></div>
+
+        <div class="controls">
+            <div class="row">
+                <div class="col-lg-6">
+                    <div class="form-group">
+                        <label for="form_name">Vorname</label>
+                        <input id="form_name" type="text" name="name" class="form-control" placeholder="Vorname">
+                    </div>
+                </div>
+                <div class="col-lg-6">
+                    <div class="form-group">
+                        <label for="form_lastname">Nachname</label>
+                        <input id="form_lastname" type="text" name="surname" class="form-control" placeholder="Nachname">
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-lg-6">
+                    <div class="form-group">
+                        <label for="form_email">E-Mail</label>
+                        <input id="form_email" type="email" name="email" class="form-control" placeholder="E-Mail-Adresse" required="required"
+                               data-error="Bitte geben Sie eine gültige E-Mail-Adresse an.">
+                        <div class="help-block with-errors"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="form_message">Nachricht</label>
+                <textarea id="form_message" name="message" class="form-control" placeholder="Ihre Nachricht an uns" rows="4" required="required"
+                          data-error="Please, leave us a message."></textarea>
+                <div class="help-block with-errors"></div>
+            </div>
+
+
+            <div class="form-group">
+                <div class="g-recaptcha" data-sitekey="6LfKURIUAAAAAO50vlwWZkyK_G2ywqE52NU7YO0S" data-callback="verifyRecaptchaCallback" data-expired-callback="expiredRecaptchaCallback"></div>
+                <input class="form-control d-none" data-recaptcha="true" required data-error="Please complete the Captcha">
+                <div class="help-block with-errors"></div>
+            </div>
+
+
+            <input type="submit" class="btn btn-success disabled" id="button-submit-contact" value="Abschicken">
+        </div>
+
+    </form>
+    <p class="mt-3">
+        Sie können mich gerne unter <a href="mailto:michael@freiewahl.eu">michael@freiewahl.eu</a>  kontaktieren.
+    </p>
+</div>
+
+@section scripts {
+    <script>
+        grecaptcha.ready(function() {
+            grecaptcha.execute('6LcgCnkUAAAAAPz9NtANNeS0_8Fvx8uBx1eIbxXl', { action: 'contactform' })
+                .then(function(token) {
+                    $.ajax({
+                        type: "POST",
+                        url: "CheckRecaptcha",
+                        data: { recaptcha: token },
+                        success: function() {
+                            $('#button-submit-contact').removeClass("disabled");
+                        },
+                        error: function() {
+                            $('#button-submit-contact').text('Google glaubt, Sie sind ein Bot! Wenn Sie keiner sind, bitte Mailen Sie uns!');
+                        }
+                    });
+                });
+        });
+    </script>
+}
