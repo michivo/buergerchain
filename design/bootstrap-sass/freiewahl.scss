@@ -119,6 +119,12 @@ i.fw-voting-img {
     position: relative;
 }
 
+i.fw-closed-voting-img {
+    font-size: 12rem;
+    color:$primary;
+    position: relative;
+}
+
 span.fw-userheader {
     text-transform: uppercase; 
     font-weight: 100; 
@@ -211,14 +217,24 @@ a.fw-card-link-icon i {
 
 img.fw-finished-vote {
     max-width: 18rem;
-    max-height:18rem;
+    max-height:15rem;
     width:auto;
     height:auto;
     display:block;
+    margin:auto;
+}
+
+img.fw-open-vote {
+    max-width: 15rem;
+    max-height:12rem;
+    width:auto;
+    height:auto;
+    margin:auto;
 }
 
 div.fw-finished-vote-card {
     width:18rem;
+    height:15rem;
     position:relative;
 }
 

@@ -101,7 +101,8 @@ namespace FreieWahl.Controllers
                 x.Title,
                 Description = x.Description ?? string.Empty,
                 x.Id,
-                x.ImageData
+                x.ImageData,
+                Status = (int)x.State
             });
             return new JsonResult(resultForSerialization.ToArray());
         }

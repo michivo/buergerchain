@@ -1,12 +1,12 @@
 ﻿<nav class="navbar navbar-dark fixed-top navbar-expand-md">
-    <a class="navbar-brand" href="#">
+    <a class="navbar-brand" href="@Url.Action("Overview")">
         <span id="fw-brand-1">freie</span><span id="fw-brand-2">Wahl</span>
     </a>
     <ul class="navbar-nav ml-auto">
         @if ((bool)ViewData["IsOverview"] == false)
         {
             <li class="nav-item">
-                <a href="Overview"><i class="material-icons mr-3 rounded-circle p-1" style="background-color: #DCE4E7; font-size: 2rem;">home</i></a>
+                <a href="@Url.Action("Overview")"><i class="material-icons mr-3 rounded-circle p-1" style="background-color: #DCE4E7; font-size: 2rem;">home</i></a>
             </li>
         }
         <li class="nav-item dropleft">

@@ -730,10 +730,6 @@ function setupEditScreen(votingId, questions) {
             e.stopPropagation();
         });
 
-    $('#modalQuestionOk').off('click').on('click', function () { saveQuestion(votingId, 0); });
-
-    $(window).on('scroll', blinkOnScroll);
-
     $('#questionType').change(function () {
         if ($('#questionType').val() === '1') {
             $('#maxNoAnswers').parent().hide();

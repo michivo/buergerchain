@@ -45,13 +45,16 @@
             </div>
             <div class="col-lg-4 col-12 text-primary" style="font-size: 0.9rem">
                 <div class="float-right" style="line-height: 1.2">
-
-                    <span id="fw-active-voting-count">...</span><br />
-                    <strong>aktive</strong><br />
-                    Abstimmungen<br /><br />
-                    <span id="fw-passed-voting-count">2</span><br />
-                    <strong>abgeschlossene</strong><br />
-                    Abstimmungen
+                    <div id="fw-num-open-votings-info" class="d-none">
+                        <span id="fw-active-voting-count">...</span><br />
+                        <strong>aktive</strong><br />
+                        Abstimmungen<br /><br />
+                    </div>
+                    <div id="fw-num-closed-votings-info" class="d-none">
+                        <span id="fw-closed-voting-count">...</span><br />
+                        <strong>abgeschlossene</strong><br />
+                        Abstimmungen
+                    </div>
                 </div>
             </div>
         </div>
@@ -60,12 +63,14 @@
 <main role="main" class="container">
 
     <h1 class="display-4 w-100 text-primary border-bottom text-uppercase my-3">Aktive Abstimmungen</h1>
-    <div class="container mb-4">
+    <div class="container mb-4" id="fw-open-voting-list">
         <div class="row" style="position: relative">
-            <div class="d-none align-items-center p-2 border rounded my-5" id="fw-new-voting-onboarding" style="cursor:pointer" onclick="createVoting()">
+            <div class="d-none align-items-center p-2 border rounded my-5" id="fw-new-voting-onboarding" style="cursor:pointer">
                 <i class="material-icons text-white rounded-circle bg-secondary p-1" style="font-size:2.5rem;height:3rem;width:3rem;box-shadow:0px 3px 4px #657f8C">add</i>
-                <div class="text-primary ml-3 pt-1" ><h5 style="font-weight:300">Erstellen Sie in wenigen Schritten eine neue Abstimmung.</h5>
-                    <small>Laden Sie Wahlberechtigte ein, erstellen Sie Fragen und geben Sie diese zur Abstimmung frei!</small></div>
+                <div class="text-primary ml-3 pt-1">
+                    <h5 style="font-weight:300">Erstellen Sie in wenigen Schritten eine neue Abstimmung.</h5>
+                    <small>Laden Sie Wahlberechtigte ein, erstellen Sie Fragen und geben Sie diese zur Abstimmung frei!</small>
+                </div>
             </div>
             <div class="col-xl-4 col-md-6 col-sm-12" id="fw-load-votings-card">
                 <div class="card fw-overview-card">
@@ -77,45 +82,25 @@
                     </div>
                 </div>
             </div>
-            <div class="d-none"  id="fw-new-voting-button" onclick="createVoting()" style="cursor: pointer;position: absolute;bottom:-2rem; right: 1rem;"><i class="material-icons text-white rounded-circle bg-secondary p-1" style="font-size:3.5rem;height:4rem;width:4rem;box-shadow:0px 4px 5px gray">add</i></div>
+            <div class="d-none" id="fw-new-voting-button" onclick="createVoting()" style="cursor: pointer;position: absolute;bottom:-2rem; right: 1rem;"><i class="material-icons text-white rounded-circle bg-secondary p-1" style="font-size:3.5rem;height:4rem;width:4rem;box-shadow:0px 4px 5px gray">add</i></div>
         </div>
     </div>
 
-    @*<h1 class="display-4 w-100 text-primary border-bottom text-uppercase my-3">Abgeschlossene Abstimmungen</h1>
-    <div class="container">
+    <h1 class="display-4 w-100 text-primary border-bottom text-uppercase my-3 d-none mt-5" id="fw-closed-voting-header">Abgeschlossene Abstimmungen</h1>
+    <div class="container mb-3" id="fw-closed-voting-list">
         <div class="row">
-            <div class="col-xl-4 col-md-6 col-sm-12">
-                <div class="fw-finished-vote-card">
-                    <img src="~/images/traffic-jam-388924_640.jpg" class="fw-finished-vote" alt="Card image cap">
-                    <div class="fw-finished-vote-card-content">
-                        <div class="fw-finished-vote-card-text">
-                            <h5>Citymaut in Graz</h5>
-                            <p>Welche Linie soll die Partei bei der Citymaut verfolgen?</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-xl-4 col-md-6 col-sm-12">
-                <div class="fw-finished-vote-card">
-                    <img src="~/images/rings-1287753_640.jpg" class="fw-finished-vote" alt="Card image cap">
-                    <div class="fw-finished-vote-card-content">
-                        <div class="fw-finished-vote-card-text">
-                            <h5>Olympiabewerbung</h5>
-                            <p>Soll Graz sich für die Austragung der Olympischen Winterspiele 2026 bewerben?</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
+
         </div>
-    </div>*@
+    </div>
 </main>
 
 @section scripts {
 
     <script src="~/lib/bootstrap-datepicker/dist/js/bootstrap-datepicker.min.js"></script>
     <script src="~/lib/bootstrap-datepicker/dist/locales/bootstrap-datepicker.de.min.js"></script>
+    <script src="~/js/overview.js" asp-append-version="true"></script>
 
     <script>
-        setupOverview();
+        Overview.init();
     </script>
 }
