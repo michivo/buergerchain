@@ -81,7 +81,7 @@ namespace FreieWahl
                 var logger = LogFactory.CreateLogger("FreieWahl.Security.TimeStamps.TimestampService");
                 return new TimestampService(timestampServers, logger);
             });
-            services.AddSingleton<IVotingStore>(p => new VotingFireStore(Configuration["Google:ProjectId"]));
+            services.AddSingleton<IVotingStore>(p => new VotingFireStore(Configuration["Google:ProjectId"], Configuration["Buckets:UserImages"]));
             services.AddSingleton<IAuthenticationManager, AuthenticationManager>();
             services.AddSingleton<IMailProvider>(p => new SendGridMailProvider(Configuration["SendGrid:ApiKey"],
                 Configuration["SendGrid:FromMail"], Configuration["SendGrid:FromName"]));

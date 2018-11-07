@@ -17,7 +17,7 @@ namespace Test.FreieWahl.Voting.Storage
         [TestInitialize]
         public async Task Init()
         {
-            _votingStore = new VotingFireStore(ProjectId, "test");
+            _votingStore = new VotingFireStore(ProjectId, "freiewahl.eu", "test");
             await Task.Delay(500);
             await _votingStore.ClearAll();
             await Task.Delay(500);

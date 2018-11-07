@@ -1,22 +1,29 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using FreieWahl.Common;
 using FreieWahl.Voting.Models;
 using Google.Cloud.Firestore;
+using Google.Cloud.Storage.V1;
 
 namespace FreieWahl.Voting.Storage
 {
     public class VotingFireStore : IVotingStore
     {
+        private readonly string _bucketName;
         private readonly FirestoreDb _db;
         private readonly string _collection = "Votings";
+        private readonly StorageClient _storage;
 
-        public VotingFireStore(string projectId, string collectionPrefix = "")
+        public VotingFireStore(string projectId, string bucketName, string collectionPrefix = "")
         {
+            _bucketName = bucketName;
             _collection = collectionPrefix + _collection;
             _db = FirestoreDb.Create(projectId);
+            _storage = StorageClient.Create();
         }
 
         public async Task Insert(StandardVoting voting)
@@ -24,6 +31,26 @@ namespace FreieWahl.Voting.Storage
             var dict = _ToDictionary(voting);
             var refId = await _db.Collection(_collection).AddAsync(dict).ConfigureAwait(false);
             voting.Id = refId.Id;
+            if (!string.IsNullOrEmpty(voting.ImageData))
+            {
+                var imageData = voting.ImageData;
+                var mimeType = imageData.GetMimeType();
+                var rawData = imageData.GetImageData();
+
+                var imageAcl = PredefinedObjectAcl.PublicRead;
+
+                var imageObject = await _storage.UploadObjectAsync(
+                    _bucketName,
+                    voting.Id,
+                    mimeType,
+                    new MemoryStream(rawData),
+                    new UploadObjectOptions {PredefinedAcl = imageAcl}
+                );
+                await refId.UpdateAsync(new Dictionary<string, object>
+                {
+                    {"ImageData", imageObject.MediaLink }
+                }).ConfigureAwait(false);
+            }
         }
 
         public Task Update(StandardVoting voting)
@@ -74,7 +101,7 @@ namespace FreieWahl.Voting.Storage
             var result = new StandardVoting()
             {
                 Creator = (string)document["Creator"],
-                ImageData = (string)document["ImageData"],
+                ImageData = document.ContainsKey("ImageData") ? (string)document["ImageData"] : string.Empty,
                 Id = id,
                 CurrentQuestionIndex = Convert.ToInt32(document["CurrentQuestionIndex"]),
                 StartDate = ((Timestamp)document["StartDate"]).ToDateTime(),
@@ -235,7 +262,6 @@ namespace FreieWahl.Voting.Storage
                 {"Visibility", (int)voting.Visibility },
                 {"State", (int)voting.State },
                 {"CurrentQuestionIndex", voting.CurrentQuestionIndex },
-                {"ImageData", voting.ImageData ?? string.Empty },
                 {"DateCreated", Timestamp.FromDateTime(voting.DateCreated) },
                 {"StartDate", Timestamp.FromDateTime(voting.StartDate) },
                 {"EndDate", Timestamp.FromDateTime(voting.EndDate) }

@@ -68,10 +68,10 @@ namespace FreieWahl.Controllers
             return View(model);
         }
 
-        private async Task<UserInformation> _GetUserForGetRequest(Operation operation)
+        private async Task<UserInformation> _GetUserForGetRequest(Operation operation, string id = null)
         {
             var user = await _authorizationHandler.GetAuthorizedUser
-                (null, operation, Request.Cookies["session"]);
+                (id, operation, Request.Cookies["session"]);
             return user;
         }
 
@@ -161,7 +161,7 @@ namespace FreieWahl.Controllers
         [HttpGet]
         public async Task<IActionResult> Edit(string id, bool isNew = false)
         {
-            var user = await _GetUserForGetRequest(Operation.UpdateVoting);
+            var user = await _GetUserForGetRequest(Operation.UpdateVoting, id);
 
             if (user == null)
                 return Unauthorized();

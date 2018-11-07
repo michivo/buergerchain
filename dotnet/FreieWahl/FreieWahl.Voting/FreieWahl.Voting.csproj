@@ -7,6 +7,7 @@
   <ItemGroup>
     <PackageReference Include="Google.Cloud.Datastore.V1" Version="2.1.0" />
     <PackageReference Include="Google.Cloud.Firestore" Version="1.0.0-beta13" />
+    <PackageReference Include="Google.Cloud.Storage.V1" Version="2.2.0" />
     <PackageReference Include="System.ComponentModel.Annotations" Version="4.5.0" />
   </ItemGroup>
 
@@ -15,6 +16,12 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Reference Include="Google.Apis.Storage.v1">
+      <HintPath>C:\Users\Michael\.nuget\packages\google.apis.storage.v1\1.35.1.1266\lib\netstandard1.3\Google.Apis.Storage.v1.dll</HintPath>
+    </Reference>
+    <Reference Include="Google.Cloud.Storage.V1">
+      <HintPath>C:\Users\Michael\.nuget\packages\google.cloud.storage.v1\2.2.0\lib\netstandard1.3\Google.Cloud.Storage.V1.dll</HintPath>
+    </Reference>
     <Reference Include="Microsoft.AspNetCore.Mvc.Core">
       <HintPath>C:\Users\Michael\.nuget\packages\microsoft.aspnetcore.mvc.core\2.0.0\lib\netstandard2.0\Microsoft.AspNetCore.Mvc.Core.dll</HintPath>
     </Reference>
