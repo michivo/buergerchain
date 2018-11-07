@@ -598,6 +598,7 @@ const Registration = (function () {
             success: function (data) {
                 showRegistrations(data);
                 currentUpdateRequest = null;
+                window.setTimeout(updateRegistrations, 120000);
             }, // TODO error
             error: function(err) {
                 currentUpdateRequest = null;

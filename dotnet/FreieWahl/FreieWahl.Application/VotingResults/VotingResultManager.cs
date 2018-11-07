@@ -24,8 +24,6 @@ namespace FreieWahl.Application.VotingResults
         private readonly IVotingChainBuilder _votingChainBuilder;
         private readonly IVotingManager _votingManager;
         private readonly SHA256Managed _hasher;
-        private readonly Dictionary<string, Dictionary<int, Vote>> _lastVoteCache;
-        private readonly Dictionary<string, Dictionary<int, SemaphoreSlim>> _voteStoreLocks;
 
         public VotingResultManager(ITimestampService timestampService,
             IVotingTokenHandler votingTokenHandler, IVotingResultStore votingResultStore,
@@ -38,8 +36,6 @@ namespace FreieWahl.Application.VotingResults
             _votingChainBuilder = votingChainBuilder;
             _votingManager = votingManager;
             _hasher = new SHA256Managed();
-            _lastVoteCache = new Dictionary<string, Dictionary<int, Vote>>();
-            _voteStoreLocks = new Dictionary<string, Dictionary<int, SemaphoreSlim>>();
         }
 
         public async Task StoreVote(string votingId, int questionIndex, List<string> answers, string token, string signedToken)
@@ -50,50 +46,43 @@ namespace FreieWahl.Application.VotingResults
             var data = _GetRawData(votingId, questionIndex, answers, token, signedToken);
             var timeStamp = await _timestampService.GetToken(data);
             var timeStampString = _TokenToString(timeStamp);
-            var semaphore = _GetSemaphore(votingId, questionIndex);
-            await semaphore.WaitAsync();
-            try
+
+            var lastBlockSignature = await _GetLastVoteSignature(votingId, questionIndex);
+            var newVote = new Vote
             {
-                var lastBlockSignature = await _GetLastVoteSignature(votingId, questionIndex);
-                var newVote = new Vote
-                {
-                    VotingId = votingId,
-                    QuestionIndex = questionIndex,
-                    SelectedAnswerIds = answers,
-                    PreviousBlockSignature = lastBlockSignature,
-                    SignedToken = signedToken,
-                    Token = token,
-                    TimestampData = timeStampString
-                };
-                _lastVoteCache[votingId][questionIndex] = newVote;
-                await _votingResultStore.StoreVote(newVote).ConfigureAwait(false);
-            }
-            finally
-            {
-                semaphore.Release();
-            }
+                VotingId = votingId,
+                QuestionIndex = questionIndex,
+                SelectedAnswerIds = answers,
+                PreviousBlockSignature = lastBlockSignature,
+                SignedToken = signedToken,
+                Token = token,
+                TimestampData = timeStampString
+            };
+
+            await _votingResultStore.StoreVote(newVote, _votingChainBuilder.GetSignature, 
+                _GetGenesisSignature(votingId, questionIndex)).ConfigureAwait(false);
+
         }
 
-        private SemaphoreSlim _GetSemaphore(string votingId, int questionIndex)
+        private Func<Task<string>> _GetGenesisSignature(string votingId, int questionIndex)
         {
-            if(!_voteStoreLocks.ContainsKey(votingId))
-                _voteStoreLocks.Add(votingId, new Dictionary<int, SemaphoreSlim>());
-
-            if(!_voteStoreLocks[votingId].ContainsKey(questionIndex))
-                _voteStoreLocks[votingId][questionIndex] = new SemaphoreSlim(1, 1);
-
-            return _voteStoreLocks[votingId][questionIndex];
+            return async () =>
+            {
+                var vote = await _votingManager.GetById(votingId);
+                var question = vote.Questions[questionIndex];
+                return _votingChainBuilder.GetGenesisValue(question);
+            };
         }
 
         private static string _TokenToString(TimeStampToken timeStamp)
         {
             var cms = timeStamp.ToCmsSignedData();
-            var enc = (CmsProcessableByteArray) cms.SignedContent;
+            var enc = (CmsProcessableByteArray)cms.SignedContent;
             var stream = enc.GetInputStream();
             byte[] encData;
             using (var bs = new BinaryReader(stream))
             {
-                encData = bs.ReadBytes((int) stream.Length);
+                encData = bs.ReadBytes((int)stream.Length);
             }
 
             return Convert.ToBase64String(encData);
@@ -101,12 +90,6 @@ namespace FreieWahl.Application.VotingResults
 
         private async Task<string> _GetLastVoteSignature(string votingId, int questionIndex)
         {
-            if (_lastVoteCache.ContainsKey(votingId) == false)
-                _lastVoteCache.Add(votingId, new Dictionary<int, Vote>());
-
-            if (_lastVoteCache[votingId].ContainsKey(questionIndex))
-                return _votingChainBuilder.GetSignature(_lastVoteCache[votingId][questionIndex]);
-
             var lastVote = await _votingResultStore.GetLastVote(votingId, questionIndex);
             if (lastVote != null)
             {
@@ -116,17 +99,6 @@ namespace FreieWahl.Application.VotingResults
             var vote = await _votingManager.GetById(votingId);
             var question = vote.Questions[questionIndex];
             return _votingChainBuilder.GetGenesisValue(question);
-        }
-
-        public void CompleteVoting(string votingId)
-        {
-            _lastVoteCache.Remove(votingId);
-        }
-
-        public void CompleteQuestion(string votingId, int questionIndex)
-        {
-            if (_lastVoteCache.ContainsKey(votingId))
-                _lastVoteCache[votingId].Remove(questionIndex);
         }
 
         public Task<IReadOnlyCollection<Vote>> GetResults(string votingId)

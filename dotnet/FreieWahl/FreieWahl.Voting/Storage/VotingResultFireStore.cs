@@ -20,18 +20,37 @@ namespace FreieWahl.Voting.Storage
             _db = FirestoreDb.Create(projectId);
         }
         
-        public Task StoreVote(Vote v)
+        public Task StoreVote(Vote v, Func<Vote, string> getBlockSignature, Func<Task<string>> getGenesisSignature)
         {
-            return _db.Collection(_collection).AddAsync(new Dictionary<string, object>
+            return _db.RunTransactionAsync(async transaction =>
             {
-                {"PreviousBlockSignature", v.PreviousBlockSignature},
-                {"QuestionIndex", v.QuestionIndex},
-                {"SelectedAnswerIds", v.SelectedAnswerIds},
-                {"SignedToken", v.SignedToken},
-                {"TimestampData", v.TimestampData },
-                {"Token", v.Token },
-                {"VotingId", v.VotingId },
-                {"DateCreated", Timestamp.FromDateTime(DateTime.UtcNow) }
+                var query = _db.Collection(_collection)
+                    .WhereEqualTo("VotingId", v.VotingId)
+                    .WhereEqualTo("QuestionIndex", v.QuestionIndex)
+                    .OrderByDescending("DateCreated")
+                    .Limit(1);
+                var lastVoteSnapshot = await query.GetSnapshotAsync();
+                string lastSignature;
+                if (lastVoteSnapshot.Count == 1)
+                {
+                    var lastVote = _MapToVote(lastVoteSnapshot[0]);
+                    lastSignature = getBlockSignature(lastVote);
+                }
+                else
+                {
+                    lastSignature = await getGenesisSignature();
+                }
+                await _db.Collection(_collection).AddAsync(new Dictionary<string, object>
+                {
+                    {"PreviousBlockSignature", lastSignature},
+                    {"QuestionIndex", v.QuestionIndex},
+                    {"SelectedAnswerIds", v.SelectedAnswerIds},
+                    {"SignedToken", v.SignedToken},
+                    {"TimestampData", v.TimestampData},
+                    {"Token", v.Token},
+                    {"VotingId", v.VotingId},
+                    {"DateCreated", Timestamp.FromDateTime(DateTime.UtcNow)}
+                });
             });
         }
 
@@ -48,10 +67,10 @@ namespace FreieWahl.Voting.Storage
                 return null;
 
             var result = snapshot[0];
-            return _MapToDocument(result);
+            return _MapToVote(result);
         }
 
-        private Vote _MapToDocument(DocumentSnapshot doc)
+        private Vote _MapToVote(DocumentSnapshot doc)
         {
             return new Vote
             {
@@ -64,12 +83,12 @@ namespace FreieWahl.Voting.Storage
                 SignedToken = doc.GetValue<string>("SignedToken")
             };
         }
-
+        
         public async Task<IReadOnlyCollection<Vote>> GetVotes(string votingId)
         {
             var snapshot = await _db.Collection(_collection)
                 .WhereEqualTo("VotingId", votingId).GetSnapshotAsync().ConfigureAwait(false);
-            return snapshot.Select(_MapToDocument).ToList();
+            return snapshot.Select(_MapToVote).ToList();
         }
 
         public async Task<IReadOnlyCollection<Vote>> GetVotes(string votingId, int questionIndex)
@@ -78,7 +97,7 @@ namespace FreieWahl.Voting.Storage
                 .WhereEqualTo("VotingId", votingId)
                 .WhereEqualTo("QuestionIndex", questionIndex)
                 .GetSnapshotAsync().ConfigureAwait(false);
-            return snapshot.Select(_MapToDocument).ToList();
+            return snapshot.Select(_MapToVote).ToList();
 
         }
     }

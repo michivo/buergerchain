@@ -78,6 +78,11 @@ namespace FreieWahl.Voting.Storage
             };
         }
 
+        public Task StoreVote(Vote v, Func<Vote, string> getBlockSignature, Func<Task<string>> getGenesisSignature)
+        { // TODO: not implemented properly!!!
+            return StoreVote(v);
+        }
+
         public async Task<IReadOnlyCollection<Vote>> GetVotes(string votingId)
         {
             var query = new Query(StoreKind)
