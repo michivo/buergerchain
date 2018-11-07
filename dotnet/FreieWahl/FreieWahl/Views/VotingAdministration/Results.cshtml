@@ -1,0 +1,65 @@
+﻿@model FreieWahl.Models.VotingAdministration.VotingResultsModel
+
+@await Html.PartialAsync("_Header", new ViewDataDictionary(ViewData) { { "Initials", Model.UserInitials }, { "IsOverview", false } })
+
+<div class="container-fluid fw-banner py-3">
+    <div class="row justify-content-between">
+        <div class="col-12 col-md-auto pl-0">
+            <div class="bg-primary px-5 text-light display-4">
+                @Model.Title
+            </div>
+            <div class="container pt-3">
+                <div class="row justify-content-between">
+                    <div style="max-width: 30rem;">
+                        <div class="p-0">
+                            <div class="bg-light text-primary px-3 mr-3 small">
+                                @Model.Description
+                            </div>
+                        </div>
+                    </div>
+                    <div class="d-flex flex-column justify-content-between">
+                        <div class="bg-light text-primary d-flex flex-row align-items-center" style="font-size:1.5rem;font-weight:100">
+                            <div><i class="material-icons text-primary mx-2" style="font-size: 3rem;">date_range</i></div>
+                            <div class="px-2 text-right" id="fwDateInfo"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+        <div class="col-12 col-md-auto">
+            @if (!string.IsNullOrEmpty(@Model.ImageData))
+            {
+            <img src="@Model.ImageData" style="max-height: 13rem; max-width: 18rem; width: auto; height: auto;">
+            }
+            else
+            {
+            <i class="material-icons fw-voting-img" id="fw-voting-img-dummy">how_to_vote</i>
+            }
+        </div>
+    </div>
+</div>
+
+<main role="main" class="container">
+    @await Html.PartialAsync("ResultQuestionList", Model)
+</main>
+
+@section scripts {
+    <script src="~/js/bootstrap-datepicker.min.js"></script>
+    <script src="~/js/edit.js" asp-append-version="true"></script>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/echarts/4.1.0/echarts-en.common.min.js" integrity="sha256-PXZ+rlU8rLmI+s7pWJJQjdzV4Y7dZ41gs6rAXpfZhjQ=" crossorigin="anonymous"></script>
+
+    <script>
+        initApp();
+
+        $(document).ready(function() {
+            setupEditScreen('@Model.VotingId', @Json.Serialize(Model.Questions));
+
+            const startDate = formatDateTimeSeconds(@Model.StartDate);
+            const endDate = formatDateTimeSeconds(@Model.EndDate);
+            $('#fwDateInfo').html(`Start: ${startDate}<br />Ende: ${endDate}`);
+        });
+    </script>
+
+}

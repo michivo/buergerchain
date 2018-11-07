@@ -88,7 +88,7 @@
         else {
             imagePart = '<i class="material-icons fw-closed-voting-img" style="text-align:center;width:100%">how_to_vote</i>';
         }
-        return `<div class="col-xl-4 col-md-6 col-sm-12">
+        return `<a href="Results?id=${voting.id}"><div class="col-xl-4 col-md-6 col-sm-12 my-2">
                 <div class="fw-finished-vote-card">
                     ${imagePart}
                     <div class="fw-finished-vote-card-content">
@@ -98,7 +98,7 @@
                         </div>
                     </div>
                 </div>
-            </div>`;
+            </div></a>`;
     }
 
     var showOverviewData = function (data) {

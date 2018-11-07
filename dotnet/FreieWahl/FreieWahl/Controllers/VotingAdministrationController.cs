@@ -52,7 +52,7 @@ namespace FreieWahl.Controllers
 
         public async Task<IActionResult> Overview()
         {
-            var user = await _GetUserForGetRequest();
+            var user = await _GetUserForGetRequest(Operation.List);
 
             if (user == null)
                 return Unauthorized();
@@ -68,10 +68,10 @@ namespace FreieWahl.Controllers
             return View(model);
         }
 
-        private async Task<UserInformation> _GetUserForGetRequest()
+        private async Task<UserInformation> _GetUserForGetRequest(Operation operation)
         {
             var user = await _authorizationHandler.GetAuthorizedUser
-                (null, Operation.List, Request.Cookies["session"]);
+                (null, operation, Request.Cookies["session"]);
             return user;
         }
 
@@ -161,7 +161,7 @@ namespace FreieWahl.Controllers
         [HttpGet]
         public async Task<IActionResult> Edit(string id, bool isNew = false)
         {
-            var user = await _GetUserForGetRequest();
+            var user = await _GetUserForGetRequest(Operation.UpdateVoting);
 
             if (user == null)
                 return Unauthorized();
@@ -192,7 +192,7 @@ namespace FreieWahl.Controllers
         [HttpGet]
         public async Task<IActionResult> QuestionList(string id)
         {
-            var user = await _GetUserForGetRequest();
+            var user = await _GetUserForGetRequest(Operation.List);
 
             if (user == null)
                 return Unauthorized();
@@ -215,6 +215,63 @@ namespace FreieWahl.Controllers
                 StartDate = voting.StartDate.ToSecondsSinceEpoch(),
                 EndDate = voting.EndDate.ToSecondsSinceEpoch(),
                 RegistrationUrl = _GetRegistrationUrl(id)
+            });
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> ResultQuestionList(string id)
+        {
+            var user = await _GetUserForGetRequest(Operation.List);
+
+            if (user == null)
+                return Unauthorized();
+
+            var voting = await _votingManager.GetById(id);
+            List<Vote> votes = null;
+            if (voting.Questions.Any(x => x.Status == QuestionStatus.Locked))
+            {
+                votes = (await _votingResults.GetResults(id)).ToList();
+            }
+
+            return PartialView(new VotingResultsModel
+            {
+                VotingId = id,
+                Title = voting.Title,
+                Description = voting.Description,
+                ImageData = voting.ImageData,
+                Questions = voting.Questions.Select(x => _CreateQuestionModel(x, id, votes)).ToList(),
+                UserInitials = _GetInitials(user.Name),
+                StartDate = voting.StartDate.ToSecondsSinceEpoch(),
+                EndDate = voting.EndDate.ToSecondsSinceEpoch()
+            });
+        }
+
+
+        [HttpGet]
+        public async Task<IActionResult> Results(string id)
+        {
+            var user = await _GetUserForGetRequest(Operation.List);
+
+            if (user == null)
+                return Unauthorized();
+
+            var voting = await _votingManager.GetById(id);
+            List<Vote> votes = null;
+            if (voting.Questions.Any(x => x.Status == QuestionStatus.Locked))
+            {
+                votes = (await _votingResults.GetResults(id)).ToList();
+            }
+
+            return View(new VotingResultsModel
+            {
+                VotingId = id,
+                Title = voting.Title,
+                Description = voting.Description,
+                ImageData = voting.ImageData,
+                Questions = voting.Questions.Select(q => _CreateQuestionModel(q, id, votes)).ToList(),
+                UserInitials = _GetInitials(user.Name),
+                StartDate = voting.StartDate.ToSecondsSinceEpoch(),
+                EndDate = voting.EndDate.ToSecondsSinceEpoch(),
             });
         }
 

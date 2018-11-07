@@ -1,0 +1,32 @@
+﻿@using FreieWahl.Voting.Models
+@model FreieWahl.Models.VotingAdministration.VotingResultsModel
+
+@foreach (var question in Model.Questions)
+{
+    if (question.Type == QuestionType.Decision)
+    {
+@await Html.PartialAsync("_DecisionQuestion", question);
+    }
+    else if (question.Type == QuestionType.MultipleChoice)
+    {
+@await Html.PartialAsync("_MultipleChoiceQuestion", question);
+    }
+    else if (question.Type == QuestionType.Ordering)
+    {
+@await Html.PartialAsync("_OrderingQuestion", question);
+    }
+}
+@if (!Model.Questions.Any())
+{
+<div class="align-items-center p-2 my-4" id="fw-new-question-onboarding" style="cursor:pointer">
+    <div class="text-primary pt-1"><h1 style="font-weight:300">In dieser Abstimmung gab es keine Fragen.</h1></div>
+</div>
+}
+else
+{
+    <script>
+        if (typeof Edit !== 'undefined') {
+            Edit.setQuestions(@Json.Serialize(Model.Questions));
+        }
+    </script>
+}
