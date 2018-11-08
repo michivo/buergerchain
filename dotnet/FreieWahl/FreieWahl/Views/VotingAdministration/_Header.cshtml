@@ -6,11 +6,11 @@
         @if ((bool)ViewData["IsOverview"] == false)
         {
             <li class="nav-item">
-                <a href="@Url.Action("Overview")"><i class="material-icons mr-3 rounded-circle p-1" style="background-color: #DCE4E7; font-size: 2rem;">home</i></a>
+                <a href="@Url.Action("Overview")"><i class="material-icons mr-3 rounded-circle p-1 button-shadow" style="background-color: #DCE4E7; font-size: 2rem;">home</i></a>
             </li>
         }
         <li class="nav-item dropleft">
-            <a class="nav-link" href="#" id="fw-account" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+            <a class="nav-link button-shadow" href="#" id="fw-account" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                 @ViewData["Initials"]
             </a>
             <div class="dropdown-menu" aria-labelledby="fw-account">

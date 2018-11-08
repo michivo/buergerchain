@@ -73,8 +73,8 @@
             `</a><div class="card-body d-flex flex-column justify-content-between" style="height:12rem"><h5 class="card-title">${
             voting.title}</h5>` +
             `<p class="card-text">${truncate(voting.description, 50)}</p>\r\n` +
-            `<div><a class="fw-card-link-icon float-left p-2 border fw-delete-voting" href="javascript:void(0);" data-votingid="${voting.id}"><i class="material-icons">delete</i></a>\r\n` +
-            `<a class="fw-card-link-icon bg-primary float-right p-2" href="Edit?id=${voting.id
+        `<div><a class="fw-card-link-icon float-left p-2 border fw-delete-voting button-shadow" href="javascript:void(0);" data-votingid="${voting.id}"><i class="material-icons">delete</i></a>\r\n` +
+            `<a class="fw-card-link-icon bg-primary float-right p-2 button-shadow" href="Edit?id=${voting.id
             }"><i class="material-icons text-white">edit</i></a></div></div></div></div>`;
 
         return item;

@@ -156,14 +156,14 @@ div.fw-overview-card {
 
     100% {
         box-shadow: 2px 2px 5px #808080;
-        transform: translate(2px, 2px);
+        transform: translate(-1px, -1px);
     }
 }
 
 @keyframes fwOverviewCardUnpulse {
     0% {
         box-shadow: 2px 2px 5px #808080;
-        transform: translate(2px, 2px);
+        transform: translate(-1px, -1px);
     }
 
     100% {
@@ -205,7 +205,6 @@ div.fw-overview-card p.card-text {
 }
 
 a.fw-card-link-icon {
-    box-shadow: 2px 2px 3px #808080;
     height:3rem;
     width:3rem;
     border-radius: 50%;
@@ -328,14 +327,6 @@ div.fw-overview-header {
   background-color: #C9D6DC;
 }
 
-rounded-edges {
-    border-radius:1rem;
-}
-
-round-border {
-    border-radius:50%;
-}
-
 div.fw-titlepage-flex {
   display: flex;
   width: 100%;
@@ -421,8 +412,24 @@ img.fw-card-svg {
     display: block;
 }
 
+
+@keyframes buttonPulse {
+    100% {
+        box-shadow: 2px 2px 3px $primary;
+        transform: translate(-1px, -1px);
+    }
+}
+
 .button-shadow {
-    box-shadow: 0px 4px 5px gray;
+    box-shadow: 1px 1px 2px gray;
+}
+
+.button-shadow:hover {
+    animation-name: buttonPulse;
+    animation-duration: .4s;
+    animation-iteration-count: 1;
+    animation-timing-function: ease-out;
+    animation-fill-mode: forwards;
 }
 
 footer {
