@@ -172,10 +172,6 @@ const Edit = (function () {
     }
 
     var renderOrderingQuestionResults = function (question) {
-        const targetDiv = $(`.fw-question-results[data-questionid=${question.index}]`);
-        if (targetDiv.length !== 1) {
-            return;
-        }
         const keys = [];
         const vals = [];
         let totalNumVotes = 0;
@@ -199,88 +195,41 @@ const Edit = (function () {
                     keys.push(key);
                     const newVal = [];
                     let idx = 0;
+                    newVal.push(findAnswer(key, question.answerOptions).answer);
                     for (; idx < maxNumVotes; idx++) {
                         newVal.push(0);
                     }
                     vals.push(newVal);
                 }
 
-                vals[keyIndex][index] = vals[keyIndex][index] + 1;
+                vals[keyIndex][index + 1] = vals[keyIndex][index + 1] + 1;
             });
         });
 
-        const seriesData = [];
-        const labels = [];
-
-        let rankIdx = 0;
-        for (; rankIdx < maxNumVotes; rankIdx++) {
-            let optionIdx = 0;
-            const dataPoints = [];
-            for (; optionIdx < keys.length; optionIdx++) {
-                dataPoints.push(vals[optionIdx][rankIdx]);
-
-                if (rankIdx === 0) {
-                    labels.push(findAnswer(keys[optionIdx], question.answerOptions).answer);
-                }
-            }
-            seriesData.push({
-                name: `Reihung Platz ${rankIdx + 1}`,
-                type: 'bar',
-                data: dataPoints
-            });
+        var dataTable = new google.visualization.DataTable();
+        dataTable.addColumn('string', 'Option');
+        let keyIndex = 0;
+        for (; keyIndex < maxNumVotes; keyIndex++) {
+            dataTable.addColumn('number', `Reihung #${keyIndex + 1}`);
         }
+        dataTable.addRows(vals);
 
-
-        var chart = echarts.init(targetDiv[0]);
-
-        var option = {
-            title: {
-                text: 'Ergebnisse',
-                x: 'left'
-            },
-            tooltip: {
-                trigger: 'axis',
-                axisPointer: {
-                    type: 'shadow'
-                }
-            },
-            legend: {
-
-            },
-            grid: {
-                left: 200
-            },
-            xAxis: {
-                type: 'value',
-                name: 'Stimmen',
-                axisLabel: {
-                    formatter: '{value}'
-                }
-            },
-            yAxis: {
-                type: 'category',
-                inverse: true,
-                data: labels
-            },
-            toolbox: {
-                show: true,
-                right: 40,
-                feature: {
-                    mark: { show: true },
-                    dataView: {
-                        show: true,
-                        readOnly: true,
-                        title: 'Rohdaten',
-                        lang: ['Rohdaten', 'Abbrechen', 'Neu laden']
-                    },
-                    saveAsImage: { show: true, title: 'Bild speichern' }
-                }
-            },
-            series: seriesData
+        var options = {
+            colors: ['#657f8d', '#232f19', '#8a6476', '#7e3237', '#224e7f', '#798233', '#443848', '#c47a58'],
+            fontName: 'Roboto',
+            fontSize: 14,
+            bars: 'horizontal'
         };
 
-        // use configuration item and data specified to show chart
-        chart.setOption(option);
+        var chart = new google.visualization.ChartWrapper({
+            containerId: `fw-question-result-${question.index}`,
+            dataTable: dataTable,
+            options: options,
+            chartType: 'Bar'
+        });
+
+        chart.draw();
+        addChart(question.index, chart);
     }
 
 
