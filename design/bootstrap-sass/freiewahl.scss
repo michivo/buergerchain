@@ -478,3 +478,17 @@ div.fw-registration-item-button :active {
     color:$primary;
     transform:translate(1px, 1px)
 }
+
+i.fw-chart-button-active {
+    cursor: pointer; 
+    background-color: $primary; 
+    color: white;
+    font-size: 2rem
+}
+
+i.fw-chart-button-inactive {
+    cursor: pointer; 
+    color: $primary; 
+    background-color: white;
+    font-size: 2rem
+}

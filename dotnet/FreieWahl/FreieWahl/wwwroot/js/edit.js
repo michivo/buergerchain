@@ -8,6 +8,8 @@ const Edit = (function () {
     let mQuestions;
     let mProgressBars;
     let mProgressBarConfig;
+    let mChartsReady;
+    let mCharts;
 
     var setQuestions = function (questions) {
         mQuestions = questions;
@@ -21,11 +23,35 @@ const Edit = (function () {
         return answerOption;
     };
 
-    var renderDecisionQuestionResults = function (question) {
-        const targetDiv = $(`.fw-question-results[data-questionid=${question.index}]`);
-        if (targetDiv.length !== 1) {
-            return;
+    var addChart = function (questionIndex, chart) {
+        let chartIndex = 0;
+        for (; chartIndex < mCharts.length; chartIndex++) {
+            if (mCharts[chartIndex].index === questionIndex) {
+                mCharts[chartIndex].chart = chart;
+                return;
+            }
         }
+
+        mCharts.push({ index: questionIndex, chart: chart });
+    }
+
+    var setChartType = function (type, questionIndex) {
+        let chartIndex = 0;
+        for (; chartIndex < mCharts.length; chartIndex++) {
+            if (mCharts[chartIndex].index === questionIndex) {
+                const chart = mCharts[chartIndex].chart;
+                chart.setChartType(type);
+                chart.draw();
+                $(`.fw-chart-buttons[data-questionid="${questionIndex}"] > i[data-charttype="${type}"]`)
+                    .removeClass("fw-chart-button-inactive").addClass('fw-chart-button-active');
+                $(`.fw-chart-buttons[data-questionid="${questionIndex}"] > i`).not(`[data-charttype="${type}"]`)
+                    .removeClass("fw-chart-button-active").addClass('fw-chart-button-inactive');
+                return;
+            }
+        }
+    }
+
+    var renderDecisionQuestionResults = function (question) {
 
         const keys = [];
         const vals = [];
@@ -55,61 +81,38 @@ const Edit = (function () {
         let idx = 0;
         for (; idx < vals.length; idx++) {
             if (keys[idx] === 'Enthaltungen') {
-                seriesData.push({ 'value': vals[idx], 'name': 'Enthaltungen' });
+                seriesData.push(['Enthaltungen', vals[idx]]); //, `Enthaltungen\r\n ${vals[idx]}/${totalNumVotes}`
             } else {
                 const answer = findAnswer(keys[idx], question.answerOptions);
-                seriesData.push({ 'value': vals[idx], 'name': answer.answer });
+                seriesData.push([answer.answer, vals[idx]]); //, `${answer.answer}\r\n ${vals[idx]}/${totalNumVotes}`
             }
         }
 
-        var chart = echarts.init(targetDiv[0]);
+        var dataTable = new google.visualization.DataTable();
+        dataTable.addColumn('string', 'Option');
+        dataTable.addColumn('number', 'Stimmen');
+        dataTable.addRows(seriesData);
 
-        var option = {
-            title: {
-                text: 'Ergebnisse',
-                x: 'left'
-            },
-            tooltip: {
-                trigger: 'item',
-                formatter: "{b} : {c} ({d}%)"
-            },
-            legend: {
-                right: 0,
-                bottom: 0,
-                orient: 'vertical'
-            },
-            toolbox: {
-                show: true,
-                right: 40,
-                feature: {
-                    mark: { show: true },
-                    dataView: {
-                        show: true,
-                        readOnly: true,
-                        title: 'Rohdaten',
-                        lang: ['Rohdaten', 'Abbrechen', 'Neu laden']
-                    },
-                    saveAsImage: { show: true, title: 'Bild speichern' }
-                }
-            },
-            series: [
-                {
-                    name: question.text,
-                    type: 'pie',
-                    data: seriesData
-                }
-            ]
+        var options = {
+            colors: ['#657f8d', '#232f19', '#8a6476', '#7e3237', '#224e7f', '#798233', '#443848', '#c47a58'],
+            fontName: 'Roboto',
+            fontSize: 14
         };
 
-        // use configuration item and data specified to show chart
-        chart.setOption(option);
+
+        var chart = new google.visualization.ChartWrapper({
+            containerId: `fw-question-result-${question.index}`,
+            dataTable: dataTable,
+            options: options,
+            chartType: 'PieChart'
+        });
+
+        chart.draw();
+
+        addChart(question.index, chart);
     }
 
     var renderMultipleChoiceQuestionResults = function (question) {
-        const targetDiv = $(`.fw-question-results[data-questionid=${question.index}]`);
-        if (targetDiv.length !== 1) {
-            return;
-        }
         const keys = [];
         const vals = [];
         let totalNumVotes = 0;
@@ -135,57 +138,37 @@ const Edit = (function () {
 
         const seriesData = [];
         let idx = 0;
-        const legendData = [];
         for (; idx < vals.length; idx++) {
             if (keys[idx] === 'Enthaltungen') {
-                seriesData.push({ 'value': vals[idx], 'name': 'Enthaltungen' });
+                seriesData.push(['Enthaltungen', vals[idx]]); //, `Enthaltungen\r\n ${vals[idx]}/${totalNumVotes}`]);
             } else {
                 const answer = findAnswer(keys[idx], question.answerOptions);
-                seriesData.push({ 'value': vals[idx], 'name': answer.answer });
+                seriesData.push([answer.answer, vals[idx]]); //, `${answer.answer}\r\n ${vals[idx]}/${totalNumVotes}`]);
             }
         }
 
-        var chart = echarts.init(targetDiv[0]);
+        var dataTable = new google.visualization.DataTable();
+        dataTable.addColumn('string', 'Option');
+        dataTable.addColumn('number', 'Stimmen');
+        //dataTable.addColumn({ type: 'string', role: 'tooltip' });
+        dataTable.addRows(seriesData);
 
-        var option = {
-            title: {
-                text: 'Ergebnisse',
-                x: 'left'
-            },
-            tooltip: {
-                trigger: 'item',
-                formatter: "{b} : {c}"
-            },
-            legend: {
-                right: 0,
-                bottom: 0,
-                orient: 'vertical'
-            },
-            toolbox: {
-                show: true,
-                right: 40,
-                feature: {
-                    mark: { show: true },
-                    dataView: {
-                        show: true,
-                        readOnly: true,
-                        title: 'Rohdaten',
-                        lang: ['Rohdaten', 'Abbrechen', 'Neu laden']
-                    },
-                    saveAsImage: { show: true, title: 'Bild speichern' }
-                }
-            },
-            series: [
-                {
-                    name: question.text,
-                    type: 'pie',
-                    data: seriesData
-                }
-            ]
+        var options = {
+            colors: ['#657f8d', '#232f19', '#8a6476', '#7e3237', '#224e7f', '#798233', '#443848', '#c47a58'],
+            fontName: 'Roboto',
+            fontSize: 14
         };
 
-        // use configuration item and data specified to show chart
-        chart.setOption(option);
+
+        var chart = new google.visualization.ChartWrapper({
+            containerId: `fw-question-result-${question.index}`,
+            dataTable: dataTable,
+            options: options,
+            chartType: 'PieChart'
+        });
+
+        chart.draw();
+        addChart(question.index, chart);
     }
 
     var renderOrderingQuestionResults = function (question) {
@@ -302,6 +285,11 @@ const Edit = (function () {
 
 
     var showResults = function () {
+
+        if (!mChartsReady) {
+            return;
+        }
+
         const questionsWithResults = mQuestions.filter(function (question) {
             return question.status === 2;
         });
@@ -524,6 +512,11 @@ const Edit = (function () {
         });
     }
 
+    var chartsReady = function() {
+        mChartsReady = true;
+        showResults();
+    }
+
     var init = function (votingId, questions) {
         mVotingId = votingId;
         mQuestions = questions;
@@ -554,16 +547,21 @@ const Edit = (function () {
         };
 
         mProgressBars = [];
+        mCharts = [];
 
         updateResultCounts();
-        showResults();
         window.setInterval(updateResultCounts, 60000);
+
+        mChartsReady = false;
+        google.charts.load('current', { 'packages': ['corechart', 'table'] });
+        google.charts.setOnLoadCallback(chartsReady);
     }
 
     return {
         init: init,
         setGrantedRegistrationCount: setGrantedRegistrationCount,
-        setQuestions: setQuestions
+        setQuestions: setQuestions,
+        setChartType: setChartType
     }
 })();
 
