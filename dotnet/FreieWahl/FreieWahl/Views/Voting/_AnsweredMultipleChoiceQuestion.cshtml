@@ -9,7 +9,7 @@
             @Model.Question.Text
         </button>
     </div>
-    <div id="body-question-@Model.Question.Index" class="collapse" data-parent="#votingQuestions" aria-labelledby="header-question-@Model.Question.Index">
+    <div id="body-question-@Model.Question.Index" class="collapse @ViewData["CollapseClass"]" data-parent="#votingQuestions" aria-labelledby="header-question-@Model.Question.Index">
         <div class="card-body">
             @if (!string.IsNullOrEmpty(Model.Question.Description))
             {

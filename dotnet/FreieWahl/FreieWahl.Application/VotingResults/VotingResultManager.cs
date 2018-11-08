@@ -69,7 +69,7 @@ namespace FreieWahl.Application.VotingResults
             return async () =>
             {
                 var vote = await _votingManager.GetById(votingId);
-                var question = vote.Questions[questionIndex];
+                var question = vote.Questions.Single(x => x.QuestionIndex == questionIndex);
                 return _votingChainBuilder.GetGenesisValue(question);
             };
         }
@@ -97,7 +97,7 @@ namespace FreieWahl.Application.VotingResults
             }
 
             var vote = await _votingManager.GetById(votingId);
-            var question = vote.Questions[questionIndex];
+            var question = vote.Questions.Single(x => x.QuestionIndex == questionIndex);
             return _votingChainBuilder.GetGenesisValue(question);
         }
 

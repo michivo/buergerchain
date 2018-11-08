@@ -45,6 +45,17 @@
                             answerCount++;
                         }
                     </div>
+                    @if (Model.Status == QuestionStatus.OpenForVoting)
+                    {
+                        <div class="col-lg-6 col-12">
+                            <div id="progress-container-@Model.Index" class="d-none m-3" style="width:18rem; height: 9rem; flex-direction: column-reverse; justify-content: end; align-items: center">
+
+                                <div style="font-size: 2rem; color: #3583A9; font-weight: 300; margin-top: -2rem; text-align: center; line-height: 1rem">
+                                    <span id="progress-value-@Model.Index"></span><br><span style="font-size: 1rem">Stimmen abgegeben</span>
+                                </div>
+                            </div>
+                        </div>
+                    }
                 </div>
             </div>
         }

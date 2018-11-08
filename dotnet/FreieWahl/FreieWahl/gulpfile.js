@@ -63,6 +63,8 @@ gulp.task('copy', function (done) {
             './bower/lib/slick-carousel/slick/fonts/slick.woff',
             './bower/lib/slick-carousel/slick/fonts/slick.ttf',
             './bower/lib/slick-carousel/slick/slick.min.js',
+            './bower/lib/progressbar.js/dist/progressbar.min.js',
+            './bower/lib/progressbar.js/dist/progressbar.min.js.map',
             './bower/lib/popper.js/dist/umd/popper.min.js'], { base: './bower/lib'})
         .pipe(gulp.dest('./wwwroot/lib'));
 });

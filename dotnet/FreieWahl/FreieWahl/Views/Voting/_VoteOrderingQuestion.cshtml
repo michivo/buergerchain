@@ -8,7 +8,7 @@
             @Model.Text
             </button>
         </div>
-        <div id="body-question-@Model.Index" class="collapse" data-parent="#votingQuestions" aria-labelledby="header-question-@Model.Index">
+        <div id="body-question-@Model.Index" class="collapse @ViewData["CollapseClass"]" data-parent="#votingQuestions" aria-labelledby="header-question-@Model.Index">
             <div class="card-body">
                 @if (!string.IsNullOrEmpty(Model.Description))
                 {
@@ -41,7 +41,7 @@
                     </div>
                 </div>
             </div>
-            <div class="alert alert-danger alert-dismissible fade hide mx-3" role="alert" id="question-error-@Model.Index">
+            <div class="alert alert-danger alert-dismissible d-none fade hide mx-3" role="alert" id="question-error-@Model.Index">
                 <span>&nbsp;</span>
                 <button type="button" class="close" data-dismiss="alert" aria-label="Close">
                     <span aria-hidden="true">&times;</span>

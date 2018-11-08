@@ -4,7 +4,10 @@
 const Edit = (function () {
     let mVotingId;
     let mGrantedRegistrationCount;
+    let mCurrentVotingData;
     let mQuestions;
+    let mProgressBars;
+    let mProgressBarConfig;
 
     var setQuestions = function (questions) {
         mQuestions = questions;
@@ -318,8 +321,46 @@ const Edit = (function () {
 
     }
 
+    var getProgressBar = function (index) {
+        const bar = mProgressBars.find(function (element) {
+            return element.index === index;
+        });
+
+        if (typeof bar !== 'undefined' && bar) {
+            return bar.bar;
+        }
+
+        const newBar =
+            new ProgressBar.SemiCircle(document.getElementById(`progress-container-${index}`), mProgressBarConfig);
+        mProgressBars.push({ index: index, bar: newBar });
+        $(`#progress-container-${index}`).removeClass('d-none');
+        $(`#progress-container-${index}`).addClass('d-flex');
+        return newBar;
+    }
+
+    var showResultCounts = function (data) {
+        data = (typeof data !== 'undefined') ? data : mCurrentVotingData;
+        if (typeof data === 'undefined' || typeof mGrantedRegistrationCount === 'undefined') {
+            return;
+        }
+
+        $.each(data,
+            function (index, value) {
+                const progressBar = getProgressBar(value.index);
+                const percentage = (1.0 * value.count) / mGrantedRegistrationCount;
+                const container = $(`#progress-container-${value.index}`);
+                if (container.hasClass('d-none')) {
+                    container.removeClass('d-none');
+                    container.addClass('d-flex');
+                }
+                progressBar.animate(percentage);
+                $(`#progress-value-${value.index}`).text(`${value.count}/${mGrantedRegistrationCount}`);
+            });
+    }
+
     var updateQuestions = function () {
         $('#questionList').load(`QuestionList?id=${mVotingId}`);
+        showResultCounts();
         showResults();
     }
 
@@ -433,27 +474,7 @@ const Edit = (function () {
         });
     }
 
-    var showResultCounts = function (data) {
-        $.each(data,
-            function (index, value) {
-                const progressBar = $(`.questionProgress[data-questionid=${value.index}]`).first();
-                const percentage = (100 * value.count) / mGrantedRegistrationCount;
-
-                if (progressBar && progressBar.length > 0) {
-                    progressBar.removeClass('d-none');
-                    const bar = progressBar.children('div').first();
-                    bar.css("width", `${percentage}%`);
-                    bar.attr("aria-valuenow", `${percentage}`);
-                    bar.text(`${value.count} Wahlberechtigte haben bereits abgestimmt`);
-                }
-            });
-    }
-
     var updateResultCounts = function () {
-        if (!mGrantedRegistrationCount) {
-            return;
-        }
-
         const questionIndices = [];
         $(".questionCardInactive").each(function () {
             const id = $(this).attr('data-questionid');
@@ -469,6 +490,7 @@ const Edit = (function () {
             type: 'POST',
             datatype: 'json',
             success: function (data) {
+                mCurrentVotingData = data;
                 showResultCounts(data);
             } // TODO error
         });
@@ -486,14 +508,12 @@ const Edit = (function () {
     }
 
     var setGrantedRegistrationCount = function (count) {
-        const wasCountSet = mGrantedRegistrationCount;
+        console.log('setting granted count');
         mGrantedRegistrationCount = count;
-        if (!wasCountSet) {
-            updateResultCounts();
-        }
+        showResultCounts();
     }
 
-    var unlockQuestion = function(questionIndex) {
+    var unlockQuestion = function (questionIndex) {
         $.post({
             url: 'UnlockQuestion',
             data: { "votingId": mVotingId, "questionIndex": questionIndex },
@@ -523,6 +543,17 @@ const Edit = (function () {
 
         $('#questionList').on('click', "#fw-new-question-button", createQuestion);
         $('#questionList').on('click', "#fw-new-question-onboarding", createQuestion);
+
+        mProgressBarConfig = {
+            strokeWidth: 15,
+            color: '#3583A9',
+            trailColor: '#eee',
+            trailWidth: 1,
+            easing: 'easeInOut',
+            duration: 1000
+        };
+
+        mProgressBars = [];
 
         updateResultCounts();
         showResults();
@@ -600,7 +631,7 @@ const Registration = (function () {
                 currentUpdateRequest = null;
                 window.setTimeout(updateRegistrations, 120000);
             }, // TODO error
-            error: function(err) {
+            error: function (err) {
                 currentUpdateRequest = null;
             }
         });

@@ -77,10 +77,6 @@
             const questionidx = id.substr(startIdx + 1, endIdx - startIdx - 1);
             setupOrderingQuestion(questionidx);
         });
-
-        $('.alert button.close').on('click', function() {
-            alert('close');
-        });
     };
 
     var loadQuestions = function(data) {
@@ -124,6 +120,7 @@
     var showErrorForVote = function (message, index) {
         const elementId = `#question-error-${index}`;
         $(elementId + ' > span').text(message.responseText);
+        $(elementId).removeClass('d-none');
         $(elementId).removeClass('hide');
         $(elementId).addClass('show');
         $(`#submit-question-${index}`).hide();
@@ -136,6 +133,7 @@
                 $(`#abstain-question-${index}`).text("Enthalten");
                 $(`#submit-question-${index}`).show();
                 $(`#abstain-question-${index}`).show();
+                $(elementId).addClass('d-none');
             });
     }
 

@@ -6,7 +6,7 @@
         <button class="btn collapsed btn-@(Model.SelectedAnswerIds.Length == 0 ? "dark" : "success") w-100 text-left fw-voting-question-toggler" data-toggle="collapse" data-target="#body-question-@Model.Question.Index"
                 aria-expanded="false" aria-controls="body-question-@Model.Question.Index" id="question-@Model.Question.Index-title">@Model.Question.Text</button>
     </div>
-    <div id="body-question-@Model.Question.Index" class="collapse" data-parent="#votingQuestions" aria-labelledby="header-question-@Model.Question.Index">
+    <div id="body-question-@Model.Question.Index" class="collapse @ViewData["CollapseClass"]" data-parent="#votingQuestions" aria-labelledby="header-question-@Model.Question.Index">
         <div class="card-body">
             @if (!string.IsNullOrEmpty(Model.Question.Description))
             {

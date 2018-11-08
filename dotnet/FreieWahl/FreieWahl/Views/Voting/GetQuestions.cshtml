@@ -8,36 +8,38 @@
     <h3 class="text-primary mt-3">Derzeit keine offenen Fragen...</h3>
 }
 
+@{ string collapseClass = Model.Questions.Length > 1 ? string.Empty : "show"; }
+
 @foreach (var question in Model.Questions)
 {
     if (question.AnswerStatus == VotingQuestionStatus.Open)
     {
         if (question.Question.Type == QuestionType.Decision)
         {
-            @await Html.PartialAsync("_VoteDecisionQuestion", question.Question)
+            @await Html.PartialAsync("_VoteDecisionQuestion", question.Question, new ViewDataDictionary(ViewData) { {"CollapseClass", collapseClass} })
         }
         else if (question.Question.Type == QuestionType.Ordering)
         {
-            @await Html.PartialAsync("_VoteOrderingQuestion", question.Question)
+            @await Html.PartialAsync("_VoteOrderingQuestion", question.Question, new ViewDataDictionary(ViewData) { { "CollapseClass", collapseClass } })
         }
         else if (question.Question.Type == QuestionType.MultipleChoice)
         {
-            @await Html.PartialAsync("_VoteMultipleChoiceQuestion", question.Question)
+            @await Html.PartialAsync("_VoteMultipleChoiceQuestion", question.Question, new ViewDataDictionary(ViewData) { { "CollapseClass", collapseClass } })
         }
     }
     else
     {
         if (question.Question.Type == QuestionType.Decision)
         {
-            @await Html.PartialAsync("_AnsweredDecisionQuestion", question)
+            @await Html.PartialAsync("_AnsweredDecisionQuestion", question, new ViewDataDictionary(ViewData) { { "CollapseClass", collapseClass } })
         }
         else if (question.Question.Type == QuestionType.Ordering)
         {
-            @await Html.PartialAsync("_AnsweredOrderingQuestion", question)
+            @await Html.PartialAsync("_AnsweredOrderingQuestion", question, new ViewDataDictionary(ViewData) { { "CollapseClass", collapseClass } })
         }
         else if (question.Question.Type == QuestionType.MultipleChoice)
         {
-            @await Html.PartialAsync("_AnsweredMultipleChoiceQuestion", question)
+            @await Html.PartialAsync("_AnsweredMultipleChoiceQuestion", question, new ViewDataDictionary(ViewData) { { "CollapseClass", collapseClass } })
         }
     }
 }
