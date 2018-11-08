@@ -87,7 +87,9 @@ namespace FreieWahl.Voting.Storage
         public async Task<IReadOnlyCollection<Vote>> GetVotes(string votingId)
         {
             var snapshot = await _db.Collection(_collection)
-                .WhereEqualTo("VotingId", votingId).GetSnapshotAsync().ConfigureAwait(false);
+                .WhereEqualTo("VotingId", votingId)
+                .OrderBy("DateCreated")
+                .GetSnapshotAsync().ConfigureAwait(false);
             return snapshot.Select(_MapToVote).ToList();
         }
 
@@ -96,9 +98,11 @@ namespace FreieWahl.Voting.Storage
             var snapshot = await _db.Collection(_collection)
                 .WhereEqualTo("VotingId", votingId)
                 .WhereEqualTo("QuestionIndex", questionIndex)
+                .OrderByDescending("DateCreated")
                 .GetSnapshotAsync().ConfigureAwait(false);
-            return snapshot.Select(_MapToVote).ToList();
-
+            var result = snapshot.Select(_MapToVote).ToList();
+            result.Reverse();
+            return result;
         }
     }
 }

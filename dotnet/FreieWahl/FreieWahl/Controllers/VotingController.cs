@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
 using FreieWahl.Application.Voting;
@@ -10,7 +9,6 @@ using FreieWahl.Helpers;
 using FreieWahl.Models.Voting;
 using FreieWahl.Models.VotingAdministration;
 using FreieWahl.Voting.Models;
-using FreieWahl.Voting.Storage;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 
@@ -21,15 +19,18 @@ namespace FreieWahl.Controllers
     {
         private readonly IVotingManager _votingManager;
         private readonly IVotingResultManager _votingResultManager;
+        private readonly IVotingChainBuilder _votingChainBuilder;
         private readonly string _regUrl;
 
         public VotingController(
             IVotingManager votingManager,
             IConfiguration configuration,
-            IVotingResultManager votingResultManager)
+            IVotingResultManager votingResultManager,
+            IVotingChainBuilder votingChainBuilder)
         {
             _votingManager = votingManager;
             _votingResultManager = votingResultManager;
+            _votingChainBuilder = votingChainBuilder;
 
             _regUrl = configuration["RemoteTokenStore:Url"];
         }
@@ -160,6 +161,26 @@ namespace FreieWahl.Controllers
                 .ToArray();
 
             return new JsonResult(answerCounts);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> VerifyVotes(string votingId, int questionIndex)
+        {
+            var voting = await _votingManager.GetById(votingId).ConfigureAwait(false);
+            var votes = await _votingResultManager.GetResults(votingId, questionIndex).ConfigureAwait(false);
+
+            try
+            {
+                _votingChainBuilder.CheckChain(voting.Questions.Single(x => x.QuestionIndex == questionIndex),
+                    votes.ToList());
+            }
+            catch (Exception ex)
+            {
+                // TODO: logging
+                return BadRequest();
+            }
+
+            return Ok(votes.Count + 1);
         }
 
         private VotingQuestionModel _MapToModel(QuestionModel questionModel, IReadOnlyCollection<Vote> votes)

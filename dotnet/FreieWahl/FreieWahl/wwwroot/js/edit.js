@@ -88,6 +88,8 @@ const Edit = (function () {
             }
         }
 
+        seriesData.sort(function (a, b) { return b[1] - a[1]; });
+
         var dataTable = new google.visualization.DataTable();
         dataTable.addColumn('string', 'Option');
         dataTable.addColumn('number', 'Stimmen');
@@ -96,7 +98,8 @@ const Edit = (function () {
         var options = {
             colors: ['#657f8d', '#232f19', '#8a6476', '#7e3237', '#224e7f', '#798233', '#443848', '#c47a58'],
             fontName: 'Roboto',
-            fontSize: 14
+            fontSize: 14,
+            chartArea: { width: '85%', height: '85%' }
         };
 
 
@@ -147,6 +150,8 @@ const Edit = (function () {
             }
         }
 
+        seriesData.sort(function(a, b) { return b[1] - a[1]; });
+
         var dataTable = new google.visualization.DataTable();
         dataTable.addColumn('string', 'Option');
         dataTable.addColumn('number', 'Stimmen');
@@ -156,7 +161,8 @@ const Edit = (function () {
         var options = {
             colors: ['#657f8d', '#232f19', '#8a6476', '#7e3237', '#224e7f', '#798233', '#443848', '#c47a58'],
             fontName: 'Roboto',
-            fontSize: 14
+            fontSize: 14,
+            chartArea: { width: '85%', height: '85%' }
         };
 
 
@@ -206,6 +212,8 @@ const Edit = (function () {
             });
         });
 
+        vals.sort(function (a, b) { return b[1] - a[1]; });
+
         var dataTable = new google.visualization.DataTable();
         dataTable.addColumn('string', 'Option');
         let keyIndex = 0;
@@ -218,7 +226,8 @@ const Edit = (function () {
             colors: ['#657f8d', '#232f19', '#8a6476', '#7e3237', '#224e7f', '#798233', '#443848', '#c47a58'],
             fontName: 'Roboto',
             fontSize: 14,
-            bars: 'horizontal'
+            bars: 'horizontal',
+            chartArea: { 'width': '90%', 'height': '90%' },
         };
 
         var chart = new google.visualization.ChartWrapper({
@@ -301,6 +310,27 @@ const Edit = (function () {
         showResults();
     }
 
+    var verifyResults = function (questionIndex) {
+        $(`#fw-button-verify-results-${questionIndex}`).addClass('disabled');
+        $.ajax({
+            url: '../Voting/VerifyVotes',
+            data: { "votingId": mVotingId, "questionIndex": questionIndex },
+            type: 'POST',
+            datatype: 'json',
+            success: function (data) {
+                $(`#fw-button-verify-results-${questionIndex}`).removeClass('btn-secondary');
+                $(`#fw-button-verify-results-${questionIndex}`).addClass('btn-success');
+                $(`#fw-button-verify-results-${questionIndex}`)
+                    .text(`Die Integrität von ${data} abgegebenen Stimmen wurde erfolgreich überprüft!`);
+            },
+            error: function(data) {
+                $(`#fw-button-verify-results-${questionIndex}`).removeClass('btn-secondary');
+                $(`#fw-button-verify-results-${questionIndex}`).addClass('btn-danger');
+                $(`#fw-button-verify-results-${questionIndex}`)
+                    .text('Die Integrität der Ergebnisse konnte nicht verifiziert werden!');
+            }
+        });
+    }
 
     var resetNewQuestionModal = function () {
         $('#newQuestionTitle').val('');
@@ -445,7 +475,6 @@ const Edit = (function () {
     }
 
     var setGrantedRegistrationCount = function (count) {
-        console.log('setting granted count');
         mGrantedRegistrationCount = count;
         showResultCounts();
     }
@@ -510,7 +539,8 @@ const Edit = (function () {
         init: init,
         setGrantedRegistrationCount: setGrantedRegistrationCount,
         setQuestions: setQuestions,
-        setChartType: setChartType
+        setChartType: setChartType,
+        verifyResults: verifyResults
     }
 })();
 

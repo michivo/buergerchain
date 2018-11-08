@@ -3,24 +3,39 @@
 @model FreieWahl.Models.VotingAdministration.QuestionModel
 
 <div class="card my-4 questionCard @(Model.Status == QuestionStatus.OpenForVoting ? "questionCardInactive" : "")" data-questionid="@Model.Index" data-x="@Model.Status.ToString()">
-    <div class="card-header bg-primary text-light pb-0 pt-1" style="font-size:2.5rem; font-weight: 100;line-height: 2.5rem">
-        <div class="py-2 float-left">Multiple Choice</div>
-        @if (Model.Status == QuestionStatus.InPreparation)
-        {
-            <div class="btn-group dropleft float-right">
-                <a class="nav-link" href="#" id="question-@Model.Index-menu" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                    <i class="material-icons text-white" style="font-size: 2.5rem">more_vert</i>
-                </a>
-                <div class="dropdown-menu" aria-labelledby="question-@Model.Index-menu">
-                    <button class="dropdown-item fwBtnEditQuestion" type="button" data-questionid="@Model.Index">Bearbeiten</button>
-                    <button class="dropdown-item fwBtnDeleteQuestion" type="button" data-questionid="@Model.Index">Frage löschen</button>
+    @if (Model.Status != QuestionStatus.Locked)
+    {
+        <div class="card-header bg-primary text-light pb-0 pt-1" style="font-size: 2.5rem; font-weight: 100; line-height: 2.5rem">
+            <div class="py-2 float-left">Multiple Choice</div>
+
+            @if (Model.Status == QuestionStatus.InPreparation)
+            {
+                <div class="btn-group dropleft float-right">
+                    <a class="nav-link" href="#" id="question-@Model.Index-menu" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        <i class="material-icons text-white" style="font-size: 2.5rem">more_vert</i>
+                    </a>
+                    <div class="dropdown-menu" aria-labelledby="question-@Model.Index-menu">
+                        <button class="dropdown-item fwBtnEditQuestion" type="button" data-questionid="@Model.Index">Bearbeiten</button>
+                        <button class="dropdown-item fwBtnDeleteQuestion" type="button" data-questionid="@Model.Index">Frage löschen</button>
+                    </div>
                 </div>
-            </div>
-        }
-    </div>
+            }
+        </div>
+    }
     <div class="card-body">
-        <h1 class="card-title" style="border-bottom: 1px solid #657F8C" id="question-@Model.Index-title">@Model.Text</h1>
-        <p class="card-text border-bottom" id="question-@Model.Index-description">@Model.Description</p>
+        <div class="d-flex justify-content-between align-items-baseline" style="border-bottom: 1px solid #657F8C;">
+            <div>
+                <h1 class="card-title" id="question-@Model.Index-title">@Model.Text</h1>
+            </div>
+            @if (Model.Status == QuestionStatus.Locked)
+            {
+                <div style="font-size: .9rem">Multiple Choice</div>
+            }
+        </div>
+        @if (!string.IsNullOrEmpty(Model.Description))
+        {
+            <p class="card-text py-2 mb-0" style="border-bottom: 1px solid #C0C0C0" id="question-@Model.Index-description">@Model.Description</p>
+        }
         @if (Model.Status != QuestionStatus.Locked)
         {
             <div class="container">

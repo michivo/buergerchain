@@ -2,24 +2,39 @@
 @model FreieWahl.Models.VotingAdministration.QuestionModel
 
 <div class="card my-4 questionCard @(Model.Status == QuestionStatus.OpenForVoting ? "questionCardInactive" : "")" data-questionid="@Model.Index">
-    <div class="card-header bg-primary text-light pb-0 pt-1" style="font-size:2.5rem; font-weight: 100;line-height: 2.5rem">
-        <div class="py-2 float-left">Reihungsfrage</div>
-        @if (Model.Status == QuestionStatus.InPreparation)
-        {
-            <div class="btn-group dropleft float-right">
-                <a class="nav-link" href="#" id="question-@Model.Index-menu" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                    <i class="material-icons text-white" style="font-size: 2.5rem">more_vert</i>
-                </a>
-                <div class="dropdown-menu" aria-labelledby="question-@Model.Index-menu">
-                    <button class="dropdown-item fwBtnEditQuestion" type="button" data-questionid="@Model.Index">Bearbeiten</button>
-                    <button class="dropdown-item fwBtnDeleteQuestion" type="button" data-questionid="@Model.Index">Frage löschen</button>
+    @if (Model.Status != QuestionStatus.Locked)
+    {
+        <div class="card-header bg-primary text-light pb-0 pt-1" style="font-size: 2.5rem; font-weight: 100; line-height: 2.5rem">
+            <div class="py-2 float-left">Reihungsfrage</div>
+            @if (Model.Status == QuestionStatus.InPreparation)
+            {
+                <div class="btn-group dropleft float-right">
+                    <a class="nav-link" href="#" id="question-@Model.Index-menu" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        <i class="material-icons text-white" style="font-size: 2.5rem">more_vert</i>
+                    </a>
+                    <div class="dropdown-menu" aria-labelledby="question-@Model.Index-menu">
+                        <button class="dropdown-item fwBtnEditQuestion" type="button" data-questionid="@Model.Index">Bearbeiten</button>
+                        <button class="dropdown-item fwBtnDeleteQuestion" type="button" data-questionid="@Model.Index">Frage löschen</button>
+                    </div>
                 </div>
-            </div>
-        }
-    </div>
+            }
+        </div>
+    }
+
     <div class="card-body">
-        <h1 class="card-title" style="border-bottom: 1px solid #657F8C" id="question-@Model.Index-title">@Model.Text</h1>
-        <p class="card-text border-bottom" id="question-@Model.Index-description">@Model.Description</p>
+        <div class="d-flex justify-content-between align-items-baseline" style="border-bottom: 1px solid #657F8C;">
+            <div>
+                <h1 class="card-title" id="question-@Model.Index-title">@Model.Text</h1>
+            </div>
+            @if (Model.Status == QuestionStatus.Locked)
+            {
+                <div style="font-size: .9rem">Reihungsfrage</div>
+            }
+        </div>
+        @if (!string.IsNullOrEmpty(Model.Description))
+        {
+            <p class="card-text py-2 mb-0" style="border-bottom: 1px solid #C0C0C0" id="question-@Model.Index-description">@Model.Description</p>
+        }
         @if (Model.Status != QuestionStatus.Locked)
         {
             <div class="container">
@@ -50,7 +65,7 @@
                     @if (Model.Status == QuestionStatus.OpenForVoting)
                     {
                         <div class="col-12">
-                            <div id="progress-container-@Model.Index" class="d-none mx-auto mb-2" style="width:20rem; height: 10rem; flex-direction: column-reverse; justify-content: end; align-items: center">
+                            <div id="progress-container-@Model.Index" class="d-none mx-auto mb-2" style="width: 20rem; height: 10rem; flex-direction: column-reverse; justify-content: end; align-items: center">
 
                                 <div style="font-size: 2rem; color: #3583A9; font-weight: 300; margin-top: -2rem; text-align: center; line-height: 1rem">
                                     <span id="progress-value-@Model.Index"></span><br><span style="font-size: 1rem">Stimmen abgegeben</span>
@@ -72,7 +87,7 @@
                 <div class="row justify-content-between align-items-center mt-2">
                     <div class="col-12 col-lg-8 col-md-6">
                         <div class="progress questionProgress w-100 mt-1 d-none" style="height: 1rem;" data-questionid="@Model.Index">
-                            <div class="progress-bar pl-2" role="progressbar" style="width: 0%;color:black" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+                            <div class="progress-bar pl-2" role="progressbar" style="width: 0%; color: black" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
                         </div>
                     </div>
                     <div class="col-6 col-lg-3">
@@ -88,7 +103,7 @@
                     <i class="material-icons fw-chart-button-active" data-charttype="Bar" onclick="Edit.setChartType('Bar', @Model.Index)">bar_chart</i>
                     <i class="material-icons fw-chart-button-inactive" data-charttype="Table" onclick="Edit.setChartType('Table', @Model.Index)">table_chart</i><br />
                 </div>
-                <div id="fw-question-result-@Model.Index" style="min-height: 400px; width: 100%; border-left:1px solid #657f8c"></div>
+                <div class="pt-3" id="fw-question-result-@Model.Index" style="min-height: 400px; width: 100%; border-left: 1px solid #657f8c"></div>
             </div>
         }
     </div>
