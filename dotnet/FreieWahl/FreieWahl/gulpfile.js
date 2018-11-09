@@ -65,6 +65,7 @@ gulp.task('copy', function (done) {
             './bower/lib/slick-carousel/slick/slick.min.js',
             './bower/lib/progressbar.js/dist/progressbar.min.js',
             './bower/lib/progressbar.js/dist/progressbar.min.js.map',
+            './bower/lib/papaparse/papaparse.min.js',
             './bower/lib/popper.js/dist/umd/popper.min.js'], { base: './bower/lib'})
         .pipe(gulp.dest('./wwwroot/lib'));
 });

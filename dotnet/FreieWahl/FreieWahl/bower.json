@@ -8,6 +8,7 @@
     "jquery-ui": "1.12.1",
     "slick-carousel": "v1.8.1",
     "popper.js": "v1.14.4",
-    "progressbar.js": "1.0.1"
+    "progressbar.js": "1.0.1",
+    "papaparse": "4.6.1"
   }
 }

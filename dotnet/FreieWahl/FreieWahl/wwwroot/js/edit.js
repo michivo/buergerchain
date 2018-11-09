@@ -25,6 +25,7 @@ const Edit = (function () {
 
     var addChart = function (questionIndex, chart) {
         let chartIndex = 0;
+
         for (; chartIndex < mCharts.length; chartIndex++) {
             if (mCharts[chartIndex].index === questionIndex) {
                 mCharts[chartIndex].chart = chart;
@@ -37,17 +38,28 @@ const Edit = (function () {
         $(`#fw-chart-export-csv-${questionIndex}`).click(function() {
             const dataTable = chart.getDataTable();
             var csvFormattedDataTable = google.visualization.dataTableToCsv(dataTable);
-            var encodedUri = 'data:application/csv;charset=utf-8,' + encodeURIComponent(csvFormattedDataTable);
+            var jsonArray = Papa.parse(csvFormattedDataTable, { encoding: "UTF-8" });
+            var labels = [];
+            let colCount = 0;
+            var numColumns = dataTable.getNumberOfColumns();
+            for (; colCount < numColumns; colCount++) {
+                labels.push(dataTable.getColumnLabel(colCount));
+            }
+            jsonArray.data.splice(0, 0, labels);
+            var formattedCsv = Papa.unparse(jsonArray, { delimiter: ";", encoding: "UTF-8" });
+            var encodedUri = 'data:application/csv;charset=utf-8,' + encodeURIComponent(formattedCsv);
             this.href = encodedUri;
             this.download = 'tableData.csv';
             this.target = '_blank';
         });
         $(`#fw-chart-export-png-${questionIndex}`).click(function () {
-            const innerChart = chart.getChart();
-            const imageData = innerChart.getImageURI();
-            this.href = imageData;
-            this.download = 'resultGraph.png';
-            this.target = '_blank';
+            if ($(`#fw-chart-export-png-${questionIndex}`).attr("data-usecanvas") === "true") {
+                const innerChart = chart.getChart();
+                const imageData = innerChart.getImageURI();
+                this.href = imageData;
+                this.download = 'resultGraph.png';
+                this.target = '_blank';
+            }
         });
     }
 
@@ -55,6 +67,12 @@ const Edit = (function () {
         const chart = mCharts.find(function (chart) {
             return chart.index === questionIndex;
         }).chart;
+
+        if (type === 'Table') {
+            $(`#fw-chart-export-png-${questionIndex}`).hide();
+        } else {
+            $(`#fw-chart-export-png-${questionIndex}`).show();
+        }
 
         chart.setChartType(type);
         chart.draw();
@@ -69,6 +87,7 @@ const Edit = (function () {
         const keys = [];
         const vals = [];
         let totalNumVotes = 0;
+        let maxNumVotes = 0;
         question.votes.forEach(function (vote) {
             if (vote.length > 1) {
                 console.log('Invalid vote is ignored!');
@@ -87,6 +106,9 @@ const Edit = (function () {
                 vals.push(1);
             } else {
                 vals[keyIndex] = vals[keyIndex] + 1;
+                if (vals[keyIndex] > maxNumVotes) {
+                    maxNumVotes = vals[keyIndex];
+                }
             }
         });
 
@@ -108,11 +130,21 @@ const Edit = (function () {
         dataTable.addColumn('number', 'Stimmen');
         dataTable.addRows(seriesData);
 
+        const hAxis = {};
+        if (maxNumVotes > 0 && maxNumVotes < 10) {
+            const ticks = [];
+            let tickIdx = 0;
+            for (; tickIdx <= maxNumVotes; tickIdx++) {
+                ticks.push(tickIdx);
+            }
+            hAxis.ticks = ticks;
+        }
+
         var options = {
             colors: ['#657f8d', '#232f19', '#8a6476', '#7e3237', '#224e7f', '#798233', '#443848', '#c47a58'],
             fontName: 'Roboto',
             fontSize: 14,
-            chartArea: { width: '85%', height: '85%' }
+            hAxis: hAxis
         };
 
 
@@ -132,6 +164,8 @@ const Edit = (function () {
         const keys = [];
         const vals = [];
         let totalNumVotes = 0;
+        let maxNumVotes = 0;
+
         question.votes.forEach(function (vote) {
             if (vote.length === 0) {
                 keys.push('Enthaltungen');
@@ -148,6 +182,9 @@ const Edit = (function () {
                     vals.push(1);
                 } else {
                     vals[keyIndex] = vals[keyIndex] + 1;
+                    if (vals[keyIndex] > maxNumVotes) {
+                        maxNumVotes = vals[keyIndex];
+                    }
                 }
             });
         });
@@ -171,11 +208,21 @@ const Edit = (function () {
         //dataTable.addColumn({ type: 'string', role: 'tooltip' });
         dataTable.addRows(seriesData);
 
+        const hAxis = {};
+        if (maxNumVotes > 0 && maxNumVotes < 10) {
+            const ticks = [];
+            let tickIdx = 0;
+            for (; tickIdx <= maxNumVotes; tickIdx++) {
+                ticks.push(tickIdx);
+            }
+            hAxis.ticks = ticks;
+        }
+
         var options = {
             colors: ['#657f8d', '#232f19', '#8a6476', '#7e3237', '#224e7f', '#798233', '#443848', '#c47a58'],
             fontName: 'Roboto',
             fontSize: 14,
-            chartArea: { width: '85%', height: '85%' }
+            hAxis: hAxis
         };
 
 
@@ -235,19 +282,31 @@ const Edit = (function () {
         }
         dataTable.addRows(vals);
 
+        const hAxis = {};
+        if (maxNumVotes < 10) {
+            const ticks = [];
+            let tickIdx = 0;
+            for (; tickIdx < maxNumVotes; tickIdx++) {
+                ticks.push(tickIdx);
+            }
+            hAxis.ticks = ticks;
+        }
+
         var options = {
             colors: ['#657f8d', '#232f19', '#8a6476', '#7e3237', '#224e7f', '#798233', '#443848', '#c47a58'],
             fontName: 'Roboto',
             fontSize: 14,
             bars: 'horizontal',
-            chartArea: { 'width': '90%', 'height': '90%' },
+            hAxis: hAxis
         };
+
+        console.log(options);
 
         var chart = new google.visualization.ChartWrapper({
             containerId: `fw-question-result-${question.index}`,
             dataTable: dataTable,
             options: options,
-            chartType: 'Bar'
+            chartType: 'BarChart'
         });
 
         chart.draw();
