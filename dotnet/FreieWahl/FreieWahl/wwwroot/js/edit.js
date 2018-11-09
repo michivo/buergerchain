@@ -33,22 +33,35 @@ const Edit = (function () {
         }
 
         mCharts.push({ index: questionIndex, chart: chart });
+
+        $(`#fw-chart-export-csv-${questionIndex}`).click(function() {
+            const dataTable = chart.getDataTable();
+            var csvFormattedDataTable = google.visualization.dataTableToCsv(dataTable);
+            var encodedUri = 'data:application/csv;charset=utf-8,' + encodeURIComponent(csvFormattedDataTable);
+            this.href = encodedUri;
+            this.download = 'tableData.csv';
+            this.target = '_blank';
+        });
+        $(`#fw-chart-export-png-${questionIndex}`).click(function () {
+            const innerChart = chart.getChart();
+            const imageData = innerChart.getImageURI();
+            this.href = imageData;
+            this.download = 'resultGraph.png';
+            this.target = '_blank';
+        });
     }
 
     var setChartType = function (type, questionIndex) {
-        let chartIndex = 0;
-        for (; chartIndex < mCharts.length; chartIndex++) {
-            if (mCharts[chartIndex].index === questionIndex) {
-                const chart = mCharts[chartIndex].chart;
-                chart.setChartType(type);
-                chart.draw();
-                $(`.fw-chart-buttons[data-questionid="${questionIndex}"] > i[data-charttype="${type}"]`)
-                    .removeClass("fw-chart-button-inactive").addClass('fw-chart-button-active');
-                $(`.fw-chart-buttons[data-questionid="${questionIndex}"] > i`).not(`[data-charttype="${type}"]`)
-                    .removeClass("fw-chart-button-active").addClass('fw-chart-button-inactive');
-                return;
-            }
-        }
+        const chart = mCharts.find(function (chart) {
+            return chart.index === questionIndex;
+        }).chart;
+
+        chart.setChartType(type);
+        chart.draw();
+        $(`.fw-chart-buttons[data-questionid="${questionIndex}"] > i[data-charttype="${type}"]`)
+            .removeClass("fw-chart-button-inactive").addClass('fw-chart-button-active');
+        $(`.fw-chart-buttons[data-questionid="${questionIndex}"] > i`).not(`[data-charttype="${type}"]`)
+            .removeClass("fw-chart-button-active").addClass('fw-chart-button-inactive');
     }
 
     var renderDecisionQuestionResults = function (question) {
@@ -150,7 +163,7 @@ const Edit = (function () {
             }
         }
 
-        seriesData.sort(function(a, b) { return b[1] - a[1]; });
+        seriesData.sort(function (a, b) { return b[1] - a[1]; });
 
         var dataTable = new google.visualization.DataTable();
         dataTable.addColumn('string', 'Option');
@@ -241,6 +254,26 @@ const Edit = (function () {
         addChart(question.index, chart);
     }
 
+    var verifyResults = function (questionIndex) {
+        $.ajax({
+            url: '../Voting/VerifyVotes',
+            data: { "votingId": mVotingId, "questionIndex": questionIndex },
+            type: 'POST',
+            datatype: 'json',
+            success: function (data) {
+                $(`#fw-results-verified-ok-${questionIndex}`).removeClass('d-none');
+                $(`#fw-results-verified-ok-${questionIndex} > i`).text('verified_user');
+                $(`#fw-results-verified-ok-${questionIndex} > i`).css('color', '#568233');
+            },
+            error: function (jqXhr, exception) {
+                $(`#fw-results-verified-ok-${questionIndex}`).removeClass('d-none');
+                $(`#fw-results-verified-ok-${questionIndex} > i`).text('error');
+                $(`#fw-results-verified-ok-${questionIndex} > i`).css('color', '#7E3237');
+                $(`#fw-results-verified-ok-${questionIndex}`).attr('title', 'Die Integritätsprüfung der Ergebnisse ist fehlgeschlagen!');
+                $(`#fw-results-verified-ok-${questionIndex}`).attr('data-original-title', 'Die Integritätsprüfung der Ergebnisse ist fehlgeschlagen!');
+            }
+        });
+    }
 
     var showResults = function () {
 
@@ -262,7 +295,7 @@ const Edit = (function () {
             else if (question.type === 3) {
                 renderOrderingQuestionResults(question);
             }
-
+            verifyResults(question.index);
         });
 
     }
@@ -308,28 +341,6 @@ const Edit = (function () {
         $('#questionList').load(`QuestionList?id=${mVotingId}`);
         showResultCounts();
         showResults();
-    }
-
-    var verifyResults = function (questionIndex) {
-        $(`#fw-button-verify-results-${questionIndex}`).addClass('disabled');
-        $.ajax({
-            url: '../Voting/VerifyVotes',
-            data: { "votingId": mVotingId, "questionIndex": questionIndex },
-            type: 'POST',
-            datatype: 'json',
-            success: function (data) {
-                $(`#fw-button-verify-results-${questionIndex}`).removeClass('btn-secondary');
-                $(`#fw-button-verify-results-${questionIndex}`).addClass('btn-success');
-                $(`#fw-button-verify-results-${questionIndex}`)
-                    .text(`Die Integrität von ${data} abgegebenen Stimmen wurde erfolgreich überprüft!`);
-            },
-            error: function(data) {
-                $(`#fw-button-verify-results-${questionIndex}`).removeClass('btn-secondary');
-                $(`#fw-button-verify-results-${questionIndex}`).addClass('btn-danger');
-                $(`#fw-button-verify-results-${questionIndex}`)
-                    .text('Die Integrität der Ergebnisse konnte nicht verifiziert werden!');
-            }
-        });
     }
 
     var resetNewQuestionModal = function () {
@@ -490,7 +501,7 @@ const Edit = (function () {
         });
     }
 
-    var chartsReady = function() {
+    var chartsReady = function () {
         mChartsReady = true;
         showResults();
     }
@@ -514,6 +525,11 @@ const Edit = (function () {
 
         $('#questionList').on('click', "#fw-new-question-button", createQuestion);
         $('#questionList').on('click', "#fw-new-question-onboarding", createQuestion);
+
+        $(function () {
+            $('[data-toggle="tooltip"]').tooltip();
+            $('[data-toggle="dropdown"]').dropdown();
+        })
 
         mProgressBarConfig = {
             strokeWidth: 15,
@@ -539,8 +555,7 @@ const Edit = (function () {
         init: init,
         setGrantedRegistrationCount: setGrantedRegistrationCount,
         setQuestions: setQuestions,
-        setChartType: setChartType,
-        verifyResults: verifyResults
+        setChartType: setChartType
     }
 })();
 

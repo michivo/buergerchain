@@ -22,20 +22,18 @@
         </div>
     }
     <div class="card-body">
-        <div class="d-flex justify-content-between align-items-baseline" style="border-bottom: 1px solid #657F8C">
+        <div class="d-flex justify-content-between align-items-baseline @(Model.Status == QuestionStatus.Locked ? "text-primary" : "")" style="border-bottom: 1px solid #657F8C">
             <div>
                 <h1 class="card-title" id="question-@Model.Index-title">@Model.Text</h1>
             </div>
             @if (Model.Status == QuestionStatus.Locked)
             {
-                <div style="font-size: .9rem">
-                    Entscheidungsfrage
-                </div>
+                <div class="small pr-5 border-bottom">Entscheidungsfrage</div>
             }
         </div>
         @if (!string.IsNullOrEmpty(Model.Description))
         {
-            <p class="card-text py-2 mb-0" style="border-bottom: 1px solid #C0C0C0" id="question-@Model.Index-description">@Model.Description</p>
+            <p class="card-text py-2 mb-0 text-primary border-bottom" id="question-@Model.Index-description">@Model.Description</p>
         }
         @if (Model.Status != QuestionStatus.Locked)
         {
@@ -93,8 +91,19 @@
                 <div class="mt-4 fw-chart-buttons pt-1" style="width: 2rem;" data-questionid="@Model.Index">
                     <i class="material-icons fw-chart-button-active" data-charttype="PieChart" onclick="Edit.setChartType('PieChart', @Model.Index)">pie_chart</i>
                     <i class="material-icons fw-chart-button-inactive" data-charttype="Table" onclick="Edit.setChartType('Table', @Model.Index)">table_chart</i><br />
+                    <div class="dropright">
+                        <i class="material-icons fw-chart-button-inactive" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">save_alt</i>
+                        <div class="dropdown-menu dropdown-menu-right">
+                            <h6 class="dropdown-header">Download</h6>
+                            <a class="dropdown-item" href="#" id="fw-chart-export-csv-@Model.Index">Tabelle (.csv)</a>
+                            <a class="dropdown-item" href="#" id="fw-chart-export-png-@Model.Index">Grafik (.png)</a>
+                        </div>
+                    </div>
                 </div>
                 <div id="fw-question-result-@Model.Index" style="min-height: 400px; width: 100%; border-left: 1px solid #657f8c"></div>
+            </div>
+            <div id="fw-results-verified-ok-@Model.Index" class="d-none position-absolute" style="top: 0; right: 0rem" data-toggle="tooltip" data-placement="left" title="Die Integrität der Ergebnisse wurde erfolgreich verifiziert!">
+                <i class="material-icons" style="font-size: 3.5rem"></i>
             </div>
         }
     </div>
