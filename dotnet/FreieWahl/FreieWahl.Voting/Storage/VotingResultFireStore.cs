@@ -20,9 +20,16 @@ namespace FreieWahl.Voting.Storage
             _db = FirestoreDb.Create(projectId);
         }
         
-        public Task StoreVote(Vote v, Func<Vote, string> getBlockSignature, Func<Task<string>> getGenesisSignature)
+        public async Task StoreVote(Vote v, Func<Vote, string> getBlockSignature, Func<Task<string>> getGenesisSignature)
         {
-            return _db.RunTransactionAsync(async transaction =>
+            var uniqueQuery = _db.Collection(_collection).WhereEqualTo("Token", v.Token).Limit(1);
+            var uniqueCheckResult = await uniqueQuery.GetSnapshotAsync().ConfigureAwait(false);
+            if (uniqueCheckResult.Count == 1)
+            {
+                throw new InvalidOperationException("This token has already been used once!");
+            }
+
+            await _db.RunTransactionAsync(async transaction =>
             {
                 var query = _db.Collection(_collection)
                     .WhereEqualTo("VotingId", v.VotingId)
@@ -50,7 +57,7 @@ namespace FreieWahl.Voting.Storage
                     {"Token", v.Token},
                     {"VotingId", v.VotingId},
                     {"DateCreated", Timestamp.FromDateTime(DateTime.UtcNow)}
-                });
+                }).ConfigureAwait(false);
             });
         }
 
