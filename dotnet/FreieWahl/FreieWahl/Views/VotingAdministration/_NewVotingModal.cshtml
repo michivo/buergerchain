@@ -13,7 +13,7 @@
                     <div class="row" style="margin-bottom:1rem;">
                         <div class="col-12">
                             <input type="text" class="form-control form-control-lg" aria-label="Large" aria-describedby="inputGroup-sizing-sm"
-                                   placeholder="Name" id="fwNewVotingName" required value="@Html.Raw(ViewData["Title"].ToString().Replace("\"", "&quot;"))">
+                                   placeholder="Name" id="fwNewVotingName" required value="@(ViewData.ContainsKey("Title") && ViewData["Title"] !=null ? @Html.Raw(ViewData["Title"].ToString().Replace("\"", "&quot;")) : Html.Raw(string.Empty))">
                             <div class="invalid-feedback" id="fwNewVotingNameValidation">Sie müssen einen Titel für Ihre Abstimmung eingeben.</div>
                         </div>
                     </div>
