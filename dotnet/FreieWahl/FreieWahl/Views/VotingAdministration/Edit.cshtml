@@ -117,6 +117,8 @@
 @section scripts {
     <script src="~/js/bootstrap-datepicker.min.js"></script>
     <script src="~/lib/progressbar.js/dist/progressbar.min.js"></script>
+    <script src="~/lib/bootstrap-datepicker/dist/js/bootstrap-datepicker.min.js"></script>
+    <script src="~/lib/bootstrap-datepicker/dist/locales/bootstrap-datepicker.de.min.js"></script>
     <script src="~/js/edit.js" asp-append-version="true"></script>
     <script src="~/lib/papaparse/papaparse.min.js"></script>
     <script src="https://www.gstatic.com/charts/loader.js"></script>
@@ -134,11 +136,15 @@
             $('#fwNewVotingName').val('@Model.Title');
             $('#fwNewVotingDescription').val('@Model.Description');
             const startDateParts = startDate.split(' ');
-            const endDateParts = startDate.split(' ');
+            const endDateParts = endDate.split(' ');
+            const startDateVal = new Date(0);
+            startDateVal.setUTCSeconds(@Model.StartDate);
+            const endDateVal = new Date(0);
+            endDateVal.setUTCSeconds(@Model.EndDate);
             $('#fwStartTime').val(startDateParts[1]);
             $('#fwEndTime').val(endDateParts[1]);
-            $('#fwStartDate').val(startDateParts[0]);
-            $('#fwEndDate').val(endDateParts[0]);
+            $('#fwStartDate').datepicker('setDate', startDateVal);
+            $('#fwEndDate').datepicker('setDate', endDateVal);
 
             $('#shareLinkText').popover({ offset: '1rem' });
             $('#fwBtnShareLink').popover();

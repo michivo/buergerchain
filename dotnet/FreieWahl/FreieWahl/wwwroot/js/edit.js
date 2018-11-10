@@ -35,7 +35,7 @@ const Edit = (function () {
 
         mCharts.push({ index: questionIndex, chart: chart });
 
-        $(`#fw-chart-export-csv-${questionIndex}`).click(function() {
+        $(`#fw-chart-export-csv-${questionIndex}`).click(function () {
             const dataTable = chart.getDataTable();
             var csvFormattedDataTable = google.visualization.dataTableToCsv(dataTable);
             var jsonArray = Papa.parse(csvFormattedDataTable, { encoding: "UTF-8" });
@@ -533,7 +533,7 @@ const Edit = (function () {
         });
     }
 
-    var clearPopovers = function() {
+    var clearPopovers = function () {
         $('#shareLinkText').popover('hide');
         $('#fwBtnShareLink').popover('hide');
         $('#shareLinkText').popover('dispose');
@@ -542,11 +542,11 @@ const Edit = (function () {
         $('#fwBtnShareLink').removeAttr('data-toggle');
     };
 
-    var createQuestion = function() {
+    var createQuestion = function () {
         resetNewQuestionModal();
         clearPopovers();
         $('#newQuestionModal').modal();
-        $('#modalQuestionOk').off('click').on('click', function() { saveQuestion(0); });
+        $('#modalQuestionOk').off('click').on('click', function () { saveQuestion(0); });
     };
 
     var setGrantedRegistrationCount = function (count) {
@@ -569,14 +569,51 @@ const Edit = (function () {
         mChartsReady = true;
         showResults();
     }
-    
+
     var editVoting = function () {
         Edit.clearPopovers();
         $("#newVotingModal").modal();
     }
 
-    var updateVoting = function() {
+    var updateVoting = function () {
+        var title = $("#fwNewVotingName").val();
+        var desc = $("#fwNewVotingDescription").val();
+        var imageData = '';
+        var validationResult = fwValidate('#fwStartDate', '#fwStartDateValidation', /^[0-3]?\d\.[0,1]?\d\.20\d{2}$/);
+        validationResult = fwValidate('#fwEndDate', '#fwEndDateValidation', /^[0-3]?\d\.[0,1]?\d\.20\d{2}$/) && validationResult;
+        validationResult = fwValidate('#fwStartTime', '#fwStartTimeValidation', /^[0-2]?\d:[0-5]\d$/) && validationResult;
+        validationResult = fwValidate('#fwEndTime', '#fwEndTimeValidation', /^[0-2]?\d:[0-5]\d$/) && validationResult;
+        validationResult = fwValidate('#fwNewVotingName', '#fwNewVotingNameValidation', /^(?!\s*$).+/) && validationResult;
+        if (!validationResult)
+            return;
 
+        if ($('#fw-voting-img-real').is(':visible')) {
+            var canvas = document.getElementById('fw-voting-img-real');
+            imageData = canvas.toDataURL();
+        }
+
+        const startDate = parseDateTime($("#fwStartDate").val(), $("#fwStartTime").val());
+        const endDate = parseDateTime($("#fwEndDate").val(), $("#fwEndTime").val());
+
+        $.post({
+            url: 'UpdateVoting',
+            data: {
+                "title": title,
+                "desc": desc,
+                "id": mVotingId,
+                "imageData": imageData,
+                "startDate": startDate.toISOString(),
+                "endDate": endDate.toISOString(),
+            },
+            success: function (data) {
+                $('#newVotingModal').modal('hide');
+                window.location.replace(`Edit?id=${data}`);
+            },
+            error: function (err) {
+                alert(err);
+                // TODO
+            }
+        });
     }
 
     var init = function (votingId, questions) {
@@ -599,7 +636,7 @@ const Edit = (function () {
         $('#questionList').on('click', "#fw-new-question-button", createQuestion);
         $('#questionList').on('click', "#fw-new-question-onboarding", createQuestion);
 
-        $(function() {
+        $(function () {
             $('[data-toggle="tooltip"]').tooltip();
             $('[data-toggle="dropdown"]').dropdown();
         });
@@ -622,12 +659,19 @@ const Edit = (function () {
         mChartsReady = false;
         google.charts.load('current', { 'packages': ['corechart', 'table'] });
         google.charts.setOnLoadCallback(chartsReady);
-        
+
         $('#fw-btn-edit-voting').click(editVoting);
 
         $('#fwBtnCreateVoting').click(updateVoting);
+
+        $('.form-group.date').datepicker({
+            format: "dd.mm.yyyy",
+            autoclose: true,
+            language: "de",
+            orientation: "top left"
+        });
     }
-    
+
     return {
         init: init,
         setGrantedRegistrationCount: setGrantedRegistrationCount,

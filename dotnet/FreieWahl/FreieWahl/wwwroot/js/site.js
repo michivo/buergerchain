@@ -126,3 +126,16 @@ function updateImage(data) {
     $('#fw-' + type + '-img').show();
     $('#fw-' + type + '-img-real').hide();
 }
+
+var fwValidate = function (elementId, validationId, regex) {
+    const startDate = $(elementId).val();
+    if (!startDate.match(regex)) {
+        $(elementId).addClass('is-invalid');
+        $(validationId).addClass('d-block');
+        return false;
+    }
+
+    $(elementId).removeClass('is-invalid');
+    $(validationId).removeClass('d-block');
+    return true;
+}
