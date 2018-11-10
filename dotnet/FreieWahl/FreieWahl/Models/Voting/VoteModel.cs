@@ -1,5 +1,4 @@
-﻿using System;
-using FreieWahl.Models.VotingAdministration;
+﻿using FreieWahl.Models.VotingAdministration;
 
 namespace FreieWahl.Models.Voting
 {

@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
+﻿using System.Collections.Generic;
 using System.Threading.Tasks;
 using FreieWahl.Security.Signing.VotingTokens;
 using Microsoft.VisualStudio.TestTools.UnitTesting;

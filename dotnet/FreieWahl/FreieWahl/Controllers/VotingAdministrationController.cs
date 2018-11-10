@@ -2,7 +2,6 @@
 using FreieWahl.Models.VotingAdministration;
 using FreieWahl.Security.UserHandling;
 using FreieWahl.Voting.Models;
-using FreieWahl.Voting.Storage;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;

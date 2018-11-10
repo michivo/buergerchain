@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using FreieWahl.Voting.Models;
+﻿using FreieWahl.Voting.Models;
 
 namespace FreieWahl.Application.VotingResults
 {

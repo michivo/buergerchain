@@ -1,11 +1,8 @@
 ﻿using System;
-using System.IO;
-using System.Net;
 using System.Threading.Tasks;
 using FreieWahl.Security.Authentication;
 using FreieWahl.Security.UserHandling;
 using Microsoft.Extensions.Logging;
-using Newtonsoft.Json;
 
 namespace FreieWahl.Application.Authentication
 {

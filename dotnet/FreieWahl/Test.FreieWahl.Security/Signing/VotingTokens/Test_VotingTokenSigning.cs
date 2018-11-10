@@ -1,16 +1,13 @@
 ﻿using System;
 using System.Text;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Runtime.InteropServices;
 using System.Security.Cryptography;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Org.BouncyCastle.Crypto;
 using Org.BouncyCastle.Crypto.Parameters;
 using Org.BouncyCastle.Math;
 using Org.BouncyCastle.OpenSsl;
-using Org.BouncyCastle.Security;
 
 namespace Test.FreieWahl.Security.Signing.VotingTokens
 {

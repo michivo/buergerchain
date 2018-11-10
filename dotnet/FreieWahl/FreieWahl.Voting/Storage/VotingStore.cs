@@ -6,7 +6,6 @@ using System.Threading.Tasks;
 using FreieWahl.Common;
 using FreieWahl.Voting.Models;
 using Google.Cloud.Datastore.V1;
-using Grpc.Core;
 
 namespace FreieWahl.Voting.Storage
 {

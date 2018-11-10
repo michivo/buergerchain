@@ -1,12 +1,8 @@
 ﻿using System.Text;
 using System.Collections.Generic;
-using System.IO;
-using System.Security.Cryptography;
 using System.Threading.Tasks;
 using FreieWahl.Security.TimeStamps;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Org.BouncyCastle.Asn1;
-using Org.BouncyCastle.Cms;
 using Org.BouncyCastle.Tsp;
 
 namespace Test.FreieWahl.Security.TimeStamps

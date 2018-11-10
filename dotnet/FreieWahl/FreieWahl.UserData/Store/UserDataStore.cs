@@ -1,9 +1,6 @@
-﻿using System;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using FreieWahl.Common;
 using Google.Cloud.Datastore.V1;
-using Google.Protobuf;
 
 namespace FreieWahl.UserData.Store
 {

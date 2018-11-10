@@ -1,5 +1,4 @@
-﻿@using System.Web
-@using FreieWahl.Voting.Models
+﻿@using FreieWahl.Voting.Models
 @model FreieWahl.Models.VotingAdministration.QuestionModel
 
 <div class="card my-4 questionCard @(Model.Status == QuestionStatus.OpenForVoting ? "questionCardInactive" : "")" data-questionid="@Model.Index" data-x="@Model.Status.ToString()">

@@ -1,13 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.IO;
-using System.Text;
 using System.Threading.Tasks;
 using FreieWahl.Common;
-using Google.Cloud.Datastore.V1;
 using Google.Cloud.Firestore;
 using Google.Cloud.Storage.V1;
-using Google.Protobuf;
 
 namespace FreieWahl.UserData.Store
 {

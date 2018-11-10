@@ -4,7 +4,6 @@ using System.IdentityModel.Tokens.Jwt;
 using System.IO;
 using System.Net;
 using System.Security.Cryptography.X509Certificates;
-using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.IdentityModel.Tokens;
 using Newtonsoft.Json.Linq;

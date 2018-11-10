@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Text;
-using System.Collections.Generic;
 using System.Threading.Tasks;
 using FreieWahl.Voting.Registrations;
 using Microsoft.VisualStudio.TestTools.UnitTesting;

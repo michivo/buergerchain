@@ -12,7 +12,6 @@ using FreieWahl.Common;
 using FreieWahl.Helpers;
 using FreieWahl.Security.Signing.Buergerkarte;
 using FreieWahl.Voting.Registrations;
-using FreieWahl.Voting.Storage;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
