@@ -289,8 +289,7 @@ namespace FreieWahl.Controllers
         public async Task<IActionResult> UpdateVoting(string id, string title, string desc, string imageData,
             string startDate, string endDate)
         {
-            var idVal = id.ToId();
-            var operation = (idVal == null || idVal.Value == 0) ? Operation.Create : Operation.UpdateVoting;
+            var operation = string.IsNullOrEmpty(id) ? Operation.Create : Operation.UpdateVoting;
             UserInformation user = await
                 _authorizationHandler.GetAuthorizedUser(id, operation, Request.Cookies["session"]);
             if (user == null)
@@ -299,9 +298,9 @@ namespace FreieWahl.Controllers
             var startTimeValue = DateTime.Parse(startDate, null, DateTimeStyles.RoundtripKind);
             var endTimeValue = DateTime.Parse(endDate, null, DateTimeStyles.RoundtripKind);
 
-            if (idVal.HasValue && idVal.Value != 0)
+            if (!string.IsNullOrEmpty(id))
             {
-                return await _UpdateVoting(id, title, desc, imageData);
+                return await _UpdateVoting(id, title, desc, imageData, startTimeValue, endTimeValue);
             }
 
             return await _InsertVoting(title, desc, user, imageData, startTimeValue, endTimeValue);
@@ -469,11 +468,15 @@ namespace FreieWahl.Controllers
             return Ok(voting.Id.ToString(CultureInfo.InvariantCulture));
         }
 
-        private async Task<IActionResult> _UpdateVoting(string id, string title, string desc, string imageData)
+        private async Task<IActionResult> _UpdateVoting(string id, string title, string desc, string imageData,
+            DateTime startDate, DateTime endDate)
         {
             var voting = await _votingManager.GetById(id);
             voting.Title = title;
             voting.Description = desc;
+            voting.StartDate = startDate;
+            voting.EndDate = endDate;
+
             if (!string.IsNullOrEmpty(imageData))
                 voting.ImageData = imageData;
 

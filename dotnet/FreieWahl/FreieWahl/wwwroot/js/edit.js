@@ -607,7 +607,7 @@ const Edit = (function () {
             },
             success: function (data) {
                 $('#newVotingModal').modal('hide');
-                window.location.replace(`Edit?id=${data}`);
+                window.location.replace(`Edit?id=${mVotingId}`);
             },
             error: function (err) {
                 alert(err);
@@ -670,6 +670,12 @@ const Edit = (function () {
             language: "de",
             orientation: "top left"
         });
+
+        $('#fw-voting-img-input').change(function () { previewAndUploadFile('voting'); });
+        $('#fw-voting-img-content').hover(
+            function () { highlightImgSelector('voting', 'rgba(101, 127, 140, 0.5)'); },
+            function () { resetImgSelector('voting', 'rgba(101, 127, 140, 0.5)'); }
+        );
     }
 
     return {

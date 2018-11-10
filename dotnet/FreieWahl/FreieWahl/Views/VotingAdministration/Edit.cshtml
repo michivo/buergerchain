@@ -6,7 +6,7 @@
 
 @await Html.PartialAsync("_NewQuestionModal")
 
-@await Html.PartialAsync("_NewVotingModal")
+@await Html.PartialAsync("_NewVotingModal", new ViewDataDictionary(ViewData) { { "VotingImage", Model.ImageData }, { "Title", Model.Title }, { "Description", Model.Description } })
 
 <div class="container-fluid fw-banner py-3">
     <div class="row justify-content-between">
@@ -133,8 +133,8 @@
             const endDate = formatDateTimeSeconds(@Model.EndDate);
             $('#fwDateInfo').html(`Start: ${startDate}<br />Ende: ${endDate}`);
 
-            $('#fwNewVotingName').val('@Model.Title');
-            $('#fwNewVotingDescription').val('@Model.Description');
+            @*document.getElementById('fwNewVotingName').setAttribute("value", "@Html.Raw(Model.Title.Replace("\"", "&quot;"))");
+            document.getElementById('fwNewVotingDescription').innerHTML = "@Model.Description";*@
             const startDateParts = startDate.split(' ');
             const endDateParts = endDate.split(' ');
             const startDateVal = new Date(0);

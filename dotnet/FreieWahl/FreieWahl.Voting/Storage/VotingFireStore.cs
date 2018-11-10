@@ -8,6 +8,7 @@ using FreieWahl.Common;
 using FreieWahl.Voting.Models;
 using Google.Cloud.Firestore;
 using Google.Cloud.Storage.V1;
+using Object = Google.Apis.Storage.v1.Data.Object;
 
 namespace FreieWahl.Voting.Storage
 {
@@ -28,24 +29,12 @@ namespace FreieWahl.Voting.Storage
 
         public async Task Insert(StandardVoting voting)
         {
-            var dict = _ToDictionary(voting);
+            var dict = _ToDictionary(voting, false);
             var refId = await _db.Collection(_collection).AddAsync(dict).ConfigureAwait(false);
             voting.Id = refId.Id;
             if (!string.IsNullOrEmpty(voting.ImageData))
             {
-                var imageData = voting.ImageData;
-                var mimeType = imageData.GetMimeType();
-                var rawData = imageData.GetImageData();
-
-                var imageAcl = PredefinedObjectAcl.PublicRead;
-
-                var imageObject = await _storage.UploadObjectAsync(
-                    _bucketName,
-                    voting.Id,
-                    mimeType,
-                    new MemoryStream(rawData),
-                    new UploadObjectOptions {PredefinedAcl = imageAcl}
-                );
+                var imageObject = await _SaveImage(voting);
                 await refId.UpdateAsync(new Dictionary<string, object>
                 {
                     {"ImageData", imageObject.MediaLink }
@@ -53,10 +42,34 @@ namespace FreieWahl.Voting.Storage
             }
         }
 
-        public Task Update(StandardVoting voting)
+        private async Task<Object> _SaveImage(StandardVoting voting)
+        {
+            var imageData = voting.ImageData;
+            var mimeType = imageData.GetMimeType();
+            var rawData = imageData.GetImageData();
+
+            var imageAcl = PredefinedObjectAcl.PublicRead;
+
+            var imageObject = await _storage.UploadObjectAsync(
+                _bucketName,
+                voting.Id,
+                mimeType,
+                new MemoryStream(rawData),
+                new UploadObjectOptions {PredefinedAcl = imageAcl}
+            );
+            return imageObject;
+        }
+
+        public async Task Update(StandardVoting voting)
         {
             var docRef = _db.Collection(_collection).Document(voting.Id);
-            return docRef.SetAsync(_ToDictionary(voting));
+            if (!string.IsNullOrEmpty(voting.ImageData) && !voting.ImageData.StartsWith("http"))
+            {
+                var imageObject = await _SaveImage(voting).ConfigureAwait(false);
+                voting.ImageData = imageObject.MediaLink;
+            }
+
+            await docRef.SetAsync(_ToDictionary(voting, true)).ConfigureAwait(false);
         }
 
         public async Task<StandardVoting> GetById(string id)
@@ -207,7 +220,7 @@ namespace FreieWahl.Voting.Storage
             var voting = _VotingFromDictionary(doc.ToDictionary(), doc.Id);
             voting.Questions.RemoveAll(x => x.QuestionIndex == questionIndex);
 
-            await docReference.SetAsync(_ToDictionary(voting)).ConfigureAwait(false);
+            await docReference.SetAsync(_ToDictionary(voting, true)).ConfigureAwait(false);
         }
 
         public Task ClearQuestions(string votingId)
@@ -232,7 +245,7 @@ namespace FreieWahl.Voting.Storage
             voting.Questions.Add(question);
             voting.Questions = voting.Questions.OrderBy(x => x.QuestionIndex).ToList();
 
-            await docReference.SetAsync(_ToDictionary(voting)).ConfigureAwait(false);
+            await docReference.SetAsync(_ToDictionary(voting, true)).ConfigureAwait(false);
         }
 
         public Task UpdateState(string votingId, VotingState state)
@@ -252,7 +265,7 @@ namespace FreieWahl.Voting.Storage
         }
 
 
-        private Dictionary<string, object> _ToDictionary(StandardVoting voting)
+        private Dictionary<string, object> _ToDictionary(StandardVoting voting, bool withImageData)
         {
             var result = new Dictionary<string, object>
             {
@@ -266,6 +279,10 @@ namespace FreieWahl.Voting.Storage
                 {"StartDate", Timestamp.FromDateTime(voting.StartDate) },
                 {"EndDate", Timestamp.FromDateTime(voting.EndDate) }
             };
+            if (withImageData)
+            {
+                result.Add("ImageData", voting.ImageData);
+            }
             var questions = new ArrayList(voting.Questions.Select(_ToDictionary).ToArray());
             result.Add("Questions", questions);
 
