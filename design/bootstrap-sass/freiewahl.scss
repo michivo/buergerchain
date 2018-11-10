@@ -420,12 +420,28 @@ img.fw-card-svg {
     }
 }
 
+
+@keyframes buttonLightPulse {
+    100% {
+        color: $primary;
+        background-color: white;
+    }
+}
+
 .button-shadow {
     box-shadow: 1px 1px 2px gray;
 }
 
 .button-shadow:hover {
     animation-name: buttonPulse;
+    animation-duration: .4s;
+    animation-iteration-count: 1;
+    animation-timing-function: ease-out;
+    animation-fill-mode: forwards;
+}
+
+.light-button:hover {
+    animation-name: buttonLightPulse;
     animation-duration: .4s;
     animation-iteration-count: 1;
     animation-timing-function: ease-out;

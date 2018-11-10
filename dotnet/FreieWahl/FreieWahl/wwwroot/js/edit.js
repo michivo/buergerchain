@@ -533,16 +533,21 @@ const Edit = (function () {
         });
     }
 
-
-    var createQuestion = function () {
-        resetNewQuestionModal();
+    var clearPopovers = function() {
         $('#shareLinkText').popover('hide');
         $('#fwBtnShareLink').popover('hide');
         $('#shareLinkText').popover('dispose');
         $('#fwBtnShareLink').popover('dispose');
+        $('#shareLinkText').removeAttr('data-toggle');
+        $('#fwBtnShareLink').removeAttr('data-toggle');
+    };
+
+    var createQuestion = function() {
+        resetNewQuestionModal();
+        clearPopovers();
         $('#newQuestionModal').modal();
-        $('#modalQuestionOk').off('click').on('click', function () { saveQuestion(0); });
-    }
+        $('#modalQuestionOk').off('click').on('click', function() { saveQuestion(0); });
+    };
 
     var setGrantedRegistrationCount = function (count) {
         mGrantedRegistrationCount = count;
@@ -563,6 +568,15 @@ const Edit = (function () {
     var chartsReady = function () {
         mChartsReady = true;
         showResults();
+    }
+    
+    var editVoting = function () {
+        Edit.clearPopovers();
+        $("#newVotingModal").modal();
+    }
+
+    var updateVoting = function() {
+
     }
 
     var init = function (votingId, questions) {
@@ -585,10 +599,10 @@ const Edit = (function () {
         $('#questionList').on('click', "#fw-new-question-button", createQuestion);
         $('#questionList').on('click', "#fw-new-question-onboarding", createQuestion);
 
-        $(function () {
+        $(function() {
             $('[data-toggle="tooltip"]').tooltip();
             $('[data-toggle="dropdown"]').dropdown();
-        })
+        });
 
         mProgressBarConfig = {
             strokeWidth: 15,
@@ -608,13 +622,18 @@ const Edit = (function () {
         mChartsReady = false;
         google.charts.load('current', { 'packages': ['corechart', 'table'] });
         google.charts.setOnLoadCallback(chartsReady);
-    }
+        
+        $('#fw-btn-edit-voting').click(editVoting);
 
+        $('#fwBtnCreateVoting').click(updateVoting);
+    }
+    
     return {
         init: init,
         setGrantedRegistrationCount: setGrantedRegistrationCount,
         setQuestions: setQuestions,
-        setChartType: setChartType
+        setChartType: setChartType,
+        clearPopovers: clearPopovers
     }
 })();
 
@@ -765,10 +784,7 @@ const Registration = (function () {
     }
 
     var showInviteModal = function () {
-        $('#shareLinkText').popover('hide');
-        $('#fwBtnShareLink').popover('hide');
-        $('#shareLinkText').popover('dispose');
-        $('#fwBtnShareLink').popover('dispose');
+        Edit.clearPopovers();
         $('#mailRecipients').val('');
         $('#inviteVotersModal').modal();
     }
