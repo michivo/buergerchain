@@ -1,1 +1,1 @@
-gcloud app deploy --project=freiewahl-data
+gcloud app deploy --project=freiewahl-application
