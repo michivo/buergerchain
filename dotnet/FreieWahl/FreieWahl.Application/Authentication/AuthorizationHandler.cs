@@ -24,20 +24,15 @@ namespace FreieWahl.Application.Authentication
             _authManager = authManager;
             _userHandler = userHandler;
         }
-
-        public async Task<bool> CheckAuthorization(string votingId, Operation operation, string authToken)
-        {
-            return await GetAuthorizedUser(votingId, operation, authToken).ConfigureAwait(false) != null;
-        }
-
-        public async Task<UserInformation> GetAuthorizedUser(string votingId, Operation operation, string authToken)
+        
+        public async Task<AuthenticationResult> CheckAuthorization(string votingId, Operation operation, string authToken)
         {
             UserInformation user = null;
             var auth = _authentication.CheckToken(authToken);
             
             if (!auth.Success)
             {
-                return null;
+                return AuthenticationResult.NotAuthorized;
             }
 
             try
@@ -47,17 +42,16 @@ namespace FreieWahl.Application.Authentication
             catch (Exception ex)
             {
                 _logger.LogWarning(ex, "Error getting votings for user!");
-                return null;
+                return AuthenticationResult.NotAuthorized;
             }
 
-            var authorized = await _authManager.IsAuthorized(user.UserId, votingId, operation).ConfigureAwait(false);
-            if (!authorized)
+            var authorized = await _authManager.IsAuthorized(user, votingId, operation).ConfigureAwait(false);
+            if (!authorized.IsAuthorized)
             {
                 _logger.LogWarning("User tried to open voting without being authorized");
-                return null;
             }
-            
-            return user;
+
+            return authorized;
         }
 
     }

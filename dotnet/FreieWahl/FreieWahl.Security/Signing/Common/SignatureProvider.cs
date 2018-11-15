@@ -40,12 +40,24 @@ q1BIZdVZcDIj1fF3N3qT9W1FQzTKp4+2gI/dQyAri48uyGxfkpMnWg==
 -----END RSA PRIVATE KEY-----";
         #endregion
 
+        public SignatureProvider(string pemKey)
+        {
+            var pemReader = new PemReader(new StringReader(pemKey));
+            var key = (AsymmetricCipherKeyPair)pemReader.ReadObject();
+
+            _signer = SignerUtilities.GetSigner("SHA256withRSA");
+            _verifier = SignerUtilities.GetSigner("SHA256withRSA");
+
+            _signer.Init(true, key.Private);
+            _verifier.Init(false, key.Public);
+        }
+
         public SignatureProvider(AsymmetricCipherKeyPair key = null)
         {
             if (key == null)
-            { // TODO - we need a real, nice key here!
+            {
                 var pemReader = new PemReader(new StringReader(_key));
-                key = (AsymmetricCipherKeyPair) pemReader.ReadObject();
+                key = (AsymmetricCipherKeyPair)pemReader.ReadObject();
             }
 
             _signer = SignerUtilities.GetSigner("SHA256withRSA");

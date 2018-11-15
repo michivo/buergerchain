@@ -45,7 +45,7 @@
                                         <p style="font-size: .8rem;">Wählen Sie ein Bild für Ihre Abstimmung.</p>
                                         <div class="custom-file">
                                             <input type="file" class="custom-file-input" id="fw-voting-img-input" required>
-                                            <label class="custom-file-label" for="fw-voting-img-input">....</label>
+                                            <label class="custom-file-label text-left" for="fw-voting-img-input">...</label>
                                         </div>
                                     </form>
                                 </div>
@@ -71,6 +71,14 @@
                             <div class="form-group date">
                                 <input type="text" class="form-control form-control-sm" id="fwEndDate" placeholder="dd.mm.yyyy" data-date-format="dd.mm.yyyy"><span class="input-group-addon"></span>
                                 <div class="invalid-feedback" id="fwEndDateValidation">Format: dd.mm.yyyy</div>
+                            </div>
+                        </div>
+                        <div class="col-12">
+                            <div class="form-check mt-2 border-top pt-2">
+                                <h5>Identifikationsmethoden für WählerInnen</h5>
+                                <input class="form-check-input" type="checkbox" value="handySig" id="checkIdentificationType" disabled checked>
+                                <label class="form-check-label" for="checkIdentificationType">Handysignatur/Bürgerkarte</label><br/>
+                                <small id="checkIdentificationTypeInfo" class="text-danger">Derzeit wird nur die Identifikation mittels Handysignatur unterstützt. Wenn Sie andere Identifikationsmethoden wünschen, bitte <a href="mailto:michael@freiewahl.eu">kontaktieren Sie uns!</a> </small>
                             </div>
                         </div>
                     </div>

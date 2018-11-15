@@ -2,6 +2,7 @@
 using System;
 using System.Threading.Tasks;
 using FreieWahl.Common;
+using FreieWahl.Security.UserHandling;
 using FreieWahl.Voting.Storage;
 using Microsoft.Extensions.Logging;
 
@@ -18,25 +19,26 @@ namespace FreieWahl.Application.Authentication
             _logger = LogFactory.CreateLogger("FreieWahl.Security.TimeStamps.TimestampService");
         }
 
-        public async Task<bool> IsAuthorized(string userId, string votingId, Operation operation)
+        public async Task<AuthenticationResult> IsAuthorized(UserInformation user, string votingId, Operation operation)
         {
             try
             {
                 if (string.IsNullOrEmpty(votingId) && (operation == Operation.Create || operation == Operation.List || operation == Operation.EditUser))
-                    return !string.IsNullOrEmpty(userId);
+                    return new AuthenticationResult {IsAuthorized = user != null, User = user};
                 if (string.IsNullOrEmpty(votingId))
-                    return false;
+                    return AuthenticationResult.NotAuthorized;
 
                 var voting = await _votingStore.GetById(votingId).ConfigureAwait(false);
-                if (!string.IsNullOrEmpty(userId) && voting.Creator.Equals(userId, StringComparison.OrdinalIgnoreCase))
-                    return true;
+                if (user != null && voting != null && voting.Creator.Equals(user.UserId, StringComparison.OrdinalIgnoreCase))
+                    return new AuthenticationResult {IsAuthorized = true, User = user, Voting = voting};
             }
             catch (Exception ex)
             {
-                _logger.LogWarning($"User {userId} is not authenticated to edit voting {votingId}: {ex}");
+                var userId = user != null ? user.UserId : "undefined";
+                _logger.LogWarning($"User {userId} is not authenticated to execute operation {operation} on voting {votingId}: {ex}");
             }
 
-            return false;
+            return AuthenticationResult.NotAuthorized;
         }
     }
 }

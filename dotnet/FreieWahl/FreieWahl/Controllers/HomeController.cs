@@ -51,10 +51,9 @@ namespace FreieWahl.Controllers
                 return View();
             }
 
-            var user = await _authorizationHandler.GetAuthorizedUser
-                (null, Operation.List, Request.Cookies["session"]);
+            var auth = await _authorizationHandler.CheckAuthorization(null, Operation.List, Request.Cookies["session"]);
 
-            if (user != null && source != "redirect")
+            if (auth.IsAuthorized && source != "redirect")
             {
                 Response.Redirect("VotingAdministration/Overview");
             }

@@ -51,27 +51,25 @@ namespace FreieWahl.Controllers
 
         public async Task<IActionResult> Overview()
         {
-            var user = await _GetUserForGetRequest(Operation.List);
+            var auth = await _GetUserForGetRequest(Operation.List);
 
-            if (user == null)
+            if (auth.IsAuthorized == false)
                 return Unauthorized();
 
-            var img = await _userDataStore.GetUserImage(user.UserId);
+            var img = await _userDataStore.GetUserImage(auth.User.UserId);
 
             var model = new VotingOverviewModel
             {
                 Image = img,
-                FullName = user.Name,
-                Initials = _GetInitials(user.Name)
+                FullName = auth.User.Name,
+                Initials = _GetInitials(auth.User.Name)
             };
             return View(model);
         }
 
-        private async Task<UserInformation> _GetUserForGetRequest(Operation operation, string id = null)
+        private Task<AuthenticationResult> _GetUserForGetRequest(Operation operation, string id = null)
         {
-            var user = await _authorizationHandler.GetAuthorizedUser
-                (id, operation, Request.Cookies["session"]);
-            return user;
+            return _authorizationHandler.CheckAuthorization(id, operation, Request.Cookies["session"]);
         }
 
         private string _GetInitials(string userName)
@@ -89,12 +87,12 @@ namespace FreieWahl.Controllers
 
         public async Task<IActionResult> GetVotingsForUser()
         {
-            var user = await _authorizationHandler.GetAuthorizedUser
+            var auth = await _authorizationHandler.CheckAuthorization
                 (null, Operation.List, Request.Cookies["session"]);
-            if (user == null)
+            if (auth.IsAuthorized == false)
                 return Unauthorized();
             
-            var votingsForUser = await _votingManager.GetForUserId(user.UserId);
+            var votingsForUser = await _votingManager.GetForUserId(auth.User.UserId);
             var resultForSerialization = votingsForUser.Select(x => new
             {
                 x.Title,
@@ -109,11 +107,11 @@ namespace FreieWahl.Controllers
         [HttpPost]
         public async Task<IActionResult> UnlockQuestion(string votingId, int questionIndex)
         {
-            var isAuthorized = await _authorizationHandler.CheckAuthorization(votingId, Operation.UpdateQuestion, Request.Cookies["session"]);
-            if (!isAuthorized)
+            var auth = await _authorizationHandler.CheckAuthorization(votingId, Operation.UpdateQuestion, Request.Cookies["session"]);
+            if (auth.IsAuthorized == false || auth.Voting == null)
                 return Unauthorized();
 
-            var voting = await _votingManager.GetById(votingId);
+            var voting = auth.Voting;
             var question = voting.Questions.SingleOrDefault(x => x.QuestionIndex == questionIndex);
 
             if (question == null || question.Status != QuestionStatus.InPreparation)
@@ -128,11 +126,11 @@ namespace FreieWahl.Controllers
         [HttpPost]
         public async Task<IActionResult> LockQuestion(string votingId, int questionIndex)
         {
-            var isAuthorized = await _authorizationHandler.CheckAuthorization(votingId, Operation.UpdateQuestion, Request.Cookies["session"]);
-            if (!isAuthorized)
+            var auth = await _authorizationHandler.CheckAuthorization(votingId, Operation.UpdateQuestion, Request.Cookies["session"]);
+            if (!auth.IsAuthorized || auth.Voting == null)
                 return Unauthorized();
 
-            var voting = await _votingManager.GetById(votingId);
+            var voting = auth.Voting;
             var question = voting.Questions.SingleOrDefault(x => x.QuestionIndex == questionIndex);
 
             if (question == null || question.Status != QuestionStatus.OpenForVoting)
@@ -147,12 +145,12 @@ namespace FreieWahl.Controllers
         [HttpPost]
         public async Task<IActionResult> UpdateUserImage(string imageData)
         {
-            var user = await _authorizationHandler.GetAuthorizedUser(string.Empty, Operation.EditUser,
+            var auth = await _authorizationHandler.CheckAuthorization(string.Empty, Operation.EditUser,
                 Request.Cookies["session"]);
-            if (user == null)
+            if (auth.IsAuthorized == false)
                 return Unauthorized();
 
-            await _userDataStore.SaveUserImage(user.UserId, imageData);
+            await _userDataStore.SaveUserImage(auth.User.UserId, imageData);
 
             return Ok();
         }
@@ -160,12 +158,12 @@ namespace FreieWahl.Controllers
         [HttpGet]
         public async Task<IActionResult> Edit(string id, bool isNew = false)
         {
-            var user = await _GetUserForGetRequest(Operation.UpdateVoting, id);
+            var auth = await _GetUserForGetRequest(Operation.UpdateVoting, id);
 
-            if (user == null)
+            if (auth.IsAuthorized == false || auth.Voting == null)
                 return Unauthorized();
 
-            var voting = await _votingManager.GetById(id);
+            var voting = auth.Voting;
             List<Vote> votes = null;
             if (voting.Questions.Any(x => x.Status == QuestionStatus.Locked))
             {
@@ -179,7 +177,7 @@ namespace FreieWahl.Controllers
                 Description = voting.Description,
                 ImageData = voting.ImageData,
                 Questions = voting.Questions.Select(q => _CreateQuestionModel(q, id, votes)).ToList(),
-                UserInitials = _GetInitials(user.Name),
+                UserInitials = _GetInitials(auth.User.Name),
                 StartDate = voting.StartDate.ToSecondsSinceEpoch(),
                 EndDate = voting.EndDate.ToSecondsSinceEpoch(),
                 RegistrationUrl = _GetRegistrationUrl(id),
@@ -191,12 +189,12 @@ namespace FreieWahl.Controllers
         [HttpGet]
         public async Task<IActionResult> QuestionList(string id)
         {
-            var user = await _GetUserForGetRequest(Operation.List);
+            var auth = await _GetUserForGetRequest(Operation.UpdateQuestion, id);
 
-            if (user == null)
+            if (auth.IsAuthorized == false)
                 return Unauthorized();
 
-            var voting = await _votingManager.GetById(id);
+            var voting = auth.Voting;
             List<Vote> votes = null;
             if (voting.Questions.Any(x => x.Status == QuestionStatus.Locked))
             {
@@ -210,7 +208,7 @@ namespace FreieWahl.Controllers
                 Description = voting.Description,
                 ImageData = voting.ImageData,
                 Questions = voting.Questions.Select(x => _CreateQuestionModel(x, id, votes)).ToList(),
-                UserInitials = _GetInitials(user.Name),
+                UserInitials = _GetInitials(auth.User.Name),
                 StartDate = voting.StartDate.ToSecondsSinceEpoch(),
                 EndDate = voting.EndDate.ToSecondsSinceEpoch(),
                 RegistrationUrl = _GetRegistrationUrl(id)
@@ -220,12 +218,12 @@ namespace FreieWahl.Controllers
         [HttpGet]
         public async Task<IActionResult> ResultQuestionList(string id)
         {
-            var user = await _GetUserForGetRequest(Operation.List);
+            var auth = await _GetUserForGetRequest(Operation.UpdateQuestion, id);
 
-            if (user == null)
+            if (auth.IsAuthorized == false)
                 return Unauthorized();
 
-            var voting = await _votingManager.GetById(id);
+            var voting = auth.Voting;
             List<Vote> votes = null;
             if (voting.Questions.Any(x => x.Status == QuestionStatus.Locked))
             {
@@ -239,7 +237,7 @@ namespace FreieWahl.Controllers
                 Description = voting.Description,
                 ImageData = voting.ImageData,
                 Questions = voting.Questions.Select(x => _CreateQuestionModel(x, id, votes)).ToList(),
-                UserInitials = _GetInitials(user.Name),
+                UserInitials = _GetInitials(auth.User.Name),
                 StartDate = voting.StartDate.ToSecondsSinceEpoch(),
                 EndDate = voting.EndDate.ToSecondsSinceEpoch()
             });
@@ -249,12 +247,12 @@ namespace FreieWahl.Controllers
         [HttpGet]
         public async Task<IActionResult> Results(string id)
         {
-            var user = await _GetUserForGetRequest(Operation.List);
+            var auth = await _GetUserForGetRequest(Operation.UpdateQuestion, id);
 
-            if (user == null)
+            if (auth.IsAuthorized == false)
                 return Unauthorized();
 
-            var voting = await _votingManager.GetById(id);
+            var voting = auth.Voting;
             List<Vote> votes = null;
             if (voting.Questions.Any(x => x.Status == QuestionStatus.Locked))
             {
@@ -268,7 +266,7 @@ namespace FreieWahl.Controllers
                 Description = voting.Description,
                 ImageData = voting.ImageData,
                 Questions = voting.Questions.Select(q => _CreateQuestionModel(q, id, votes)).ToList(),
-                UserInitials = _GetInitials(user.Name),
+                UserInitials = _GetInitials(auth.User.Name),
                 StartDate = voting.StartDate.ToSecondsSinceEpoch(),
                 EndDate = voting.EndDate.ToSecondsSinceEpoch(),
             });
@@ -290,9 +288,9 @@ namespace FreieWahl.Controllers
             string startDate, string endDate)
         {
             var operation = string.IsNullOrEmpty(id) ? Operation.Create : Operation.UpdateVoting;
-            UserInformation user = await
-                _authorizationHandler.GetAuthorizedUser(id, operation, Request.Cookies["session"]);
-            if (user == null)
+            var auth = await
+                _authorizationHandler.CheckAuthorization(id, operation, Request.Cookies["session"]);
+            if (auth.IsAuthorized == false)
                 return Unauthorized();
 
             var startTimeValue = DateTime.Parse(startDate, null, DateTimeStyles.RoundtripKind);
@@ -303,7 +301,7 @@ namespace FreieWahl.Controllers
                 return await _UpdateVoting(id, title, desc, imageData, startTimeValue, endTimeValue);
             }
 
-            return await _InsertVoting(title, desc, user, imageData, startTimeValue, endTimeValue);
+            return await _InsertVoting(title, desc, auth.User, imageData, startTimeValue, endTimeValue);
         }
 
         [HttpPost]
@@ -317,10 +315,11 @@ namespace FreieWahl.Controllers
             if ((QuestionType) type != QuestionType.Decision && (minNumAnswers > maxNumAnswers || minNumAnswers < 0))
                 return BadRequest("Invalid numer of min/max number of answers");
 
-            if (await _authorizationHandler.CheckAuthorization(id, Operation.UpdateQuestion, Request.Cookies["session"]) == false)
+            var auth = await _authorizationHandler.CheckAuthorization(id, Operation.UpdateQuestion, Request.Cookies["session"]);
+            if (auth.IsAuthorized == false || auth.Voting == null)
                 return Unauthorized();
 
-            var voting = await _votingManager.GetById(id); // TODO - handle missing voting
+            var voting = auth.Voting;
             var question = _GetQuestion(title, desc, answers, answerDescriptions);
             if (question.Status != QuestionStatus.InPreparation)
             {
@@ -338,37 +337,37 @@ namespace FreieWahl.Controllers
             }
 
             await _votingManager.UpdateQuestion(voting.Id, question);
-            return Ok(); // TODO err handling
+            return Ok();
         }
 
         [HttpPost]
         public async Task<IActionResult> DeleteVotingQuestion(string id, string qid)
         {
-            if (await _authorizationHandler.CheckAuthorization(id, Operation.UpdateQuestion, Request.Cookies["session"]) == false)
+            if ((await _authorizationHandler.CheckAuthorization(id, Operation.UpdateQuestion, Request.Cookies["session"])).IsAuthorized == false)
                 return Unauthorized();
             var questionId = qid.ToId();
             if (!questionId.HasValue)
                 return BadRequest("Invalid votingId/questionid");
 
             await _votingManager.DeleteQuestion(id, (int)questionId.Value);
-            return Ok(); // TODO err handling
+            return Ok(); 
         }
 
         [HttpPost]
         public async Task<IActionResult> DeleteVoting(string id)
         {
-            if (await _authorizationHandler.CheckAuthorization(id, Operation.DeleteVoting, Request.Cookies["session"]) == false)
+            if ((await _authorizationHandler.CheckAuthorization(id, Operation.DeleteVoting, Request.Cookies["session"])).IsAuthorized == false)
                 return Unauthorized();
 
             await _votingManager.Delete(id);
-            // TODO error handling
+
             return Ok();
         }
 
         [HttpPost]
         public async Task<IActionResult> SendInvitationMail(string votingId, string[] addresses)
         {
-            if (await _authorizationHandler.CheckAuthorization(votingId, Operation.Invite, Request.Cookies["session"]) == false)
+            if ((await _authorizationHandler.CheckAuthorization(votingId, Operation.Invite, Request.Cookies["session"])).IsAuthorized == false)
                 return Unauthorized();
 
             var voting = await _votingManager.GetById(votingId);
@@ -434,7 +433,7 @@ namespace FreieWahl.Controllers
         private async Task<IActionResult> _InsertVoting(string title, string desc, UserInformation user, string imageData,
             DateTime startDate, DateTime endDate)
         {
-            if (await _authorizationHandler.CheckAuthorization(null, Operation.Create, Request.Cookies["session"]) == false)
+            if ((await _authorizationHandler.CheckAuthorization(null, Operation.Create, Request.Cookies["session"])).IsAuthorized == false)
                 return Unauthorized();
 
             StandardVoting voting = new StandardVoting()

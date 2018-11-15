@@ -39,8 +39,7 @@
                 window.location.replace(`Edit?id=${data}&isNew=true`);
             },
             error: function (err) {
-                alert(err);
-                // TODO
+                showErrorMessage('Beim Speichern der Abstimmung ist ein Fehler aufgetreten!', err);
             }
         });
     }
@@ -154,9 +153,8 @@
             datatype: 'json',
             success: showOverviewData,
             error: function (data) {
-                console.log('oops, error');
-                // TODO
                 $("#fw-load-votings-card").hide();
+                showErrorMessage('Beim Laden Ihres Benutzerprofils ist ein Fehler aufgetreten!', data);
             }
         });
     }
@@ -164,13 +162,16 @@
     var deleteVoting = function (id) {
         if (confirm("Sind Sie sicher, dass Sie diese Abstimmung unwiderruflich löschen wollen?")) {
 
-            $.post({
+            $.ajax({
                 url: 'DeleteVoting',
                 data: { "id": id },
+                type: 'POST',
                 success: function (data) {
                     showOverview(firebase.auth().currentUser);
+                },
+                error: function (data) {
+                    showErrorMessage('Beim Löschen der Abstimmung ist ein Fehler aufgetreten!', data);
                 }
-                // error: todo
             });
         }
     }

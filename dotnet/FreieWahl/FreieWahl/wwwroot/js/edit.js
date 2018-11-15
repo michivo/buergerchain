@@ -397,9 +397,10 @@ const Edit = (function () {
     }
 
     var updateQuestions = function () {
-        $('#questionList').load(`QuestionList?id=${mVotingId}`);
-        showResultCounts();
-        showResults();
+        $('#questionList').load(`QuestionList?id=${mVotingId}`, function () {
+            showResultCounts();
+            showResults();
+        });
     }
 
     var resetNewQuestionModal = function () {
@@ -421,7 +422,10 @@ const Edit = (function () {
             datatype: 'json',
             success: function (data) {
                 updateQuestions(mVotingId);
-            } // TODO error
+            },
+            error: function(data) {
+                showErrorMessage("Beim Löschen der Frage ist ein Fehler aufgetreten!", data);
+            }
         });
     }
 
@@ -444,8 +448,9 @@ const Edit = (function () {
         }
 
 
-        $.post({
+        $.ajax({
             url: 'UpdateVotingQuestion',
+            type: 'POST',
             data: {
                 "id": mVotingId,
                 "qid": idx,
@@ -457,12 +462,14 @@ const Edit = (function () {
                 "minNumAnswers": 1,
                 "maxNumAnswers": maxNumAnswers
             },
-            success: function (data) { // todo
+            success: function (data) {
                 $('#newQuestionModal').modal('hide');
                 resetNewQuestionModal();
                 updateQuestions();
+            },
+            error: function(data) {
+                showErrorMessage("Beim Speichern der Frage ist ein Fehler aufgetreten!", data);
             }
-            // error: todo
         });
     }
 
@@ -507,7 +514,10 @@ const Edit = (function () {
             datatype: 'json',
             success: function (data) {
                 updateQuestions(mVotingId);
-            } // TODO error
+            },
+            error: function (data) {
+                showErrorMessage("Beim Sperren der Frage ist ein Fehler aufgetreten!", data);
+            }
         });
     }
 
@@ -529,7 +539,10 @@ const Edit = (function () {
             success: function (data) {
                 mCurrentVotingData = data;
                 showResultCounts(data);
-            } // TODO error
+            },
+            error: function (data) {
+                showErrorMessage("Beim Aktualisieren der Ergebnisse ist ein Fehler aufgetreten!", data);
+            }
         });
     }
 
@@ -555,13 +568,16 @@ const Edit = (function () {
     }
 
     var unlockQuestion = function (questionIndex) {
-        $.post({
+        $.ajax({
             url: 'UnlockQuestion',
             data: { "votingId": mVotingId, "questionIndex": questionIndex },
+            type: 'POST',
             success: function (data) {
                 updateQuestions();
+            },
+            error: function (data) {
+                showErrorMessage("Beim Freischalten der Frage ist ein Fehler aufgetreten!", data);
             }
-            // error: todo
         });
     }
 
@@ -595,7 +611,7 @@ const Edit = (function () {
         const startDate = parseDateTime($("#fwStartDate").val(), $("#fwStartTime").val());
         const endDate = parseDateTime($("#fwEndDate").val(), $("#fwEndTime").val());
 
-        $.post({
+        $.ajax({
             url: 'UpdateVoting',
             data: {
                 "title": title,
@@ -605,13 +621,13 @@ const Edit = (function () {
                 "startDate": startDate.toISOString(),
                 "endDate": endDate.toISOString(),
             },
+            type: 'POST',
             success: function (data) {
                 $('#newVotingModal').modal('hide');
                 window.location.replace(`Edit?id=${mVotingId}`);
             },
-            error: function (err) {
-                alert(err);
-                // TODO
+            error: function (data) {
+                showErrorMessage("Beim Speichern der Abstimmung ist ein Fehler aufgetreten!", data);
             }
         });
     }
@@ -750,7 +766,7 @@ const Registration = (function () {
                 showRegistrations(data);
                 currentUpdateRequest = null;
                 window.setTimeout(updateRegistrations, 120000);
-            }, // TODO error
+            },
             error: function (err) {
                 currentUpdateRequest = null;
             }
@@ -763,7 +779,7 @@ const Registration = (function () {
             datatype: 'json',
             success: function (data) {
                 showCompletedRegistrations(data);
-            } // TODO error
+            }
         });
     }
 
@@ -777,13 +793,16 @@ const Registration = (function () {
                 });
             });
 
-        $.post({
+        $.ajax({
             url: "../Registration/GrantRegistration",
             data: { 'registrationIds': regIds, 'utcOffsetMinutes': new Date().getTimezoneOffset(), 'timezoneName': Intl.DateTimeFormat().resolvedOptions().timeZone },
-            success: function (data) { // todo
+            type: "POST",
+            success: function (data) {
                 updateRegistrations();
+            },
+            error: function (data) {
+                showErrorMessage("Beim Bearbeiten der Regisitrierungen ist ein Fehler aufgetreten!", data);
             }
-            // error: todo
         });
     };
 
@@ -799,11 +818,14 @@ const Registration = (function () {
 
         $.post({
             url: '../Registration/DenyRegistration',
+            type: 'POST',
             data: { "registrationIds": regIds },
-            success: function (data) { // todo
+            success: function (data) {
                 updateRegistrations();
+            },
+            error: function (data) {
+                showErrorMessage("Beim Bearbeiten der Regisitrierungen ist ein Fehler aufgetreten!", data);
             }
-            // error: todo
         });
     };
 
@@ -825,11 +847,14 @@ const Registration = (function () {
         const recipients = $('#mailRecipients').val().split(/[\n\r,;]+/);
         $.post({
             url: 'SendInvitationMail',
+            type: 'POST',
             data: { "votingId": mVotingId, "addresses": recipients },
             success: function (data) {
                 $('#inviteVotersModal').modal('hide');
+            },
+            error: function (data) {
+                showErrorMessage("Beim Verschicken der Einladungen ist ein Fehler aufgetreten!", data);
             }
-            // error: todo
         });
     }
 

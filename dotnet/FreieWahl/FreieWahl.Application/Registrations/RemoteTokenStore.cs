@@ -15,6 +15,7 @@ namespace FreieWahl.Application.Registrations
     public class RemoteTokenStore : IRemoteTokenStore
     {
         private readonly string _remoteUrl;
+        private const int RetryCount = 5;
 
         public RemoteTokenStore(string remoteUrl)
         {
@@ -94,28 +95,39 @@ namespace FreieWahl.Application.Registrations
 
         public async Task InsertPublicKeys(string votingIdVal, IEnumerable<RsaKeyParameters> publicKeys)
         {
-            var request = WebRequest.CreateHttp(_remoteUrl + "setKeys");
-            request.ContentType = "application/json";
-            request.Method = WebRequestMethods.Http.Post;
-
-            using (var streamWriter = new StreamWriter(request.GetRequestStream()))
+            for (var i = 0; i < RetryCount; i++)
             {
-                var publicKeyStructures = publicKeys as RsaKeyParameters[] ?? publicKeys.ToArray();
-                var resultData = new
+                try
                 {
-                    votingId = votingIdVal,
-                    exponents = publicKeyStructures.Select(x => x.Exponent.ToString(16)).ToArray(),
-                    moduli = publicKeyStructures.Select(x => x.Modulus.ToString(16)).ToArray()
-                };
+                    var request = WebRequest.CreateHttp(_remoteUrl + "setKeys");
+                    request.ContentType = "application/json";
+                    request.Method = WebRequestMethods.Http.Post;
 
-                var json = JsonConvert.SerializeObject(resultData);
+                    using (var streamWriter = new StreamWriter(request.GetRequestStream()))
+                    {
+                        var publicKeyStructures = publicKeys as RsaKeyParameters[] ?? publicKeys.ToArray();
+                        var resultData = new
+                        {
+                            votingId = votingIdVal,
+                            exponents = publicKeyStructures.Select(x => x.Exponent.ToString(16)).ToArray(),
+                            moduli = publicKeyStructures.Select(x => x.Modulus.ToString(16)).ToArray()
+                        };
 
-                streamWriter.Write(json);
-                streamWriter.Flush();
-                streamWriter.Close();
+                        var json = JsonConvert.SerializeObject(resultData);
+
+                        streamWriter.Write(json);
+                        streamWriter.Flush();
+                        streamWriter.Close();
+                    }
+
+                    await request.GetResponseAsync();
+                    return;
+                }
+                catch (Exception)
+                {
+                    // TODO: logging
+                }
             }
-
-            await request.GetResponseAsync();
         }
     }
 }

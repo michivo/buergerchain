@@ -246,16 +246,16 @@ namespace FreieWahl.Controllers
             {
                 var registration = await _registrationStore.GetOpenRegistration(regId);
                 string vid = registration.VotingId.ToString(CultureInfo.InvariantCulture);
-                var user = await _authHandler.GetAuthorizedUser(vid,
+                var auth = await _authHandler.CheckAuthorization(vid,
                     Operation.GrantRegistration, Request.Cookies["session"]);
-                if (user == null)
+                if (!auth.IsAuthorized)
                 {
                     return Unauthorized();
                 }
 
                 var link = Url.Action("Vote", "Voting", new { }, HttpContext.Request.Scheme);
 
-                await _registrationHandler.GrantRegistration(regId, user.UserId, link,
+                await _registrationHandler.GrantRegistration(regId, auth.User.UserId, link,
                     TimeSpan.FromMinutes(utcOffsetMinutes), timezoneName);
             }
             return Ok();
@@ -268,15 +268,15 @@ namespace FreieWahl.Controllers
             {
                 var registration = await _registrationStore.GetOpenRegistration(regId);
                 string vid = registration.VotingId.ToString(CultureInfo.InvariantCulture);
-                var user = await _authHandler.GetAuthorizedUser(vid,
+                var auth = await _authHandler.CheckAuthorization(vid,
                     Operation.GrantRegistration, Request.Cookies["session"]);
-                if (user == null)
+                if (!auth.IsAuthorized)
                 {
                     return Unauthorized();
                 }
 
 
-                await _registrationHandler.DenyRegistration(regId, user.UserId);
+                await _registrationHandler.DenyRegistration(regId, auth.User.UserId);
             }
 
             return Ok();
@@ -285,8 +285,8 @@ namespace FreieWahl.Controllers
         [HttpPost]
         public async Task<IActionResult> GetRegistrations(string votingId)
         {
-            if (await _authHandler.CheckAuthorization(votingId,
-                    Operation.GrantRegistration, Request.Cookies["session"]) == false)
+            if ((await _authHandler.CheckAuthorization(votingId,
+                    Operation.GrantRegistration, Request.Cookies["session"])).IsAuthorized == false)
             {
                 return Unauthorized();
             }
@@ -308,8 +308,8 @@ namespace FreieWahl.Controllers
         [HttpPost]
         public async Task<IActionResult> GetCompletedRegistrations(string votingId)
         {
-            if (await _authHandler.CheckAuthorization(votingId,
-                    Operation.GrantRegistration, Request.Cookies["session"]) == false)
+            if ((await _authHandler.CheckAuthorization(votingId,
+                    Operation.GrantRegistration, Request.Cookies["session"])).IsAuthorized == false)
             {
                 return Unauthorized();
             }

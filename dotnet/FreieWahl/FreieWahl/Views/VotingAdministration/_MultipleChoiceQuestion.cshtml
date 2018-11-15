@@ -38,7 +38,7 @@
         @if (Model.Status != QuestionStatus.Locked)
         {
             <div class="container">
-                <div class="row" id="question-@Model.Index-answers">
+                <div class="row mt-2" id="question-@Model.Index-answers">
                     <div class="col-lg-6 col-12">
                         @{ int answerCount = 0; }
                         @foreach (var option in @Model.AnswerOptions)

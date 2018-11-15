@@ -64,10 +64,17 @@ function showFileSelector(elementId) {
     $(elementId).css("display", "inline");
 }
 
+function showErrorMessage(message, data) {
+    alert(message);
+    console.log(message);
+    console.log(data);
+}
+
 function previewAndUploadFile(type) {
     var file = $('#fw-' + type + '-img-input')[0].files[0];
     if (!file.type.match(/image.*/)) {
-        return; // TODO: inform user to upload actual image
+        showErrorMessage("Das Dateiformat wird nicht unterstützt!");
+        return;
     };
     var img = new Image();
     var reader = new FileReader();
@@ -118,7 +125,7 @@ function uploadFile() {
         },
         success: updateImage,
         error: function (data) {
-            // TODO
+            showErrorMessage("Fehler bei der Verarbeitung des Bildes!", data);
         }
     });
 }
