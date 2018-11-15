@@ -45,6 +45,7 @@ namespace FreieWahl.Controllers
             ViewData["ImageData"] = voting.ImageData ?? string.Empty;
             ViewData["StartDate"] = voting.StartDate.ToSecondsSinceEpoch();
             ViewData["EndDate"] = voting.EndDate.ToSecondsSinceEpoch();
+            ViewData["VotingState"] = voting.State;
 
             return View();
         }
@@ -55,16 +56,21 @@ namespace FreieWahl.Controllers
             var voting = await _votingManager.GetById(votingId);
             if (voting == null)
             {
-                return BadRequest("No voting with the given id");
+                return BadRequest("Die Abstimmung existiert nicht.");
             }
 
             if (voting.State == VotingState.Closed)
             {
-                return BadRequest("Voting has already been closed!");
+                return BadRequest("In dieser Abstimmung kann nicht mehr abgestimmt werden!");
+            }
+
+            if (DateTime.UtcNow < voting.StartDate)
+            {
+                return BadRequest("In dieser Abstimmung kann noch nicht abgestimmt werden!");
             }
 
             var questions = voting.Questions
-                .Where(x => x.Status == QuestionStatus.OpenForVoting)
+                .Where(x => x.Status == QuestionStatus.OpenForVoting || x.Status == QuestionStatus.Locked)
                 .Select(x => new QuestionModel(x, votingId)).ToArray();
 
             var model = new VoteModel
@@ -89,7 +95,12 @@ namespace FreieWahl.Controllers
             var voting = await _votingManager.GetById(votingId);
             if (voting == null)
             {
-                return BadRequest("No voting with the given id");
+                return BadRequest("Die Abstimmung existiert nicht.");
+            }
+
+            if (DateTime.UtcNow < voting.StartDate)
+            {
+                return BadRequest("In dieser Abstimmung kann noch nicht abgestimmt werden!");
             }
 
             var votes = await _votingResultManager.GetResults(votingId, new[] { token });
@@ -100,7 +111,7 @@ namespace FreieWahl.Controllers
                 .SingleOrDefault(x => x.QuestionIndex == questionIndex);
             if (question == null)
             {
-                return BadRequest("No answer available for the given question");
+                return BadRequest("Die Frage existiert nicht.");
             }
 
             var questionModel = new QuestionModel(question, votingId);
@@ -129,13 +140,18 @@ namespace FreieWahl.Controllers
             var voting = await _votingManager.GetById(votingId);
             if (voting == null)
             {
-                return BadRequest("No voting with the given id");
+                return BadRequest("Diese Abstimmung existiert nicht.");
+            }
+
+            if (DateTime.UtcNow < voting.StartDate)
+            {
+                return BadRequest("In dieser Abstimmung kann noch nicht abgestimmt werden!");
             }
 
             var votes = await _votingResultManager.GetResults(votingId, tokens);
 
             var questions = voting.Questions
-                .Where(x => x.Status == QuestionStatus.OpenForVoting)
+                .Where(x => x.Status == QuestionStatus.OpenForVoting || x.Status == QuestionStatus.Locked)
                 .Select(x => new QuestionModel(x, votingId)).ToArray();
 
             var model = new QuestionData
@@ -174,9 +190,8 @@ namespace FreieWahl.Controllers
                 _votingChainBuilder.CheckChain(voting.Questions.Single(x => x.QuestionIndex == questionIndex),
                     votes.ToList());
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                // TODO: logging
                 return BadRequest();
             }
 
@@ -209,22 +224,27 @@ namespace FreieWahl.Controllers
             var voting = await _votingManager.GetById(votingId);
             if (voting == null)
             {
-                return BadRequest("There is no voting with the given id");
+                return BadRequest("Die Abstimmung existiert nicht!");
             }
-            if (voting.State == VotingState.Closed)
+            if (voting.State == VotingState.Closed || DateTime.UtcNow > voting.EndDate)
             {
-                return BadRequest("Voting has already been closed!");
+                return BadRequest("In dieser Abstimmung kann nicht mehr abgestimmt werden!");
+            }
+
+            if (DateTime.UtcNow < voting.StartDate)
+            {
+                return BadRequest("In dieser Abstimmung kann noch nicht abgestimmt werden!");
             }
 
             var question = voting.Questions.SingleOrDefault(x => x.QuestionIndex == questionIndex);
             if (question == null)
             {
-                return BadRequest("There is no question with the given index!");
+                return BadRequest("Ungültige Frage!");
             }
 
             if (question.Status != QuestionStatus.OpenForVoting)
             {
-                return BadRequest("The given question is no open for voting!");
+                return BadRequest("Diese Frage ist nicht zur Abstimmung freigegeben!");
             }
 
             try
@@ -233,9 +253,9 @@ namespace FreieWahl.Controllers
                     signedToken);
                 return Ok();
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                return BadRequest("Voting token could not be verified or vote could not be stored.");
+                return BadRequest("Ungültige Stimmabgabe. Ihre Stimme konnte nicht gespeichert werden.");
             }
         }
     }

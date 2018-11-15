@@ -1,4 +1,5 @@
-﻿<nav class="navbar navbar-dark fixed-top navbar-expand-md">
+﻿@using FreieWahl.Voting.Models
+<nav class="navbar navbar-dark fixed-top navbar-expand-md">
     <a class="navbar-brand" href="@Url.Action("Index", "Home")">
         <span id="fw-brand-1">freie</span><span id="fw-brand-2">Wahl</span>
     </a>
@@ -45,35 +46,45 @@
     <div class="w-100 m-auto display-4 text-center text-primary text-uppercase">
         Registrierung
     </div>
-    <div class="progress mt-3">
-        <div class="progress-bar bg-primary" role="progressbar" style="width: 33%" aria-valuenow="33" aria-valuemin="0" aria-valuemax="100"></div>
-    </div>
-    <div class="row border-bottom pb-2 mb-3">
-        <div class="col-4 text-center text-primary">Identitätsnachweis</div>
-        <div class="col-4 text-center text-lightgray">Kontaktdaten</div>
-        <div class="col-4 text-center text-lightgray">Abschluss</div>
-    </div>
-    <div class="row justify-content-between">
-        <div class="col-12 col-md-6 col-lg-7 text-primary">
-            <p>
-                Sie wurden eingeladen, sich als WählerIn für diese Abstimmung zu registrieren. Für die Registrierung ist ein Identitätsnachweis erforderlich, der in diesem
-                Fall mit der Handy-Signatur erbracht werden kann.
-            </p>
-            <p>
-                Ihre Registrierung für die Wahl wird noch überprüft, Sie werden dann für die Wahl freigeschaltet. Nach erfolgter Freischaltung erhalten Sie eine Mail mit
-                einem Link, mit dem Sie an der Wahl teilnehmen können.
-            </p>
-            <p>
-                Wenn Sie Ihre Handy-Signatur noch nicht aktiviert haben, können Sie das auf
-                <a href="https://www.handy-signatur.at/"><strong>www.handy-signatur.at</strong></a> machen.
-            </p>
+    @if ((VotingState)ViewData["VotingState"] == VotingState.InPreparation)
+    {
+        <div class="alert alert-primary mt-3 h4 text-center">Die Abstimmung ist noch in Vorbereitung, eine Registrierung ist noch nicht möglich. Bitte probieren Sie es in ein paar Minuten noch einmal.</div>
+    }
+    else if ((VotingState)ViewData["VotingState"] == VotingState.Closed)
+    {
+        <div class="alert alert-danger mt-3 h4 text-center">Die Abstimmung ist bereits abgeschlossen. Eine Registrierung ist nicht mehr möglich.</div>
+    }
+    else
+    {
+        <div class="progress mt-3">
+            <div class="progress-bar bg-primary" role="progressbar" style="width: 33%" aria-valuenow="33" aria-valuemin="0" aria-valuemax="100"></div>
         </div>
-        <div class="col-12 col-md-6 col-lg-4">
-            <div class="w-100 bg-primary text-white px-2" style="font-size: 2.5rem; font-weight: 100">Handysignatur</div>
-            <form target="signatureFrame" id="buergerkarteLoader" action="https://www.a-trust.at/mobile/https-security-layer-request/default.aspx" enctype="application/x-www-form-urlencoded" method="post" style="display: none;">
+        <div class="row border-bottom pb-2 mb-3">
+            <div class="col-4 text-center text-primary">Identitätsnachweis</div>
+            <div class="col-4 text-center text-lightgray">Kontaktdaten</div>
+            <div class="col-4 text-center text-lightgray">Abschluss</div>
+        </div>
+        <div class="row justify-content-between">
+            <div class="col-12 col-md-6 col-lg-7 text-primary">
+                <p>
+                    Sie wurden eingeladen, sich als WählerIn für diese Abstimmung zu registrieren. Für die Registrierung ist ein Identitätsnachweis erforderlich, der in diesem
+                    Fall mit der Handy-Signatur erbracht werden kann.
+                </p>
+                <p>
+                    Ihre Registrierung für die Wahl wird noch überprüft, Sie werden dann für die Wahl freigeschaltet. Nach erfolgter Freischaltung erhalten Sie eine Mail mit
+                    einem Link, mit dem Sie an der Wahl teilnehmen können.
+                </p>
+                <p>
+                    Wenn Sie Ihre Handy-Signatur noch nicht aktiviert haben, können Sie das auf
+                    <a href="https://www.handy-signatur.at/"><strong>www.handy-signatur.at</strong></a> machen.
+                </p>
+            </div>
+            <div class="col-12 col-md-6 col-lg-4">
+                <div class="w-100 bg-primary text-white px-2" style="font-size: 2.5rem; font-weight: 100">Handysignatur</div>
+                <form target="signatureFrame" id="buergerkarteLoader" action="https://www.a-trust.at/mobile/https-security-layer-request/default.aspx" enctype="application/x-www-form-urlencoded" method="post" style="display: none;">
 
-                <!-- XMLRequest -->
-                <input type="hidden" name="XMLRequest" id="sigRequest" value="<?xml version='1.0' encoding='UTF-8' ?>
+                    <!-- XMLRequest -->
+                    <input type="hidden" name="XMLRequest" id="sigRequest" value="<?xml version='1.0' encoding='UTF-8' ?>
                 <sl:CreateCMSSignatureRequest xmlns:sl='http://www.buergerkarte.at/namespaces/securitylayer/1.2#' Structure='enveloping'>
                     <sl:KeyboxIdentifier>SecureSignatureKeypair</sl:KeyboxIdentifier>
                     <sl:DataObject>
@@ -84,22 +95,23 @@
                     </sl:DataObject>
                 </sl:CreateCMSSignatureRequest>"/>
 
-                <input type="hidden" name="appletheight" value="350" />
-                <input type="hidden" name="appletwidth" value="350" />
+                    <input type="hidden" name="appletheight" value="350"/>
+                    <input type="hidden" name="appletwidth" value="350"/>
 
 
 
-                <!-- DataURL -->
-                <!-- <input type="hidden" name="DataURL" value="https://freiewahl-data.appspot.com/HandySignatur?regUid=@ViewData["RegistrationStoreId"]" /> -->
-                <input type="hidden" name="DataURL" value="https://freiewahl-application.appspot.com/Registration/Register?regUid=@ViewData["RegistrationStoreId"]" />
-                <!-- Submit Button -->
-                <input type="submit" value="Test Request" />
+                    <!-- DataURL -->
+                    <!-- <input type="hidden" name="DataURL" value="https://freiewahl-data.appspot.com/HandySignatur?regUid=@ViewData["RegistrationStoreId"]" /> -->
+                    <input type="hidden" name="DataURL" value="https://freiewahl-application.appspot.com/Registration/Register?regUid=@ViewData["RegistrationStoreId"]"/>
+                    <!-- Submit Button -->
+                    <input type="submit" value="Test Request"/>
 
-            </form>
+                </form>
 
-            <iframe name="signatureFrame" id="signatureFrame" width="350" height="350" scrolling="no"></iframe>
+                <iframe name="signatureFrame" id="signatureFrame" width="350" height="350" scrolling="no"></iframe>
+            </div>
         </div>
-    </div>
+    }
 </div>
 @section scripts
     {
