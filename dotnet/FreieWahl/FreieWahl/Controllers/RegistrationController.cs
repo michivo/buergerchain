@@ -58,6 +58,12 @@ namespace FreieWahl.Controllers
         }
 
         [HttpPost]
+        public async Task<IActionResult> RegisterWithSms(string registrationid, string smsCode)
+        {
+            return Ok();
+        }
+
+        [HttpPost]
         public async Task<IActionResult> Register(string regUid)
         {
             string dataContent = "x";

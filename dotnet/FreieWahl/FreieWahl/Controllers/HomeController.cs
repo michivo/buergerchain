@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Net.Http;
 using System.Threading.Tasks;
 using FreieWahl.Application.Authentication;
+using FreieWahl.Application.Registrations;
 using FreieWahl.Helpers;
 using FreieWahl.Mail;
 using Microsoft.AspNetCore.Hosting;
@@ -25,6 +26,7 @@ namespace FreieWahl.Controllers
         private readonly ISessionCookieProvider _sessionCookieProvider;
         private readonly IMailProvider _mailProvider;
         private readonly IHostingEnvironment _env;
+        private readonly IChallengeService _challengeService;
         private readonly string _privateKey;
 
         public HomeController(ILogger<HomeController> logger,
@@ -32,13 +34,15 @@ namespace FreieWahl.Controllers
             ISessionCookieProvider sessionCookieProvider,
             IMailProvider mailProvider,
             IHostingEnvironment env,
-            IConfiguration configuration)
+            IConfiguration configuration,
+            IChallengeService challengeService)
         {
             _logger = logger;
             _authorizationHandler = authorizationHandler;
             _sessionCookieProvider = sessionCookieProvider;
             _mailProvider = mailProvider;
             _env = env;
+            _challengeService = challengeService;
             _privateKey = configuration["Google:RecaptchaKey"];
         }
 
@@ -51,6 +55,7 @@ namespace FreieWahl.Controllers
                 return View();
             }
 
+            await _challengeService.SendChallenge("06502910662", "123456", "Geheimabstimmung");
             var auth = await _authorizationHandler.CheckAuthorization(null, Operation.List, Request.Cookies["session"]);
 
             if (auth.IsAuthorized && source != "redirect")
