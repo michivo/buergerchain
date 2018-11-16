@@ -482,20 +482,22 @@ div.fw-voting-question-symbol {
     font-weight:300
 }
 
-div.fw-registration-item-button {
+.fw-registration-item-button {
     align-self: flex-end;
     cursor:pointer;
     color:$primary;
+    background-color:white;
+    padding: 0;
 }
 
-div.fw-registration-item-button :hover {
+.fw-registration-item-button :hover {
     align-self: flex-end;
     cursor:pointer;
     color:$secondary;
     text-shadow: 1px 1px 3px gray;
 }
 
-div.fw-registration-item-button :active {
+.fw-registration-item-button :active {
     align-self: flex-end;
     cursor:pointer;
     color:$primary;

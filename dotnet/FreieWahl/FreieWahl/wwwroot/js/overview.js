@@ -46,7 +46,7 @@
 
 
     var renderOpenVoting = function (voting) {
-        let item = '<div class="col-xl-4 col-md-6 col-12 fw-open-voting"><div class="card fw-overview-card">' +
+        let item = '<div class="col-xl-4 col-md-6 col-12 fw-open-voting mb-3"><div class="card fw-overview-card">' +
             `<a href="Edit?id=${voting.id}" style="height:12rem;">`;
         if (voting.imageData) {
             item += `<img class="card-img-top fw-open-vote" src="${voting.imageData}">`;

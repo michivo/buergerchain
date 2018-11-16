@@ -298,7 +298,8 @@ namespace FreieWahl.Controllers
                 {
                     x.VoterName,
                     x.VoterIdentity,
-                    RegistrationId = x.Id
+                    RegistrationId = x.Id,
+                    Date = x.RegistrationTime.ToSecondsSinceEpoch()
                 }
             ).ToArray();
 

@@ -423,7 +423,7 @@ const Edit = (function () {
             success: function (data) {
                 updateQuestions(mVotingId);
             },
-            error: function(data) {
+            error: function (data) {
                 showErrorMessage("Beim Löschen der Frage ist ein Fehler aufgetreten!", data);
             }
         });
@@ -467,7 +467,7 @@ const Edit = (function () {
                 resetNewQuestionModal();
                 updateQuestions();
             },
-            error: function(data) {
+            error: function (data) {
                 showErrorMessage("Beim Speichern der Frage ist ein Fehler aufgetreten!", data);
             }
         });
@@ -712,6 +712,7 @@ const Registration = (function () {
     let grantRegistration;
     let denyRegistration;
     let currentUpdateRequest;
+    let mRegistrations;
 
     var showCompletedRegistrations = function (registrations) {
         const grantedList = $("#grantedRegistrationsList");
@@ -739,18 +740,21 @@ const Registration = (function () {
 
     var showRegistrations = function (registrations) {
         $(".openRegistrationItem").detach();
+
+        mRegistrations = registrations;
         for (let i = 0; i < registrations.length; i++) {
             const registration = registrations[i];
             const item =
                 `<div class="d-flex mx-3 my-0 border-bottom openRegistrationItem" id="openreg-${registration.registrationId}"><div style="flex:1;margin-right:1rem">${registration.voterName}</div>\n` +
-                `<div class="fw-registration-item-button fwBtnGrantRegistration" data-registration-id="${registration.registrationId}"><i class="material-icons">check_circle_outline</i></div>\n` +
-                `<div class="fw-registration-item-button fwBtnDenyRegistration" data-registration-id="${registration.registrationId}"><i class="material-icons mx-1">block</i></div>\n` +
-                `<div class="fw-registration-item-button"><i class="material-icons">info</i></div></div>`;
+                `<button tabindex="${3 * i}" type="button" class="btn fw-registration-item-button fwBtnGrantRegistration" data-registration-id="${registration.registrationId}"><i class="material-icons">check_circle_outline</i></button>\n` +
+                `<button tabindex="${1 + 3 * i}" type="button" class="btn fw-registration-item-button fwBtnDenyRegistration" data-registration-id="${registration.registrationId}"><i class="material-icons mx-1">block</i></button>\n` +
+                `<a tabindex="${2 + 3 * i}" class="btn fw-registration-item-button fwBtnShowRegistrationDetails" data-toggle="popover" data-trigger="focus" data-registration-id="${registration.registrationId}" title="${registration.voterName}" data-content="<strong>Bürgerkarten-Id: </strong>${registration.voterIdentity}<br><strong>Registrierungsdatum: </strong>${formatDateTimeSeconds(registration.date)}"><i class="material-icons">info</i></a></div>`;
 
             $(item).insertBefore('#openRegistrationsDivider');
         }
 
         $('#openRegistrationsBadge').text(registrations.length);
+        $('.fwBtnShowRegistrationDetails').popover({ html: true });
     }
 
     var updateRegistrations = function () {
