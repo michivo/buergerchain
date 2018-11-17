@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using FreieWahl.Common;
+using FreieWahl.Voting.Common;
 using FreieWahl.Voting.Models;
 using Google.Cloud.Firestore;
 using Google.Cloud.Storage.V1;
@@ -124,7 +125,8 @@ namespace FreieWahl.Voting.Storage
                 Title = (string)document["Title"],
                 State = (VotingState)Convert.ToInt32(document["State"]),
                 Visibility = (VotingVisibility)Convert.ToInt32(document["Visibility"]),
-                Questions = ((IEnumerable<object>)document["Questions"]).Select(_QuestionFromObject).ToList()
+                Questions = ((IEnumerable<object>)document["Questions"]).Select(_QuestionFromObject).ToList(),
+                SupportedRegistrationType = document.ContainsKey("SupportedRegistrationType") ? (RegistrationType)Convert.ToInt32(document["SupportedRegistrationType"]) : RegistrationType.Buergerkarte
             };
             return result;
         }
@@ -277,7 +279,8 @@ namespace FreieWahl.Voting.Storage
                 {"CurrentQuestionIndex", voting.CurrentQuestionIndex },
                 {"DateCreated", Timestamp.FromDateTime(voting.DateCreated) },
                 {"StartDate", Timestamp.FromDateTime(voting.StartDate) },
-                {"EndDate", Timestamp.FromDateTime(voting.EndDate) }
+                {"EndDate", Timestamp.FromDateTime(voting.EndDate) },
+                {"SupportedRegistrationType", voting.SupportedRegistrationType }
             };
             if (withImageData)
             {

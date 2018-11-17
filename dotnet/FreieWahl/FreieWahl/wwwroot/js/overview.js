@@ -16,6 +16,19 @@
         if (!validationResult)
             return;
 
+        let regType = 0;
+        if ($('#checkIdentificationTypeHandySig').prop("checked") === true) {
+            regType = regType + 1;
+        }
+        if ($('#checkIdentificationTypeSms').prop("checked") === true) {
+            regType = regType + 2;
+        }
+
+        if (regType === 0) {
+            alert('Sie müssen zumindest eine Methode zur Identitätsprüfung zulassen.');
+            return;
+        }
+
         if ($('#fw-voting-img-real').is(':visible')) {
             var canvas = document.getElementById('fw-voting-img-real');
             imageData = canvas.toDataURL();
@@ -33,6 +46,7 @@
                 "imageData": imageData,
                 "startDate": startDate.toISOString(),
                 "endDate": endDate.toISOString(),
+                "regType": regType
             },
             success: function (data) {
                 $('#newVotingModal').modal('hide');

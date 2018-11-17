@@ -74,11 +74,15 @@
                             </div>
                         </div>
                         <div class="col-12">
+                            <h5>Identifikationsmethoden für WählerInnen</h5>
                             <div class="form-check mt-2 border-top pt-2">
-                                <h5>Identifikationsmethoden für WählerInnen</h5>
-                                <input class="form-check-input" type="checkbox" value="handySig" id="checkIdentificationType" disabled checked>
-                                <label class="form-check-label" for="checkIdentificationType">Handysignatur/Bürgerkarte</label><br/>
-                                <small id="checkIdentificationTypeInfo" class="text-danger">Derzeit wird nur die Identifikation mittels Handysignatur unterstützt. Wenn Sie andere Identifikationsmethoden wünschen, bitte <a href="mailto:michael@freiewahl.eu">kontaktieren Sie uns!</a> </small>
+                                <input class="form-check-input" type="checkbox" value="handySig" id="checkIdentificationTypeHandySig" checked>
+                                <label class="form-check-label" for="checkIdentificationTypeHandySig">Handysignatur/Bürgerkarte</label><br />
+                            </div>
+                            <div class="form-check mt-2 border-top pt-2">
+                                <input class="form-check-input" type="checkbox" value="handySig" id="checkIdentificationTypeSms">
+                                <label class="form-check-label" for="checkIdentificationTypeSms">Authentifizierung mit SMS und Mail</label><br />
+                                <small id="checkIdentificationTypeInfo" class="text-primary">Sie müssen selbst überprüfen, ob die Daten der sich registrierenden Personen korrekt sind.<br>Bitte beachten Sie, dass uns durch das Versenden von SMS Kosten von ca. 10ct/SMS entstehen. Wir würden uns über eine Spende freuen, um diese Kosten zu decken.</small>
                             </div>
                         </div>
                     </div>

@@ -16,6 +16,7 @@ using FreieWahl.Helpers;
 using FreieWahl.Mail;
 using FreieWahl.Security.Signing.VotingTokens;
 using FreieWahl.UserData.Store;
+using FreieWahl.Voting.Common;
 
 namespace FreieWahl.Controllers
 {
@@ -285,7 +286,7 @@ namespace FreieWahl.Controllers
 
         [HttpPost]
         public async Task<IActionResult> UpdateVoting(string id, string title, string desc, string imageData,
-            string startDate, string endDate)
+            string startDate, string endDate, int regTypeRaw)
         {
             var operation = string.IsNullOrEmpty(id) ? Operation.Create : Operation.UpdateVoting;
             var auth = await
@@ -295,13 +296,19 @@ namespace FreieWahl.Controllers
 
             var startTimeValue = DateTime.Parse(startDate, null, DateTimeStyles.RoundtripKind);
             var endTimeValue = DateTime.Parse(endDate, null, DateTimeStyles.RoundtripKind);
+            if (regTypeRaw < 1 || regTypeRaw > 3)
+            {
+                return BadRequest();
+            }
+
+            RegistrationType registrationType = (RegistrationType) regTypeRaw;
 
             if (!string.IsNullOrEmpty(id))
             {
-                return await _UpdateVoting(id, title, desc, imageData, startTimeValue, endTimeValue);
+                return await _UpdateVoting(id, title, desc, imageData, startTimeValue, endTimeValue, registrationType);
             }
 
-            return await _InsertVoting(title, desc, auth.User, imageData, startTimeValue, endTimeValue);
+            return await _InsertVoting(title, desc, auth.User, imageData, startTimeValue, endTimeValue, registrationType);
         }
 
         [HttpPost]
@@ -431,7 +438,7 @@ namespace FreieWahl.Controllers
         }
 
         private async Task<IActionResult> _InsertVoting(string title, string desc, UserInformation user, string imageData,
-            DateTime startDate, DateTime endDate)
+            DateTime startDate, DateTime endDate, RegistrationType registrationType)
         {
             if ((await _authorizationHandler.CheckAuthorization(null, Operation.Create, Request.Cookies["session"])).IsAuthorized == false)
                 return Unauthorized();
@@ -447,7 +454,9 @@ namespace FreieWahl.Controllers
                 State = VotingState.InPreparation,
                 ImageData = imageData,
                 StartDate = startDate,
-                EndDate = endDate
+                EndDate = endDate,
+                SupportedRegistrationType = registrationType,
+                CurrentQuestionIndex = 0
             };
 
             await _votingManager.Insert(voting).ConfigureAwait(false);
@@ -468,13 +477,14 @@ namespace FreieWahl.Controllers
         }
 
         private async Task<IActionResult> _UpdateVoting(string id, string title, string desc, string imageData,
-            DateTime startDate, DateTime endDate)
+            DateTime startDate, DateTime endDate, RegistrationType registrationType)
         {
             var voting = await _votingManager.GetById(id);
             voting.Title = title;
             voting.Description = desc;
             voting.StartDate = startDate;
             voting.EndDate = endDate;
+            voting.SupportedRegistrationType = registrationType;
 
             if (!string.IsNullOrEmpty(imageData))
                 voting.ImageData = imageData;

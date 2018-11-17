@@ -1,9 +1,12 @@
-﻿@using FreieWahl.Voting.Models
+﻿@using FreieWahl.Voting.Common
+@using FreieWahl.Voting.Models
 <nav class="navbar navbar-dark fixed-top navbar-expand-md">
     <a class="navbar-brand" href="@Url.Action("Index", "Home")">
         <span id="fw-brand-1">freie</span><span id="fw-brand-2">Wahl</span>
     </a>
 </nav>
+@{var registrationType = (RegistrationType)ViewData["RegistrationType"]}
+
 <div class="container-fluid fw-banner py-3">
     <div class="row justify-content-between">
         <div class="col-12 col-md-auto pl-0 py-3">
@@ -67,67 +70,88 @@
         <div class="row justify-content-between">
             <div class="col-12 col-md-6 col-lg-7 text-primary">
                 <p>
-                    Sie wurden eingeladen, sich als WählerIn für diese Abstimmung zu registrieren. Für die Registrierung ist ein Identitätsnachweis erforderlich, der in diesem
-                    Fall mit der Handy-Signatur erbracht werden kann.
+                    Sie wurden eingeladen, sich als WählerIn für diese Abstimmung zu registrieren. Für die Registrierung ist ein Identitätsnachweis erforderlich.
                 </p>
                 <p>
-                    Ihre Registrierung für die Wahl wird noch überprüft, Sie werden dann für die Wahl freigeschaltet. Nach erfolgter Freischaltung erhalten Sie eine Mail mit
+                    Ihre Registrierung für die Wahl wird im Anschluss überprüft, Sie werden dann für die Wahl freigeschaltet. Nach erfolgter Freischaltung erhalten Sie eine Mail mit
                     einem Link, mit dem Sie an der Wahl teilnehmen können.
                 </p>
-                <p>
-                    Wenn Sie Ihre Handy-Signatur noch nicht aktiviert haben, können Sie das auf
-                    <a href="https://www.handy-signatur.at/"><strong>www.handy-signatur.at</strong></a> machen.
-                </p>
+                @if ((registrationType & RegistrationType.Buergerkarte) == RegistrationType.Buergerkarte)
+                {
+                    <p>
+                        Wenn Sie Ihre Handy-Signatur noch nicht aktiviert haben, können Sie das auf
+                        <a href="https://www.handy-signatur.at/"><strong>www.handy-signatur.at</strong></a> machen.
+                    </p>
+                }
+                @if (registrationType == (RegistrationType.Buergerkarte | RegistrationType.Sms))
+                {
+                    <div class="input-group">
+                        <select class="custom-select" id="inputGroupSelectIdType">
+                            <option selected=selected>Wie wollen Sie ihren Identitätsnachweis erbringen?</option>
+                            <option value="1">Handysignatur</option>
+                            <option value="2">Mit einer SMS</option>
+                        </select>
+                        <div class="input-group-append">
+                            <button class="btn btn-outline-primary" type="button" id="btnSelectIdentityProofMethod">OK</button>
+                        </div>
+                    </div>
+                }
             </div>
-            <div class="col-12 col-md-6 col-lg-4">
-                <div class="w-100 bg-primary text-white px-2" style="font-size: 2.5rem; font-weight: 100">Handysignatur</div>
-                <form target="signatureFrame" id="buergerkarteLoader" action="https://www.a-trust.at/mobile/https-security-layer-request/default.aspx" enctype="application/x-www-form-urlencoded" method="post" style="display: none;">
+            @if ((registrationType & RegistrationType.Buergerkarte) == RegistrationType.Buergerkarte)
+            {
+                <div class="col-12 col-md-6 col-lg-4" id="fwRegFormHandySig" @((registrationType == (RegistrationType.Buergerkarte | RegistrationType.Sms)) ? "style=\"display:none\"" : "")=)>
+                    <div class="w-100 bg-primary text-white px-2" style="font-size: 2.5rem; font-weight: 100">Handysignatur</div>
+                    <form target="signatureFrame" id="buergerkarteLoader" action="https://www.a-trust.at/mobile/https-security-layer-request/default.aspx" enctype="application/x-www-form-urlencoded" method="post" style="display: none;">
 
-                    <!-- XMLRequest -->
-                    <input type="hidden" name="XMLRequest" id="sigRequest" value="<?xml version='1.0' encoding='UTF-8' ?>
-                <sl:CreateCMSSignatureRequest xmlns:sl='http://www.buergerkarte.at/namespaces/securitylayer/1.2#' Structure='enveloping'>
-                    <sl:KeyboxIdentifier>SecureSignatureKeypair</sl:KeyboxIdentifier>
-                    <sl:DataObject>
-                        <sl:MetaInfo><sl:MimeType>text/plain</sl:MimeType></sl:MetaInfo>
-                        <sl:Content>
-                            <sl:Base64Content>TOKEN_PLACEHOLDER</sl:Base64Content>
-                        </sl:Content>
-                    </sl:DataObject>
-                </sl:CreateCMSSignatureRequest>"/>
+                        <!-- XMLRequest -->
+                        <input type="hidden" name="XMLRequest" id="sigRequest" value="<?xml version='1.0' encoding='UTF-8' ?>
+                        <sl:CreateCMSSignatureRequest xmlns:sl='http://www.buergerkarte.at/namespaces/securitylayer/1.2#' Structure='enveloping'>
+                            <sl:KeyboxIdentifier>SecureSignatureKeypair</sl:KeyboxIdentifier>
+                            <sl:DataObject>
+                                <sl:MetaInfo><sl:MimeType>text/plain</sl:MimeType></sl:MetaInfo>
+                                <sl:Content>
+                                    <sl:Base64Content>TOKEN_PLACEHOLDER</sl:Base64Content>
+                                </sl:Content>
+                            </sl:DataObject>
+                        </sl:CreateCMSSignatureRequest>"/>
 
-                    <input type="hidden" name="appletheight" value="350"/>
-                    <input type="hidden" name="appletwidth" value="350"/>
+                        <input type="hidden" name="appletheight" value="350" />
+                        <input type="hidden" name="appletwidth" value="350" />
 
 
 
-                    <!-- DataURL -->
-                    <!-- <input type="hidden" name="DataURL" value="https://freiewahl-data.appspot.com/HandySignatur?regUid=@ViewData["RegistrationStoreId"]" /> -->
-                    <input type="hidden" name="DataURL" value="https://freiewahl-application.appspot.com/Registration/Register?regUid=@ViewData["RegistrationStoreId"]"/>
-                    <!-- Submit Button -->
-                    <input type="submit" value="Test Request"/>
+                        <!-- DataURL -->
+                        <!-- <input type="hidden" name="DataURL" value="https://freiewahl-data.appspot.com/HandySignatur?regUid=@ViewData["RegistrationStoreId"]" /> -->
+                        <input type="hidden" name="DataURL" value="https://freiewahl-application.appspot.com/Registration/Register?regUid=@ViewData["RegistrationStoreId"]" />
+                        <!-- Submit Button -->
+                        <input type="submit" value="Test Request" />
 
-                </form>
+                    </form>
 
-                <iframe name="signatureFrame" id="signatureFrame" width="350" height="350" scrolling="no"></iframe>
-            </div>
+                    <iframe name="signatureFrame" id="signatureFrame" width="350" height="350" scrolling="no"></iframe>
+                </div>
+            }
+            @if ((registrationType & RegistrationType.Buergerkarte) == RegistrationType.Sms)
+            {
+                <div class="col-12 col-md-6 col-lg-4" id="fwRegFormSms" @((registrationType == (RegistrationType.Buergerkarte | RegistrationType.Sms)) ? "style=\"display:none\"" : "")=)>
+                    <div class="w-100 bg-primary text-white px-2" style="font-size: 2.5rem; font-weight: 100">SMS</div>
+                    <form id="fwSendSmsChallenge">
+                        <div class="form-group">
+                            <label for="smsRegInputName">Name</label>
+                            <input type="text" class="form-control" id="smsRegInputName" placeholder="Vorname + Nachname" />
+                        </div>
+                        <div class="form-group">
+                            <label for="smsRegInputPhone">Handynummer</label>
+                            <input type="text" class="form-control" id="smsRegInputPhone" placeholder="+43 6xx 1234567" />
+                        </div>
+                        <button type="submit" class="btn btn-primary">SMS zuschicken</button>
+                    </form>
+                </div>
+            }
         </div>
     }
 </div>
 @section scripts
     {
-    <script>
-        function init() {
-            const origVal = $("#sigRequest").val();
-            const base64Encoded = window.btoa('@ViewData["VotingId"]');
-            const newVal = origVal.replace("TOKEN_PLACEHOLDER", base64Encoded);
-            $("#sigRequest").val(newVal);
-            $("#buergerkarteLoader").submit();
-
-            const startDate = formatDateTimeSeconds(@ViewData["StartDate"], false);
-            const endDate = formatDateTimeSeconds(@ViewData["EndDate"], false);
-            $('#fwDateInfo').html(`Start: ${startDate}<br />Ende: ${endDate}`);
-        }
-
-        init();
-    </script>
+    <script src="~/js/register.js" asp-append-version="true"></script>
 }

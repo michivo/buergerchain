@@ -22,7 +22,9 @@ namespace FreieWahl.Voting.Registrations
             {
                 { "votingId", challenge.VotingId },
                 { "value", challenge.Value },
-                { "type", (int)challenge.Type }
+                { "type", (int)challenge.Type },
+                { "recipientName", challenge.RecipientName },
+                { "recipientAddress", challenge.RecipientAddress }
             });
         }
 
@@ -34,7 +36,9 @@ namespace FreieWahl.Voting.Registrations
                 RegistrationId = registrationId,
                 Type = (ChallengeType) snapshot.GetValue<int>("type"),
                 Value = snapshot.GetValue<string>("value"),
-                VotingId = snapshot.GetValue<string>("votingId")
+                VotingId = snapshot.GetValue<string>("votingId"),
+                RecipientName = snapshot.GetValue<string>("recipientName"),
+                RecipientAddress = snapshot.GetValue<string>("recipientAddress")
             };
         }
 

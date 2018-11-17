@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Net;
 using System.Text;
 using System.Threading.Tasks;
+using FreieWahl.Voting.Registrations;
 using Microsoft.AspNetCore.Http;
 
 namespace FreieWahl.Application.Registrations
@@ -14,7 +15,7 @@ namespace FreieWahl.Application.Registrations
         private readonly string _handle;
         private readonly string _apiUrl;
 
-        public BudgetSmsChallengeService(bool isTestService, string userName, string userId, string handle)
+        public BudgetSmsChallengeService(string userName, string userId, string handle, bool isTestService = false)
         {
             _userName = userName;
             _userId = userId;
@@ -40,6 +41,8 @@ namespace FreieWahl.Application.Registrations
             var result = await client.DownloadStringTaskAsync(_apiUrl);
             Console.WriteLine(result);
         }
+
+        public ChallengeType SupportedChallengeType => ChallengeType.Sms;
 
         private string _FixPhoneNumber(string number)
         {

@@ -9,5 +9,9 @@
         public string Value { get; set; }
 
         public ChallengeType Type { get; set; }
+
+        public string RecipientName { get; set; }
+
+        public string RecipientAddress { get; set; }
     }
 }

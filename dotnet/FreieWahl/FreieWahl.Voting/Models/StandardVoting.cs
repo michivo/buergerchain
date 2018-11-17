@@ -42,6 +42,8 @@ namespace FreieWahl.Voting.Models
 
         public DateTime EndDate { get; set; }
 
+        public RegistrationType SupportedRegistrationType { get; set; }
+
         public List<Question> Questions
         {
             get => _questions;
@@ -63,6 +65,7 @@ namespace FreieWahl.Voting.Models
                    StartDate.EqualsDefault(other.StartDate) &&
                    EndDate.EqualsDefault(other.EndDate) &&
                    Questions.SequenceEqual(other.Questions) &&
+                   SupportedRegistrationType == other.SupportedRegistrationType &&
                    (string.IsNullOrEmpty(ImageData) && string.IsNullOrEmpty(other.ImageData) || ImageData.Equals(other.ImageData));
         }
 
@@ -88,6 +91,7 @@ namespace FreieWahl.Voting.Models
                 hashCode = (hashCode * 397) ^ DateCreated.GetHashCode();
                 hashCode = (hashCode * 397) ^ StartDate.GetHashCode();
                 hashCode = (hashCode * 397) ^ EndDate.GetHashCode();
+                hashCode = (hashCode * 397) ^ SupportedRegistrationType.GetHashCode();
                 hashCode = (hashCode * 397) ^ (Questions != null ? Questions.GetHashCode() : 0);
                 hashCode = (hashCode * 397) ^ (ImageData != null ? ImageData.GetHashCode() : 0);
                 return hashCode;

@@ -26,7 +26,6 @@ namespace FreieWahl.Controllers
         private readonly ISessionCookieProvider _sessionCookieProvider;
         private readonly IMailProvider _mailProvider;
         private readonly IHostingEnvironment _env;
-        private readonly IChallengeService _challengeService;
         private readonly string _privateKey;
 
         public HomeController(ILogger<HomeController> logger,
@@ -34,15 +33,13 @@ namespace FreieWahl.Controllers
             ISessionCookieProvider sessionCookieProvider,
             IMailProvider mailProvider,
             IHostingEnvironment env,
-            IConfiguration configuration,
-            IChallengeService challengeService)
+            IConfiguration configuration)
         {
             _logger = logger;
             _authorizationHandler = authorizationHandler;
             _sessionCookieProvider = sessionCookieProvider;
             _mailProvider = mailProvider;
             _env = env;
-            _challengeService = challengeService;
             _privateKey = configuration["Google:RecaptchaKey"];
         }
 
