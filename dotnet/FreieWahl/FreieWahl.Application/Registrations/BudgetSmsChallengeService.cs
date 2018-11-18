@@ -1,10 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Net;
-using System.Text;
 using System.Threading.Tasks;
 using FreieWahl.Voting.Registrations;
-using Microsoft.AspNetCore.Http;
 
 namespace FreieWahl.Application.Registrations
 {
@@ -23,8 +20,14 @@ namespace FreieWahl.Application.Registrations
             _apiUrl = isTestService ? "https://api.budgetsms.net/testsms/" : "https://api.budgetsms.net/sendsms/";
         }
 
+        public string GetStandardizedRecipient(string recipient)
+        {
+            return _FixPhoneNumber(recipient);
+        }
+
         public async Task SendChallenge(string recipient, string challenge, string votingName)
         {
+            recipient = _FixPhoneNumber(recipient);
             WebClient client = new WebClient();
             client.QueryString.Add("username", _userName);
             client.QueryString.Add("userid", _userId);
@@ -39,7 +42,8 @@ namespace FreieWahl.Application.Registrations
             client.QueryString.Add("price", "1");
             client.QueryString.Add("credit", "1");
             var result = await client.DownloadStringTaskAsync(_apiUrl);
-            Console.WriteLine(result);
+            if (!result.StartsWith("OK", StringComparison.OrdinalIgnoreCase))
+                throw new ArgumentException("Fehler beim Senden der SMS: " + result);
         }
 
         public ChallengeType SupportedChallengeType => ChallengeType.Sms;
@@ -64,7 +68,7 @@ namespace FreieWahl.Application.Registrations
                 return "43" + number.Substring(1); // defaults to austria
             }
 
-            throw new ArgumentException($"{number} is not a valid phone number!");
+            return number;
         }
     }
 }

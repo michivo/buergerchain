@@ -93,6 +93,7 @@ namespace FreieWahl
             services.AddSingleton<IRemoteTokenStore>(p => new RemoteTokenStore(Configuration["RemoteTokenStore:Url"]));
             //services.AddSingleton<IRegistrationStore>(p => new RegistrationStore(Configuration["Datastore:ProjectId"]));
             services.AddSingleton<IRegistrationStore>(p => new RegistrationFireStore(Configuration["Google:ProjectId"]));
+            services.AddSingleton<IChallengeHandler, DefaultChallengeHandler>();
             services.AddSingleton<IChallengeStore>(p => new ChallengeFireStore(Configuration["Google:ProjectId"]));
             services.AddSingleton<ISignatureProvider>(p => new SignatureProvider(Configuration["Registration:AuthKey"]));
             services.AddSingleton<IVotingResultManager, VotingResultManager>();

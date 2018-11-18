@@ -286,7 +286,7 @@ namespace FreieWahl.Controllers
 
         [HttpPost]
         public async Task<IActionResult> UpdateVoting(string id, string title, string desc, string imageData,
-            string startDate, string endDate, int regTypeRaw)
+            string startDate, string endDate, int regType)
         {
             var operation = string.IsNullOrEmpty(id) ? Operation.Create : Operation.UpdateVoting;
             var auth = await
@@ -296,12 +296,12 @@ namespace FreieWahl.Controllers
 
             var startTimeValue = DateTime.Parse(startDate, null, DateTimeStyles.RoundtripKind);
             var endTimeValue = DateTime.Parse(endDate, null, DateTimeStyles.RoundtripKind);
-            if (regTypeRaw < 1 || regTypeRaw > 3)
+            if (regType < 1 || regType > 3)
             {
                 return BadRequest();
             }
 
-            RegistrationType registrationType = (RegistrationType) regTypeRaw;
+            RegistrationType registrationType = (RegistrationType)regType;
 
             if (!string.IsNullOrEmpty(id))
             {

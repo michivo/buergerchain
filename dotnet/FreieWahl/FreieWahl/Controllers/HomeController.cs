@@ -52,7 +52,6 @@ namespace FreieWahl.Controllers
                 return View();
             }
 
-            await _challengeService.SendChallenge("06502910662", "123456", "Geheimabstimmung");
             var auth = await _authorizationHandler.CheckAuthorization(null, Operation.List, Request.Cookies["session"]);
 
             if (auth.IsAuthorized && source != "redirect")

@@ -4,10 +4,10 @@ using FreieWahl.Voting.Registrations;
 
 namespace FreieWahl.Application.Registrations
 {
-    interface IChallengeHandler
+    public interface IChallengeHandler
     {
         Task CreateChallenge(string recipientName, string recipientAddress, StandardVoting voting, string registrationId, ChallengeType challengeType);
 
-        Task<Challenge> GetChallengeForResponse(string registrationId, string challengeResponse);
+        Task<Challenge> GetChallengeForRegistration(string registrationId);
     }
 }

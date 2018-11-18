@@ -45,21 +45,21 @@ namespace FreieWahl.Application.Registrations
                 VotingId = voting.Id,
                 Value = value,
                 RecipientName = recipientName,
-                RecipientAddress = recipientAddress
+                RecipientAddress = challengeService.GetStandardizedRecipient(recipientAddress)
             };
 
             await Task.WhenAll(
-                challengeService.SendChallenge(recipientAddress, value, voting.Title),
+                challengeService.SendChallenge(challenge.RecipientAddress, value, voting.Title),
                 _challengeStore.SetChallenge(challenge)).ConfigureAwait(false);
         }
 
-        public async Task<Challenge> GetChallengeForResponse(string registrationId, string challengeResponse)
+        public async Task<Challenge> GetChallengeForRegistration(string registrationId)
         {
             try
             {
                 var challenge = await _challengeStore.GetChallenge(registrationId);
                 await _challengeStore.DeleteChallenge(registrationId);
-                return challenge.Value.Equals(challengeResponse.Trim(), StringComparison.OrdinalIgnoreCase) ? challenge : null;
+                return challenge;
             }
             catch (Exception)
             {

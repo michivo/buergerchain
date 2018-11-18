@@ -1,11 +1,12 @@
 ﻿@using FreieWahl.Voting.Common
 @using FreieWahl.Voting.Models
+
 <nav class="navbar navbar-dark fixed-top navbar-expand-md">
     <a class="navbar-brand" href="@Url.Action("Index", "Home")">
         <span id="fw-brand-1">freie</span><span id="fw-brand-2">Wahl</span>
     </a>
 </nav>
-@{var registrationType = (RegistrationType)ViewData["RegistrationType"]}
+@{ var registrationType = (RegistrationType)ViewData["RegistrationType"];}
 
 <div class="container-fluid fw-banner py-3">
     <div class="row justify-content-between">
@@ -68,7 +69,7 @@
             <div class="col-4 text-center text-lightgray">Abschluss</div>
         </div>
         <div class="row justify-content-between">
-            <div class="col-12 col-md-6 col-lg-7 text-primary">
+            <div class="col-12 col-md-12 col-lg-7 text-primary">
                 <p>
                     Sie wurden eingeladen, sich als WählerIn für diese Abstimmung zu registrieren. Für die Registrierung ist ein Identitätsnachweis erforderlich.
                 </p>
@@ -86,20 +87,20 @@
                 @if (registrationType == (RegistrationType.Buergerkarte | RegistrationType.Sms))
                 {
                     <div class="input-group">
-                        <select class="custom-select" id="inputGroupSelectIdType">
+                        <select class="custom-select" id="inputGroupSelectIdType" style="background:none !important">
                             <option selected=selected>Wie wollen Sie ihren Identitätsnachweis erbringen?</option>
                             <option value="1">Handysignatur</option>
                             <option value="2">Mit einer SMS</option>
                         </select>
                         <div class="input-group-append">
-                            <button class="btn btn-outline-primary" type="button" id="btnSelectIdentityProofMethod">OK</button>
+                            <button class="btn btn-primary" type="button" id="btnSelectIdentityProofMethod">OK</button>
                         </div>
                     </div>
                 }
             </div>
             @if ((registrationType & RegistrationType.Buergerkarte) == RegistrationType.Buergerkarte)
             {
-                <div class="col-12 col-md-6 col-lg-4" id="fwRegFormHandySig" @((registrationType == (RegistrationType.Buergerkarte | RegistrationType.Sms)) ? "style=\"display:none\"" : "")=)>
+                <div class="col-12 col-md-6 col-lg-4" id="fwRegFormHandySig" @(registrationType == (RegistrationType.Buergerkarte | RegistrationType.Sms) ? "style=display:none" : string.Empty)>
                     <div class="w-100 bg-primary text-white px-2" style="font-size: 2.5rem; font-weight: 100">Handysignatur</div>
                     <form target="signatureFrame" id="buergerkarteLoader" action="https://www.a-trust.at/mobile/https-security-layer-request/default.aspx" enctype="application/x-www-form-urlencoded" method="post" style="display: none;">
 
@@ -131,21 +132,24 @@
                     <iframe name="signatureFrame" id="signatureFrame" width="350" height="350" scrolling="no"></iframe>
                 </div>
             }
-            @if ((registrationType & RegistrationType.Buergerkarte) == RegistrationType.Sms)
+            @if ((registrationType & RegistrationType.Sms) == RegistrationType.Sms)
             {
-                <div class="col-12 col-md-6 col-lg-4" id="fwRegFormSms" @((registrationType == (RegistrationType.Buergerkarte | RegistrationType.Sms)) ? "style=\"display:none\"" : "")=)>
+                <div class="col-12 col-md-6 col-lg-4" id="fwRegFormSms" @(registrationType == (RegistrationType.Buergerkarte | RegistrationType.Sms) ? "style=display:none" : string.Empty)>
                     <div class="w-100 bg-primary text-white px-2" style="font-size: 2.5rem; font-weight: 100">SMS</div>
-                    <form id="fwSendSmsChallenge">
-                        <div class="form-group">
-                            <label for="smsRegInputName">Name</label>
-                            <input type="text" class="form-control" id="smsRegInputName" placeholder="Vorname + Nachname" />
-                        </div>
-                        <div class="form-group">
-                            <label for="smsRegInputPhone">Handynummer</label>
-                            <input type="text" class="form-control" id="smsRegInputPhone" placeholder="+43 6xx 1234567" />
-                        </div>
-                        <button type="submit" class="btn btn-primary">SMS zuschicken</button>
-                    </form>
+                    <div class="form-group">
+                        <label for="smsRegInputName">Name</label>
+                        <input type="text" class="form-control" id="smsRegInputName" placeholder="Vorname Nachname" />
+                    </div>
+                    <div class="form-group">
+                        <label for="smsRegInputPhone">Handynummer</label>
+                        <input type="text" class="form-control" id="smsRegInputPhone" placeholder="+43 6xx 1234567" />
+                    </div>
+                    <button class="btn btn-primary w-100" id="smsRegSendButton">SMS zuschicken</button>
+                    <div class="form-group d-none" id="smsRegVerificationCodeEntry">
+                        <label for="smsRegVerificationCode">Verifikationscode</label>
+                        <input type="text" class="form-control" id="smsRegVerificationCode" placeholder="123456" />
+                    </div>
+                    <button class="btn btn-primary w-100" id="smsRegVerifyButton" style="display: none">OK</button>
                 </div>
             }
         </div>
@@ -153,5 +157,9 @@
 </div>
 @section scripts
     {
-    <script src="~/js/register.js" asp-append-version="true"></script>
+    <script src="~/js/register.js" asp-append-version="true">
+    </script>
+    <script>
+        initRegistrations('@ViewData["VotingId"]', '@ViewData["RegistrationStoreId"]', @ViewData["StartDate"], @ViewData["EndDate"]);
+    </script>
 }

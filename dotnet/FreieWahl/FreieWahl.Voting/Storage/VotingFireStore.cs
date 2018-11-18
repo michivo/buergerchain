@@ -280,7 +280,7 @@ namespace FreieWahl.Voting.Storage
                 {"DateCreated", Timestamp.FromDateTime(voting.DateCreated) },
                 {"StartDate", Timestamp.FromDateTime(voting.StartDate) },
                 {"EndDate", Timestamp.FromDateTime(voting.EndDate) },
-                {"SupportedRegistrationType", voting.SupportedRegistrationType }
+                {"SupportedRegistrationType", (int)voting.SupportedRegistrationType }
             };
             if (withImageData)
             {

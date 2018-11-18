@@ -46,6 +46,7 @@ namespace FreieWahl.Controllers
             ViewData["StartDate"] = voting.StartDate.ToSecondsSinceEpoch();
             ViewData["EndDate"] = voting.EndDate.ToSecondsSinceEpoch();
             ViewData["VotingState"] = voting.State;
+            ViewData["RegistrationType"] = voting.SupportedRegistrationType;
 
             return View();
         }

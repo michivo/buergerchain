@@ -1,4 +1,5 @@
 ﻿using System;
+using FreieWahl.Voting.Common;
 
 namespace FreieWahl.Voting.Registrations
 {
@@ -13,5 +14,7 @@ namespace FreieWahl.Voting.Registrations
         public DateTime RegistrationTime { get; set; }
 
         public string Id { get; set; }
+
+        public RegistrationType RegistrationType { get; set; }
     }
 }

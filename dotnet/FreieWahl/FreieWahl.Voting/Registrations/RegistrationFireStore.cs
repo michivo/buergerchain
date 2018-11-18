@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using FreieWahl.Voting.Common;
 using Google.Cloud.Firestore;
 using Timestamp = Google.Protobuf.WellKnownTypes.Timestamp;
 
@@ -40,7 +41,8 @@ namespace FreieWahl.Voting.Registrations
                 {"VotingId", openRegistration.VotingId },
                 {"VoterIdentity", openRegistration.VoterIdentity },
                 {"VoterName", openRegistration.VoterName },
-                {"RegistrationTime", Timestamp.FromDateTime(openRegistration.RegistrationTime) }
+                {"RegistrationTime", Timestamp.FromDateTime(openRegistration.RegistrationTime) },
+                {"RegistrationType", (int)openRegistration.RegistrationType }
             });
         }
 
@@ -117,7 +119,8 @@ namespace FreieWahl.Voting.Registrations
                 VotingId = doc.GetValue<string>("VotingId"),
                 VoterIdentity = doc.GetValue<string>("VoterIdentity"),
                 VoterName = doc.GetValue<string>("VoterName"),
-                RegistrationTime = doc.GetValue<Timestamp>("RegistrationTime").ToDateTime()
+                RegistrationTime = doc.GetValue<Timestamp>("RegistrationTime").ToDateTime(),
+                RegistrationType = doc.ContainsField("RegistrationType") ? (RegistrationType)doc.GetValue<int>("RegistrationType") : RegistrationType.Buergerkarte
             };
         }
 

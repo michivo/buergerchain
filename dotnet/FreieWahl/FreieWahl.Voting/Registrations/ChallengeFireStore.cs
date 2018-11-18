@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Google.Cloud.Firestore;
 
@@ -16,9 +17,21 @@ namespace FreieWahl.Voting.Registrations
         }
 
 
-        public Task SetChallenge(Challenge challenge)
+        public async Task SetChallenge(Challenge challenge)
         {
-            return _db.Collection(_collection).Document(challenge.RegistrationId).SetAsync(new Dictionary<string, object>
+            var duplicates = await _db.Collection(_collection)
+                .WhereEqualTo("votingId", challenge.VotingId)
+                .WhereEqualTo("recipientAddress", challenge.RecipientAddress)
+                .GetSnapshotAsync();
+            if (duplicates.Any())
+            {
+                foreach (var duplicate in duplicates)
+                {
+                    await duplicate.Reference.DeleteAsync();
+                }
+            }
+
+            await _db.Collection(_collection).Document(challenge.RegistrationId).SetAsync(new Dictionary<string, object>
             {
                 { "votingId", challenge.VotingId },
                 { "value", challenge.Value },

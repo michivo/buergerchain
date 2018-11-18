@@ -11,6 +11,7 @@ using FreieWahl.Application.Voting;
 using FreieWahl.Common;
 using FreieWahl.Helpers;
 using FreieWahl.Security.Signing.Buergerkarte;
+using FreieWahl.Voting.Common;
 using FreieWahl.Voting.Registrations;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
@@ -30,6 +31,7 @@ namespace FreieWahl.Controllers
         private readonly IRegistrationHandler _registrationHandler;
         private readonly IVotingManager _votingManager;
         private readonly IHostingEnvironment _environment;
+        private readonly IChallengeHandler _challengeService;
         private readonly string _regUrl;
         private readonly int _tokenCount;
         private readonly string _redirectUrl;
@@ -42,7 +44,8 @@ namespace FreieWahl.Controllers
             IRegistrationHandler registrationHandler,
             IConfiguration configuration,
             IVotingManager votingManager,
-            IHostingEnvironment environment)
+            IHostingEnvironment environment,
+            IChallengeHandler challengeHandler)
         {
             _logger = logger;
             _signatureHandler = signatureHandler;
@@ -51,6 +54,7 @@ namespace FreieWahl.Controllers
             _registrationHandler = registrationHandler;
             _votingManager = votingManager;
             _environment = environment;
+            _challengeService = challengeHandler;
             _regUrl = configuration["RemoteTokenStore:Url"];
             _tokenCount = int.Parse(configuration["VotingSettings:MaxNumQuestions"]);
             _redirectUrl = configuration["Registration:RedirectUrl"];
@@ -58,8 +62,36 @@ namespace FreieWahl.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> RegisterWithSms(string registrationid, string smsCode)
+        public async Task<IActionResult> SendSmsChallenge(string name, string phone, string registrationId, string votingId)
         {
+            var voting = await _votingManager.GetById(votingId);
+            if (voting == null)
+            {
+                return BadRequest("Ungültige Abstimmung!");
+            }
+            await _challengeService.CreateChallenge(name, phone, voting, registrationId, ChallengeType.Sms);
+            return Ok();
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> VerifySmsChallenge(string registrationId, string challengeResponse)
+        {
+            var challenge = await _challengeService.GetChallengeForRegistration(registrationId);
+            if (challenge.Value.Equals(challengeResponse.Trim(), StringComparison.OrdinalIgnoreCase) == false)
+            {
+                return BadRequest();
+            }
+
+            await _registrationStore.AddOpenRegistration(new OpenRegistration
+            {
+                VotingId = challenge.VotingId,
+                VoterIdentity = challenge.RecipientAddress,
+                VoterName = challenge.RecipientName,
+                RegistrationTime = DateTime.UtcNow,
+                Id = registrationId,
+                RegistrationType = RegistrationType.Sms
+            });
+
             return Ok();
         }
 
@@ -106,7 +138,8 @@ namespace FreieWahl.Controllers
                     VoterIdentity = data.SigneeId,
                     VoterName = data.SigneeName,
                     RegistrationTime = DateTime.UtcNow,
-                    Id = regUid
+                    Id = regUid,
+                    RegistrationType = RegistrationType.Buergerkarte
                 });
 
                 return new ContentResult
@@ -158,7 +191,8 @@ namespace FreieWahl.Controllers
                     VoterIdentity = rnd.Next(1000000000).ToString(),
                     VoterName = fullName,
                     RegistrationTime = DateTime.UtcNow,
-                    Id = regId
+                    Id = regId,
+                    RegistrationType = RegistrationType.Buergerkarte
                 });
 
                 var request = WebRequest.CreateHttp("https://tokenstore-210111.appspot.com/saveRegistrationDetails");
@@ -220,28 +254,53 @@ namespace FreieWahl.Controllers
 
         public async Task<IActionResult> RegistrationError(string reason, string votingId)
         {
-            var voting = await _votingManager.GetById(votingId);
-            if (voting != null)
+            try
             {
-                ViewData["RegistrationStoreId"] = Guid.NewGuid().ToString("D");
-                ViewData["VotingTitle"] = voting.Title;
-                ViewData["VotingDescription"] = voting.Description;
-                ViewData["ImageData"] = voting.ImageData ?? string.Empty;
-                ViewData["StartDate"] = voting.StartDate.ToString("HH:mm, dd.MM.yyyy");
-                ViewData["EndDate"] = voting.EndDate.ToString("HH:mm, dd.MM.yyyy");
-                ViewData["RegistrationStoreSaveRegUrl"] = _regUrl + "saveRegistrationDetails";
-                ViewData["TokenCount"] = _tokenCount;
-                ViewData["VotingId"] = votingId;
+                var voting = await _votingManager.GetById(votingId);
+                if (voting != null)
+                {
+                    ViewData["RegistrationStoreId"] = Guid.NewGuid().ToString("D");
+                    ViewData["VotingTitle"] = voting.Title;
+                    ViewData["VotingDescription"] = voting.Description;
+                    ViewData["ImageData"] = voting.ImageData ?? string.Empty;
+                    ViewData["StartDate"] = voting.StartDate.ToString("HH:mm, dd.MM.yyyy");
+                    ViewData["EndDate"] = voting.EndDate.ToString("HH:mm, dd.MM.yyyy");
+                    ViewData["RegistrationStoreSaveRegUrl"] = _regUrl + "saveRegistrationDetails";
+                    ViewData["TokenCount"] = _tokenCount;
+                    ViewData["VotingId"] = votingId;
+                }
+
+                ViewData["ErrorTitle"] = _GetErrorTitle(reason);
+                ViewData["ErrorMessage"] = _GetErrorMessage(reason);
+
+                return View();
             }
+            catch (Exception)
+            {
+                // TODO logging
+                ViewData["ErrorTitle"] = _GetErrorTitle(reason);
+                ViewData["ErrorMessage"] = _GetErrorMessage(reason);
 
-            ViewData["ErrorTitle"] = reason.Equals("duplicate", StringComparison.OrdinalIgnoreCase)
-                ? "Bereits registriert"
-                : "Fehler beim Identitätsnachweis";
-            ViewData["ErrorMessage"] = reason.Equals("duplicate", StringComparison.OrdinalIgnoreCase)
-                ? "Sie haben sich für diese Wahl bereits registriert. Eine erneute Registrierung ist nicht möglich."
-                : "Beim Verarbeiten der Handysignatur ist es zu einem unerwarteten Fehler gekommen. Wenn dieser Fehler erneut auftritt, kontaktieren Sie bitte den Administrator/die Administratorin Ihrer Wahl.";
+                return View();
+            }
+        }
 
-            return View();
+        private static string _GetErrorTitle(string reason)
+        {
+            if (reason.Equals("duplicate", StringComparison.OrdinalIgnoreCase))
+                return "Bereits registriert";
+            if (reason.Equals("smsVerificationFailed"))
+                return "Ungültiger Verifikationscode";
+            return "Fehler beim Identitätsnachweis";
+        }
+
+        private static string _GetErrorMessage(string reason)
+        {
+            if (reason.Equals("duplicate", StringComparison.OrdinalIgnoreCase))
+                return "Sie haben sich für diese Wahl bereits registriert. Eine erneute Registrierung ist nicht möglich.";
+            if (reason.Equals("smsVerificationFailed"))
+                return "Der eingegebene Verifikationscode ist nicht korrekt. Bitte registrieren Sie sich noch einmal!";
+            return "Beim Verarbeiten des Identitätsnachweises ist es zu einem unerwarteten Fehler gekommen. Wenn dieser Fehler erneut auftritt, kontaktieren Sie bitte den Administrator/die Administratorin Ihrer Wahl.";
         }
 
 
@@ -305,7 +364,8 @@ namespace FreieWahl.Controllers
                     x.VoterName,
                     x.VoterIdentity,
                     RegistrationId = x.Id,
-                    Date = x.RegistrationTime.ToSecondsSinceEpoch()
+                    Date = x.RegistrationTime.ToSecondsSinceEpoch(),
+                    RegistrationType = (int)x.RegistrationType
                 }
             ).ToArray();
 

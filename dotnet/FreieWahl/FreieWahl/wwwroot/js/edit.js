@@ -604,10 +604,10 @@ const Edit = (function () {
             return;
 
         let regType = 0;
-        if ($('#checkIdentificationTypeHandySig').prop("checked") === true) {
+        if (document.getElementById('checkIdentificationTypeHandySig').checked === true) {
             regType = regType + 1;
         }
-        if ($('#checkIdentificationTypeSms').prop("checked") === true) {
+        if (document.getElementById('checkIdentificationTypeSms').checked === true) {
             regType = regType + 2;
         }
 
@@ -758,11 +758,15 @@ const Registration = (function () {
         mRegistrations = registrations;
         for (let i = 0; i < registrations.length; i++) {
             const registration = registrations[i];
-            const item =
+            let item =
                 `<div class="d-flex mx-3 my-0 border-bottom openRegistrationItem" id="openreg-${registration.registrationId}"><div style="flex:1;margin-right:1rem">${registration.voterName}</div>\n` +
                 `<button tabindex="${3 * i}" type="button" class="btn fw-registration-item-button fwBtnGrantRegistration" data-registration-id="${registration.registrationId}"><i class="material-icons">check_circle_outline</i></button>\n` +
-                `<button tabindex="${1 + 3 * i}" type="button" class="btn fw-registration-item-button fwBtnDenyRegistration" data-registration-id="${registration.registrationId}"><i class="material-icons mx-1">block</i></button>\n` +
-                `<a tabindex="${2 + 3 * i}" class="btn fw-registration-item-button fwBtnShowRegistrationDetails" data-toggle="popover" data-trigger="focus" data-registration-id="${registration.registrationId}" title="${registration.voterName}" data-content="<strong>Bürgerkarten-Id: </strong>${registration.voterIdentity}<br><strong>Registrierungsdatum: </strong>${formatDateTimeSeconds(registration.date)}"><i class="material-icons">info</i></a></div>`;
+                `<button tabindex="${1 + 3 * i}" type="button" class="btn fw-registration-item-button fwBtnDenyRegistration" data-registration-id="${registration.registrationId}"><i class="material-icons mx-1">block</i></button>\n`;
+
+            if(registration.registrationType === 1) // buergerkarte
+                item += `<a tabindex="${2 + 3 * i}" class="btn fw-registration-item-button fwBtnShowRegistrationDetails" data-toggle="popover" data-trigger="focus" data-registration-id="${registration.registrationId}" title="${registration.voterName}" data-content="<strong>Bürgerkarten-Id: </strong>${registration.voterIdentity}<br><strong>Registrierungsdatum: </strong>${formatDateTimeSeconds(registration.date)}"><i class="material-icons">info</i></a></div>`;
+            else // sms
+                item += `<a tabindex="${2 + 3 * i}" class="btn fw-registration-item-button fwBtnShowRegistrationDetails" data-toggle="popover" data-trigger="focus" data-registration-id="${registration.registrationId}" title="${registration.voterName}" data-content="<strong>Handynummer: </strong>${registration.voterIdentity}<br><strong>Registrierungsdatum: </strong>${formatDateTimeSeconds(registration.date)}"><i class="material-icons">phone_android</i></a></div>`;
 
             $(item).insertBefore('#openRegistrationsDivider');
         }

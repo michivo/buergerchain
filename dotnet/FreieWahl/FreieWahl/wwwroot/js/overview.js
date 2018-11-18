@@ -17,10 +17,10 @@
             return;
 
         let regType = 0;
-        if ($('#checkIdentificationTypeHandySig').prop("checked") === true) {
+        if (document.getElementById('checkIdentificationTypeHandySig').checked === true) {
             regType = regType + 1;
         }
-        if ($('#checkIdentificationTypeSms').prop("checked") === true) {
+        if (document.getElementById('checkIdentificationTypeSms').checked === true) {
             regType = regType + 2;
         }
 

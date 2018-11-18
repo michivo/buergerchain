@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using FreieWahl.Voting.Common;
 using Google.Cloud.Datastore.V1;
 using Google.Protobuf.WellKnownTypes;
 
@@ -69,6 +70,7 @@ namespace FreieWahl.Voting.Registrations
                 ["VoterId"] = openRegistration.VoterIdentity,
                 ["VoterName"] = openRegistration.VoterName,
                 ["RegistrationTime"] = Timestamp.FromDateTime(openRegistration.RegistrationTime),
+                ["RegistrationType"] = (int)openRegistration.RegistrationType
             };
         }
 
@@ -154,6 +156,7 @@ namespace FreieWahl.Voting.Registrations
                 VotingId = entity["VotingId"].StringValue,
                 VoterName = entity["VoterName"].StringValue,
                 RegistrationTime = entity["RegistrationTime"].TimestampValue.ToDateTime(),
+                RegistrationType = entity["RegistrationType"].IsNull ? RegistrationType.Buergerkarte : (RegistrationType)(int)entity["RegistrationType"].IntegerValue
             };
         }
 
