@@ -706,6 +706,15 @@ const Edit = (function () {
             function () { highlightImgSelector('voting', 'rgba(101, 127, 140, 0.5)'); },
             function () { resetImgSelector('voting', 'rgba(101, 127, 140, 0.5)'); }
         );
+
+        $("#checkIdentificationTypeSms").click(function () {
+            if ($(this).is(':checked')) {
+                $('#checkIdentificationTypeInfo').slideDown();
+            } else {
+                $('#checkIdentificationTypeInfo').hide();
+            }
+        });
+
     }
 
     return {
@@ -764,7 +773,7 @@ const Registration = (function () {
                 `<button tabindex="${1 + 3 * i}" type="button" class="btn fw-registration-item-button fwBtnDenyRegistration" data-registration-id="${registration.registrationId}"><i class="material-icons mx-1">block</i></button>\n`;
 
             if(registration.registrationType === 1) // buergerkarte
-                item += `<a tabindex="${2 + 3 * i}" class="btn fw-registration-item-button fwBtnShowRegistrationDetails" data-toggle="popover" data-trigger="focus" data-registration-id="${registration.registrationId}" title="${registration.voterName}" data-content="<strong>Bürgerkarten-Id: </strong>${registration.voterIdentity}<br><strong>Registrierungsdatum: </strong>${formatDateTimeSeconds(registration.date)}"><i class="material-icons">info</i></a></div>`;
+                item += `<a tabindex="${2 + 3 * i}" class="btn fw-registration-item-button fwBtnShowRegistrationDetails" data-toggle="popover" data-trigger="focus" data-registration-id="${registration.registrationId}" title="${registration.voterName}" data-content="<strong>Bürgerkarten-Id: </strong>${registration.voterIdentity}<br><strong>Registrierungsdatum: </strong>${formatDateTimeSeconds(registration.date)}"><i class="material-icons">account_box</i></a></div>`;
             else // sms
                 item += `<a tabindex="${2 + 3 * i}" class="btn fw-registration-item-button fwBtnShowRegistrationDetails" data-toggle="popover" data-trigger="focus" data-registration-id="${registration.registrationId}" title="${registration.voterName}" data-content="<strong>Handynummer: </strong>${registration.voterIdentity}<br><strong>Registrierungsdatum: </strong>${formatDateTimeSeconds(registration.date)}"><i class="material-icons">phone_android</i></a></div>`;
 

@@ -24,7 +24,7 @@ namespace FreieWahl.Application.Registrations
                 new BudgetSmsChallengeService(
                     configuration["BudgetSms:Username"],
                     configuration["BudgetSms:UserId"],
-                    configuration["BudgetSms:Handle"], true)
+                    configuration["BudgetSms:Handle"])
             };
         }
 

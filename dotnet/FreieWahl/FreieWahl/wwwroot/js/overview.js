@@ -221,6 +221,14 @@
                 function () { resetImgSelector('voting', 'rgba(101, 127, 140, 0.5)'); }
             );
 
+            $("#checkIdentificationTypeSms").click(function () {
+                if ($(this).is(':checked')) {
+                    $('#checkIdentificationTypeInfo').slideDown();
+                } else {
+                    $('#checkIdentificationTypeInfo').hide();
+                }
+            });
+
             $('.form-group.date').datepicker({
                 format: "dd.mm.yyyy",
                 autoclose: true,
