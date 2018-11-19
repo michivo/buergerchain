@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Net;
 using System.Threading.Tasks;
+using FreieWahl.Common;
 using FreieWahl.Voting.Registrations;
+using Microsoft.Extensions.Logging;
 
 namespace FreieWahl.Application.Registrations
 {
@@ -11,9 +13,11 @@ namespace FreieWahl.Application.Registrations
         private readonly string _userId;
         private readonly string _handle;
         private readonly string _apiUrl;
+        private readonly ILogger _logger;
 
         public BudgetSmsChallengeService(string userName, string userId, string handle, bool isTestService = false)
         {
+            _logger = LogFactory.CreateLogger("Application.Registrations.BudgetSmsChallengeService");
             _userName = userName;
             _userId = userId;
             _handle = handle;
@@ -27,6 +31,7 @@ namespace FreieWahl.Application.Registrations
 
         public async Task SendChallenge(string recipient, string challenge, string votingName)
         {
+            _logger.LogInformation($"Sending challenge for voting {votingName} to {recipient}");
             recipient = _FixPhoneNumber(recipient);
             WebClient client = new WebClient();
             client.QueryString.Add("username", _userName);
@@ -42,6 +47,7 @@ namespace FreieWahl.Application.Registrations
             client.QueryString.Add("price", "1");
             client.QueryString.Add("credit", "1");
             var result = await client.DownloadStringTaskAsync(_apiUrl);
+            _logger.LogInformation($"Result for sending SMS: {result}");
             if (!result.StartsWith("OK", StringComparison.OrdinalIgnoreCase))
                 throw new ArgumentException("Fehler beim Senden der SMS: " + result);
         }
