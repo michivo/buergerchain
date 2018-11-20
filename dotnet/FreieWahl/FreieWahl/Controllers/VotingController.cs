@@ -38,6 +38,10 @@ namespace FreieWahl.Controllers
         public async Task<IActionResult> Register(string votingId)
         {
             var voting = await _votingManager.GetById(votingId);
+            if (voting == null)
+            {
+                return BadRequest("Ungültige Abstimmungs-ID " + votingId);
+            }
             ViewData["VotingId"] = votingId;
             ViewData["RegistrationStoreId"] = Guid.NewGuid().ToString("D");
             ViewData["VotingTitle"] = voting.Title;
