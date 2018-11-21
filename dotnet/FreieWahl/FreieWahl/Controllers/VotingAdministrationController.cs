@@ -9,6 +9,7 @@ using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
 using FreieWahl.Application.Registrations;
+using FreieWahl.Application.Tracking;
 using FreieWahl.Application.Voting;
 using FreieWahl.Application.VotingResults;
 using FreieWahl.Common;
@@ -17,6 +18,7 @@ using FreieWahl.Mail;
 using FreieWahl.Security.Signing.VotingTokens;
 using FreieWahl.UserData.Store;
 using FreieWahl.Voting.Common;
+using Microsoft.AspNetCore.Http;
 
 namespace FreieWahl.Controllers
 {
@@ -30,6 +32,8 @@ namespace FreieWahl.Controllers
         private readonly IRemoteTokenStore _remoteTokenStore;
         private readonly IUserDataStore _userDataStore;
         private readonly IVotingResultManager _votingResults;
+        private readonly ITracker _tracker;
+        private readonly IHttpContextAccessor _accessor;
 
 
         public VotingAdministrationController(
@@ -39,7 +43,9 @@ namespace FreieWahl.Controllers
             IAuthorizationHandler authorizationHandler,
             IRemoteTokenStore remoteTokenStore, 
             IUserDataStore userDataStore,
-            IVotingResultManager votingResults)
+            IVotingResultManager votingResults,
+            ITracker tracker,
+            IHttpContextAccessor accessor)
         {
             _votingManager = votingManager;
             _mailProvider = mailProvider;
@@ -48,10 +54,17 @@ namespace FreieWahl.Controllers
             _remoteTokenStore = remoteTokenStore;
             _userDataStore = userDataStore;
             _votingResults = votingResults;
+            _tracker = tracker;
+            _accessor = accessor;
         }
 
         public async Task<IActionResult> Overview()
         {
+#pragma warning disable CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
+            _tracker.Track("/Overview", _accessor.HttpContext.Connection.RemoteIpAddress.ToString()); // not awaited intentionally. tracking should not slow us down
+#pragma warning restore CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
+
+
             var auth = await _GetUserForGetRequest(Operation.List);
 
             if (auth.IsAuthorized == false)

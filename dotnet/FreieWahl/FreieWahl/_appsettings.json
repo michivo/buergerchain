@@ -13,7 +13,8 @@
       "ServiceName": "TODO SERVICE NAME",
       "Version": "1.0.0"
     },
-    "RecaptchaKey": "TODO RECAPTCHA KEY FOR CONTACT FORM"
+    "RecaptchaKey": "TODO RECAPTCHA KEY FOR CONTACT FORM",
+    "TrackingId": "TODO OPTIONAL TRACKING ID IF YOU WANT TO USE TRACKING"
   },
   "JwtAuthentication": {
     "PublicKeyUrl": "https://www.googleapis.com/identitytoolkit/v3/relyingparty/publicKeys",

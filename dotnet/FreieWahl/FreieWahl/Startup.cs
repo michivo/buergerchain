@@ -5,6 +5,7 @@ using System.IO;
 using System.Security.Cryptography.X509Certificates;
 using FreieWahl.Application.Authentication;
 using FreieWahl.Application.Registrations;
+using FreieWahl.Application.Tracking;
 using FreieWahl.Application.Voting;
 using FreieWahl.Application.VotingResults;
 using FreieWahl.Common;
@@ -21,8 +22,10 @@ using FreieWahl.Voting.Registrations;
 using FreieWahl.Voting.Storage;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Logging;
 using Org.BouncyCastle.OpenSsl;
 
@@ -52,6 +55,7 @@ namespace FreieWahl
             services.AddMvc();
 
             services.AddLocalization(opts => { opts.ResourcesPath = "Resources"; });
+            services.AddHttpContextAccessor();
 
             // Enables Stackdriver Trace.
             services.AddGoogleTrace(options => options.ProjectId = projectId);
@@ -100,6 +104,8 @@ namespace FreieWahl
             services.AddSingleton<IVotingChainBuilder, VotingChainBuilder>();
             //services.AddSingleton<IVotingResultStore>(p => new VotingResultStore(Configuration["Datastore:ProjectId"]));
             services.AddSingleton<IVotingResultStore>(p => new VotingResultFireStore(Configuration["Google:ProjectId"]));
+            services.TryAddSingleton<IActionContextAccessor, ActionContextAccessor>();
+            services.AddSingleton<ITracker>(p => new GoogleAnalyticsTracker(Configuration["Google:TrackingId"]));
 
             services.AddSingleton<IVotingManager, VotingManager>();
             services.AddSingleton<ISessionCookieProvider>(p =>

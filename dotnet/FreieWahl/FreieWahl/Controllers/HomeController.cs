@@ -4,6 +4,7 @@ using System.Net.Http;
 using System.Threading.Tasks;
 using FreieWahl.Application.Authentication;
 using FreieWahl.Application.Registrations;
+using FreieWahl.Application.Tracking;
 using FreieWahl.Helpers;
 using FreieWahl.Mail;
 using Microsoft.AspNetCore.Hosting;
@@ -26,6 +27,8 @@ namespace FreieWahl.Controllers
         private readonly ISessionCookieProvider _sessionCookieProvider;
         private readonly IMailProvider _mailProvider;
         private readonly IHostingEnvironment _env;
+        private readonly ITracker _tracker;
+        private readonly IHttpContextAccessor _accessor;
         private readonly string _privateKey;
 
         public HomeController(ILogger<HomeController> logger,
@@ -33,19 +36,27 @@ namespace FreieWahl.Controllers
             ISessionCookieProvider sessionCookieProvider,
             IMailProvider mailProvider,
             IHostingEnvironment env,
-            IConfiguration configuration)
+            IConfiguration configuration,
+            ITracker tracker,
+            IHttpContextAccessor accessor)
         {
             _logger = logger;
             _authorizationHandler = authorizationHandler;
             _sessionCookieProvider = sessionCookieProvider;
             _mailProvider = mailProvider;
             _env = env;
+            _tracker = tracker;
+            _accessor = accessor;
             _privateKey = configuration["Google:RecaptchaKey"];
         }
 
         public async Task<IActionResult> Index(string source)
         {
             _logger.LogInformation("Home page hit!");
+#pragma warning disable CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
+            _tracker.Track("/Index", _accessor.HttpContext.Connection.RemoteIpAddress.ToString()); // not awaited intentionally. tracking should not slow us down
+#pragma warning restore CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
+
             if (source == "logout")
             {
                 Response.Cookies.Delete("session");
