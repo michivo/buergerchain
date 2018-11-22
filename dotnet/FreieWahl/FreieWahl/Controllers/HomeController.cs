@@ -54,7 +54,7 @@ namespace FreieWahl.Controllers
         {
             _logger.LogInformation("Home page hit!");
 #pragma warning disable CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
-            _tracker.Track("/Index", _accessor.HttpContext.Connection.RemoteIpAddress.ToString()); // not awaited intentionally. tracking should not slow us down
+            _TrackVisit();
 #pragma warning restore CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
 
             if (source == "logout")
@@ -71,6 +71,20 @@ namespace FreieWahl.Controllers
             }
 
             return View();
+        }
+
+        private void _TrackVisit()
+        {
+            try
+            {
+                _tracker.Track("/Index", _accessor.HttpContext.Connection.RemoteIpAddress.ToString(),
+                    Request.Headers["User-Agent"]
+                        .ToString()); // not awaited intentionally. tracking should not slow us down
+            }
+            catch (Exception)
+            {
+                // silent catch...
+            }
         }
 
         [HttpPost]

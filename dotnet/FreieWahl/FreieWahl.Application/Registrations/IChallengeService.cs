@@ -7,7 +7,7 @@ namespace FreieWahl.Application.Registrations
     {
         string GetStandardizedRecipient(string recipient);
 
-        Task SendChallenge(string recipient, string challenge, string votingName);
+        Task SendChallenge(string recipient, string challenge, string votingName, string votingId);
 
         ChallengeType SupportedChallengeType { get; }
     }

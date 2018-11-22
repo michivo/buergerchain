@@ -60,10 +60,7 @@ namespace FreieWahl.Controllers
 
         public async Task<IActionResult> Overview()
         {
-#pragma warning disable CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
-            _tracker.Track("/Overview", _accessor.HttpContext.Connection.RemoteIpAddress.ToString()); // not awaited intentionally. tracking should not slow us down
-#pragma warning restore CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
-
+            _TrackVisit("Overview");
 
             var auth = await _GetUserForGetRequest(Operation.List);
 
@@ -79,6 +76,20 @@ namespace FreieWahl.Controllers
                 Initials = _GetInitials(auth.User.Name)
             };
             return View(model);
+        }
+
+        private void _TrackVisit(string path)
+        {
+            try
+            {
+                _tracker.Track(path, _accessor.HttpContext.Connection.RemoteIpAddress.ToString(),
+                    Request.Headers["User-Agent"]
+                        .ToString()); // not awaited intentionally. tracking should not slow us down
+            }
+            catch (Exception)
+            {
+                // silent catch...
+            }
         }
 
         private Task<AuthenticationResult> _GetUserForGetRequest(Operation operation, string id = null)

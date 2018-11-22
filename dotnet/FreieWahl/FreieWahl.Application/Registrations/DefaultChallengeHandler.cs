@@ -2,6 +2,7 @@
 using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
+using FreieWahl.Application.Tracking;
 using FreieWahl.Voting.Models;
 using FreieWahl.Voting.Registrations;
 using Microsoft.Extensions.Configuration;
@@ -15,13 +16,14 @@ namespace FreieWahl.Application.Registrations
         private readonly IChallengeService[] _challengeServices;
 
         public DefaultChallengeHandler(IChallengeStore challengeStore,
-            IConfiguration configuration)
+            IConfiguration configuration,
+            ITracker tracker)
         {
             _challengeStore = challengeStore;
             _random = new Random();
             _challengeServices = new IChallengeService[]
             {
-                new BudgetSmsChallengeService(
+                new BudgetSmsChallengeService(tracker,
                     configuration["BudgetSms:Username"],
                     configuration["BudgetSms:UserId"],
                     configuration["BudgetSms:Handle"])
@@ -49,7 +51,7 @@ namespace FreieWahl.Application.Registrations
             };
 
             await Task.WhenAll(
-                challengeService.SendChallenge(challenge.RecipientAddress, value, voting.Title),
+                challengeService.SendChallenge(challenge.RecipientAddress, value, voting.Title, voting.Id),
                 _challengeStore.SetChallenge(challenge)).ConfigureAwait(false);
         }
 

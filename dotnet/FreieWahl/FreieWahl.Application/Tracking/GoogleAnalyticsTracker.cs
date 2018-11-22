@@ -2,7 +2,6 @@
 using System.Net.Http;
 using System.Threading.Tasks;
 using System.Web;
-using Microsoft.AspNetCore.Http;
 
 namespace FreieWahl.Application.Tracking
 {
@@ -17,7 +16,7 @@ namespace FreieWahl.Application.Tracking
             _client = new HttpClient();
         }
 
-        public Task Track(string path, string clientId)
+        public Task Track(string path, string clientId, string userAgent)
         {
             try
             {
@@ -34,6 +33,22 @@ namespace FreieWahl.Application.Tracking
             {
                 return Task.CompletedTask;
             }
+        }
+
+        public Task TrackSpending(string votingId, string cost)
+        {
+            try
+            {
+                string postData = $"v=1&t=item&tid={_trackingId}&cid={votingId}&ti={Guid.NewGuid():N}&in=SMS&ip={cost}&cu=EUR";
+
+                return _client.PostAsync("https://www.google-analytics.com/collect", new StringContent(postData));
+            }
+            catch (Exception)
+            {
+                return Task.CompletedTask;
+            }
+
+            
         }
     }
 }
