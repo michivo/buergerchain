@@ -224,8 +224,10 @@
         $(`#submit-question-${index}`).addClass("disabled");
         $(`#abstain-question-${index}`).addClass("disabled");
         $(`#submit-question-${index}`).text("Übertrage...");
-        const selected = $(`#answer-list-${index} :checked`).val();
-        const answerIds = [selected];
+        const answerIds = [];
+        $(`#answer-list-${index} :checked`).each(function () {
+            answerIds.push($(this).val());
+        });
 
         const indexVal = parseInt(index);
         submitVote(indexVal, answerIds);
