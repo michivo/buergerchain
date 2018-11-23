@@ -49,7 +49,7 @@ const Edit = (function () {
             var formattedCsv = Papa.unparse(jsonArray, { delimiter: ";", encoding: "UTF-8" });
             var encodedUri = 'data:application/csv;charset=utf-8,' + encodeURIComponent(formattedCsv);
             this.href = encodedUri;
-            this.download = 'tableData.csv';
+            this.download = 'tableData_${mVotingId}_question${questionIndex}.csv';
             this.target = '_blank';
         });
         $(`#fw-chart-export-png-${questionIndex}`).click(function () {
@@ -57,7 +57,7 @@ const Edit = (function () {
                 const innerChart = chart.getChart();
                 const imageData = innerChart.getImageURI();
                 this.href = imageData;
-                this.download = 'resultGraph.png';
+                this.download = `resultGraph_${mVotingId}_question${questionIndex}.png`;
                 this.target = '_blank';
             }
         });
