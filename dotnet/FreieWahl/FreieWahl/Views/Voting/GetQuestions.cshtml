@@ -3,20 +3,19 @@
 
 @model QuestionData
 
-@if (!Model.Questions.Any())
-{
-    <h3 class="text-primary mt-3">Derzeit keine offenen Fragen...</h3>
+@{
+    string collapseClass = Model.Questions.Length > 1 ? string.Empty : "show";
+    var questionsAvailable = false;
 }
-
-@{ string collapseClass = Model.Questions.Length > 1 ? string.Empty : "show"; }
 
 @foreach (var question in Model.Questions)
 {
-    if (question.AnswerStatus == VotingQuestionStatus.Open)
+    if (question.AnswerStatus == VotingQuestionStatus.Open && question.Question.Status == QuestionStatus.OpenForVoting)
     {
+        questionsAvailable = true;
         if (question.Question.Type == QuestionType.Decision)
         {
-            @await Html.PartialAsync("_VoteDecisionQuestion", question.Question, new ViewDataDictionary(ViewData) { {"CollapseClass", collapseClass} })
+            @await Html.PartialAsync("_VoteDecisionQuestion", question.Question, new ViewDataDictionary(ViewData) { { "CollapseClass", collapseClass } })
         }
         else if (question.Question.Type == QuestionType.Ordering)
         {
@@ -27,8 +26,9 @@
             @await Html.PartialAsync("_VoteMultipleChoiceQuestion", question.Question, new ViewDataDictionary(ViewData) { { "CollapseClass", collapseClass } })
         }
     }
-    else
+    else if (question.AnswerStatus == VotingQuestionStatus.Answered)
     {
+        questionsAvailable = true;
         if (question.Question.Type == QuestionType.Decision)
         {
             @await Html.PartialAsync("_AnsweredDecisionQuestion", question, new ViewDataDictionary(ViewData) { { "CollapseClass", collapseClass } })
@@ -41,5 +41,17 @@
         {
             @await Html.PartialAsync("_AnsweredMultipleChoiceQuestion", question, new ViewDataDictionary(ViewData) { { "CollapseClass", collapseClass } })
         }
+    }
+}
+
+@if (!questionsAvailable)
+{
+    if (Model.DeadlinePassed)
+    {
+        <h3 class="text-primary mt-3">Die Abstimmung ist bereits abgeschlossen.</h3>
+    }
+    else
+    {
+        <h3 class="text-primary mt-3">Derzeit keine offenen Fragen...</h3>
     }
 }

@@ -15,7 +15,10 @@
    version="1.1"
    id="svg8"
    inkscape:version="0.92.3 (2405546, 2018-03-11)"
-   sodipodi:docname="logo_lightbg.svg">
+   sodipodi:docname="logo_darkbg_trans.svg"
+   inkscape:export-filename="D:\buergerchain\Design\logo_darkbg.png"
+   inkscape:export-xdpi="599.25757"
+   inkscape:export-ydpi="599.25757">
   <defs
      id="defs2" />
   <sodipodi:namedview
@@ -26,20 +29,20 @@
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
      inkscape:zoom="3.959798"
-     inkscape:cx="-14.960661"
-     inkscape:cy="55.603429"
+     inkscape:cx="82.637463"
+     inkscape:cy="35.400341"
      inkscape:document-units="mm"
-     inkscape:current-layer="layer2"
+     inkscape:current-layer="layer1"
      showgrid="false"
      inkscape:window-width="1920"
      inkscape:window-height="1017"
-     inkscape:window-x="-8"
+     inkscape:window-x="1912"
      inkscape:window-y="-8"
      inkscape:window-maximized="1"
-     fit-margin-left="0.1"
      fit-margin-top="0.1"
-     fit-margin-bottom="0.1"
-     fit-margin-right="0.1" />
+     fit-margin-left="0.1"
+     fit-margin-right="0.1"
+     fit-margin-bottom="0.1" />
   <metadata
      id="metadata5">
     <rdf:RDF>
@@ -63,7 +66,7 @@
      id="layer1"
      transform="translate(0.18229167,-280.61774)">
     <rect
-       style="fill:#657f8c;fill-opacity:1;stroke:#657f8c;stroke-width:0.26458332;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;paint-order:fill markers stroke"
+       style="fill:#657f8c;fill-opacity:0;stroke:#ffffff;stroke-width:0.26458332;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;paint-order:fill markers stroke;opacity:1"
        id="rect833"
        width="28.900002"
        height="16.1"
@@ -72,7 +75,7 @@
        rx="1.9999995"
        ry="2" />
     <rect
-       style="fill:#fffffd;fill-opacity:1;stroke:#657f8c;stroke-width:0.26458332;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;paint-order:fill markers stroke"
+       style="fill:#fffffd;fill-opacity:1;stroke:#ffffff;stroke-width:0.26458332;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;paint-order:fill markers stroke;opacity:1"
        id="rect844"
        width="24.999998"
        height="16.1"
@@ -88,7 +91,7 @@
      transform="translate(0.18229167,-280.61774)">
     <g
        aria-label="freie Wahl"
-       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:10.58333302px;line-height:1.25;font-family:Roboto;-inkscape-font-specification:Roboto;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.26458332"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:10.58333302px;line-height:1.25;font-family:Roboto;-inkscape-font-specification:Roboto;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.26458332;opacity:1"
        id="text817">
       <path
          d="m 2.3319905,292.89606 v -4.49585 H 1.5 v -1.09554 h 0.8319905 v -0.47543 q 0,-0.94051 0.5374349,-1.45727 0.5426025,-0.52193 1.5141194,-0.52193 0.3100586,0 0.7596435,0.10335 l -0.015503,1.15755 q -0.1860352,-0.0465 -0.4547526,-0.0465 -0.8423258,0 -0.8423258,0.79065 v 0.44959 h 1.1110432 v 1.09554 H 3.830607 v 4.49585 z"

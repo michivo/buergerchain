@@ -64,11 +64,6 @@ namespace FreieWahl.Controllers
                 return BadRequest("Die Abstimmung existiert nicht.");
             }
 
-            if (voting.State == VotingState.Closed)
-            {
-                return BadRequest("In dieser Abstimmung kann nicht mehr abgestimmt werden!");
-            }
-
             if (DateTime.UtcNow < voting.StartDate)
             {
                 return BadRequest("In dieser Abstimmung kann noch nicht abgestimmt werden!");
@@ -161,7 +156,8 @@ namespace FreieWahl.Controllers
 
             var model = new QuestionData
             {
-                Questions = questions.Select(x => _MapToModel(x, votes)).ToArray()
+                Questions = questions.Select(x => _MapToModel(x, votes)).ToArray(),
+                DeadlinePassed = voting.State == VotingState.Closed
             };
 
             return PartialView(model);
