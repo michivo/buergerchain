@@ -12,11 +12,18 @@
         privacyPolicyUrl: "Home/Impressum#datenschutz",
         callbacks: {
             signInSuccessWithAuthResult: function (authResult, redirectUrl) {
-                $('#login-overlay-loading').removeClass("d-none");
                 // User successfully signed in.
-                // Return type determines whether we continue the redirect automatically
-                // or whether we leave that to developer to handle.
                 const loggedInUser = authResult.user;
+                if (loggedInUser.emailVerified === false) {
+                    loggedInUser.sendEmailVerification().then(function() {
+                        window.location.search = "requireMailAuth=true";
+                    });
+                    firebase.auth().signOut();
+                    return false;
+                }
+
+                $('#fw-confirm-mail').addClass("d-none");
+                $('#login-overlay-loading').removeClass("d-none");
 
                 loggedInUser.getIdToken(true).then(function (idToken) {
                     $.ajax({

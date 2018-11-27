@@ -50,12 +50,16 @@ namespace FreieWahl.Controllers
             _privateKey = configuration["Google:RecaptchaKey"];
         }
 
-        public async Task<IActionResult> Index(string source)
+        public async Task<IActionResult> Index(string source, bool requireMailAuth)
         {
             _logger.LogInformation("Home page hit!");
 #pragma warning disable CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
             _TrackVisit();
 #pragma warning restore CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
+            if (requireMailAuth)
+            {
+                ViewData["RequireMailAuth"] = true;
+            }
 
             if (source == "logout")
             {
