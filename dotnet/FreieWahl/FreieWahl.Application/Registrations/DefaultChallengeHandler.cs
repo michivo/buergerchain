@@ -16,17 +16,15 @@ namespace FreieWahl.Application.Registrations
         private readonly IChallengeService[] _challengeServices;
 
         public DefaultChallengeHandler(IChallengeStore challengeStore,
-            IConfiguration configuration,
-            ITracker tracker)
+            IConfiguration configuration)
         {
             _challengeStore = challengeStore;
             _random = new Random();
             _challengeServices = new IChallengeService[]
             {
-                new BudgetSmsChallengeService(tracker,
-                    configuration["BudgetSms:Username"],
-                    configuration["BudgetSms:UserId"],
-                    configuration["BudgetSms:Handle"])
+                new TwilioChallengeService(
+                    configuration["Twilio:UserId"],
+                    configuration["Twilio:UserKey"])
             };
         }
 

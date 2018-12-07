@@ -6,6 +6,7 @@
 
   <ItemGroup>
     <PackageReference Include="FirebaseAdmin" Version="1.0.0" />
+    <PackageReference Include="Twilio" Version="5.23.0" />
   </ItemGroup>
 
   <ItemGroup>
