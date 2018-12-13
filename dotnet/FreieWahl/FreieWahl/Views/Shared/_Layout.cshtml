@@ -5,7 +5,20 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>@ViewData["Title"] FreieWahl</title>
     <meta name="description" content="Führen Sie in Ihrer Organisation (Verein, Partei, Genossenschaft, ...) kostenlos, einfach und schnell sichere Wahlen und Abstimmungen durch."/>
-
+    
+    <script>
+        if (document.cookie.indexOf('ga-disable-UA-36460218-3=true') > -1) {
+            window['ga-disable-UA-36460218-3'] = true;
+        } else {
+            window.ga = window.ga || function() { (ga.q = ga.q || []).push(arguments) };
+            ga.l = +new Date;
+            ga('create', 'UA-36460218-3', 'auto');
+            ga('set', 'anonymizeIp', true);
+            ga('send', 'pageview');
+        }
+    </script>
+    <script async src='https://www.google-analytics.com/analytics.js'></script>
+    
     <environment names="Development">
         <link rel="stylesheet" href="~/css/freiewahl.css" asp-append-version="true" />
 

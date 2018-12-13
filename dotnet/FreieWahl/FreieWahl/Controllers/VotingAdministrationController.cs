@@ -32,8 +32,6 @@ namespace FreieWahl.Controllers
         private readonly IRemoteTokenStore _remoteTokenStore;
         private readonly IUserDataStore _userDataStore;
         private readonly IVotingResultManager _votingResults;
-        private readonly ITracker _tracker;
-        private readonly IHttpContextAccessor _accessor;
 
 
         public VotingAdministrationController(
@@ -43,9 +41,7 @@ namespace FreieWahl.Controllers
             IAuthorizationHandler authorizationHandler,
             IRemoteTokenStore remoteTokenStore, 
             IUserDataStore userDataStore,
-            IVotingResultManager votingResults,
-            ITracker tracker,
-            IHttpContextAccessor accessor)
+            IVotingResultManager votingResults)
         {
             _votingManager = votingManager;
             _mailProvider = mailProvider;
@@ -54,14 +50,10 @@ namespace FreieWahl.Controllers
             _remoteTokenStore = remoteTokenStore;
             _userDataStore = userDataStore;
             _votingResults = votingResults;
-            _tracker = tracker;
-            _accessor = accessor;
         }
 
         public async Task<IActionResult> Overview()
         {
-            _TrackVisit("Overview");
-
             var auth = await _GetUserForGetRequest(Operation.List);
 
             if (auth.IsAuthorized == false)
@@ -76,20 +68,6 @@ namespace FreieWahl.Controllers
                 Initials = _GetInitials(auth.User.Name)
             };
             return View(model);
-        }
-
-        private void _TrackVisit(string path)
-        {
-            try
-            {
-                _tracker.Track(path, _accessor.HttpContext.Connection.RemoteIpAddress.ToString(),
-                    Request.Headers["User-Agent"]
-                        .ToString()); // not awaited intentionally. tracking should not slow us down
-            }
-            catch (Exception)
-            {
-                // silent catch...
-            }
         }
 
         private Task<AuthenticationResult> _GetUserForGetRequest(Operation operation, string id = null)

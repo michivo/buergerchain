@@ -1,4 +1,10 @@
-﻿function isEmpty(str) {
+﻿function gaOptout() {
+    var disableStr = 'ga-disable-UA-36460218-3';
+    document.cookie = disableStr + '=true; expires=Thu, 31 Dec 2099 23:59:59 UTC; path=/';
+    window['ga-disable-UA-36460218-3'] = true;
+}
+
+function isEmpty(str) {
     return (!str || 0 === str.length || str === '0');
 }
 
