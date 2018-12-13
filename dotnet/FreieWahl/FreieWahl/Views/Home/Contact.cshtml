@@ -64,7 +64,7 @@
 
         $(document).ready(function() {
 
-            $("#contact-form").submit(function () {
+            $("#contact-form").submit(function (e) {
                 $('#button-submit-contact').fadeOut();
                 $.ajax({
                     type: "POST",
@@ -77,7 +77,7 @@
                         $('#alert-message-error').removeClass('d-none');
                     }
                 });
-                e.preventDefault(); // avoid to execute the actual submit of the form
+                e.preventDefault();
             });
 
         });
