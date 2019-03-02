@@ -27,4 +27,5 @@ It is intentionally separated from the *tokenstore* to make sure that data linke
 
 ## Further reading
 - [Documentation of the blockchain-like datastructure used to store voting results](storage.md)
+- [Documentation of the voting token technique used to guarantee voter anonymity](tokens.md)
 - [Documentation of the 'Handysignatur Proxy' used in the project](dev_support/README.md) - In order to locally test the 'Handysignatur', it is required to jump through some hoops. This small utility should make it a bit easier to do so.
