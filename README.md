@@ -38,9 +38,6 @@ A voter is a person eligible to partake in a voting. The voter is invited by the
 ### Voting tokens
 When a voter registers for a voting and the registration is granted, a list of *voting tokens* is created. These tokens are unique, random character strings that are used when casting a vote. The voting tokens are used to make sure that only 
 
-### Tokenstore
-The part of the application
-
 ## Voting process
 The voting process works as follows:
 A voting is created by the voting administrator. A list of 100 RSA key pairs are created in the main application. The key pairs have indices running from 0 to 99, each key pair corresponds to one question in the voting - for this reason, no more than 100 questions may be part of one voting.

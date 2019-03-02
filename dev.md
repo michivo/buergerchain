@@ -9,7 +9,7 @@ The application logic is implemented in Node.js, the data is stored in Google’
 The *tokenstore* does not provide a user interface, it only serves as an API for the client and server side of project *application*. 
 Once a voter registers for a voting, a set of so called tokens is generated that is later used when casting a vote. 
 These tokens and all data associated with them is stored and administered by project *tokenstore*. 
-The exact process of token generation, signing and validation is described (TODO).
+The exact process of token generation, signing and validation is described [here](tokens.md).
 
 ### Tools & environment
 - Node.js/npm
@@ -25,4 +25,6 @@ It is intentionally separated from the *tokenstore* to make sure that data linke
 - Visual Studio Community 2017
 - ASP.NET Core 2.1
 
-
+## Further reading
+- [Documentation of the blockchain-like datastructure used to store voting results](storage.md)
+- [Documentation of the 'Handysignatur Proxy' used in the project](dev_support/README.md) - In order to locally test the 'Handysignatur', it is required to jump through some hoops. This small utility should make it a bit easier to do so.
