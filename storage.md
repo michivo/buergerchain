@@ -28,7 +28,7 @@ and certum.pl .
 
 When voting results are presented to the user, a basic integrity check is run over the voting
 results, checking the integrity of the block chain. The user would immediately see if the voting
-results have been tampered with.
+results were tampered with.
 
 ## Implementation
 
