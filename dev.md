@@ -25,4 +25,6 @@ It is intentionally separated from the *tokenstore* to make sure that data linke
 - Visual Studio Community 2017
 - ASP.NET Core 2.1
 
-
+## Further reading
+- [Documentation of the blockchain-like datastructure used to store voting results](storage.md)
+- [Documentation of the 'Handysignatur Proxy' used in the project](dev_support/README.md) - In order to locally test the 'Handysignatur', it is required to jump through some hoops. This small utility should make it a bit easier to do so.
