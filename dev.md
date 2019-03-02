@@ -9,7 +9,7 @@ The application logic is implemented in Node.js, the data is stored in Google’
 The *tokenstore* does not provide a user interface, it only serves as an API for the client and server side of project *application*. 
 Once a voter registers for a voting, a set of so called tokens is generated that is later used when casting a vote. 
 These tokens and all data associated with them is stored and administered by project *tokenstore*. 
-The exact process of token generation, signing and validation is described (TODO).
+The exact process of token generation, signing and validation is described [here](tokens.md).
 
 ### Tools & environment
 - Node.js/npm
