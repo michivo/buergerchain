@@ -3,6 +3,9 @@ using FreieWahl.Voting.Registrations;
 
 namespace FreieWahl.Application.Registrations
 {
+    /// <summary>
+    /// For 
+    /// </summary>
     public interface IChallengeService
     {
         string GetStandardizedRecipient(string recipient);

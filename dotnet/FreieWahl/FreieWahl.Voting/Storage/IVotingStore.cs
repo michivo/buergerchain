@@ -4,6 +4,9 @@ using FreieWahl.Voting.Models;
 
 namespace FreieWahl.Voting.Storage
 {
+    /// <summary>
+    /// Stores votings and handles CRUD-operations for votings and question within these votings
+    /// </summary>
     public interface IVotingStore
     {
         Task Insert(StandardVoting voting);

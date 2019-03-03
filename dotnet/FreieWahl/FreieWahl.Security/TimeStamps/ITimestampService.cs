@@ -17,6 +17,12 @@ namespace FreieWahl.Security.TimeStamps
         /// <returns>a time stamp token issued by a time stamp authority</returns>
         Task<TimeStampToken> GetToken(byte[] data, bool checkCertificate = true);
 
+        /// <summary>
+        /// only used for testing purposes - checks if a timestamp is valid
+        /// </summary>
+        /// <param name="token">a timestamp token for some data</param>
+        /// <param name="data">some data</param>
+        /// <returns>checks if the timestamp is actually valid</returns>
         bool CheckTokenContent(TimeStampToken token, byte[] data);
     }
 }

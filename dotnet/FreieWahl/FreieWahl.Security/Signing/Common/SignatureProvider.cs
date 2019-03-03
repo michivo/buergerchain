@@ -10,6 +10,7 @@ namespace FreieWahl.Security.Signing.Common
         private readonly ISigner _signer;
         private readonly ISigner _verifier;
 
+        // for testing purposes only:
         #region KEY
         static string _key = @"-----BEGIN RSA PRIVATE KEY-----
 MIIEpAIBAAKCAQEAiLWVeZXCAodbPGprQm0QNKxi1hyIZM1Kd/Hpa1+WC5XIoGib
