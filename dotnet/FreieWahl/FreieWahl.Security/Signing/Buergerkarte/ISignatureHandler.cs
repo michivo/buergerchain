@@ -1,5 +1,8 @@
 ﻿namespace FreieWahl.Security.Signing.Buergerkarte
 {
+    /// <summary>
+    /// gets the data, signee and certificate that was used to create the given signed data
+    /// </summary>
     public interface ISignatureHandler
     {
         /// <summary>

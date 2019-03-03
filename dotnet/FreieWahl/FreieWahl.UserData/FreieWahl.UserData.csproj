@@ -4,10 +4,19 @@
     <TargetFramework>netstandard2.0</TargetFramework>
   </PropertyGroup>
 
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <NoWarn>1701;1702;1591</NoWarn>
+    <DocumentationFile>D:\Development\buergerchain\repo\buergerchain\dotnet\FreieWahl\FreieWahl.UserData\FreieWahl.UserData.xml</DocumentationFile>
+  </PropertyGroup>
+
   <ItemGroup>
     <PackageReference Include="Google.Cloud.Datastore.V1" Version="2.1.0" />
     <PackageReference Include="Google.Cloud.Firestore" Version="1.0.0-beta13" />
     <PackageReference Include="Google.Cloud.Storage.V1" Version="2.2.0" />
+    <PackageReference Include="Vsxmd" Version="1.4.1">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
+    </PackageReference>
   </ItemGroup>
 
   <ItemGroup>

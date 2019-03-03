@@ -1,0 +1,29 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>FreieWahl.UserData</name>
+    </assembly>
+    <members>
+        <member name="T:FreieWahl.UserData.Store.IUserDataStore">
+            <summary>
+            Stores additional user data (main user data like user name, mail, password, ... is handled by firebase auth).
+            Currently, this additional user data only consists of the user image.
+            </summary>
+        </member>
+        <member name="M:FreieWahl.UserData.Store.IUserDataStore.SaveUserImage(System.String,System.String)">
+            <summary>
+            Saves the image for a user
+            </summary>
+            <param name="userId">the user's id</param>
+            <param name="imageData">a string representation of the user image</param>
+            <returns>the future of this operation</returns>
+        </member>
+        <member name="M:FreieWahl.UserData.Store.IUserDataStore.GetUserImage(System.String)">
+            <summary>
+            gets the image for a user
+            </summary>
+            <param name="userId">the user's id</param>
+            <returns>the string representation of the user image</returns>
+        </member>
+    </members>
+</doc>

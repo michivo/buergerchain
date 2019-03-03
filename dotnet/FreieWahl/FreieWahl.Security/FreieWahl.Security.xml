@@ -1,0 +1,151 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>FreieWahl.Security</name>
+    </assembly>
+    <members>
+        <member name="T:FreieWahl.Security.Authentication.IJwtAuthentication">
+            <summary>
+            Interface for checking JWT authorization tokens, this is essential for the authentication process.
+            </summary>
+        </member>
+        <member name="M:FreieWahl.Security.Authentication.IJwtAuthentication.Initialize(System.String,System.String,System.String)">
+            <summary>
+            Initializes an instance of the token checker
+            </summary>
+            <param name="certUrl">url of the public keys used to sign the JWT tokens (e.g. https://www.googleapis.com/identitytoolkit/v3/relyingparty/publicKeys) - only tokens signed with one of the corresponding private keys are accepted</param>
+            <param name="issuer">issuer of the jwt token (e.g. https://session.firebase.google.com/freiewahl-application ) - only tokens with this issuer are accepted</param>
+            <param name="audience">valid audience for jwt tokens (e.g. freiewahl-application) - only tokens published for this audience will be accepted</param>
+            <returns>the future of this operation</returns>
+        </member>
+        <member name="M:FreieWahl.Security.Authentication.IJwtAuthentication.CheckToken(System.String)">
+            <summary>
+            checks if a given jwt token is valid (see prerequisites above)
+            </summary>
+            <param name="token">a token</param>
+            <returns>the validation result</returns>
+        </member>
+        <member name="T:FreieWahl.Security.Signing.Buergerkarte.ISignatureHandler">
+            <summary>
+            gets the data, signee and certificate that was used to create the given signed data
+            </summary>
+        </member>
+        <member name="M:FreieWahl.Security.Signing.Buergerkarte.ISignatureHandler.GetSignedContent(System.String)">
+            <summary>
+            gets the data, signee and certificate that was used to create the given signed data
+            </summary>
+            <param name="signedData">CMS signed data</param>
+            <returns>the decoded data from the CMS message, i.e. the signee id, signee name, signature certificate and the original data</returns>
+        </member>
+        <member name="T:FreieWahl.Security.Signing.Common.ISignatureProvider">
+            <summary>
+            signature provider, supports signing data - in the default implementation, SHA256withRSA is used for signing
+            </summary>
+        </member>
+        <member name="M:FreieWahl.Security.Signing.Common.ISignatureProvider.SignData(System.Byte[])">
+            <summary>
+            signs some data (typically using SHA256withRSA or something similar)
+            </summary>
+            <param name="data">some data</param>
+            <returns>signature for this data</returns>
+        </member>
+        <member name="M:FreieWahl.Security.Signing.Common.ISignatureProvider.IsSignatureValid(System.Byte[],System.Byte[])">
+            <summary>
+            only used in test code - checks if a signature is valid
+            </summary>
+            <param name="data">some data</param>
+            <param name="signature">the signature for this data</param>
+            <returns>true, if the signature is a valid signature for this data</returns>
+        </member>
+        <member name="T:FreieWahl.Security.Signing.VotingTokens.IVotingKeyStore">
+            <summary>
+            The voting key store stores the key pairs required for signing blinded voting tokens
+            </summary>
+        </member>
+        <member name="M:FreieWahl.Security.Signing.VotingTokens.IVotingKeyStore.StoreKeyPairs(System.String,System.Collections.Generic.Dictionary{System.Int32,Org.BouncyCastle.Crypto.AsymmetricCipherKeyPair})">
+            <summary>
+            Stores a list of private/public key pairs
+            </summary>
+            <param name="votingId">the voting id the list of key pairs belongs to</param>
+            <param name="keys">a list of keys - the key is the question index for a key pair, the value is the key pair that is stored</param>
+            <returns>the future of this operation</returns>
+        </member>
+        <member name="M:FreieWahl.Security.Signing.VotingTokens.IVotingKeyStore.GetKeyPair(System.String,System.Int32)">
+            <summary>
+            gets the key pair for the given voting id and question index
+            </summary>
+            <param name="votingId">a voting id</param>
+            <param name="index">the question index</param>
+            <returns>the key pair for the given voting id and question index</returns>
+        </member>
+        <member name="T:FreieWahl.Security.TimeStamps.ITimestampService">
+            <summary>
+            Service for processing time stamp requests according to RFC 3161.
+            </summary>
+        </member>
+        <member name="M:FreieWahl.Security.TimeStamps.ITimestampService.GetToken(System.Byte[],System.Boolean)">
+            <summary>
+            A hash is calculated for the given data, a time stamp token with a timestamp
+            from a trusted time stamp authority is returned.
+            </summary>
+            <param name="data">the data for which a time stamp should be created</param>
+            <param name="checkCertificate">flag whether the certficate used to create the time stamp should be verified, too</param>
+            <returns>a time stamp token issued by a time stamp authority</returns>
+        </member>
+        <member name="M:FreieWahl.Security.TimeStamps.ITimestampService.CheckTokenContent(Org.BouncyCastle.Tsp.TimeStampToken,System.Byte[])">
+            <summary>
+            only used for testing purposes - checks if a timestamp is valid
+            </summary>
+            <param name="token">a timestamp token for some data</param>
+            <param name="data">some data</param>
+            <returns>checks if the timestamp is actually valid</returns>
+        </member>
+        <member name="T:FreieWahl.Security.TimeStamps.PkiStatus">
+            <summary>
+            PKI statuses according to RFC 3161
+            </summary>
+        </member>
+        <member name="F:FreieWahl.Security.TimeStamps.PkiStatus.Granted">
+            <summary>
+            When the PKIStatus contains the value zero a TimeStampToken, as requested, is present.
+            </summary>
+        </member>
+        <member name="F:FreieWahl.Security.TimeStamps.PkiStatus.GrantedWithMods">
+            <summary>
+            When the PKIStatus contains the value one a TimeStampToken, with modifications, is present.
+            </summary>
+        </member>
+        <member name="F:FreieWahl.Security.TimeStamps.PkiStatus.Rejection">
+            <summary>
+            When the PKIStatus contains the value two a TimeStamp request was rejected.
+            </summary>
+        </member>
+        <member name="F:FreieWahl.Security.TimeStamps.PkiStatus.Waiting">
+            <summary>
+            The request body part has not yet been processed, expect to hear more later.
+            </summary>
+        </member>
+        <member name="F:FreieWahl.Security.TimeStamps.PkiStatus.RevocationWarning">
+            <summary>
+            A warning that a revocation is imminent.
+            </summary>
+        </member>
+        <member name="F:FreieWahl.Security.TimeStamps.PkiStatus.RevocationNotification">
+            <summary>
+            Revocation has occurred.
+            </summary>
+        </member>
+        <member name="T:FreieWahl.Security.UserHandling.IUserHandler">
+            <summary>
+            Maps user information from a JWT auth token to user information including user name, id and mail address
+            </summary>
+        </member>
+        <member name="M:FreieWahl.Security.UserHandling.IUserHandler.MapUser(System.Security.Claims.ClaimsPrincipal)">
+            <summary>
+            Maps user information from a JWT auth token to user information including user name, id and mail address
+            </summary>
+            <param name="result">user claims from a JWT auth token</param>
+            <returns>the extracted user information (user name, id and mail address)</returns>
+        </member>
+    </members>
+</doc>

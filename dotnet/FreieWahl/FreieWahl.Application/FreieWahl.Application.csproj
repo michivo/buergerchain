@@ -4,9 +4,18 @@
     <TargetFramework>netstandard2.0</TargetFramework>
   </PropertyGroup>
 
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <DocumentationFile>D:\Development\buergerchain\repo\buergerchain\dotnet\FreieWahl\FreieWahl.Application\FreieWahl.Application.xml</DocumentationFile>
+    <NoWarn>1701;1702;1591</NoWarn>
+  </PropertyGroup>
+
   <ItemGroup>
     <PackageReference Include="FirebaseAdmin" Version="1.0.0" />
     <PackageReference Include="Twilio" Version="5.23.0" />
+    <PackageReference Include="Vsxmd" Version="1.4.1">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
+    </PackageReference>
   </ItemGroup>
 
   <ItemGroup>

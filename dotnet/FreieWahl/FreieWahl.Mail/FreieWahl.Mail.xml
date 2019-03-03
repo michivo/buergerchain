@@ -1,0 +1,23 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>FreieWahl.Mail</name>
+    </assembly>
+    <members>
+        <member name="T:FreieWahl.Mail.IMailProvider">
+            <summary>
+            Implementations of this interface support sending e-mails to one or more recipients
+            </summary>
+        </member>
+        <member name="M:FreieWahl.Mail.IMailProvider.SendMail(System.Collections.Generic.List{System.String},System.String,System.String,System.Collections.Generic.Dictionary{System.String,System.String})">
+            <summary>
+            Sends a mail to one or more recipients. It also supports replacing placeholders in the content with values.
+            </summary>
+            <param name="recipientAddresses">the address(es) of the recipient(s)</param>
+            <param name="subject">the mail subject</param>
+            <param name="content">the mail content</param>
+            <param name="args">a list of placeholders and values. All occurences of the placeholder(s) in the content are replaces with the corresponding value(s).</param>
+            <returns>the result of the send process (true or false)</returns>
+        </member>
+    </members>
+</doc>

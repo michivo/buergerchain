@@ -78,7 +78,7 @@ namespace FreieWahl.Security.Authentication
                 if (user != null)
                     return new JwtAuthenticationResult(user);
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 // TODO logging
                 return new JwtAuthenticationResult("Verification failed with exception!");

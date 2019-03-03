@@ -6,7 +6,6 @@ namespace FreieWahl.Application.Tracking
     /// <summary>
     /// interface for a simple tracker tracking user activity on the site. This is already obsolete, since we are using Google Analytics directly.
     /// </summary>
-    [Obsolete]
     public interface ITracker
     {
         /// <summary>

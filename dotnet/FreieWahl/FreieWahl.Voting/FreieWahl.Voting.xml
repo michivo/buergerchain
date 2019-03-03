@@ -1,0 +1,138 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>FreieWahl.Voting</name>
+    </assembly>
+    <members>
+        <member name="T:FreieWahl.Voting.Registrations.IChallengeStore">
+            <summary>
+            Stores challenges required for authenticating registration requests to the tokenstore application
+            </summary>
+        </member>
+        <member name="M:FreieWahl.Voting.Registrations.IChallengeStore.SetChallenge(FreieWahl.Voting.Registrations.Challenge)">
+            <summary>
+            stores a given challenge
+            </summary>
+            <param name="challenge">a challenge</param>
+            <returns>the future of this operation</returns>
+        </member>
+        <member name="M:FreieWahl.Voting.Registrations.IChallengeStore.GetChallenge(System.String)">
+            <summary>
+            gets the challenge for a given registration
+            </summary>
+            <param name="registrationId">the registration id</param>
+            <returns>the challenge for the registration with the given id</returns>
+        </member>
+        <member name="M:FreieWahl.Voting.Registrations.IChallengeStore.DeleteChallenge(System.String)">
+            <summary>
+            deletes the challenge for a given registration id (e.g. when a registration is denied)
+            </summary>
+            <param name="registrationId">the registration id</param>
+            <returns>the future of this operation</returns>
+        </member>
+        <member name="M:FreieWahl.Voting.Registrations.IChallengeStore.DeleteChallenges(System.String)">
+            <summary>
+            deletes all open challenges for a voting (e.g. when the voting is deleted)
+            </summary>
+            <param name="votingId">the id of a voting</param>
+            <returns>the future of this operation</returns>
+        </member>
+        <member name="T:FreieWahl.Voting.Registrations.IRegistrationStore">
+            <summary>
+            stores all open and completed registrations.
+            </summary>
+        </member>
+        <member name="M:FreieWahl.Voting.Registrations.IRegistrationStore.AddOpenRegistration(FreieWahl.Voting.Registrations.OpenRegistration)">
+            <summary>
+            adds an open registration
+            </summary>
+            <param name="openRegistration">the open registration</param>
+            <returns>the future of this registration</returns>
+        </member>
+        <member name="M:FreieWahl.Voting.Registrations.IRegistrationStore.AddCompletedRegistration(FreieWahl.Voting.Registrations.CompletedRegistration)">
+            <summary>
+            adds a completed registration
+            </summary>
+            <param name="completedRegistration">the completed registration (granted or denied)</param>
+            <returns>the future of this operation</returns>
+        </member>
+        <member name="M:FreieWahl.Voting.Registrations.IRegistrationStore.RemoveOpenRegistration(System.String)">
+            <summary>
+            removes an open registration
+            </summary>
+            <param name="id">the registration id</param>
+            <returns>the future of this operation</returns>
+        </member>
+        <member name="M:FreieWahl.Voting.Registrations.IRegistrationStore.GetOpenRegistrationsForVoting(System.String)">
+            <summary>
+            gets all open registrations for a given voting
+            </summary>
+            <param name="votingId">the voting id</param>
+            <returns>a list of open registrations</returns>
+        </member>
+        <member name="M:FreieWahl.Voting.Registrations.IRegistrationStore.GetOpenRegistration(System.String)">
+            <summary>
+            gets a single open registration
+            </summary>
+            <param name="registrationStoreId">the registration id</param>
+            <returns>the registration with the given id</returns>
+        </member>
+        <member name="M:FreieWahl.Voting.Registrations.IRegistrationStore.GetCompletedRegistrations(System.String)">
+            <summary>
+            gets all completed registrations for a given voting id
+            </summary>
+            <param name="votingId">the voting id</param>
+            <returns>a list of completed registrations (denied or granted)</returns>
+        </member>
+        <member name="M:FreieWahl.Voting.Registrations.IRegistrationStore.IsRegistrationUnique(System.String,System.String)">
+            <summary>
+            checks if someone with the given signee id has already registered for a given voting id - required to avoid double registrations
+            </summary>
+            <param name="dataSigneeId">the signee id of the voter (e.g. mobile phone number or buergerkarten-number)</param>
+            <param name="votingId">the voting id</param>
+            <returns>true, if there is no registration for the given signee id and voting id</returns>
+        </member>
+        <member name="T:FreieWahl.Voting.Storage.IVotingResultStore">
+            <summary>
+            stores votes (i.e. voting results) in a block chain like data structure
+            </summary>
+        </member>
+        <member name="M:FreieWahl.Voting.Storage.IVotingResultStore.StoreVote(FreieWahl.Voting.Models.Vote,System.Func{FreieWahl.Voting.Models.Vote,System.String},System.Func{System.Threading.Tasks.Task{System.String}})">
+            <summary>
+            stores a vote
+            </summary>
+            <param name="v">the vote that should be stored</param>
+            <param name="getBlockSignature">callback for getting the signature for a block</param>
+            <param name="getGenesisSignature">callback for generating the genesis block signature</param>
+            <returns>the future of this operation</returns>
+        </member>
+        <member name="M:FreieWahl.Voting.Storage.IVotingResultStore.GetVotes(System.String)">
+            <summary>
+            gets all votes for a given voting id
+            </summary>
+            <param name="votingId">the voting id</param>
+            <returns>a list for all votes for all questions with the given voting id</returns>
+        </member>
+        <member name="M:FreieWahl.Voting.Storage.IVotingResultStore.GetVotes(System.String,System.Int32)">
+            <summary>
+            gets all votes for a given voting id and question index
+            </summary>
+            <param name="votingId">the voting id</param>
+            <param name="questionIndex">the index of a question</param>
+            <returns>a list for all votes for a given question in the voting with the given id</returns>
+        </member>
+        <member name="M:FreieWahl.Voting.Storage.IVotingResultStore.GetLastVote(System.String,System.Int32)">
+            <summary>
+            gets the last vote for a given voting with for the question with the given index
+            </summary>
+            <param name="votingId">the voting id</param>
+            <param name="questionIndex">the question index</param>
+            <returns>the last vote for the voting with the given id for the question with the given index</returns>
+        </member>
+        <member name="T:FreieWahl.Voting.Storage.IVotingStore">
+            <summary>
+            Stores votings and handles CRUD-operations for votings and question within these votings
+            </summary>
+        </member>
+    </members>
+</doc>

@@ -1,0 +1,247 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>FreieWahl.Application</name>
+    </assembly>
+    <members>
+        <member name="T:FreieWahl.Application.Authentication.IAuthenticationManager">
+            <summary>
+            Checks if a user is authorized to perform a certain action. There is only a pretty simple implementation,
+            since there is a pretty simple user system implemented at the moment.
+            </summary>
+        </member>
+        <member name="M:FreieWahl.Application.Authentication.IAuthenticationManager.IsAuthorized(FreieWahl.Security.UserHandling.UserInformation,System.String,FreieWahl.Application.Authentication.Operation)">
+            <summary>
+            Checks if a user is authorized to perform a certain action
+            </summary>
+            <param name="userId">the user's id</param>
+            <param name="votingId">the id of voting that is affected by this operation</param>
+            <param name="operation">the operation that is about to be performed</param>
+            <returns>result of the authorization (granted or not)</returns>
+        </member>
+        <member name="T:FreieWahl.Application.Authentication.IAuthorizationHandler">
+            <summary>
+            Checks if a user providing the given authorization token is allowed to perform a certain operation
+            </summary>
+        </member>
+        <member name="M:FreieWahl.Application.Authentication.IAuthorizationHandler.CheckAuthorization(System.String,FreieWahl.Application.Authentication.Operation,System.String)">
+            <summary>
+            Checks if a user is authorized to perform a certain action
+            </summary>
+            <param name="authToken">the authToken provided by a user. This can be mapped to a user</param>
+            <param name="votingId">the id of voting that is affected by this operation</param>
+            <param name="operation">the operation that is about to be performed</param>
+            <returns>result of the authorization (granted or not)</returns>
+        </member>
+        <member name="T:FreieWahl.Application.Authentication.ISessionCookieProvider">
+            <summary>
+            Provides session cookies in order to allow a user staying logged in for a longer period
+            </summary>
+        </member>
+        <member name="M:FreieWahl.Application.Authentication.ISessionCookieProvider.CreateSessionCookie(System.String)">
+            <summary>
+            creates a session cookie for a given session id token
+            </summary>
+            <param name="idToken">a session id token</param>
+            <returns>a session cooke for the given id token</returns>
+        </member>
+        <member name="T:FreieWahl.Application.Registrations.IChallengeHandler">
+            <summary>
+            Creates a challenge for authentication via mobile phones/SMS
+            </summary>
+        </member>
+        <member name="M:FreieWahl.Application.Registrations.IChallengeHandler.CreateChallenge(System.String,System.String,FreieWahl.Voting.Models.StandardVoting,System.String,FreieWahl.Voting.Registrations.ChallengeType)">
+            <summary>
+            creates, sends and stores a new challenge
+            </summary>
+            <param name="recipientName">the recipient's name</param>
+            <param name="recipientAddress">the address (mail address, e-mail address, or phone number) of the recipient</param>
+            <param name="voting">the voting the voter has registered for</param>
+            <param name="registrationId">the registration id</param>
+            <param name="challengeType">the challenge type (mail, e-mail, sms)</param>
+            <returns>the future of this operation</returns>
+        </member>
+        <member name="M:FreieWahl.Application.Registrations.IChallengeHandler.GetChallengeForRegistration(System.String)">
+            <summary>
+            gets the challenge for a given registration id. this is called when the user provides a reply for the challenge
+            </summary>
+            <param name="registrationId">the registration id</param>
+            <returns>the challenge sent out to the voter with the given registration id</returns>
+        </member>
+        <member name="T:FreieWahl.Application.Registrations.IChallengeService">
+            <summary>
+            Handles challenges for users providing proof of id using e.g. SMS
+            </summary>
+        </member>
+        <member name="M:FreieWahl.Application.Registrations.IChallengeService.GetStandardizedRecipient(System.String)">
+            <summary>
+            gets a 'standardized' format for the recipient (e.g. phone number 0664/1234567 => +43664124567) as required by the implementer of this service
+            </summary>
+            <param name="recipient">the recipient's phone number or address</param>
+            <returns>the recipient's phone number or address in a standardized format</returns>
+        </member>
+        <member name="M:FreieWahl.Application.Registrations.IChallengeService.SendChallenge(System.String,System.String,System.String,System.String)">
+            <summary>
+            sends a challenge to a registered voter
+            </summary>
+            <param name="recipient">the recipient's phone number or address</param>
+            <param name="votingName">the voting the voter has registered for</param>
+            <param name="challenge">the challenge that should be sent to the voter</param>
+            <param name="votingId">the id of the voting the voter has registered for</param>
+            <returns>the future of this operation</returns>
+        </member>
+        <member name="P:FreieWahl.Application.Registrations.IChallengeService.SupportedChallengeType">
+            <summary>
+            the challenge type (e.g. SMS) supported by an implementer
+            </summary>
+        </member>
+        <member name="T:FreieWahl.Application.Registrations.IRegistrationHandler">
+            <summary>
+            interface for granting or denying a registration
+            </summary>
+        </member>
+        <member name="M:FreieWahl.Application.Registrations.IRegistrationHandler.GrantRegistration(System.String,System.String,System.String,System.TimeSpan,System.String)">
+            <summary>
+            grants a given registration. This also calls GrantRegistration in IRemoteTokenStore
+            </summary>
+            <param name="registrationId">the id of the registration</param>
+            <param name="userId">the user granting the registration</param>
+            <param name="votingUrl">the url for the voting</param>
+            <param name="utcOffset">the utc offset of the voting administrator who granted the registration</param>
+            <param name="timezoneName">the name of the timezone of the voting administrator who granted the registration</param>
+            <returns>the future of this operation</returns>
+        </member>
+        <member name="M:FreieWahl.Application.Registrations.IRegistrationHandler.DenyRegistration(System.String,System.String)">
+            <summary>
+            denies a given registration.
+            </summary>
+            <param name="registrationId">the id of the registration</param>
+            <param name="userId">the user granting the registration</param>
+            <returns>the future of this operation</returns>
+        </member>
+        <member name="T:FreieWahl.Application.Registrations.IRemoteTokenStore">
+            <summary>
+            interface for the communication with the tokenstore application, which is an integral part of
+            project buergerchain, but hosted in a separate app engine instance
+            </summary>
+        </member>
+        <member name="M:FreieWahl.Application.Registrations.IRemoteTokenStore.GrantRegistration(System.String,FreieWahl.Voting.Models.StandardVoting,System.String,System.Collections.Generic.List{System.String},System.String,System.TimeSpan,System.String)">
+            <summary>
+            grants a given registration
+            </summary>
+            <param name="registrationStoreId">the id of the registration</param>
+            <param name="voting">the voting the registration belongs to</param>
+            <param name="signedChallengeString">a signed challenge proving that this request actually originates from this application</param>
+            <param name="signedTokens">the list of signed, blinded voting tokens</param>
+            <param name="votingUrl">the url for the voting</param>
+            <param name="utcOffset">the utc offset of the voting administrator who granted the registration</param>
+            <param name="timezoneName">the name of the timezone of the voting administrator who granted the registration</param>
+            <returns>the response from the token store</returns>
+        </member>
+        <member name="M:FreieWahl.Application.Registrations.IRemoteTokenStore.GetChallenge(System.String)">
+            <summary>
+            gets a challenge for a given voting registration. This challenge will be signed when granting a registration, thus proving the authority to grant a registration.
+            </summary>
+            <param name="registrationId">the registration</param>
+            <returns>the challenge that needs to be signed later on</returns>
+        </member>
+        <member name="M:FreieWahl.Application.Registrations.IRemoteTokenStore.InsertPublicKeys(System.String,System.Collections.Generic.IEnumerable{Org.BouncyCastle.Crypto.Parameters.RsaKeyParameters})">
+            <summary>
+            sends the public keys for a given voting to the token store. this can be used by the token store to verify the signature of the signed blinded keys
+            </summary>
+            <param name="votingId">the voting id</param>
+            <param name="publicKeys">the list of public keys for all questions in the voting</param>
+            <returns>the future of this operation</returns>
+        </member>
+        <member name="T:FreieWahl.Application.Tracking.ITracker">
+            <summary>
+            interface for a simple tracker tracking user activity on the site. This is already obsolete, since we are using Google Analytics directly.
+            </summary>
+        </member>
+        <member name="M:FreieWahl.Application.Tracking.ITracker.Track(System.String,System.String,System.String)">
+            <summary>
+            tracks a user actvity
+            </summary>
+            <param name="path">the path visited by the user</param>
+            <param name="clientAddress">the user's ip address</param>
+            <param name="userAgent">the user's agent (browser) identifier</param>
+            <returns>the future of this operation</returns>
+        </member>
+        <member name="M:FreieWahl.Application.Tracking.ITracker.TrackSpending(System.String,System.String)">
+            <summary>
+            tracks all the money that is spent for a given voting (e.g. for sending SMS)
+            </summary>
+            <param name="votingId">the id of the voting</param>
+            <param name="cost">the amount that was spent</param>
+            <returns>the future of this operation</returns>
+        </member>
+        <member name="T:FreieWahl.Application.VotingResults.IVotingChainBuilder">
+            <summary>
+            builds a block chain like data structure for the voting results.
+            For each question in each voting, one block chain is created.
+            </summary>
+        </member>
+        <member name="M:FreieWahl.Application.VotingResults.IVotingChainBuilder.GetGenesisValue(FreieWahl.Voting.Models.Question)">
+            <summary>
+            Gets the "genesis" value, i.e. the signature for the first block. The signature for the
+            first block is calculated based on the question a vote belongs to, so a change in the question
+            can be detected later on.
+            </summary>
+            <param name="q">a question</param>
+            <returns>a digest for the given question (default implementation uses Keccak for the digest)</returns>
+        </member>
+        <member name="M:FreieWahl.Application.VotingResults.IVotingChainBuilder.GetSignature(FreieWahl.Voting.Models.Vote)">
+            <summary>
+            the signature for a given vote - this is used for all further blocks after the first one.
+            </summary>
+            <param name="v">a vote</param>
+            <returns>a digest/signature for the given question (default implementation uses Keccak for the digest)</returns>
+        </member>
+        <member name="M:FreieWahl.Application.VotingResults.IVotingChainBuilder.CheckChain(FreieWahl.Voting.Models.Question,System.Collections.Generic.IReadOnlyList{FreieWahl.Voting.Models.Vote})">
+            <summary>
+            checks the block chain for a given question - throws an exception if the block chain is broken
+            </summary>
+            <param name="q">a question</param>
+            <param name="votes">a list of votes that were cast for this question</param>
+        </member>
+        <member name="T:FreieWahl.Application.VotingResults.IVotingResultManager">
+            <summary>
+            Handles storage and retrieval of voting results
+            </summary>
+        </member>
+        <member name="M:FreieWahl.Application.VotingResults.IVotingResultManager.StoreVote(System.String,System.Int32,System.Collections.Generic.List{System.String},System.String,System.String)">
+            <summary>
+            Stores a given vote
+            </summary>
+            <param name="votingId">the voting id of the voting this vote was cast in</param>
+            <param name="questionIndex">the index of the question this vote was cast for</param>
+            <param name="answers">a list of answer ids (may also be empty)</param>
+            <param name="token">the voting token that is used for casting this vote</param>
+            <param name="signedToken">the signed voting token - only if the voting token and the signed token match will the vote be stored</param>
+            <returns>the future of this operation</returns>
+        </member>
+        <member name="M:FreieWahl.Application.VotingResults.IVotingResultManager.GetResults(System.String,System.String[])">
+            <summary>
+            gets all results for a given voting id for a list of tokens - a voter may use this data to check if all their votes were accounted for properly
+            </summary>
+            <param name="votingId">the id of the voting</param>
+            <param name="tokens">the voting tokens</param>
+            <returns>a list of votes, all cast in the voting with the given id using the given voting tokens</returns>
+        </member>
+        <member name="M:FreieWahl.Application.VotingResults.IVotingResultManager.GetResults(System.String)">
+            <summary>
+            gets all votes for a given voting
+            </summary>
+            <param name="votingId">a voting id</param>
+            <returns>a list of all votes cast in the voting with the given id</returns>
+        </member>
+        <member name="M:FreieWahl.Application.VotingResults.IVotingResultManager.GetResults(System.String,System.Int32)">
+            <summary>
+            gets all votes for a given voting id and the given question
+            </summary>
+            <param name="votingId">a voting id</param>
+            <param name="questionIndex">a question index</param>
+            <returns>a list of all votes cast in the voting with the given id and the question with the given index</returns>
+        </member>
+    </members>
+</doc>
