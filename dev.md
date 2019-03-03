@@ -25,6 +25,15 @@ It is intentionally separated from the *tokenstore* to make sure that data linke
 - Visual Studio Community 2017
 - ASP.NET Core 2.1
 
+### Project documentation
+Documentation is available for all public interfaces in project **application**:
+- [Project Application](dotnet/FreieWahl/FreieWahl.Application/FreieWahl.Application.md)
+- [Project Common](dotnet/FreieWahl/FreieWahl.Common/FreieWahl.Common.md)
+- [Project Mail](dotnet/FreieWahl/FreieWahl.Mail/FreieWahl.Mail.md)
+- [Project Security](dotnet/FreieWahl/FreieWahl.Security/FreieWahl.Security.md)
+- [Project UserData](dotnet/FreieWahl/FreieWahl.UserData/FreieWahl.UserData.md)
+- [Project Voting](dotnet/FreieWahl/FreieWahl.Voting/FreieWahl.Voting.md)
+
 ## Further reading
 - [Documentation of the blockchain-like datastructure used to store voting results](storage.md)
 - [Documentation of the voting token technique used to guarantee voter anonymity](tokens.md)
